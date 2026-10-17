@@ -843,10 +843,10 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
      * <br><br>
      * Native event listeners are merged into the {@code eventDidMount} callback and attached to each
      * entry's DOM element automatically on render. You may also provide a custom {@code eventDidMount}
-     * function via {@link FullCalendarOptions#setEntryDidMount(JsCallback)}
-     * — the native event registrations will be appended to the end of it automatically
-     * (the function must end with a closing brace {@code }}). Adding a native event listener after the
-     * calendar is attached takes effect immediately.
+     * function via {@link FullCalendarOptions#setEntryDidMount(JsCallback)}. The calendar registers the native
+     * listeners after your function has run, whatever form your function has. The library also mounts the drag
+     * preview of an entry, so its element gets the listeners too. Adding a native event listener after the calendar
+     * is attached takes effect immediately.
      * <br><br>
      * Inside the native event callback you may access the entry DOM element via the event's
      * {@code currentTarget} or {@code target} property.  For the full set of available parameters
@@ -867,7 +867,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
     }
 
     /**
-     * JS snippet injected at the start of the merged eventDidMount callback when
+     * JS snippet the merged eventDidMount callback runs first, as its own function, when
      * {@link #isAutoProvideEntryIdOnClient()} is {@code true}. Assigns {@code id="entry-<entryId>"}
      * to the start segment of each rendered entry, with a {@code -<resourceId>} suffix
      * when the entry is assigned to more than one resource (Scheduler resource views).
@@ -900,70 +900,46 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
      * the user callback set via {@link FullCalendarOptions#setEntryDidMount(JsCallback)}, and native entry event
      * listeners registered via {@link #addEntryNativeEventListener(String, String)}.
      * <p>
-     * Ordering inside the merged function: default snippet first, user callback body next,
-     * native listeners last. This lets the user callback override the default id by
-     * reassigning {@code info.el.id}.
+     * The merged function calls the default snippet first, the user callback next and registers the native listeners
+     * last. This lets the user callback override the default id by reassigning {@code info.el.id}. The snippet and
+     * the user callback each run as their own function with {@code this} and all arguments, so the user callback may
+     * have any function form, and a {@code return} in one layer does not skip the others.
      * <p>
-     * Returns {@code null} only when all three layers are empty.
+     * The user callback alone is returned as it is. Returns {@code null} only when all three layers are empty.
      * <p>
      * Package-private for testing.
      */
     String buildEntryDidMountMerged() {
         JsCallback entryDidMount = calendarOptions.getEntryDidMount();
         String userCallback = entryDidMount != null ? entryDidMount.getJsFunction() : null;
-        String defaultSnippet = autoProvideEntryIdOnClient ? DEFAULT_ENTRY_ID_ASSIGNMENT_SNIPPET : null;
-
-        StringBuilder events = null;
-        if (!customNativeEventsMap.isEmpty()) {
-            events = new StringBuilder();
-            for (Map.Entry<String, String> entry : customNativeEventsMap.entrySet()) {
-                events.append("arguments[0].el.addEventListener('")
-                        .append(entry.getKey().replace("\\", "\\\\").replace("'", "\\'"))
-                        .append("', ")
-                        .append(entry.getValue())
-                        .append(")\n");
-            }
-        }
-
         boolean hasUser = StringUtils.isNotBlank(userCallback);
-        boolean hasDefault = defaultSnippet != null;
-        boolean hasEvents = events != null;
 
-        if (!hasUser && !hasDefault && !hasEvents) {
-            return null;
+        if (!autoProvideEntryIdOnClient && customNativeEventsMap.isEmpty()) {
+            return hasUser ? userCallback : null;
         }
 
+        StringBuilder merged = new StringBuilder("function(info) {\n");
+        if (autoProvideEntryIdOnClient) {
+            merged.append("(function() {\n")
+                    .append(DEFAULT_ENTRY_ID_ASSIGNMENT_SNIPPET)
+                    .append("}).apply(this, arguments);\n");
+        }
         if (hasUser) {
-            String merged = userCallback;
-            int openBrace = merged.indexOf('{');
-            int closeBrace = merged.lastIndexOf('}');
-            // Expression-body callbacks like "info => info.el.title = 'x'" have no braces —
-            // there is no body to splice into. Return the user callback untouched; the default
-            // snippet and native listeners are dropped for this call. This keeps the output
-            // syntactically valid instead of corrupting it by prepending snippets outside
-            // the expression.
-            if (openBrace < 0 || closeBrace < openBrace) {
-                return merged;
-            }
-            if (hasDefault) {
-                merged = merged.substring(0, openBrace + 1) + "\n" + defaultSnippet + merged.substring(openBrace + 1);
-            }
-            if (hasEvents) {
-                int finalClose = merged.lastIndexOf('}');
-                merged = merged.substring(0, finalClose) + events + merged.substring(finalClose);
-            }
-            return merged;
+            // A trailing semicolon would end the statement inside the parentheses, and the line break keeps a trailing
+            // line comment from swallowing the closing parenthesis.
+            merged.append("(")
+                    .append(userCallback.replaceFirst(";+$", ""))
+                    .append("\n).apply(this, arguments);\n");
         }
+        customNativeEventsMap.forEach((eventName, eventCallback) -> merged
+                .append("arguments[0].el.addEventListener('")
+                .append(eventName.replace("\\", "\\\\").replace("'", "\\'"))
+                .append("', ")
+                .append(eventCallback)
+                .append(");\n"));
+        merged.append("}");
 
-        StringBuilder sb = new StringBuilder("function(info) {\n");
-        if (hasDefault) {
-            sb.append(defaultSnippet);
-        }
-        if (hasEvents) {
-            sb.append(events);
-        }
-        sb.append("}");
-        return sb.toString();
+        return merged.toString();
     }
 
     /**
@@ -1178,9 +1154,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
      * </ul>
      * If you set a custom {@code eventDidMount} callback via
      * {@link FullCalendarOptions#setEntryDidMount(JsCallback)}, your callback
-     * runs after the default snippet for brace-bodied functions (so you can reassign
-     * {@code info.el.id} to override). For expression-body arrow callbacks the merge is
-     * bypassed entirely and only your callback runs.
+     * runs after the default snippet, so you can reassign {@code info.el.id} to override it.
      *
      * @param autoProvide true to enable automatic client-side id publication (default),
      *                    false to disable

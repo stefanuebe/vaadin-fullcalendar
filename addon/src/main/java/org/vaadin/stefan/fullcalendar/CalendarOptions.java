@@ -226,9 +226,8 @@ class CalendarOptions implements Serializable {
      * <p>
      * The calendar merges it with its native entry listeners and the automatic entry id into one callback, see
      * {@link FullCalendar#addEntryNativeEventListener(String, String)} and
-     * {@link FullCalendar#setAutoProvideEntryIdOnClient(boolean)}. The merge needs a function with a body in braces.
-     * A callback without one, such as {@code info => info.el.title = 'x'}, is sent as it is, without the native
-     * listeners and the entry id.
+     * {@link FullCalendar#setAutoProvideEntryIdOnClient(boolean)}. The callback may have any function form, such as
+     * {@code info => info.el.title = 'x'}.
      * <p>
      * With a number as the limit of entries per day ({@link ViewOptions#getDayMaxEntries() dayMaxEntries}), it runs
      * only for the entries the library renders, not for the ones behind the "+N more" link, until the popover renders

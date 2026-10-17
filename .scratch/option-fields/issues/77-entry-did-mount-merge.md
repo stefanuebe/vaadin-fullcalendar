@@ -4,7 +4,7 @@
 |---|---|
 | GitHub | – |
 | Labels | bug, ready-for-agent |
-| Status | ready-for-agent |
+| Status | done (2026-10-17, ba062685, v7_master f3268112) |
 | Blocked by | – |
 | Spec | – |
 
@@ -21,9 +21,11 @@ Fix: wrap instead of splice. The merged function calls the id snippet, then the 
 
 **Blocked by:** none
 
-**Status:** ready-for-agent
+**Status:** done
 
-- [ ] An `entryDidMount` given as an arrow function with a block body runs, and the entry ids are set (browser test).
-- [ ] An `entryDidMount` given as an arrow function with an expression body runs, and the entry ids and native listeners are still set (browser test).
-- [ ] The user's callback can still override the id the snippet sets.
-- [ ] Ported back to `v7_master` (about 1:1, committed on the version line directly).
+- [x] An `entryDidMount` given as an arrow function with a block body runs, and the entry ids are set (browser test).
+- [x] An `entryDidMount` given as an arrow function with an expression body runs, and the entry ids and native listeners are still set (browser test).
+- [x] The user's callback can still override the id the snippet sets.
+- [x] Ported back to `v7_master` (about 1:1, committed on the version line directly).
+
+**Outcome:** The merged function does not return the callback's result, because the library ignores the return value of `eventDidMount`. A callback without the id snippet and without native listeners is sent as it is. The callback and the listeners now also run for drag previews, as the library calls `eventDidMount` for them; only the id is left out there. The 8.0 release notes (52–56) and the next 7.x release notes name the fix and the drag-preview change. The released notes of 6.5 and 7.2 still describe the old limitation and stay as published.
