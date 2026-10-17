@@ -13,7 +13,7 @@ const { waitForVaadin } = require('./fixtures');
  *  - default on → multi-day (3 days) entry has exactly one DOM element with id="entry-multi"
  *    (the start segment; continuation segments remain id-free to preserve HTML uniqueness)
  *
- * Toggle behaviour is covered by unit tests (setter roundtrip + applyEntryDidMountMerge
+ * Toggle behaviour is covered by unit tests (setter roundtrip + buildEntryDidMountMerged
  * side effect); DOM-level removal only takes effect on re-mount, which is FullCalendar's standard
  * behaviour and not an API guarantee worth pinning down in an E2E.
  */
