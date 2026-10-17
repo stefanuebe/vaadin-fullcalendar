@@ -67,12 +67,12 @@ test.describe('Accessibility and Touch', () => {
     // -------------------------------------------------------------------------
 
     test('today button has aria-label set by todayHint', async ({ page }) => {
-        // TODAY_HINT "Jump to today" makes FullCalendar set aria-label="Jump to today" on the today button.
+        // todayHint "Jump to today" makes FullCalendar set aria-label="Jump to today" on the today button.
         await expect(page.locator('button.fc-today-button')).toHaveAttribute('aria-label', 'Jump to today');
     });
 
     test('prev button has aria-label set by prevHint', async ({ page }) => {
-        // PREV_HINT "Go to previous $0" makes FullCalendar fill in the unit text of the current view ("Month").
+        // prevHint "Go to previous $0" makes FullCalendar fill in the unit text of the current view ("Month").
         await expect(page.locator('button.fc-prev-button')).toHaveAttribute('aria-label', 'Go to previous Month');
     });
 
@@ -81,7 +81,7 @@ test.describe('Accessibility and Touch', () => {
     // -------------------------------------------------------------------------
 
     test('nav link day numbers carry aria-label from navLinkHint', async ({ page }) => {
-        // NAV_LINK_HINT "Open $0" makes FC set the aria-label of each day number link from the template
+        // navLinkHint "Open $0" makes FC set the aria-label of each day number link from the template
         // (e.g. "Open March 1, 2025"). FC's default is "Go to $0", so "Open" proves our value arrived.
         const firstDayNum = page.locator('.fc-daygrid-day-number').first();
         await expect(firstDayNum).toBeVisible();

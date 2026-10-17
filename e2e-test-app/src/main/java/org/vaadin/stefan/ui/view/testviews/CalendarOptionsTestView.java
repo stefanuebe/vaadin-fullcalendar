@@ -8,10 +8,12 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.Route;
 import org.vaadin.stefan.fullcalendar.*;
 import org.vaadin.stefan.fullcalendar.dataprovider.InMemoryEntryProvider;
+import org.vaadin.stefan.fullcalendar.option.BusinessHoursValue;
 import org.vaadin.stefan.ui.layouts.TestLayout;
 import org.vaadin.stefan.ui.menu.MenuItem;
 
 import java.time.DayOfWeek;
+import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Locale;
@@ -46,12 +48,12 @@ public class CalendarOptionsTestView extends VerticalLayout {
 
         FullCalendar cal1 = new FullCalendar();
         cal1.getElement().setAttribute("id", "cal-daygrid");
-        cal1.setOption(Option.LOCALE, Locale.GERMAN);
-        cal1.setOption(Option.INITIAL_DATE, LocalDate.of(2025, 3, 1));
-        cal1.setOption(Option.INITIAL_VIEW, CalendarViewImpl.DAY_GRID_MONTH.getClientSideValue());
-        cal1.setOption(Option.FIRST_DAY, DayOfWeek.MONDAY);
-        cal1.setOption(Option.WEEKENDS, false);
-        cal1.setOption(Option.WEEK_NUMBERS, true);
+        cal1.options().setLocale(Locale.GERMAN);
+        cal1.options().setInitialDate(LocalDate.of(2025, 3, 1));
+        cal1.options().setInitialView(CalendarViewImpl.DAY_GRID_MONTH);
+        cal1.options().setFirstDay(DayOfWeek.MONDAY);
+        cal1.options().setWeekends(false);
+        cal1.options().setWeekNumbers(true);
 
         // Add a sample entry so the calendar isn't empty
         InMemoryEntryProvider<Entry> provider1 = new InMemoryEntryProvider<>();
@@ -73,13 +75,13 @@ public class CalendarOptionsTestView extends VerticalLayout {
 
         FullCalendar cal2 = new FullCalendar();
         cal2.getElement().setAttribute("id", "cal-timegrid");
-        cal2.setOption(Option.LOCALE, Locale.ENGLISH);
-        cal2.setOption(Option.INITIAL_DATE, LocalDate.of(2025, 3, 5));
-        cal2.setOption(Option.INITIAL_VIEW, CalendarViewImpl.TIME_GRID_DAY.getClientSideValue());
-        cal2.setOption(Option.SLOT_MIN_TIME, "08:00:00");
-        cal2.setOption(Option.SLOT_MAX_TIME, "18:00:00");
-        cal2.setOption(Option.SLOT_DURATION, "00:15:00");
-        cal2.setOption(Option.BUSINESS_HOURS, true);
+        cal2.options().setLocale(Locale.ENGLISH);
+        cal2.options().setInitialDate(LocalDate.of(2025, 3, 5));
+        cal2.options().setInitialView(CalendarViewImpl.TIME_GRID_DAY);
+        cal2.options().setSlotMinTime(Duration.ofHours(8));
+        cal2.options().setSlotMaxTime(Duration.ofHours(18));
+        cal2.options().setSlotDuration(Duration.ofMinutes(15));
+        cal2.options().setBusinessHours(BusinessHoursValue.DEFAULT);
 
         // Add a timed entry
         InMemoryEntryProvider<Entry> provider2 = new InMemoryEntryProvider<>();
@@ -100,12 +102,12 @@ public class CalendarOptionsTestView extends VerticalLayout {
 
         FullCalendar cal3 = new FullCalendar();
         cal3.getElement().setAttribute("id", "cal-extra");
-        cal3.setOption(Option.LOCALE, Locale.ENGLISH);
+        cal3.options().setLocale(Locale.ENGLISH);
         // Use today's date (no hiddenDays!) so nowIndicator is always visible
-        cal3.setOption(Option.INITIAL_DATE, LocalDate.now());
-        cal3.setOption(Option.INITIAL_VIEW, CalendarViewImpl.TIME_GRID_DAY.getClientSideValue());
-        cal3.setOption(Option.NOW_INDICATOR, true);
-        cal3.setOption(Option.SCROLL_TIME, "14:00:00");
+        cal3.options().setInitialDate(LocalDate.now());
+        cal3.options().setInitialView(CalendarViewImpl.TIME_GRID_DAY);
+        cal3.options().setNowIndicator(true);
+        cal3.options().setScrollTime(Duration.ofHours(14));
 
         InMemoryEntryProvider<Entry> provider3 = new InMemoryEntryProvider<>();
         cal3.setEntryProvider(provider3);

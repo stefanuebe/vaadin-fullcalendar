@@ -69,12 +69,12 @@ public class EntryModelTestView extends VerticalLayout {
         // --- Calendar ---
         FullCalendar calendar = new FullCalendar();
         calendar.getElement().setAttribute("data-testid", "calendar");
-        calendar.setOption(Option.LOCALE, Locale.ENGLISH);
-        calendar.setOption(Option.INITIAL_DATE, LocalDate.of(2025, 3, 1));
-        calendar.setOption(Option.INITIAL_VIEW, CalendarViewImpl.DAY_GRID_MONTH.getClientSideValue());
+        calendar.options().setLocale(Locale.ENGLISH);
+        calendar.options().setInitialDate(LocalDate.of(2025, 3, 1));
+        calendar.options().setInitialView(CalendarViewImpl.DAY_GRID_MONTH);
 
         // Calendar-level interactive setting so all entries are keyboard-focusable by default
-        calendar.setOption(Option.ENTRY_INTERACTIVE, true);
+        calendar.options().setEntryInteractive(true);
 
         // --- Entry provider ---
         InMemoryEntryProvider<Entry> provider = new InMemoryEntryProvider<>();

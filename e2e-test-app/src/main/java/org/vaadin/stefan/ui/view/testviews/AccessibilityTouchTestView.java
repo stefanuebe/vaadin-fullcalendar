@@ -8,11 +8,11 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.Route;
 import org.vaadin.stefan.fullcalendar.*;
 import org.vaadin.stefan.fullcalendar.dataprovider.InMemoryEntryProvider;
+import org.vaadin.stefan.fullcalendar.option.ToolbarValue;
 import org.vaadin.stefan.ui.layouts.TestLayout;
 import org.vaadin.stefan.ui.menu.MenuItem;
 
 import java.time.LocalDate;
-import java.util.Map;
 
 /**
  * Test view for accessibility and touch improvements.
@@ -53,27 +53,23 @@ public class AccessibilityTouchTestView extends VerticalLayout {
         FullCalendar calendar = new FullCalendar();
         calendar.getElement().setAttribute("data-testid", "calendar");
 
-        calendar.setOption(Option.INITIAL_DATE, LocalDate.of(2025, 3, 1));
-        calendar.setOption(Option.INITIAL_VIEW, CalendarViewImpl.DAY_GRID_MONTH.getClientSideValue());
+        calendar.options().setInitialDate(LocalDate.of(2025, 3, 1));
+        calendar.options().setInitialView(CalendarViewImpl.DAY_GRID_MONTH);
 
         // Enable native toolbar so the button hints (TODAY_HINT, PREV_HINT, NEXT_HINT) have buttons to label.
         // The addon disables headerToolbar by default; this view needs it for its button hint tests.
-        calendar.setOption(Option.HEADER_TOOLBAR, Map.of(
-                "left", "prev,next today",
-                "center", "title",
-                "right", ""
-        ));
+        calendar.options().setHeaderToolbar(ToolbarValue.ofLeftRight("prev,next today", "title", ""));
 
         // Accessibility options
-        calendar.setOption(Option.ENTRY_INTERACTIVE, true);
-        calendar.setOption(Option.NAV_LINKS, true);
+        calendar.options().setEntryInteractive(true);
+        calendar.options().setNavLinks(true);
         // Limit event rows to 2 so the 5 events on 2025-03-05 reliably produce a "+N more" link
-        calendar.setOption(Option.DAY_MAX_ENTRY_ROWS, 2);
-        calendar.setOption(Option.NAV_LINK_HINT, "Open $0"); // not FullCalendar's default "Go to $0", so the test sees our value
-        calendar.setOption(Option.MORE_LINK_HINT, "$0 more events. Click to expand");
-        calendar.setOption(Option.TODAY_HINT, "Jump to today");
-        calendar.setOption(Option.PREV_HINT, "Go to previous $0");
-        calendar.setOption(Option.NEXT_HINT, "Go to next $0");
+        calendar.options().setDayMaxEntryRows(2);
+        calendar.options().setNavLinkHint("Open $0"); // not FullCalendar's default "Go to $0", so the test sees our value
+        calendar.options().setMoreLinkHint("$0 more events. Click to expand");
+        calendar.options().setTodayHint("Jump to today");
+        calendar.options().setPrevHint("Go to previous $0");
+        calendar.options().setNextHint("Go to next $0");
 
         // --- Entry provider ---
         // Five all-day events on 2025-03-05. In month view with default row limits
