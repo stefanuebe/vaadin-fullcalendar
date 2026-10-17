@@ -22,6 +22,7 @@ import org.vaadin.stefan.fullcalendar.option.HeightValue;
 import org.vaadin.stefan.fullcalendar.option.JsCallback;
 import org.vaadin.stefan.fullcalendar.option.ListDayFormatValue;
 import org.vaadin.stefan.fullcalendar.option.ListTextValue;
+import org.vaadin.stefan.fullcalendar.option.InitialDateValue;
 import org.vaadin.stefan.fullcalendar.option.NowValue;
 import org.vaadin.stefan.fullcalendar.option.Order;
 import org.vaadin.stefan.fullcalendar.option.OrderValue;
@@ -224,6 +225,9 @@ class ConverterTest {
                             .add(CALLBACK.toMarkerJson())))),
             Map.entry(ListTextValue.class, new ValueType(ListTextValueConverter.class, forms(
                     TextContent.of("Agenda"), "Agenda", ListTextValue.NONE, false))),
+            Map.entry(InitialDateValue.class, new ValueType(InitialDateValueConverter.class, forms(
+                    InitialDateValue.ofDay(LocalDate.of(2026, 10, 15)), "2026-10-15",
+                    InitialDateValue.ofDateTime(LocalDateTime.of(2026, 10, 15, 6, 0)), "2026-10-15T06:00Z"))),
             Map.entry(NowValue.class, new ValueType(NowValueConverter.class, forms(
                     NowValue.ofDay(LocalDate.of(2026, 10, 15)), "2026-10-15",
                     NowValue.ofDateTime(LocalDateTime.of(2026, 10, 15, 9, 30)), "2026-10-15T09:30Z",
@@ -568,6 +572,8 @@ class ConverterTest {
                 .toServerModel(JsonFactory.createObject().set("month", JsonFactory.createArray()), null));
         assertThrows(IllegalArgumentException.class,
                 () -> new NowValueConverter().toServerModel(JsonUtils.toJsonNode(1), null));
+        assertThrows(IllegalArgumentException.class,
+                () -> new InitialDateValueConverter().toServerModel(JsonUtils.toJsonNode(1), null));
         assertThrows(IllegalArgumentException.class,
                 () -> new StickyValueConverter().toServerModel(JsonFactory.createArray(), null));
         assertThrows(IllegalArgumentException.class,

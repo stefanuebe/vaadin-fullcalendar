@@ -29,6 +29,7 @@ import org.vaadin.stefan.fullcalendar.option.ListDayFormatValue;
 import org.vaadin.stefan.fullcalendar.option.ListTextValue;
 import org.vaadin.stefan.fullcalendar.option.ToolbarValue;
 import org.vaadin.stefan.fullcalendar.option.NoneValue;
+import org.vaadin.stefan.fullcalendar.option.InitialDateValue;
 import org.vaadin.stefan.fullcalendar.option.NowValue;
 import org.vaadin.stefan.fullcalendar.option.Overlap;
 import org.vaadin.stefan.fullcalendar.option.OverlapValue;
@@ -175,6 +176,13 @@ class ValueTypeSwitchTest {
             case ToolbarValue.StartEnd sections -> sections.start() + "|" + sections.center() + "|" + sections.end();
             case ToolbarValue.LeftRight sections -> sections.left() + "|" + sections.center() + "|" + sections.right();
             case NoneValue.None ignored -> "none";
+        };
+    }
+
+    private static String form(InitialDateValue value) {
+        return switch (value) {
+            case InitialDateValue.Day day -> day.date().toString();
+            case InitialDateValue.DateTime dateTime -> dateTime.dateTime().toString();
         };
     }
 

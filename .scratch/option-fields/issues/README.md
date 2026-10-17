@@ -88,6 +88,7 @@ Decided by the maintainer on 2026-10-15, after a review of 21–24 together. The
   | `BusinessHoursValue` | `BusinessHours...` |
   | `ConstraintValue` | `String` (group id), `BusinessHours...` (recurring windows), `ConstraintValue.Window...` (mixed windows) |
   | `NowValue` | `LocalDate`, `LocalDateTime` |
+  | `InitialDateValue` | `LocalDate`, `LocalDateTime` |
   | `TextValue` | `String` |
   | `DateRangeValue` | none |
   | `WeekNumberCalculationValue` | none |

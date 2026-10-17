@@ -2,9 +2,9 @@
 
 | | |
 |---|---|
-| GitHub | – |
+| GitHub | #400 |
 | Labels | enhancement, ready-for-agent |
-| Status | ready-for-agent |
+| Status | done (2026-10-17) |
 | Blocked by | `25-fields-dates` |
 | Spec | `../option-fields-spec.md`; shared rules in `README.md` |
 
@@ -16,8 +16,10 @@
 
 **Blocked by:** `25-fields-dates`
 
-**Status:** ready-for-agent
+**Status:** done (2026-10-17)
 
-- [ ] A date-time set as initial date reaches the client as the library reads it, a date as before.
-- [ ] The setter table in `README.md` and `PER_FORM_PARAMETERS` have `InitialDateValue`; the converter tests include both forms.
-- [ ] The Javadoc says how the time is read (time zone, as for `now`).
+- [x] A date-time set as initial date reaches the client as the library reads it, a date as before.
+- [x] The setter table in `README.md` and `PER_FORM_PARAMETERS` have `InitialDateValue`; the converter tests include both forms.
+- [x] The Javadoc says how the time is read (time zone, as for `now`).
+
+**Done (2026-10-17):** `InitialDateValue` with `Day` and `DateTime`, nested records as in `NowValue`, and `InitialDateValueConverter`. A date-time is sent as a UTC string (`"2025-03-03T06:00Z"`); the library's `getInitialDate` passes it to `dateEnv.createMarker`, which reads it as an instant and converts it to the calendar's zone (checked in the library source during the review). The Javadoc follows `now`: read as UTC, shown in the calendar's zone. `setInitialDate(null)` needs a cast now, as for every field with setters per form. Review: two rounds with three agents (standards, spec, library integration and test quality), no major. Gate: `mvn clean install` green; E2E 463 passed, 2 failed, the date-dependent theme drag test of 76.
