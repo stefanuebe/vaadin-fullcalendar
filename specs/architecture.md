@@ -66,8 +66,8 @@ org.vaadin.stefan.fullcalendar/
   ResourceEntry.java          — Entry subclass with resource assignments
   SchedulerView.java          — Scheduler view enum (timeline, resource-timeline, resource-timegrid)
   option/
-    ResourceColumn.java, ResourceAreaColumn.java — Column definitions for resource columns
-    ComponentResourceColumn.java, ComponentResourceAreaColumn.java — Resource columns that render a Vaadin component per resource
+    ResourceColumn.java — Column definitions for resource columns
+    ComponentResourceColumn.java — Resource columns that render a Vaadin component per resource
     EntryPrintLayout.java     — Value of the entry print layout option
 ```
 

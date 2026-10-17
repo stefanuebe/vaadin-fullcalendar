@@ -4,8 +4,6 @@ import org.vaadin.stefan.fullcalendar.option.ComponentResourceColumn;
 import org.vaadin.stefan.fullcalendar.option.WidthValue;
 import org.vaadin.stefan.fullcalendar.option.ContentValue;
 import org.vaadin.stefan.fullcalendar.option.ClassName;
-import org.vaadin.stefan.fullcalendar.option.ComponentResourceAreaColumn;
-import org.vaadin.stefan.fullcalendar.option.ResourceAreaColumn;
 import org.vaadin.stefan.fullcalendar.option.ResourceColumn;
 import org.vaadin.stefan.fullcalendar.option.JsCallback;
 import com.vaadin.flow.component.html.Span;
@@ -274,40 +272,6 @@ public class SchedulerFeaturesTest {
         calendar.options().setEntryMinWidth(10);
 
         Assertions.assertEquals(10, calendar.options().getEntryMinWidth());
-    }
-
-    @Test
-    @SuppressWarnings("removal")
-    void deprecatedResourceAreaColumn_keepsItsFluentTypeAndOldClassSetters() {
-        ResourceAreaColumn col = new ResourceAreaColumn("dept", "Dept")
-                .withWidth("100px")
-                .withHeaderClassNames("h")
-                .withCellClassNames("c");
-
-        ObjectNode json = col.toJson();
-        Assertions.assertEquals("h", json.get("headerClass").asString());
-        Assertions.assertEquals("c", json.get("cellClass").asString());
-        Assertions.assertEquals(ClassName.of("h"), col.getHeaderClassNames());
-        Assertions.assertEquals(100, json.get("width").asInt());
-    }
-
-    @Test
-    @SuppressWarnings("removal")
-    void deprecatedComponentResourceAreaColumn_keepsItsFluentType() {
-        ComponentResourceAreaColumn<Span> col = new ComponentResourceAreaColumn<Span>("status", resource -> new Span())
-                .withWidth("80px")
-                .withCellClassNames("c");
-
-        Assertions.assertEquals("c", col.toJson().get("cellClass").asString());
-        Assertions.assertEquals(80, col.toJson().get("width").asInt());
-    }
-
-    @Test
-    @SuppressWarnings("removal")
-    void deprecatedWidthString_takesPixelsAndPercentages_andLeavesOtherStringsUnset() {
-        Assertions.assertEquals("25%",
-                new ResourceAreaColumn("dept").withWidth("25%").toJson().get("width").asString());
-        Assertions.assertNull(new ResourceAreaColumn("dept").withWidth("10em").getWidth());
     }
 
     @Test

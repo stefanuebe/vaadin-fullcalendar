@@ -411,7 +411,6 @@ The TypeScript side needs the following new functionality:
 - **Lit component `appendChild` move**: Safe — Lit guards against full re-initialization on reconnect. `connectedCallback`/`disconnectedCallback` fire but state is preserved.
 - **`evaluateCallbacks()` in full-calendar.ts**: Correctly handles nested `__jsCallback` markers in arrays (recurses into `resourceColumns` array elements).
 
-- `ResourceAreaColumn` and `ComponentResourceAreaColumn<T>` remain as deprecated subclasses of `ResourceColumn` / `ComponentResourceColumn<T>`. Their fluent methods return their own type, and they keep `withHeaderClassNames` / `withCellClassNames`. A `ComponentResourceAreaColumn` is no longer a `ResourceAreaColumn`, both share `AbstractResourceColumn`.
 - FullCalendar 7 replaces the content of the calendar element on its first render, which removes elements attached from the server. The scheduler client parks the component elements across that first render and puts them back afterwards.
 
 ---
