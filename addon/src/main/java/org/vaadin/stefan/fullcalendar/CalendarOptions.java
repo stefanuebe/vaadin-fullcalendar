@@ -604,6 +604,8 @@ class CalendarOptions implements Serializable {
      * A callback gets an {@code info} object with {@code borderlessX}, {@code borderlessTop} and
      * {@code borderlessBottom}. It returns the class names as a string.
      * <p>
+     * The library default is no classes.
+     * <p>
      * The getter returns null while the option is not set; then the library default applies.
      *
      * @see <a href="https://fullcalendar.io/docs/className">className</a>
@@ -918,15 +920,27 @@ class CalendarOptions implements Serializable {
      * settings of the button by their library names, such as {@code text}, {@code hint}, {@code click},
      * {@code iconContent}, {@code isPrimary} and {@code display}, see the library docs.
      * <p>
-     * A setting value is a {@code String}, a {@code Boolean}, a number, a {@link NativeToolbarButtonDisplay} or a
-     * {@link JsCallback}. Content and class name types such as {@link TextContent} are not converted here, so
-     * {@code iconContent} and {@code className} take a string or a callback.
+     * A setting value is a {@code String}, a {@code Boolean}, a number, a {@link NativeToolbarButtonDisplay}, a
+     * {@link JsCallback} or a {@code Map}. Content and class name types such as {@link TextContent} are not converted
+     * here, so {@code iconContent} and {@code className} take a string or a callback. A string {@code iconContent} is
+     * shown as text, not as markup. For SVG markup pass a {@code Map} with the key {@code html}, for example
+     * {@code Map.of("html", "<svg>...</svg>")}, which the library sets as unescaped inner HTML, or a callback. Never
+     * put unchecked user input into it.
+     * <p>
+     * A built-in button that normally shows an icon needs {@code display} set to {@code text}, {@code text-icon} or
+     * {@code icon-text} before its {@code text} shows. The library docs say {@code hint} defaults to {@code text}.
+     * Besides the built-in names, the names {@code year}, {@code month}, {@code week} and {@code day} can also be
+     * overridden.
      * <p>
      * A callback setting, such as {@code click}, is a {@link JsCallback} and runs in the browser only. A click handler
-     * cannot call server code by itself. On a built-in button it runs before the button's own action, which
-     * {@code ev.preventDefault()} cancels.
+     * cannot call server code by itself. A {@code click} callback gets only the mouse event. The library docs also name
+     * the button element as a second argument, but the used library version does not pass it. On a built-in button it
+     * runs before the button's own action, which {@code ev.preventDefault()} cancels.
      * <p>
      * When set, the getter returns an unmodifiable map.
+     * <p>
+     * The library default is no custom buttons. The theme sets the icons of the {@code prev}, {@code next},
+     * {@code prevYear} and {@code nextYear} buttons.
      * <p>
      * The getter returns null while the option is not set; then the library default applies.
      *

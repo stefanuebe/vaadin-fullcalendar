@@ -114,6 +114,8 @@ class SchedulerViewOptions extends ViewOptions {
      * In the vertical resource views ({@code resourceTimeGrid} and {@code resourceDayGrid}), puts the date headings
      * above the resource headings instead of the resource headings above the date headings.
      * <p>
+     * The library default is false.
+     * <p>
      * The getter returns null while the option is not set; then the library default applies.
      *
      * @see <a href="https://fullcalendar.io/docs/datesAboveResources">datesAboveResources</a>
