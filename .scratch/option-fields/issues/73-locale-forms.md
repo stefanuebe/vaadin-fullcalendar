@@ -4,7 +4,7 @@
 |---|---|
 | GitHub | #401 |
 | Labels | enhancement, ready-for-agent |
-| Status | done (2026-10-17) |
+| Status | done (2026-10-17, 43e26fb8) |
 | Blocked by | `16-header-toolbar-and-locale-initial-values` |
 | Spec | `../option-fields-spec.md`; shared rules in `README.md` |
 
@@ -16,7 +16,7 @@
 
 **Blocked by:** `16-header-toolbar-and-locale-initial-values`
 
-**Status:** done (2026-10-17)
+**Status:** done (2026-10-17, 43e26fb8)
 
 - [x] `LocaleValue.of(Locale)` and `LocaleValue.ofCustom(Locale, Map)` reach the client as the library reads them; the initial value and the rule that the calendar always has a locale stay.
 - [x] The Javadoc of `locale` names the forms and why the list of codes is left out.
