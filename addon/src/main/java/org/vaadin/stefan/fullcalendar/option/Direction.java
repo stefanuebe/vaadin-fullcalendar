@@ -24,7 +24,7 @@ import org.vaadin.stefan.fullcalendar.ClientSideValue;
  * @see <a href="https://fullcalendar.io/docs/direction">direction</a>
  */
 public enum Direction implements ClientSideValue {
-    /** Left-to-right (default). */
+    /** Left-to-right. */
     LTR("ltr"),
     /** Right-to-left. */
     RTL("rtl");

@@ -30,6 +30,6 @@ public interface NoneValue {
     None NONE = new None();
 
     /** The option switched off, the library's {@code false}. Use {@link #NONE}. */
-    record None() implements BusinessHoursValue, EntryLimitValue, ListDayFormatValue, ListTextValue, ToolbarValue {
+    record None() implements BusinessHoursValue, EntryLimitValue, ListTextValue, ToolbarValue {
     }
 }

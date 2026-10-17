@@ -31,7 +31,7 @@ import java.util.Objects;
  * @see <a href="https://fullcalendar.io/docs/date-formatting">Date formatting</a>
  */
 public record DateFormat(Map<String, Object> properties)
-        implements DateFormatValue, ListDayFormatValue, SlotHeaderFormatValue {
+        implements DateFormatValue, SlotHeaderFormatValue {
 
     public DateFormat {
         properties = Map.copyOf(Objects.requireNonNull(properties));

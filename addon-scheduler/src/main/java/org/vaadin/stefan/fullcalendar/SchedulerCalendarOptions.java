@@ -43,6 +43,8 @@ class SchedulerCalendarOptions extends CalendarOptions {
      * The public setter is {@link FullCalendarSchedulerOptions#setResourceColumns(List)}. Besides the field, it binds
      * the component columns to the calendar. The list is unmodifiable.
      * <p>
+     * The library default is no columns. The resource area is then a plain list of resource titles.
+     * <p>
      * The getter returns null while the option is not set; then the library default applies.
      *
      * @see <a href="https://fullcalendar.io/docs/resourceColumns">resourceColumns</a>
@@ -59,6 +61,11 @@ class SchedulerCalendarOptions extends CalendarOptions {
     /**
      * Refetches and rerenders the resources when the user changes the date or the view. The resources function or
      * JSON feed then receives {@code start}, {@code end} and {@code timezone}.
+     * <p>
+     * The add-on sends the resources it manages as a fixed list, for which this option has no effect. It only matters
+     * for a resources function or feed that is set on the client itself.
+     * <p>
+     * The library default is {@code false}.
      * <p>
      * The getter returns null while the option is not set; then the library default applies.
      *
