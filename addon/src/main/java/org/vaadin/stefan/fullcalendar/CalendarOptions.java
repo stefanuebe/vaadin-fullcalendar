@@ -382,7 +382,8 @@ class CalendarOptions implements Serializable {
 
     /**
      * Limits entry dragging and resizing to certain windows of time: recurring business hours, windows defined by an
-     * {@link RRule} and fixed spans.
+     * {@link RRule} and fixed spans. With the scheduler, it also limits them to resources, see
+     * {@link ConstraintValue#ofResources(String...)} and {@link ConstraintValue.Windows#withResources(String...)}.
      * <p>
      * The getter returns null while the option is not set; then the library default applies.
      *

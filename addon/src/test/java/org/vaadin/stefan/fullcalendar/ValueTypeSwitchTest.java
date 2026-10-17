@@ -76,7 +76,8 @@ class ValueTypeSwitchTest {
                 case ConstraintValue.RRuleWindow rule -> "rule";
                 case ConstraintValue.DateSpan span -> "dates";
                 case ConstraintValue.DateTimeSpan span -> "date times";
-            }).toList().toString();
+            }).toList() + " " + windows.resourceIds();
+            case ConstraintValue.Resources resources -> resources.resourceIds().toString();
         };
     }
 

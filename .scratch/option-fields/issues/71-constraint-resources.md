@@ -2,9 +2,9 @@
 
 | | |
 |---|---|
-| GitHub | – |
+| GitHub | #402 |
 | Labels | enhancement, ready-for-agent |
-| Status | ready-for-agent |
+| Status | done (2026-10-17) |
 | Blocked by | `61-constraint-rrule-window` |
 | Spec | `../option-fields-spec.md`; shared rules in `README.md` |
 
@@ -16,7 +16,9 @@
 
 **Blocked by:** `61-constraint-rrule-window`
 
-**Status:** ready-for-agent
+**Status:** done (2026-10-17)
 
-- [ ] `ConstraintValue.ofResources(...)` and `withResources(...)` reach the client as `resourceIds`, alone or on every window.
-- [ ] The setter table in `README.md` has the new form or setter; the converter tests include it.
+- [x] `ConstraintValue.ofResources(...)` and `withResources(...)` reach the client as `resourceIds`, alone or on every window.
+- [x] The setter table in `README.md` has the new form or setter; the converter tests include it.
+
+**Done (2026-10-17):** a form `ConstraintValue.Resources` (`ofResources`) and a second component `resourceIds` on `ConstraintValue.Windows`, set through `withResources`, which returns a copy because the record is immutable. `ofWindows` returns `Windows`, so `withResources` can follow it. The resources have no setter per form: `setX(String...)` with one id would call the group id setter `setX(String)`. Reading back rejects windows with different ids. Found in the review and checked in `isPropsValidWithResources` and `ResourceSplitter` (`0a9e97be.js`): with the scheduler, an entry or selection without a resource has the key `''`, which no id list contains, so a resource constraint refuses it, also in a view without resources; an entry with several resources is checked per resource. The Javadoc says so. Review: three rounds with three agents (round 1 one major, the claim "resource views only", fixed). Rejected: a Playwright test, because the add-on tests its wiring at the JSON level and the library behaviour was checked in its source. Gate: `mvn clean install` green; E2E 463 passed, 2 failed, the date-dependent theme drag test of 76.

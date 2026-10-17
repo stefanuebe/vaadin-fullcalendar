@@ -29,8 +29,8 @@ import java.util.Objects;
 
 /**
  * The value of an option that limits where entries can be dragged, resized or selected: the entries of a group, the
- * business hours of the calendar, or windows of time: recurring business hours, windows defined by an {@link RRule}
- * and fixed spans. A {@code switch} over it needs no {@code default} branch.
+ * business hours of the calendar, windows of time (recurring business hours, windows defined by an {@link RRule}
+ * and fixed spans), or resources. A {@code switch} over it needs no {@code default} branch.
  * <p>
  * A sealed type rather than one Java type, because the library takes a string, which is a group id or the keyword
  * {@code "businessHours"}, as well as objects.
@@ -59,8 +59,9 @@ public sealed interface ConstraintValue extends Serializable {
      * @return the value
      * @throws NullPointerException when null is passed or contained
      * @throws IllegalArgumentException when no window is passed
+     * @see Windows#withResources(String...)
      */
-    static ConstraintValue ofWindows(BusinessHours... windows) {
+    static Windows ofWindows(BusinessHours... windows) {
         return new Windows(List.of(windows));
     }
 
@@ -72,9 +73,34 @@ public sealed interface ConstraintValue extends Serializable {
      * @return the value
      * @throws NullPointerException when null is passed or contained
      * @throws IllegalArgumentException when no window is passed
+     * @see Windows#withResources(String...)
      */
-    static ConstraintValue ofWindows(Window... windows) {
+    static Windows ofWindows(Window... windows) {
         return new Windows(List.of(windows));
+    }
+
+    /**
+     * Creates the value for resources: every resource of an entry or selection must be one of them, at any time. For
+     * resources within windows of time, use {@link Windows#withResources(String...)}.
+     * <p>
+     * The ids take effect with the scheduler only. There, an entry or selection without a resource, for example in a
+     * view without resources, is refused.
+     *
+     * @param resourceIds the ids of the resources, at least one
+     * @return the value
+     * @throws NullPointerException when null is passed or contained
+     * @throws IllegalArgumentException when no id is passed
+     */
+    static ConstraintValue ofResources(String... resourceIds) {
+        return new Resources(List.of(resourceIds));
+    }
+
+    private static List<String> checkResourceIds(List<String> resourceIds) {
+        if (resourceIds.isEmpty()) {
+            throw new IllegalArgumentException("At least one resource id is needed");
+        }
+
+        return resourceIds;
     }
 
     private static <T extends Comparable<? super T>> void checkBounds(T start, T end) {
@@ -107,17 +133,61 @@ public sealed interface ConstraintValue extends Serializable {
     }
 
     /**
-     * Within windows of time. The list is copied, so a later change to the passed list does not change the value.
+     * Within windows of time, optionally limited to resources. The lists are copied, so a later change to a passed
+     * list does not change the value.
      *
-     * @param windows the windows, at least one
+     * @param windows     the windows, at least one
+     * @param resourceIds the ids of the resources every window is limited to, empty for no limit
      */
-    record Windows(List<Window> windows) implements ConstraintValue {
+    record Windows(List<Window> windows, List<String> resourceIds) implements ConstraintValue {
 
         public Windows {
             windows = List.copyOf(Objects.requireNonNull(windows));
+            resourceIds = List.copyOf(Objects.requireNonNull(resourceIds));
             if (windows.isEmpty()) {
                 throw new IllegalArgumentException("At least one window is needed");
             }
+        }
+
+        /**
+         * Creates the value for windows of time, not limited to resources.
+         *
+         * @param windows the windows, at least one
+         */
+        public Windows(List<Window> windows) {
+            this(windows, List.of());
+        }
+
+        /**
+         * Returns a copy whose windows are limited to the given resources: an entry or selection must lie in one of
+         * the windows, and every resource of it must be one of the given ones. The ids replace those set before.
+         * <p>
+         * The ids apply to every window. The library refuses a resource for the whole constraint as soon as one
+         * window names other resources, so ids per window would only act as the ids all windows share.
+         * <p>
+         * The ids take effect with the scheduler only. There, an entry or selection without a resource, for example
+         * in a view without resources, is refused.
+         *
+         * @param resourceIds the ids of the resources, at least one
+         * @return the new value
+         * @throws NullPointerException when null is passed or contained
+         * @throws IllegalArgumentException when no id is passed
+         */
+        public Windows withResources(String... resourceIds) {
+            return new Windows(windows, checkResourceIds(List.of(resourceIds)));
+        }
+    }
+
+    /**
+     * Within resources, at any time. The list is copied, so a later change to the passed list does not change the
+     * value.
+     *
+     * @param resourceIds the ids of the resources, at least one
+     */
+    record Resources(List<String> resourceIds) implements ConstraintValue {
+
+        public Resources {
+            resourceIds = checkResourceIds(List.copyOf(Objects.requireNonNull(resourceIds)));
         }
     }
 
