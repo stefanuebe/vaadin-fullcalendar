@@ -13,13 +13,16 @@ import com.vaadin.flow.router.Route;
 import org.vaadin.stefan.fullcalendar.CalendarViewImpl;
 import org.vaadin.stefan.fullcalendar.Entry;
 import org.vaadin.stefan.fullcalendar.FullCalendar;
-import org.vaadin.stefan.fullcalendar.Option;
+import org.vaadin.stefan.fullcalendar.FullCalendarOptions;
+import org.vaadin.stefan.fullcalendar.option.EntryLimitValue;
 import org.vaadin.stefan.ui.layouts.MainLayout;
 
+import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
 
 /**
@@ -32,50 +35,89 @@ public class OptionResetPlayground extends VerticalLayout {
 
     private enum Kind {BOOLEAN, NUMBER, TEXT}
 
-    private record OptionChoice(Option option, Kind kind, String hint) {
+    /** An option by its FullCalendar name, and the typed setter of its field. The setter gets null to remove it. */
+    private record OptionChoice(String name, Kind kind, String hint, BiConsumer<FullCalendarOptions, Object> setter) {
     }
 
     private static final OptionChoice[] CHOICES = {
-            new OptionChoice(Option.WEEKENDS, Kind.BOOLEAN, "show Saturday and Sunday"),
-            new OptionChoice(Option.WEEK_NUMBERS, Kind.BOOLEAN, "the add-on sets true at creation"),
-            new OptionChoice(Option.DISPLAY_ENTRY_TIME, Kind.BOOLEAN, "no default, the view decides"),
-            new OptionChoice(Option.DISPLAY_ENTRY_END, Kind.BOOLEAN, "no default, the view decides"),
-            new OptionChoice(Option.DEFAULT_ALL_DAY, Kind.BOOLEAN, "no default"),
-            new OptionChoice(Option.EDITABLE, Kind.BOOLEAN, "drag and resize entries"),
-            new OptionChoice(Option.ENTRY_START_EDITABLE, Kind.BOOLEAN, "no default, falls back to editable"),
-            new OptionChoice(Option.ENTRY_DURATION_EDITABLE, Kind.BOOLEAN, "no default, falls back to editable"),
-            new OptionChoice(Option.SELECTABLE, Kind.BOOLEAN, "select time spans"),
-            new OptionChoice(Option.NAV_LINKS, Kind.BOOLEAN, "day numbers become links"),
-            new OptionChoice(Option.NOW_INDICATOR, Kind.BOOLEAN, "time grid views"),
-            new OptionChoice(Option.ALL_DAY_SLOT, Kind.BOOLEAN, "time grid views"),
-            new OptionChoice(Option.DAY_HEADERS, Kind.BOOLEAN, ""),
-            new OptionChoice(Option.BORDERLESS, Kind.BOOLEAN, "no default"),
-            new OptionChoice(Option.FIRST_DAY, Kind.NUMBER, "0 = Sunday, no default"),
-            new OptionChoice(Option.DAY_MAX_ENTRIES, Kind.NUMBER, "month view, try 1"),
-            new OptionChoice(Option.ENTRY_MAX_STACK, Kind.NUMBER, "time grid, no default"),
-            new OptionChoice(Option.ASPECT_RATIO, Kind.NUMBER, "e.g. 3"),
-            new OptionChoice(Option.HEIGHT, Kind.NUMBER, "pixels, no default"),
-            new OptionChoice(Option.ENTRY_COLOR, Kind.TEXT, "e.g. red"),
-            new OptionChoice(Option.ENTRY_TEXT_COLOR, Kind.TEXT, "e.g. yellow"),
-            new OptionChoice(Option.ALL_DAY_TEXT, Kind.TEXT, "time grid views"),
-            new OptionChoice(Option.NO_ENTRIES_TEXT, Kind.TEXT, "list views, go to an empty week"),
-            new OptionChoice(Option.MORE_LINK_TEXT, Kind.TEXT, "month view with day max entries 1"),
-            new OptionChoice(Option.WEEK_TEXT, Kind.TEXT, "the week number prefix"),
-            new OptionChoice(Option.COLOR_SCHEME, Kind.TEXT, "light or dark"),
-            new OptionChoice(Option.LOCALE, Kind.TEXT, "e.g. de or fr"),
-            new OptionChoice(Option.SLOT_MIN_TIME, Kind.TEXT, "time grid, e.g. 08:00:00"),
-            new OptionChoice(Option.SLOT_MAX_TIME, Kind.TEXT, "time grid, e.g. 18:00:00"),
-            new OptionChoice(Option.SLOT_DURATION, Kind.TEXT, "time grid, e.g. 01:00:00"),
-            new OptionChoice(Option.NOW, Kind.TEXT, "known limit: no effect once the calendar was attached"),
+            new OptionChoice("weekends", Kind.BOOLEAN, "show Saturday and Sunday",
+                    (o, v) -> o.setWeekends((Boolean) v)),
+            new OptionChoice("weekNumbers", Kind.BOOLEAN, "no default, the library shows no week numbers",
+                    (o, v) -> o.setWeekNumbers((Boolean) v)),
+            new OptionChoice("displayEventTime", Kind.BOOLEAN, "no default, the view decides",
+                    (o, v) -> o.setDisplayEntryTime((Boolean) v)),
+            new OptionChoice("displayEventEnd", Kind.BOOLEAN, "no default, the view decides",
+                    (o, v) -> o.setDisplayEntryEnd((Boolean) v)),
+            new OptionChoice("defaultAllDay", Kind.BOOLEAN, "no default",
+                    (o, v) -> o.setDefaultAllDay((Boolean) v)),
+            new OptionChoice("editable", Kind.BOOLEAN, "drag and resize entries",
+                    (o, v) -> o.setEditable((Boolean) v)),
+            new OptionChoice("eventStartEditable", Kind.BOOLEAN, "no default, falls back to editable",
+                    (o, v) -> o.setEntryStartEditable((Boolean) v)),
+            new OptionChoice("eventDurationEditable", Kind.BOOLEAN, "no default, falls back to editable",
+                    (o, v) -> o.setEntryDurationEditable((Boolean) v)),
+            new OptionChoice("selectable", Kind.BOOLEAN, "select time spans",
+                    (o, v) -> o.setSelectable((Boolean) v)),
+            new OptionChoice("navLinks", Kind.BOOLEAN, "day numbers become links",
+                    (o, v) -> o.setNavLinks((Boolean) v)),
+            new OptionChoice("nowIndicator", Kind.BOOLEAN, "time grid views",
+                    (o, v) -> o.setNowIndicator((Boolean) v)),
+            new OptionChoice("allDaySlot", Kind.BOOLEAN, "time grid views",
+                    (o, v) -> o.setAllDaySlot((Boolean) v)),
+            new OptionChoice("dayHeaders", Kind.BOOLEAN, "",
+                    (o, v) -> o.setDayHeaders((Boolean) v)),
+            new OptionChoice("borderless", Kind.BOOLEAN, "no default",
+                    (o, v) -> o.setBorderless((Boolean) v)),
+            new OptionChoice("firstDay", Kind.NUMBER, "0 = Sunday, 1 = Monday and so on, no default",
+                    (o, v) -> o.setFirstDay(v == null ? null : DayOfWeek.of(((Number) v).intValue() == 0
+                            ? 7 : ((Number) v).intValue()))),
+            new OptionChoice("dayMaxEvents", Kind.NUMBER, "month view, try 1",
+                    (o, v) -> {
+                        if (v == null) {
+                            o.setDayMaxEntries((EntryLimitValue) null);
+                        } else {
+                            o.setDayMaxEntries(((Number) v).intValue());
+                        }
+                    }),
+            new OptionChoice("eventMaxStack", Kind.NUMBER, "time grid, no default",
+                    (o, v) -> o.setEntryMaxStack(v == null ? null : ((Number) v).intValue())),
+            new OptionChoice("aspectRatio", Kind.NUMBER, "e.g. 3",
+                    (o, v) -> o.setAspectRatio(v == null ? null : ((Number) v).doubleValue())),
+            // no field: the option stays reachable as a raw option
+            new OptionChoice("height", Kind.NUMBER, "pixels, no default, raw option",
+                    (o, v) -> o.setRawOption("height", v)),
+            new OptionChoice("eventColor", Kind.TEXT, "e.g. red",
+                    (o, v) -> o.setEntryColor((String) v)),
+            new OptionChoice("eventContrastColor", Kind.TEXT, "e.g. yellow",
+                    (o, v) -> o.setEntryContrastColor((String) v)),
+            new OptionChoice("allDayText", Kind.TEXT, "time grid views",
+                    (o, v) -> o.setAllDayText((String) v)),
+            new OptionChoice("noEventsText", Kind.TEXT, "list views, go to an empty week",
+                    (o, v) -> o.setNoEntriesText((String) v)),
+            new OptionChoice("moreLinkText", Kind.TEXT, "month view with day max entries 1",
+                    (o, v) -> o.setMoreLinkText((String) v)),
+            new OptionChoice("weekTextShort", Kind.TEXT, "the week number prefix",
+                    (o, v) -> o.setWeekTextShort((String) v)),
+            new OptionChoice("colorScheme", Kind.TEXT, "light or dark",
+                    (o, v) -> o.setColorScheme((String) v)),
+            new OptionChoice("slotMinTime", Kind.TEXT, "time grid, e.g. 08:00:00",
+                    (o, v) -> o.setSlotMinTime((String) v)),
+            new OptionChoice("slotMaxTime", Kind.TEXT, "time grid, e.g. 18:00:00",
+                    (o, v) -> o.setSlotMaxTime((String) v)),
+            new OptionChoice("slotDuration", Kind.TEXT, "time grid, e.g. 01:00:00",
+                    (o, v) -> o.setSlotDuration((String) v)),
+            new OptionChoice("now", Kind.TEXT, "a date like 2025-03-05, known limit: no effect once the calendar "
+                    + "was attached",
+                    (o, v) -> o.setNow(v == null ? null : LocalDate.parse((String) v))),
     };
 
-    private final Map<Option, Object> setOptions = new LinkedHashMap<>();
+    private final Map<OptionChoice, Object> setOptions = new LinkedHashMap<>();
 
     public OptionResetPlayground() {
         setSizeFull();
 
         FullCalendar calendar = new FullCalendar();
-        calendar.setOption(Option.INITIAL_DATE, LocalDate.of(2025, 3, 3));
+        calendar.options().setInitialDate(LocalDate.of(2025, 3, 3));
         calendar.getEntryProvider().asInMemory().addEntries(createEntries());
 
         Select<CalendarViewImpl> view = new Select<>("View", e -> calendar.changeView(e.getValue()),
@@ -86,7 +128,7 @@ public class OptionResetPlayground extends VerticalLayout {
         Select<OptionChoice> option = new Select<>();
         option.setLabel("Option");
         option.setItems(CHOICES);
-        option.setItemLabelGenerator(c -> c.option().name());
+        option.setItemLabelGenerator(c -> c.name());
 
         RadioButtonGroup<Boolean> booleanValue = new RadioButtonGroup<>("Value", true, false);
         NumberField numberValue = new NumberField("Value");
@@ -114,18 +156,18 @@ public class OptionResetPlayground extends VerticalLayout {
                 case TEXT -> textValue.getValue();
             };
             if (value != null) {
-                calendar.setOption(choice.option(), value);
-                setOptions.put(choice.option(), value);
+                choice.setter().accept(calendar.options(), value);
+                setOptions.put(choice, value);
                 showState(state);
             }
         });
         Button unset = new Button("Unset (null)", e -> {
-            calendar.setOption(option.getValue().option(), null);
-            setOptions.remove(option.getValue().option());
+            option.getValue().setter().accept(calendar.options(), null);
+            setOptions.remove(option.getValue());
             showState(state);
         });
         Button unsetAll = new Button("Unset all", e -> {
-            setOptions.keySet().forEach(o -> calendar.setOption(o, null));
+            setOptions.keySet().forEach(o -> o.setter().accept(calendar.options(), null));
             setOptions.clear();
             showState(state);
         });

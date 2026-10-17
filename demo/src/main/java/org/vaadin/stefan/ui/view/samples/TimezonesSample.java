@@ -2,7 +2,6 @@ package org.vaadin.stefan.ui.view.samples;
 
 import org.vaadin.stefan.fullcalendar.Entry;
 import org.vaadin.stefan.fullcalendar.FullCalendar;
-import org.vaadin.stefan.fullcalendar.Option;
 import org.vaadin.stefan.fullcalendar.option.Timezone;
 
 import java.time.Instant;
@@ -23,14 +22,14 @@ public class TimezonesSample extends AbstractSample {
         // and might be interesting, when editing those entries in some kind of edit form
 
         Timezone tzBerlinGermany = new Timezone(ZoneId.of("Europe/Berlin"));
-        calendar.setOption(Option.TIMEZONE, tzBerlinGermany); // will rerender the client side and show all times 1-2 hours "later".
+        calendar.options().setTimeZone(tzBerlinGermany); // will rerender the client side and show all times 1-2 hours "later".
 
-        // We can also reset the timezone to default.
-        calendar.setOption(Option.TIMEZONE, Timezone.UTC);
+        // We can also set it back to UTC.
+        calendar.options().setTimeZone(Timezone.UTC);
 
         // We can also read the browsers timezone, after the component has been attached to the client side.
         // There are other ways to obtain the browser's timezone, so you are not obliged to use the listener.
-        calendar.addBrowserTimezoneObtainedListener(event -> calendar.setOption(Option.TIMEZONE, event.getTimezone()));
+        calendar.addBrowserTimezoneObtainedListener(event -> calendar.options().setTimeZone(event.getTimezone()));
 
         // Or let the calendar follow the browser's time zone in one line.
         calendar.options().setTimeZone(Timezone.LOCAL);
@@ -41,7 +40,7 @@ public class TimezonesSample extends AbstractSample {
 
         // Entry provides some additional convenience methods to handle the current calendar's timezone's offset, e.g. to allow easy
         // integration into edit forms.
-        calendar.setOption(Option.TIMEZONE, tzBerlinGermany); // times are now 1-2 hours "ahead" (depending on daylight saving)
+        calendar.options().setTimeZone(tzBerlinGermany); // times are now 1-2 hours "ahead" (depending on daylight saving)
         entry.setStart(LocalDate.of(2000, 1, 1).atStartOfDay());
 
         LocalDateTime utcStart = entry.getStart(); // will be 2000-01-01, 00:00

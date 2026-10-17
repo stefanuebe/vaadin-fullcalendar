@@ -19,6 +19,7 @@ package org.vaadin.stefan.ui.view.demos.full;
 import org.vaadin.stefan.fullcalendar.option.BusinessHours;
 import org.vaadin.stefan.fullcalendar.option.DisplayMode;
 import org.vaadin.stefan.fullcalendar.option.Timezone;
+import org.vaadin.stefan.fullcalendar.option.WidthValue;
 import com.vaadin.flow.component.ClientCallable;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.dependency.CssImport;
@@ -37,13 +38,12 @@ import tools.jackson.databind.node.ObjectNode;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
+import java.time.Duration;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 
-import static org.vaadin.stefan.fullcalendar.Option.*;
 
 @Route(value = "", layout = MainLayout.class)
 @org.vaadin.stefan.ui.menu.MenuItem(label = "Playground")
@@ -60,19 +60,19 @@ public class FullDemo extends AbstractSchedulerView {
 //                "}");
 
         FullCalendarScheduler scheduler = new FullCalendarScheduler(initialOptions);
-        scheduler.setOption(SchedulerOption.LICENSE_KEY, Scheduler.AGPL_V3_LICENSE_KEY);
-        scheduler.setOption(Option.DAY_MAX_ENTRIES, 3);
+        scheduler.options().setSchedulerLicenseKey(Scheduler.AGPL_V3_LICENSE_KEY);
+        scheduler.options().setDayMaxEntries(3);
         scheduler.options().setTimeZone(Timezone.LOCAL);
-        scheduler.setOption(Option.LOCALE, UI.getCurrent().getLocale());
+        scheduler.options().setLocale(UI.getCurrent().getLocale());
         FullCalendar calendar = scheduler;
-        scheduler.setOption(SchedulerOption.RESOURCE_COLUMNS_WIDTH, "15%");
-        scheduler.setOption(SchedulerOption.SLOT_MIN_WIDTH, 100);
-        scheduler.setOption(SchedulerOption.RESOURCES_INITIALLY_EXPANDED, false);
+        scheduler.options().setResourceColumnsWidth(WidthValue.ofPercent(15));
+        scheduler.options().setSlotMinWidth(100);
+        scheduler.options().setResourcesInitiallyExpanded(false);
 
-        calendar.setOption(NOW_INDICATOR, true);
-        calendar.setOption(SELECTABLE, true);
+        calendar.options().setNowIndicator(true);
+        calendar.options().setSelectable(true);
 
-        calendar.setOption(NAV_LINKS, true);
+        calendar.options().setNavLinks(true);
         calendar.addDayNumberClickedListener(event -> {
             calendar.changeView(CalendarViewImpl.TIME_GRID_DAY);
             calendar.gotoDate(event.getDate());
@@ -87,14 +87,13 @@ public class FullDemo extends AbstractSchedulerView {
 //        calendar.changeView(CalendarViewImpl.TIME_GRID_WEEK);
 //        calendar.gotoDate(LocalDate.of(2023, Month.JUNE, 1));
 
-        calendar.setOption(SLOT_MIN_TIME, LocalTime.of(7, 0));
-        calendar.setOption(SLOT_MAX_TIME, LocalTime.of(17, 0));
+        calendar.options().setSlotMinTime(Duration.ofHours(7));
+        calendar.options().setSlotMaxTime(Duration.ofHours(17));
 
-        calendar.setOption(BUSINESS_HOURS, new BusinessHours[]{
+        calendar.options().setBusinessHours(
                 BusinessHours.businessWeek().start(9).end(17),
                 BusinessHours.of(DayOfWeek.SATURDAY).start(12).end(15),
-                BusinessHours.of(DayOfWeek.SUNDAY).start(12).end(13)
-        });
+                BusinessHours.of(DayOfWeek.SUNDAY).start(12).end(13));
 
         calendar.addBrowserTimezoneObtainedListener(event -> {
             getToolbar().setTimezone(event.getTimezone());
@@ -108,7 +107,7 @@ public class FullDemo extends AbstractSchedulerView {
         EntryManager.createDayEntry(calendar, "Test 3", now.withDayOfMonth(12), 2, "lightblue")
                 .setExtendedProp("count", "1");
 
-        scheduler.setOption(SchedulerOption.ENTRY_RESOURCE_EDITABLE, false);
+        scheduler.options().setEntryResourceEditable(false);
 
 //        calendar.addEntryNativeEventListener("mouseover", "e => info.el.style.opacity = '0.5'");
 //        calendar.addEntryNativeEventListener("mouseout", "e => info.el.style.opacity = ''");
@@ -342,7 +341,7 @@ public class FullDemo extends AbstractSchedulerView {
         super.onTimeslotsSelectedScheduler(event);
         System.out.println(event.getClass().getSimpleName() + ": " + event);
 
-        System.out.println( "ZoneId: " + event.getSource().getOptionOrDefault(Option.TIMEZONE, Timezone.UTC).getZoneId() );
+        System.out.println( "ZoneId: " + event.getSource().options().getTimeZone().getZoneId() );
         LocalDateTime startDate = event.getStart();
         System.out.println( "getStart(): " + event.getStart() );
         System.out.println( "getStartWithOffset():  " + event.getStartWithOffset() );

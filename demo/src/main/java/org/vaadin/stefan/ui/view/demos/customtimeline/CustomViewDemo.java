@@ -29,9 +29,9 @@ public class CustomViewDemo extends AbstractSchedulerView {
 //        initialOptions.put("views", views);
 
         FullCalendarScheduler calendar = new FullCalendarScheduler();
-        calendar.setOption(SchedulerOption.LICENSE_KEY, Scheduler.AGPL_V3_LICENSE_KEY);
+        calendar.options().setSchedulerLicenseKey(Scheduler.AGPL_V3_LICENSE_KEY);
         calendar.setCustomCalendarViews(calendarView);
-        calendar.setOption(Option.LOCALE, UI.getCurrent().getLocale());
+        calendar.options().setLocale(UI.getCurrent().getLocale());
 
         List<Entry> entries = EntryService.createRandomInstance().getEntries();
         calendar.getEntryProvider().asInMemory().addEntries(entries);
