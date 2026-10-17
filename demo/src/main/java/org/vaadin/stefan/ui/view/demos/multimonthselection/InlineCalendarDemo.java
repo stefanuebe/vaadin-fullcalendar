@@ -22,7 +22,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import static org.vaadin.stefan.fullcalendar.Option.*;
 
 /**
  * @author Stefan Uebe
@@ -39,11 +38,11 @@ public class InlineCalendarDemo extends VerticalLayout {
         setAlignItems(Alignment.STRETCH);
 
         FullCalendar calendar = new FullCalendar();
-        calendar.setOption(Option.LOCALE, UI.getCurrent().getLocale());
+        calendar.options().setLocale(UI.getCurrent().getLocale());
         calendar.addClassName("inline-calendar");
 
         // activate cross month selection
-        calendar.setOption(SELECTABLE, false); // important
+        calendar.options().setSelectable(false); // important
         calendar.addAttachListener(event -> // refire things, when reattached
             calendar.getElement()
                 .executeJs("window.Vaadin.Flow.multiMonthCrossSelectionUtils.register(this.calendar)")

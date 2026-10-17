@@ -46,19 +46,19 @@ public class ComponentColumnsDemo extends VerticalLayout {
 
         // Build scheduler
         scheduler = new FullCalendarScheduler();
-        scheduler.setOption(SchedulerOption.LICENSE_KEY, Scheduler.AGPL_V3_LICENSE_KEY);
+        scheduler.options().setSchedulerLicenseKey(Scheduler.AGPL_V3_LICENSE_KEY);
         scheduler.options().setTimeZone(Timezone.LOCAL);
 
-        scheduler.setOption(Option.INITIAL_VIEW, SchedulerView.RESOURCE_TIMELINE_MONTH.getClientSideValue());
-        scheduler.setOption(Option.INITIAL_DATE, LocalDate.of(2025, 3, 1));
-        scheduler.setOption(Option.ENTRY_DURATION_EDITABLE, true);
-        scheduler.setOption(Option.EDITABLE, true);
+        scheduler.options().setInitialView(SchedulerView.RESOURCE_TIMELINE_MONTH);
+        scheduler.options().setInitialDate(LocalDate.of(2025, 3, 1));
+        scheduler.options().setEntryDurationEditable(true);
+        scheduler.options().setEditable(true);
         // Disable cross-resource dragging
-        scheduler.setOption(SchedulerOption.ENTRY_RESOURCE_EDITABLE, false);
+        scheduler.options().setEntryResourceEditable(false);
         // Wider resource area to fit both date picker columns
-        scheduler.setOption(SchedulerOption.RESOURCE_COLUMNS_WIDTH, "500px");
+        scheduler.options().setResourceColumnsWidth(500);
         // Taller rows for date pickers
-        scheduler.setOption(SchedulerOption.RESOURCE_COLUMN_HEADER_CONTENT, "Project Plan");
+        scheduler.options().setResourceColumnHeaderContent("Project Plan");
 
         entryProvider = scheduler.getEntryProvider().asInMemory();
 
@@ -85,7 +85,7 @@ public class ComponentColumnsDemo extends VerticalLayout {
                     return picker;
                 });
 
-        scheduler.setResourceColumns(List.of(
+        scheduler.options().setResourceColumns(List.of(
                 new ResourceColumn("title", "Task").withWidth(150),
                 startColumn.withWidth(170),
                 endColumn.withWidth(170)

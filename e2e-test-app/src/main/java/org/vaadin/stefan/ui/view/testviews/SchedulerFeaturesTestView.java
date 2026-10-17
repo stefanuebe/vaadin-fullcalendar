@@ -50,13 +50,13 @@ public class SchedulerFeaturesTestView extends VerticalLayout {
 
         // Build the scheduler calendar
         FullCalendarScheduler calendar = new FullCalendarScheduler();
-        calendar.setOption(SchedulerOption.LICENSE_KEY, Scheduler.DEVELOPER_LICENSE_KEY);
+        calendar.options().setSchedulerLicenseKey(Scheduler.DEVELOPER_LICENSE_KEY);
 
         calendar.getElement().setAttribute("data-testid", "calendar");
 
         // Fix date and view for reproducibility
-        calendar.setOption(Option.INITIAL_DATE, LocalDate.of(2025, 3, 3));
-        calendar.setOption(Option.INITIAL_VIEW, SchedulerView.RESOURCE_TIMELINE_WEEK.getClientSideValue());
+        calendar.options().setInitialDate(LocalDate.of(2025, 3, 3));
+        calendar.options().setInitialView(SchedulerView.RESOURCE_TIMELINE_WEEK);
 
         // --- Scheduler features ---
 
@@ -64,16 +64,16 @@ public class SchedulerFeaturesTestView extends VerticalLayout {
         // Note: use "dept" (not "department") for the column field so individual resource rows
         // don't show the department text — only group headers should show "Engineering"/"Design"
         // to avoid Playwright strict mode violations (multiple elements matching the same text)
-        calendar.setResourceColumns(
+        calendar.options().setResourceColumns(List.of(
                 new ResourceColumn("title", "Resource Name"),
                 new ResourceColumn("dept", "Dept").withHeaderClass("dept-header").withCellClass("dept-cell")
-        );
+        ));
 
         // 2. Group resources by the "department" extendedProp
-        calendar.setOption(SchedulerOption.RESOURCE_GROUP_FIELD, "department");
+        calendar.options().setResourceGroupField("department");
 
         // 3. Add CSS class to group header cells via JS callback
-        calendar.setOption(SchedulerOption.RESOURCE_GROUP_HEADER_CLASS,
+        calendar.options().setResourceGroupHeaderClass(
                 JsCallback.of("function(arg) { return 'custom-group'; }"));
 
         // --- Resources ---

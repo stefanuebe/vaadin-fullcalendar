@@ -6,7 +6,6 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.Route;
 import org.vaadin.stefan.fullcalendar.FullCalendar;
 import org.vaadin.stefan.fullcalendar.JsonFactory;
-import org.vaadin.stefan.fullcalendar.Option;
 import org.vaadin.stefan.ui.layouts.TestLayout;
 import org.vaadin.stefan.ui.menu.MenuItem;
 
@@ -30,7 +29,7 @@ public class FlushOptionsTestView extends VerticalLayout {
 
         FullCalendar calendar = new FullCalendar();
         calendar.setId("cal-flush-options");
-        calendar.setOption(Option.INITIAL_DATE, LocalDate.of(2025, 3, 15));
+        calendar.options().setInitialDate(LocalDate.of(2025, 3, 15));
 
         add(new Button("Step a year and go next", e -> {
             calendar.options().setRawOption("dateIncrement", JsonFactory.createObject().put("years", 1));

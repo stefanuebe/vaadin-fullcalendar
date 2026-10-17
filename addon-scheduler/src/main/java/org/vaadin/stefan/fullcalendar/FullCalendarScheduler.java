@@ -103,8 +103,9 @@ public class FullCalendarScheduler extends FullCalendar implements Scheduler {
      * Please be aware, that incorrect options or event handler overriding can lead to unpredictable errors,
      * which will NOT be supported in any case.
      * <br><br>
-     * Also, options set this way are not cached in the server side state. Calling any of the
-     * {@code getOption(...)} methods will result in {@code null} (or the respective native default).
+     * Also, options set this way are raw options, they have no typed field.
+     * {@link FullCalendarOptions#getRawOption(String)} returns them, but the field getters of {@link #options()}
+     * do not.
      * <br><br>
      * The time zone ({@code timeZone}) goes into {@link FullCalendarOptions#getTimeZone()}, see
      * {@link FullCalendar#FullCalendar(ObjectNode)}.
@@ -680,8 +681,5 @@ public class FullCalendarScheduler extends FullCalendar implements Scheduler {
         }
         return optional;
     }
-
-    // SchedulerCallbackOption enum removed — all constants merged into SchedulerOption.
-    // Use setOption(SchedulerOption.X, JsCallback.of("function...")) instead.
 
 }

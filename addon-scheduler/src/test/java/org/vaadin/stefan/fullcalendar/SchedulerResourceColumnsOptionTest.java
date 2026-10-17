@@ -113,16 +113,16 @@ class SchedulerResourceColumnsOptionTest extends BrowserlessTest {
     }
 
     @Test
-    void rawResourceColumns_unbindsTheComponentColumnAndWins() {
+    void rawResourceColumns_winOverTheField() {
         calendar.options().setResourceColumns(List.of(componentColumn));
-        calendar.setOption(SchedulerOption.RESOURCE_COLUMNS,
+        calendar.options().setRawOption("resourceColumns",
                 JsonFactory.createArray().add(JsonFactory.createObject().put("field", "raw")));
         ui.add(calendar);
         respond();
 
-        assertFalse(componentColumn.isBound());
-        assertNull(calendar.options().getResourceColumns());
         assertEquals("raw", initialColumns().get(0).get("field").asString());
+        // the raw value only wins on the client, the field keeps its columns bound
+        assertTrue(componentColumn.isBound());
     }
 
     @Test
@@ -160,21 +160,6 @@ class SchedulerResourceColumnsOptionTest extends BrowserlessTest {
                 .toList();
         assertEquals(1, sent.size());
         return sent.getFirst();
-    }
-
-    @Test
-    void columnList_throughSetOption_replacesARawValue() {
-        calendar.setOption(SchedulerOption.RESOURCE_COLUMNS,
-                JsonFactory.createArray().add(JsonFactory.createObject().put("field", "raw")));
-        calendar.setOption(SchedulerOption.RESOURCE_COLUMNS, List.of(componentColumn));
-        assertTrue(componentColumn.isBound());
-
-        // no raw value is left that would win over a later change of the field
-        calendar.options().setResourceColumns(List.of(new ResourceColumn("title")));
-        ui.add(calendar);
-        respond();
-
-        assertEquals("title", initialColumns().get(0).get("field").asString());
     }
 
     @Test

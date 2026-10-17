@@ -8,9 +8,7 @@ import org.vaadin.stefan.fullcalendar.CalendarViewImpl;
 import org.vaadin.stefan.fullcalendar.Entry;
 import org.vaadin.stefan.fullcalendar.FullCalendar;
 import org.vaadin.stefan.fullcalendar.FullCalendarScheduler;
-import org.vaadin.stefan.fullcalendar.Option;
 import org.vaadin.stefan.fullcalendar.Scheduler;
-import org.vaadin.stefan.fullcalendar.SchedulerOption;
 import org.vaadin.stefan.fullcalendar.dataprovider.EntryProvider;
 import org.vaadin.stefan.ui.layouts.TestLayout;
 import org.vaadin.stefan.ui.menu.MenuItem;
@@ -48,7 +46,7 @@ public class EntryIdWithSchedulerOnPageTestView extends VerticalLayout {
         FullCalendar plain = new FullCalendar();
         plain.getElement().setAttribute("data-testid", "plain-calendar");
         plain.changeView(CalendarViewImpl.DAY_GRID_MONTH);
-        plain.setOption(Option.INITIAL_DATE, LocalDate.of(2025, 3, 3));
+        plain.options().setInitialDate(LocalDate.of(2025, 3, 3));
 
         Entry e1 = new Entry("e1");
         e1.setTitle("Entry 1");
@@ -65,7 +63,7 @@ public class EntryIdWithSchedulerOnPageTestView extends VerticalLayout {
         // The scheduler instance only exists to force the Resource plugin to load.
         // No entries / resources — just the empty calendar.
         FullCalendarScheduler scheduler = new FullCalendarScheduler();
-        scheduler.setOption(SchedulerOption.LICENSE_KEY, Scheduler.DEVELOPER_LICENSE_KEY);
+        scheduler.options().setSchedulerLicenseKey(Scheduler.DEVELOPER_LICENSE_KEY);
         scheduler.getElement().setAttribute("data-testid", "scheduler-loader");
         scheduler.getStyle().set("display", "none");
 

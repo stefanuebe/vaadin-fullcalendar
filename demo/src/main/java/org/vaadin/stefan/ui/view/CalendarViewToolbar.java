@@ -2,6 +2,7 @@ package org.vaadin.stefan.ui.view;
 
 import org.vaadin.stefan.fullcalendar.option.CalendarLocale;
 import org.vaadin.stefan.fullcalendar.option.DateRange;
+import org.vaadin.stefan.fullcalendar.option.LocaleValue;
 import org.vaadin.stefan.fullcalendar.option.Timezone;
 import com.vaadin.flow.component.*;
 import com.vaadin.flow.component.button.Button;
@@ -37,7 +38,6 @@ import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-import static org.vaadin.stefan.fullcalendar.Option.*;
 
 /**
  * @author Stefan Uebe
@@ -296,7 +296,7 @@ public class CalendarViewToolbar extends HorizontalLayout { // TODO use ToolbarL
         MenuItem paletteItem = subMenu.addItem("Calendar palette");
         // the Vaadin theme follows the application's color scheme, the switch is for the stock themes
         MenuItem darkItem = subMenu.addItem("Calendar dark mode",
-                event -> calendar.setOption(COLOR_SCHEME, event.getSource().isChecked() ? "dark" : "light"));
+                event -> calendar.options().setColorScheme(event.getSource().isChecked() ? "dark" : "light"));
         darkItem.setCheckable(true);
         darkItem.setVisible(!FullCalendarTheme.VAADIN.equals(calendar.getTheme()));
         for (String theme : List.of(FullCalendarTheme.VAADIN, FullCalendarTheme.CLASSIC, FullCalendarTheme.MONARCH,
@@ -308,7 +308,7 @@ public class CalendarViewToolbar extends HorizontalLayout { // TODO use ToolbarL
                 darkItem.setVisible(!FullCalendarTheme.VAADIN.equals(theme));
                 if (FullCalendarTheme.VAADIN.equals(theme)) {
                     darkItem.setChecked(false);
-                    calendar.setOption(COLOR_SCHEME, null);
+                    calendar.options().setColorScheme(null);
                 }
             });
             item.setCheckable(true);
@@ -323,8 +323,8 @@ public class CalendarViewToolbar extends HorizontalLayout { // TODO use ToolbarL
         localeSelector.setValue(CalendarLocale.getDefaultLocale());
         localeSelector.addValueChangeListener(event -> {
             Locale value = event.getValue();
-            calendar.setOption(LOCALE, value != null ? value : CalendarLocale.getDefaultLocale());
-            Locale newLocale = calendar.<Locale>getOption(LOCALE).orElse(CalendarLocale.getDefaultLocale());
+            Locale newLocale = value != null ? value : CalendarLocale.getDefaultLocale();
+            calendar.options().setLocale(newLocale);
             Notification.show("Locale changed to " + newLocale.toLanguageTag());
         });
 
@@ -339,10 +339,10 @@ public class CalendarViewToolbar extends HorizontalLayout { // TODO use ToolbarL
 
         timezoneSelector.setValue(Timezone.UTC);
         timezoneSelector.addValueChangeListener(event -> {
-            if (!Objects.equals(calendar.getOptionOrDefault(Option.TIMEZONE, Timezone.UTC), event.getValue())) {
+            if (!Objects.equals(calendar.options().getTimeZone(), event.getValue())) {
                 Timezone value = event.getValue();
-                calendar.setOption(Option.TIMEZONE, value != null ? value : Timezone.UTC);
-                Notification.show("Timezone changed to " + calendar.getOptionOrDefault(Option.TIMEZONE, Timezone.UTC));
+                calendar.options().setTimeZone(value != null ? value : Timezone.UTC);
+                Notification.show("Timezone changed to " + calendar.options().getTimeZone());
             }
         });
 
@@ -357,7 +357,7 @@ public class CalendarViewToolbar extends HorizontalLayout { // TODO use ToolbarL
         multiMonthColumns.setValue(3);
         multiMonthColumns.addThemeVariants(TextFieldVariant.LUMO_SMALL, TextFieldVariant.LUMO_ALIGN_CENTER);
         multiMonthColumns.addValueChangeListener(event ->
-                calendar.setOption(MULTI_MONTH_MAX_COLUMNS, event.getValue()));
+                calendar.options().setMultiMonthMaxColumns(event.getValue()));
         multiMonthColumns.setWidthFull();
 
         DatePicker validRangeStart = new DatePicker("Valid Range Start");
@@ -367,7 +367,7 @@ public class CalendarViewToolbar extends HorizontalLayout { // TODO use ToolbarL
         validRangeEnd.setClearButtonVisible(true);
 
         validRangeStart.addValueChangeListener(event -> {
-            calendar.setOption(Option.VALID_RANGE, validRangeStart.getValue() == null && validRangeEnd.getValue() == null
+            calendar.options().setValidRange(validRangeStart.getValue() == null && validRangeEnd.getValue() == null
                     ? null : new DateRange(validRangeStart.getValue(), validRangeEnd.getValue()));
 
             if (event.getValue() != null) {
@@ -378,7 +378,7 @@ public class CalendarViewToolbar extends HorizontalLayout { // TODO use ToolbarL
 
         });
         validRangeEnd.addValueChangeListener(event -> {
-            calendar.setOption(Option.VALID_RANGE, validRangeStart.getValue() == null && validRangeEnd.getValue() == null
+            calendar.options().setValidRange(validRangeStart.getValue() == null && validRangeEnd.getValue() == null
                     ? null : new DateRange(validRangeStart.getValue(), validRangeEnd.getValue()));
 
             if (event.getValue() != null) {
@@ -469,7 +469,7 @@ public class CalendarViewToolbar extends HorizontalLayout { // TODO use ToolbarL
 
     void updateIntervalLabel(HasText intervalLabel, CalendarView view, LocalDate intervalStart) {
         String text = "--";
-        Locale locale = calendar.<Locale>getOption(LOCALE).orElse(CalendarLocale.getDefaultLocale());
+        Locale locale = getCalendarLocale(calendar);
 
         if (view instanceof HasIntervalLabel intervalLabelView) {
             text = intervalLabelView.formatIntervalLabel(intervalStart, locale);
@@ -522,6 +522,17 @@ public class CalendarViewToolbar extends HorizontalLayout { // TODO use ToolbarL
         }
 
         intervalLabel.setText(text);
+    }
+
+    /**
+     * Returns the locale the calendar shows its texts in, which is the one set with the locale option, not the
+     * Vaadin locale of the component.
+     */
+    public static Locale getCalendarLocale(FullCalendar calendar) {
+        return switch (calendar.options().getLocale()) {
+            case LocaleValue.Code code -> code.locale();
+            case LocaleValue.Custom custom -> custom.locale();
+        };
     }
 
     /**

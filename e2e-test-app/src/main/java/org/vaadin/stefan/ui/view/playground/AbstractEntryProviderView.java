@@ -26,9 +26,9 @@ public abstract class AbstractEntryProviderView extends VerticalLayout {
 
         calendar = new FullCalendar();
         calendar.setEntryProvider(entryProvider);
-        calendar.setOption(Option.DAY_MAX_ENTRIES, 3);
-        calendar.setOption(Option.WEEK_NUMBERS, true);
-        calendar.setOption(Option.SELECTABLE, true);
+        calendar.options().setDayMaxEntries(3);
+        calendar.options().setWeekNumbers(true);
+        calendar.options().setSelectable(true);
 
         // --- Toolbar ---
         PlaygroundToolbar toolbar = new PlaygroundToolbar(

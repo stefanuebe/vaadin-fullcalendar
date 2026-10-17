@@ -3,7 +3,7 @@ const { test, expect } = require('@playwright/test');
 const { waitForVaadin } = require('./fixtures');
 
 /**
- * Removing options of an attached calendar with setOption(option, null) (#294): the calendar behaves as if the option
+ * Removing options of an attached calendar with options().setXxx(null) (#294): the calendar behaves as if the option
  * had never been set, and changing an option neither refetches the entries nor re-mounts unaffected ones. View:
  * /test/option-reset, a German week view with an all-day and a timed entry from a callback entry provider. Its initial
  * JSON options set one entry row per day with "day" as the action of the "+N more" link, an eventDataTransform

@@ -7,7 +7,6 @@ import com.vaadin.flow.router.Route;
 import org.vaadin.stefan.fullcalendar.CalendarViewImpl;
 import org.vaadin.stefan.fullcalendar.Entry;
 import org.vaadin.stefan.fullcalendar.FullCalendar;
-import org.vaadin.stefan.fullcalendar.Option;
 import org.vaadin.stefan.fullcalendar.dataprovider.EntryProvider;
 import org.vaadin.stefan.ui.layouts.TestLayout;
 import org.vaadin.stefan.ui.menu.MenuItem;
@@ -17,7 +16,7 @@ import java.util.List;
 
 /**
  * Regression test view for issue #212, in the direction the original bug hit: a calendar-level
- * {@code setOption(EDITABLE, false)} must actually prevent entries from being draggable, even
+ * {@code options().setEditable(false)} must actually prevent entries from being draggable, even
  * when those entries were never explicitly configured (no {@code setEditable(...)} call). Before
  * #212, every entry's implicit {@code editable: true} default was serialized and overrode the
  * calendar-level option.
@@ -42,9 +41,9 @@ public class CalendarEditableFalseTestView extends VerticalLayout {
 
         FullCalendar calendar = new FullCalendar();
         calendar.getElement().setAttribute("data-testid", "calendar");
-        calendar.setOption(Option.INITIAL_DATE, LocalDate.of(2025, 3, 3));
-        calendar.setOption(Option.INITIAL_VIEW, CalendarViewImpl.TIME_GRID_WEEK.getClientSideValue());
-        calendar.setOption(Option.EDITABLE, false);
+        calendar.options().setInitialDate(LocalDate.of(2025, 3, 3));
+        calendar.options().setInitialView(CalendarViewImpl.TIME_GRID_WEEK);
+        calendar.options().setEditable(false);
 
         Entry e1 = new Entry("e1");
         e1.setTitle("Default A");

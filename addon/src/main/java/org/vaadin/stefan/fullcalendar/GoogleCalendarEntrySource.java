@@ -25,7 +25,7 @@ import java.util.Objects;
  * A remote entry source that fetches entries from a public Google Calendar.
  * <br><br>
  * Requires the {@code @fullcalendar/google-calendar} npm package and a Google Calendar API key.
- * Set a global key via {@code calendar.setOption(Option.ENTRY_SOURCE_GOOGLE_CALENDAR_API_KEY, key)},
+ * Set a global key via {@code calendar.options().setGoogleCalendarApiKey(key)},
  * or set a per-source key via {@link #withApiKey(String)}.
  * <br><br>
  * <strong>Note:</strong> Only public Google Calendars are supported. Private calendars require OAuth and cannot
@@ -33,7 +33,7 @@ import java.util.Objects;
  * <br><br>
  * Example:
  * <pre>
- * calendar.setOption(Option.ENTRY_SOURCE_GOOGLE_CALENDAR_API_KEY, "AIzaSy...");
+ * calendar.options().setGoogleCalendarApiKey("AIzaSy...");
  * calendar.addRemoteEntrySource(new GoogleCalendarEntrySource("holidays@group.calendar.google.com")
  *     .withId("holidays")
  *     .withColor("green"));
@@ -49,7 +49,7 @@ public class GoogleCalendarEntrySource extends RemoteEntrySource<GoogleCalendarE
 
     /**
      * Optional per-source API key. Falls back to the global key set via
-     * {@code calendar.setOption(Option.ENTRY_SOURCE_GOOGLE_CALENDAR_API_KEY, key)}.
+     * {@code calendar.options().setGoogleCalendarApiKey(key)}.
      */
     private String googleCalendarApiKey;
 

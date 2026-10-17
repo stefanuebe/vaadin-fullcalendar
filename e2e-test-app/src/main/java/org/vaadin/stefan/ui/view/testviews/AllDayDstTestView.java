@@ -35,9 +35,9 @@ public class AllDayDstTestView extends VerticalLayout {
 
         ZoneId newYork = ZoneId.of("America/New_York");
         FullCalendar calendar = new FullCalendar();
-        calendar.setOption(Option.TIMEZONE, new Timezone(newYork));
-        calendar.setOption(Option.INITIAL_DATE, LocalDate.of(2025, 11, 2));
-        calendar.setOption(Option.INITIAL_VIEW, CalendarViewImpl.DAY_GRID_MONTH.getClientSideValue());
+        calendar.options().setTimeZone(new Timezone(newYork));
+        calendar.options().setInitialDate(LocalDate.of(2025, 11, 2));
+        calendar.options().setInitialView(CalendarViewImpl.DAY_GRID_MONTH);
 
         // the start is stored in UTC, so midnight in New York is given as such
         Entry entry = new Entry();

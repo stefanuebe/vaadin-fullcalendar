@@ -43,7 +43,7 @@ public class ComponentResourceColumnTest {
         var col = new ComponentResourceColumn<Span>("col", "Col",
                 resource -> new Span(resource.getTitle()));
 
-        calendar.setResourceColumns(List.of(col));
+        calendar.options().setResourceColumns(List.of(col));
 
         Resource res = new Resource(null, "Room A", null);
         calendar.addResource(res);
@@ -286,7 +286,7 @@ public class ComponentResourceColumnTest {
         var col = new ComponentResourceColumn<Span>("col", "Col",
                 resource -> new Span(resource.getTitle()));
 
-        calendar.setResourceColumns(List.of(
+        calendar.options().setResourceColumns(List.of(
                 new ResourceColumn("title", "Name"),
                 col
         ));
@@ -302,7 +302,7 @@ public class ComponentResourceColumnTest {
         var col = new ComponentResourceColumn<Span>("col", "Col",
                 resource -> new Span(resource.getTitle()));
 
-        calendar.setResourceColumns(List.of(col));
+        calendar.options().setResourceColumns(List.of(col));
 
         Resource res = new Resource(null, "Room A", null);
         calendar.addResource(res);
@@ -317,7 +317,7 @@ public class ComponentResourceColumnTest {
         var col = new ComponentResourceColumn<Span>("col", "Col",
                 resource -> new Span(resource.getTitle()));
 
-        calendar.setResourceColumns(List.of(col));
+        calendar.options().setResourceColumns(List.of(col));
 
         Resource parent = new Resource(null, "Building", null);
         Resource child = new Resource(null, "Floor 1", null);
@@ -337,7 +337,7 @@ public class ComponentResourceColumnTest {
         var col = new ComponentResourceColumn<Span>("col", "Col",
                 resource -> new Span(resource.getTitle()));
 
-        calendar.setResourceColumns(List.of(col));
+        calendar.options().setResourceColumns(List.of(col));
 
         calendar.addResource(new Resource(null, "A", null));
         calendar.addResource(new Resource(null, "B", null));
@@ -350,7 +350,7 @@ public class ComponentResourceColumnTest {
     @Test
     void testSetResourceColumnsReplacingCleansUp() {
         var col1 = new ComponentResourceColumn<Span>("col1", resource -> new Span());
-        calendar.setResourceColumns(List.of(col1));
+        calendar.options().setResourceColumns(List.of(col1));
 
         calendar.addResource(new Resource(null, "A", null));
         Assertions.assertEquals(1, col1.getComponents().size());
@@ -358,7 +358,7 @@ public class ComponentResourceColumnTest {
 
         // Replace with different columns
         var col2 = new ComponentResourceColumn<Span>("col2", resource -> new Span());
-        calendar.setResourceColumns(List.of(col2));
+        calendar.options().setResourceColumns(List.of(col2));
 
         Assertions.assertEquals(0, col1.getComponents().size(), "old column components should be destroyed");
         Assertions.assertFalse(col1.isBound(), "old column should be unbound");
@@ -369,10 +369,10 @@ public class ComponentResourceColumnTest {
     @Test
     void testSetResourceColumnsEmptyListCleansUp() {
         var col = new ComponentResourceColumn<Span>("col", resource -> new Span());
-        calendar.setResourceColumns(List.of(col));
+        calendar.options().setResourceColumns(List.of(col));
         calendar.addResource(new Resource(null, "A", null));
 
-        calendar.setResourceColumns(List.of());
+        calendar.options().setResourceColumns(List.of());
 
         Assertions.assertEquals(0, col.getComponents().size());
         Assertions.assertFalse(col.isBound());
@@ -384,7 +384,7 @@ public class ComponentResourceColumnTest {
         var col2 = new ResourceColumn("samefield", "Header 2");
 
         Assertions.assertThrows(IllegalArgumentException.class,
-                () -> calendar.setResourceColumns(List.of(col1, col2)));
+                () -> calendar.options().setResourceColumns(List.of(col1, col2)));
     }
 
     @Test
@@ -407,7 +407,7 @@ public class ComponentResourceColumnTest {
         var col = new ComponentResourceColumn<Span>("col", "Col",
                 resource -> new Span(resource.getTitle()));
 
-        calendar.setResourceColumns(List.of(col));
+        calendar.options().setResourceColumns(List.of(col));
 
         Resource res = new Resource(null, "Room A", null);
         calendar.addResource(res);
@@ -424,7 +424,7 @@ public class ComponentResourceColumnTest {
     @Test
     void testSetColumnsThenAddResourcesThenSetColumnsAgain() {
         var col = new ComponentResourceColumn<Span>("col", resource -> new Span());
-        calendar.setResourceColumns(List.of(col));
+        calendar.options().setResourceColumns(List.of(col));
 
         calendar.addResource(new Resource(null, "A", null));
         calendar.addResource(new Resource(null, "B", null));
@@ -432,7 +432,7 @@ public class ComponentResourceColumnTest {
 
         // Re-set same column config — should re-create components
         var col2 = new ComponentResourceColumn<Span>("col", resource -> new Span());
-        calendar.setResourceColumns(List.of(col2));
+        calendar.options().setResourceColumns(List.of(col2));
 
         Assertions.assertFalse(col.isBound());
         Assertions.assertEquals(0, col.getComponents().size());
@@ -445,7 +445,7 @@ public class ComponentResourceColumnTest {
         var col = new ComponentResourceColumn<Span>("col", "Col",
                 resource -> new Span(resource.getTitle()));
 
-        calendar.setResourceColumns(List.of(col));
+        calendar.options().setResourceColumns(List.of(col));
 
         Resource parent = new Resource(null, "Building", null);
         Resource child = new Resource(null, "Floor 1", null);
@@ -464,7 +464,7 @@ public class ComponentResourceColumnTest {
             return new Span();
         });
 
-        calendar.setResourceColumns(List.of(col));
+        calendar.options().setResourceColumns(List.of(col));
 
         Resource res = new Resource(null, "Room A", null);
         res.setExtendedProp("custom", "value");

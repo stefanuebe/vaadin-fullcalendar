@@ -16,7 +16,6 @@ import tools.jackson.databind.node.ObjectNode;
 
 import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 
 /**
@@ -251,38 +250,30 @@ public class SchedulerFeaturesTest {
 
     @Test
     void testSetResourceGroupField() {
-        calendar.setOption(SchedulerOption.RESOURCE_GROUP_FIELD, "department");
+        calendar.options().setResourceGroupField("department");
 
-        Optional<Object> option = calendar.getOption("resourceGroupField");
-        Assertions.assertTrue(option.isPresent());
-        Assertions.assertEquals("department", option.get());
+        Assertions.assertEquals("department", calendar.options().getResourceGroupField());
     }
 
     @Test
     void testSetDatesAboveResources() {
-        calendar.setOption(SchedulerOption.DATES_ABOVE_RESOURCES, true);
+        calendar.options().setDatesAboveResources(true);
 
-        Optional<Object> option = calendar.getOption("datesAboveResources");
-        Assertions.assertTrue(option.isPresent());
-        Assertions.assertEquals(true, option.get());
+        Assertions.assertEquals(true, calendar.options().getDatesAboveResources());
     }
 
     @Test
     void testSetDatesAboveResourcesFalse() {
-        calendar.setOption(SchedulerOption.DATES_ABOVE_RESOURCES, false);
+        calendar.options().setDatesAboveResources(false);
 
-        Optional<Object> option = calendar.getOption("datesAboveResources");
-        Assertions.assertTrue(option.isPresent());
-        Assertions.assertEquals(false, option.get());
+        Assertions.assertEquals(false, calendar.options().getDatesAboveResources());
     }
 
     @Test
     void testSetEntryMinWidth() {
-        calendar.setOption(SchedulerOption.ENTRY_MIN_WIDTH, 10);
+        calendar.options().setEntryMinWidth(10);
 
-        Optional<Object> option = calendar.getOption("eventMinWidth");
-        Assertions.assertTrue(option.isPresent());
-        Assertions.assertEquals(10, option.get());
+        Assertions.assertEquals(10, calendar.options().getEntryMinWidth());
     }
 
     @Test
@@ -324,7 +315,7 @@ public class SchedulerFeaturesTest {
     void deprecatedSetResourceAreaColumns_setsTheResourceColumnsOption() {
         calendar.setResourceAreaColumns(new ResourceAreaColumn("title", "Title"));
 
-        Assertions.assertTrue(calendar.getOption(SchedulerOption.RESOURCE_COLUMNS).isPresent());
+        Assertions.assertFalse(calendar.options().getResourceColumns().isEmpty());
     }
 
     @Test
@@ -334,12 +325,9 @@ public class SchedulerFeaturesTest {
                 new ResourceColumn("department", "Department").withWidth(150).withGroup(true)
         );
 
-        calendar.setResourceColumns(columns);
+        calendar.options().setResourceColumns(columns);
 
-        Optional<Object> option = calendar.getOption("resourceColumns");
-        Assertions.assertTrue(option.isPresent(), "resourceColumns option is set");
-        // The server-side value stored is the original List
-        Assertions.assertSame(columns, option.get(), "server-side value is the original list");
+        Assertions.assertEquals(columns, calendar.options().getResourceColumns());
     }
 
     @Test
@@ -347,10 +335,9 @@ public class SchedulerFeaturesTest {
         ResourceColumn col1 = new ResourceColumn("title", "Title");
         ResourceColumn col2 = new ResourceColumn("eventColor", "Color");
 
-        calendar.setResourceColumns(col1, col2);
+        calendar.options().setResourceColumns(List.of(col1, col2));
 
-        Optional<Object> option = calendar.getOption("resourceColumns");
-        Assertions.assertTrue(option.isPresent(), "resourceColumns option is set via varargs");
+        Assertions.assertEquals(List.of(col1, col2), calendar.options().getResourceColumns());
     }
 
     // -------------------------------------------------------------------------
@@ -361,28 +348,28 @@ public class SchedulerFeaturesTest {
     @Test
     void testSetResourceAddCallback() {
         Assertions.assertDoesNotThrow(() ->
-                calendar.setOption(SchedulerOption.RESOURCE_ADD, JsCallback.of("function(info) { }"))
+                calendar.options().setResourceAdd(JsCallback.of("function(info) { }"))
         );
     }
 
     @Test
     void testSetResourceChangeCallback() {
         Assertions.assertDoesNotThrow(() ->
-                calendar.setOption(SchedulerOption.RESOURCE_CHANGE, JsCallback.of("function(info) { }"))
+                calendar.options().setResourceChange(JsCallback.of("function(info) { }"))
         );
     }
 
     @Test
     void testSetResourceRemoveCallback() {
         Assertions.assertDoesNotThrow(() ->
-                calendar.setOption(SchedulerOption.RESOURCE_REMOVE, JsCallback.of("function(info) { }"))
+                calendar.options().setResourceRemove(JsCallback.of("function(info) { }"))
         );
     }
 
     @Test
     void testSetResourcesSetCallback() {
         Assertions.assertDoesNotThrow(() ->
-                calendar.setOption(SchedulerOption.RESOURCES_SET, JsCallback.of("function(info) { }"))
+                calendar.options().setResourcesSet(JsCallback.of("function(info) { }"))
         );
     }
 

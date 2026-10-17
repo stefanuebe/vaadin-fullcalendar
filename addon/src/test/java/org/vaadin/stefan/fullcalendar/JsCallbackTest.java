@@ -1,5 +1,6 @@
 package org.vaadin.stefan.fullcalendar;
 
+import org.vaadin.stefan.fullcalendar.option.CssSelectorValue;
 import org.vaadin.stefan.fullcalendar.option.JsCallback;
 import org.junit.jupiter.api.Test;
 import tools.jackson.databind.JsonNode;
@@ -14,37 +15,37 @@ import static org.junit.jupiter.api.Assertions.*;
  */
 class JsCallbackTest {
 
-    // --- setOption with JsCallback ---
+    // --- option fields and raw options with JsCallback ---
 
     @Test
-    void setOption_withJsCallback_doesNotThrow() {
+    void setField_withJsCallback_doesNotThrow() {
         FullCalendar calendar = new FullCalendar();
         assertDoesNotThrow(() ->
-            calendar.setOption(Option.DAY_CELL_CLASS,
+            calendar.options().setDayCellClass(
                 JsCallback.of("function(arg) { return []; }")));
     }
 
     @Test
-    void setOption_withJsCallback_null_doesNotThrow() {
+    void setField_withNull_doesNotThrow() {
         FullCalendar calendar = new FullCalendar();
         assertDoesNotThrow(() ->
-            calendar.setOption(Option.DROP_ACCEPT, (Object) null));
+            calendar.options().setDropAccept((CssSelectorValue) null));
     }
 
     @Test
-    void setOption_stringKey_withJsCallback_doesNotThrow() {
+    void setRawOption_withJsCallback_doesNotThrow() {
         FullCalendar calendar = new FullCalendar();
         assertDoesNotThrow(() ->
-            calendar.setOption("dayCellClassNames",
+            calendar.options().setRawOption("dayCellClassNames",
                 JsCallback.of("function(arg) { return []; }")));
     }
 
-    // --- ENTRY_DID_MOUNT through the old option API into the entryDidMount field ---
+    // --- the entryDidMount field ---
 
     @Test
-    void setOption_entryDidMount_storesCallback() {
+    void setEntryDidMount_storesCallback() {
         FullCalendar calendar = new FullCalendar();
-        calendar.setOption(Option.ENTRY_DID_MOUNT,
+        calendar.options().setEntryDidMount(
             JsCallback.of("function(info) { info.el.title = 'test'; }"));
         JsCallback cb = calendar.options().getEntryDidMount();
         assertNotNull(cb);
@@ -52,11 +53,11 @@ class JsCallbackTest {
     }
 
     @Test
-    void setOption_entryDidMount_null_clearsCallback() {
+    void setEntryDidMount_null_clearsCallback() {
         FullCalendar calendar = new FullCalendar();
-        calendar.setOption(Option.ENTRY_DID_MOUNT,
+        calendar.options().setEntryDidMount(
             JsCallback.of("function(info) {}"));
-        calendar.setOption(Option.ENTRY_DID_MOUNT, null);
+        calendar.options().setEntryDidMount(null);
         assertNull(calendar.options().getEntryDidMount());
     }
 
@@ -132,31 +133,30 @@ class JsCallbackTest {
         assertNotEquals(a, c);
     }
 
-    // --- setOption with JsCallback round-trip via getOption ---
+    // --- JsCallback round-trip via the getter ---
 
     @Test
-    void setOption_withJsCallback_getOptionReturnsJsCallback() {
+    void setField_withJsCallback_getterReturnsJsCallback() {
         FullCalendar calendar = new FullCalendar();
         JsCallback cb = JsCallback.of("function(arg) { return []; }");
-        calendar.setOption(Option.DAY_CELL_CLASS, cb);
+        calendar.options().setDayCellClass(cb);
 
-        // getOption should return the original JsCallback, not the marker JSON
-        var result = calendar.getOption(Option.DAY_CELL_CLASS);
-        assertTrue(result.isPresent());
-        assertInstanceOf(JsCallback.class, result.get());
-        assertEquals(cb, result.get());
+        // the getter returns the original JsCallback, not the marker JSON
+        var result = calendar.options().getDayCellClass();
+        assertInstanceOf(JsCallback.class, result);
+        assertEquals(cb, result);
     }
 
     @Test
-    void setOption_withJsCallback_stringKey_getOptionReturnsJsCallback() {
+    void setRawOption_withJsCallback_getRawOptionReturnsMarker() {
         FullCalendar calendar = new FullCalendar();
         JsCallback cb = JsCallback.of("function() { return true; }");
-        calendar.setOption("selectAllow", cb);
+        calendar.options().setRawOption("selectAllow", cb);
 
-        var result = calendar.getOption("selectAllow");
-        assertTrue(result.isPresent());
-        assertInstanceOf(JsCallback.class, result.get());
-        assertEquals(cb, result.get());
+        // a raw option is kept in its client form, the callback marker
+        JsonNode result = calendar.options().getRawOption("selectAllow").orElseThrow();
+        assertTrue(JsCallback.isMarker(result));
+        assertEquals(cb, JsCallback.fromMarkerJson(result));
     }
 
     // --- Native event listener field tests ---
@@ -190,7 +190,7 @@ class JsCallbackTest {
     void buildMerged_userCallbackOnly_returnsCallbackAsIs() {
         FullCalendar calendar = new FullCalendar();
         calendar.setAutoProvideEntryIdOnClient(false);
-        calendar.setOption(Option.ENTRY_DID_MOUNT,
+        calendar.options().setEntryDidMount(
                 JsCallback.of("function(info) { info.el.title = 'x'; }"));
 
         String merged = calendar.buildEntryDidMountMerged();
@@ -213,7 +213,7 @@ class JsCallbackTest {
     @Test
     void buildMerged_userCallbackAndNativeListeners_mergesCorrectly() {
         FullCalendar calendar = new FullCalendar();
-        calendar.setOption(Option.ENTRY_DID_MOUNT,
+        calendar.options().setEntryDidMount(
                 JsCallback.of("function(info) { info.el.title = 'x'; }"));
         calendar.addEntryNativeEventListener("click", "e => {}");
 
@@ -239,12 +239,12 @@ class JsCallbackTest {
     void buildMerged_userCallbackCleared_nativeListenerRemains() {
         FullCalendar calendar = new FullCalendar();
         calendar.setAutoProvideEntryIdOnClient(false);
-        calendar.setOption(Option.ENTRY_DID_MOUNT,
+        calendar.options().setEntryDidMount(
                 JsCallback.of("function(info) { }"));
         calendar.addEntryNativeEventListener("mouseover", "e => {}");
 
         // Clear user callback
-        calendar.setOption(Option.ENTRY_DID_MOUNT, null);
+        calendar.options().setEntryDidMount(null);
 
         String merged = calendar.buildEntryDidMountMerged();
         assertNotNull(merged, "native listener should still produce a merged function");
@@ -283,7 +283,7 @@ class JsCallbackTest {
     @Test
     void buildMerged_autoProvideAndUserCallback_defaultPrefixesUser() {
         FullCalendar calendar = new FullCalendar();
-        calendar.setOption(Option.ENTRY_DID_MOUNT,
+        calendar.options().setEntryDidMount(
                 JsCallback.of("function(info) { info.el.title = 'x'; }"));
 
         String merged = calendar.buildEntryDidMountMerged();
@@ -298,7 +298,7 @@ class JsCallbackTest {
     @Test
     void buildMerged_autoProvideUserAndNative_allThreePresentInOrder() {
         FullCalendar calendar = new FullCalendar();
-        calendar.setOption(Option.ENTRY_DID_MOUNT,
+        calendar.options().setEntryDidMount(
                 JsCallback.of("function(info) { info.el.title = 'x'; }"));
         calendar.addEntryNativeEventListener("click", "e => {}");
 
@@ -337,7 +337,7 @@ class JsCallbackTest {
     void buildMerged_expressionBodyArrowCallback_returnedAsIsNoCorruption() {
         FullCalendar calendar = new FullCalendar();
         // auto-provide default: true. User provides an expression-body arrow (no braces).
-        calendar.setOption(Option.ENTRY_DID_MOUNT,
+        calendar.options().setEntryDidMount(
                 JsCallback.of("info => info.el.title = 'x'"));
 
         String merged = calendar.buildEntryDidMountMerged();
@@ -353,7 +353,7 @@ class JsCallbackTest {
         // a braced body; if the user callback is an expression-body arrow, native listeners
         // are silently skipped because there is nowhere syntactically valid to splice them.
         FullCalendar calendar = new FullCalendar();
-        calendar.setOption(Option.ENTRY_DID_MOUNT,
+        calendar.options().setEntryDidMount(
                 JsCallback.of("info => info.el.title = 'x'"));
         calendar.addEntryNativeEventListener("click", "e => {}");
 

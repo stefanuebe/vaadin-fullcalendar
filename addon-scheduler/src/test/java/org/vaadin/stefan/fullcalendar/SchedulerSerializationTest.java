@@ -3,6 +3,7 @@ package org.vaadin.stefan.fullcalendar;
 import org.vaadin.stefan.fullcalendar.option.ComponentResourceColumn;
 import org.vaadin.stefan.fullcalendar.option.BusinessHours;
 import org.vaadin.stefan.fullcalendar.option.JsCallback;
+import com.vaadin.flow.component.html.Span;
 import org.junit.jupiter.api.Test;
 
 import java.io.ByteArrayInputStream;
@@ -10,6 +11,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.time.LocalDateTime;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -72,9 +74,9 @@ public class SchedulerSerializationTest {
 
         // component column keeps a SerializableFunction factory + a back-ref to the calendar and,
         // once a resource exists, a created Vaadin component in the hidden container
-        calendar.setResourceColumns(
+        calendar.options().setResourceColumns(List.of(
                 new ComponentResourceColumn<>("title", "Title",
-                        resource -> new com.vaadin.flow.component.html.Span(resource.getTitle())));
+                        resource -> new Span(resource.getTitle()))));
 
         assertNotNull(roundtrip(calendar));
     }

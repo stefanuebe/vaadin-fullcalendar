@@ -17,15 +17,17 @@
 package org.vaadin.stefan.fullcalendar.option;
 
 import org.vaadin.stefan.fullcalendar.ClientSideValue;
-import org.vaadin.stefan.fullcalendar.Option;
+import org.vaadin.stefan.fullcalendar.FullCalendarOptions;
 
 /**
  * Whether the buttons of the built-in toolbar show an icon, text or both. Corresponds to the FullCalendar
- * {@code buttonDisplay} option and to the {@code display} property of a single button in {@link Option#BUTTONS}.
+ * {@code buttonDisplay} option and to the {@code display} property of a single button in
+ * {@link FullCalendarOptions#getButtons() buttons}.
  * <p>
  * The values only affect FullCalendar's built-in header and footer toolbar, not a Vaadin component. The add-on hides
  * the header toolbar by default, and FullCalendar shows no footer toolbar by default. Setting
- * {@link Option#HEADER_TOOLBAR} or {@link Option#FOOTER_TOOLBAR} shows the respective toolbar.
+ * {@link FullCalendarOptions#getHeaderToolbar() headerToolbar} or
+ * {@link FullCalendarOptions#getFooterToolbar() footerToolbar} shows the respective toolbar.
  *
  * @see <a href="https://fullcalendar.io/docs/buttonDisplay">buttonDisplay</a>
  */

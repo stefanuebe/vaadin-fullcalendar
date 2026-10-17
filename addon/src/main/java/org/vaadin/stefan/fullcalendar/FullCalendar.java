@@ -190,7 +190,6 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
      * Uses {@link InMemoryEntryProvider} by default.
      */
     public FullCalendar() {
-        setOption(Option.DAY_MAX_ENTRIES, false);
         postConstruct();
     }
 
@@ -212,8 +211,9 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
      * Please be aware, that incorrect options or event handler overriding can lead to unpredictable errors,
      * which will NOT be supported in any case.
      * <br><br>
-     * Also, options set this way are not cached in the server side state. Calling any of the
-     * {@code getOption(...)} methods will result in {@code null} (or the respective native default).
+     * Also, options set this way are raw options, they have no typed field.
+     * {@link FullCalendarOptions#getRawOption(String)} returns them, but the field getters of {@link #options()}
+     * do not.
      * <p></p>
      * Any "set some option" calls will override the given initial options, when they use the same key.
      * <p></p>
@@ -230,7 +230,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
      */
     public FullCalendar(ObjectNode initialOptions) {
         // the time zone goes into its field, because the server converts entry times with it. It cannot be a raw option.
-        String timeZoneKey = Option.TIMEZONE.getOptionKey();
+        String timeZoneKey = "timeZone";
         Timezone timeZone = null;
         if (initialOptions.has(timeZoneKey)) {
             if (initialOptions.hasNonNull(timeZoneKey)) {
@@ -241,9 +241,9 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
             initialOptions.remove(timeZoneKey);
         }
         // the calendar always has a locale, a null leaves the field's initial value
-        if (initialOptions.path(Option.LOCALE.getOptionKey()).isNull()) {
+        if (initialOptions.path("locale").isNull()) {
             initialOptions = initialOptions.deepCopy();
-            initialOptions.remove(Option.LOCALE.getOptionKey());
+            initialOptions.remove("locale");
         }
 
         if (initialOptions.hasNonNull("views")) {
@@ -296,7 +296,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
         });
 
         if (constructorInitialOptions == null
-                || !constructorInitialOptions.hasNonNull(Option.HEIGHT.getOptionKey())) {
+                || !constructorInitialOptions.hasNonNull("height")) {
             setHeightFull(); // default from previous versions
         }
 
@@ -997,11 +997,11 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
      */
     protected void contributeOptions(Map<String, JsonNode> options) {
         if (height != null) {
-            options.put(Option.HEIGHT.getOptionKey(), JsonUtils.toJsonNode(height));
+            options.put("height", JsonUtils.toJsonNode(height));
         }
         String merged = buildEntryDidMountMerged();
         if (merged != null) {
-            options.put(Option.ENTRY_DID_MOUNT.getOptionKey(), JsCallback.of(merged).toMarkerJson());
+            options.put("eventDidMount", JsCallback.of(merged).toMarkerJson());
         }
         CALLBACKS_AFTER_CLIENT_HANDLER.forEach(key -> {
             if (options.get(key) instanceof ObjectNode marker && JsCallback.isMarker(marker)) {
@@ -1046,7 +1046,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
 
     /**
      * Sets the height of the calendar. Null removes the height, as {@link #setSizeUndefined()} does. A raw {@code height}
-     * option wins over it, see {@link Option#HEIGHT}.
+     * option wins over it, see {@link FullCalendarOptions#setRawOption(String, Object)}.
      *
      * @param height the height, for example {@code "100%"} or {@code "500px"}, or null
      */
@@ -1073,7 +1073,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
      * <br><br>
      * Native event listeners are merged into the {@code eventDidMount} callback and attached to each
      * entry's DOM element automatically on render. You may also provide a custom {@code eventDidMount}
-     * function via {@link #setOption(Option, Object)} with {@link Option#ENTRY_DID_MOUNT} and {@link JsCallback}
+     * function via {@link FullCalendarOptions#setEntryDidMount(JsCallback)}
      * — the native event registrations will be appended to the end of it automatically
      * (the function must end with a closing brace {@code }}). Adding a native event listener after the
      * calendar is attached takes effect immediately.
@@ -1127,8 +1127,8 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
     /**
      * Builds the merged eventDidMount function string from three layers:
      * the default id-assignment snippet (when {@link #isAutoProvideEntryIdOnClient()} is true),
-     * the user callback set via {@link Option#ENTRY_DID_MOUNT}, and native entry event listeners
-     * registered via {@link #addEntryNativeEventListener(String, String)}.
+     * the user callback set via {@link FullCalendarOptions#setEntryDidMount(JsCallback)}, and native entry event
+     * listeners registered via {@link #addEntryNativeEventListener(String, String)}.
      * <p>
      * Ordering inside the merged function: default snippet first, user callback body next,
      * native listeners last. This lets the user callback override the default id by
@@ -1581,7 +1581,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
      *     delivered in the click event over {@code getElementById}.</li>
      * </ul>
      * If you set a custom {@code eventDidMount} callback via
-     * {@link #setOption(Option, Object)} with {@link Option#ENTRY_DID_MOUNT}, your callback
+     * {@link FullCalendarOptions#setEntryDidMount(JsCallback)}, your callback
      * runs after the default snippet for brace-bodied functions (so you can reassign
      * {@code info.el.id} to override). For expression-body arrow callbacks the merge is
      * bypassed entirely and only your callback runs.
@@ -1699,7 +1699,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
     /**
      * Registers a listener to be informed, when a user clicks a day's number.
      * <br><br>
-     * Requires {@link Option#NAV_LINKS} to be {@code true}.
+     * Requires {@link FullCalendarViewOptions#getNavLinks() navLinks} to be {@code true}.
      *
      * @param listener listener
      * @return registration to remove the listener
@@ -1713,7 +1713,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
     /**
      * Registers a listener to be informed, when a user clicks a week's number.
      * <br><br>
-     * Requires {@link Option#NAV_LINKS} to be {@code true}.
+     * Requires {@link FullCalendarViewOptions#getNavLinks() navLinks} to be {@code true}.
      *
      * @param listener listener
      * @return registration to remove the listener
@@ -1803,7 +1803,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
 
     /**
      * Registers a listener for when any external HTML element is dropped onto the calendar.
-     * Requires {@link Option#DROPPABLE} to be set to {@code true}.
+     * Requires {@link FullCalendarViewOptions#getDroppable() droppable} to be set to {@code true}.
      * <p>
      *     This listener is considered low-level. If you external html element uses the Draggable feature
      *     of the FullCalendar and also provides valid entry data, we strongly recommend to use
@@ -1821,7 +1821,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
 
     /**
      * Registers a {@link Draggable} on this calendar. The wrapped component becomes draggable
-     * onto any calendar that has {@link Option#DROPPABLE} set to {@code true}.
+     * onto any calendar that has {@link FullCalendarViewOptions#getDroppable() droppable} set to {@code true}.
      * <p>
      * When the component is dropped onto <em>this</em> calendar, the resulting {@link DropEvent}
      * provides typed access to the component and entry via {@link DropEvent#getDraggedComponent()}
@@ -1905,7 +1905,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
     /**
      * Registers a listener for when an external element with a {@code data-event} attribute has been dropped
      * and FullCalendar has created a new entry from it. The entry is not added to the provider automatically.
-     * Requires {@link Option#DROPPABLE} to be set to {@code true}.
+     * Requires {@link FullCalendarViewOptions#getDroppable() droppable} to be set to {@code true}.
      *
      * @param listener listener
      * @return registration to remove the listener
@@ -2204,8 +2204,9 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
 
     /**
      * Clears the highlighted time-range selection created when the user drags across time slots while
-     * {@code selectable} is active (see {@link Option#SELECTABLE}). The highlight remains visible until
-     * either the user clicks somewhere on the calendar, or this method is called programmatically.
+     * {@code selectable} is active (see {@link FullCalendarViewOptions#getSelectable() selectable}). The highlight
+     * remains visible until either the user clicks somewhere on the calendar, or this method is called
+     * programmatically.
      * <br><br>
      * Call this after handling a {@link TimeslotsSelectedEvent} — for example, after opening a dialog
      * or creating a new entry — so the highlight does not linger. If the user will interact with a dialog

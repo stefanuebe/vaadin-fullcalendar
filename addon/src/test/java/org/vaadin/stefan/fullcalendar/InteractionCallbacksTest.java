@@ -4,14 +4,15 @@ import com.vaadin.flow.component.ComponentEventListener;
 import com.vaadin.flow.shared.Registration;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.vaadin.stefan.fullcalendar.option.CssSelector;
+import org.vaadin.stefan.fullcalendar.option.JsCallback;
 import tools.jackson.databind.node.ObjectNode;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.vaadin.stefan.fullcalendar.TestUtils.assertOptionalEquals;
 
 /**
  * Tests for interaction callbacks and server-side events.
- * Covers Option enum keys, listener registration, and JS callback/option setters.
+ * Covers listener registration, and JS callback/option setters.
  */
 public class InteractionCallbacksTest {
 
@@ -23,65 +24,36 @@ public class InteractionCallbacksTest {
     }
 
     // -------------------------------------------------------------------------
-    // Option enum keys
-    // -------------------------------------------------------------------------
-
-    @Test
-    void option_selectAllow_key() {
-        assertEquals("selectAllow", Option.SELECT_ALLOW.getOptionKey());
-    }
-
-    @Test
-    void option_eventAllow_key() {
-        assertEquals("eventAllow", Option.ENTRY_ALLOW.getOptionKey());
-    }
-
-    @Test
-    void option_eventOverlap_key() {
-        assertEquals("eventOverlap", Option.ENTRY_OVERLAP.getOptionKey());
-    }
-
-    @Test
-    void option_droppable_key() {
-        assertEquals("droppable", Option.DROPPABLE.getOptionKey());
-    }
-
-    @Test
-    void option_dropAccept_key() {
-        assertEquals("dropAccept", Option.DROP_ACCEPT.getOptionKey());
-    }
-
-    // -------------------------------------------------------------------------
-    // setDroppable — uses setOption
+    // setDroppable
     // -------------------------------------------------------------------------
 
     @Test
     void setDroppable_true_storesOption() {
-        calendar.setOption(Option.DROPPABLE, true);
-        assertOptionalEquals(true, calendar.getOption(Option.DROPPABLE));
+        calendar.options().setDroppable(true);
+        assertEquals(true, calendar.options().getDroppable());
     }
 
     @Test
     void setDroppable_false_storesOption() {
-        calendar.setOption(Option.DROPPABLE, false);
-        assertOptionalEquals(false, calendar.getOption(Option.DROPPABLE));
+        calendar.options().setDroppable(false);
+        assertEquals(false, calendar.options().getDroppable());
     }
 
     // -------------------------------------------------------------------------
-    // setDropAccept — uses setOption
+    // setDropAccept
     // -------------------------------------------------------------------------
 
     @Test
     void setDropAccept_cssSelector_storesOption() {
-        calendar.setOption(Option.DROP_ACCEPT, ".external-event");
-        assertOptionalEquals(".external-event", calendar.getOption(Option.DROP_ACCEPT));
+        calendar.options().setDropAccept(".external-event");
+        assertEquals(CssSelector.of(".external-event"), calendar.options().getDropAccept());
     }
 
     @Test
     void setDropAccept_jsFunction_storesOption() {
         String fn = "function(dragEl) { return dragEl.classList.contains('droppable'); }";
-        calendar.setOption(Option.DROP_ACCEPT, fn);
-        assertOptionalEquals(fn, calendar.getOption(Option.DROP_ACCEPT));
+        calendar.options().setDropAccept(JsCallback.of(fn));
+        assertEquals(JsCallback.of(fn), calendar.options().getDropAccept());
     }
 
     // -------------------------------------------------------------------------

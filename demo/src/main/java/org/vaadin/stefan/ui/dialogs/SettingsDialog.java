@@ -8,8 +8,8 @@ import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import org.vaadin.stefan.fullcalendar.option.CalendarLocale;
 import org.vaadin.stefan.fullcalendar.FullCalendar;
-import org.vaadin.stefan.fullcalendar.Option;
 import org.vaadin.stefan.fullcalendar.option.Timezone;
+import org.vaadin.stefan.ui.view.CalendarViewToolbar;
 
 import java.time.ZoneId;
 import java.util.Arrays;
@@ -17,32 +17,31 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
 
-import static org.vaadin.stefan.fullcalendar.Option.*;
-
 public class SettingsDialog extends Dialog {
-    public static final List<Timezone> SOME_TIMEZONES = Arrays.asList(Timezone.UTC, Timezone.getSystem(), new Timezone(ZoneId.of("America/Los_Angeles")), new Timezone(ZoneId.of("Japan")));
+    public static final List<Timezone> SOME_TIMEZONES = Arrays.asList(Timezone.LOCAL, Timezone.UTC, Timezone.getSystem(), new Timezone(ZoneId.of("America/Los_Angeles")), new Timezone(ZoneId.of("Japan")));
     private static final long serialVersionUID = 1L;
 
     public SettingsDialog(FullCalendar calendar) {
         setDraggable(true);
 
         VerticalLayout layout = new VerticalLayout();
-        Timezone initialTimezone = calendar.getOptionOrDefault(Option.TIMEZONE, Timezone.UTC);
+        Timezone initialTimezone = calendar.options().getTimeZone();
 
         Button toogleFixedWeekCount = new Button("Toggle fixedWeekCount", event -> {
-            boolean current = calendar.<Boolean>getOption(FIXED_WEEK_COUNT).orElse(true);
-            calendar.setOption(FIXED_WEEK_COUNT, !current);
+            Boolean fixedWeekCount = calendar.options().getFixedWeekCount();
+            boolean current = fixedWeekCount == null || fixedWeekCount; // the library default is true
+            calendar.options().setFixedWeekCount(!current);
             Notification.show("Updated fixedWeekCount to " + !current);
         });
 
         List<Locale> items = Arrays.asList(CalendarLocale.getAvailableLocales());
         ComboBox<Locale> comboBoxLocales = new ComboBox<>("Locale");
         comboBoxLocales.setItems(items);
-        comboBoxLocales.setValue(calendar.<Locale>getOption(LOCALE).orElse(CalendarLocale.getDefaultLocale()));
+        comboBoxLocales.setValue(CalendarViewToolbar.getCalendarLocale(calendar));
         comboBoxLocales.addValueChangeListener(event -> {
             Locale value = event.getValue();
-            calendar.setOption(LOCALE, value != null ? value : CalendarLocale.getDefaultLocale());
-            Locale newLocale = calendar.<Locale>getOption(LOCALE).orElse(CalendarLocale.getDefaultLocale());
+            Locale newLocale = value != null ? value : CalendarLocale.getDefaultLocale();
+            calendar.options().setLocale(newLocale);
             Notification.show("Locale changed to " + newLocale.toLanguageTag());
         });
         comboBoxLocales.setRequired(true);
@@ -53,11 +52,11 @@ public class SettingsDialog extends Dialog {
         timezoneComboBox.setItemLabelGenerator(Timezone::getClientSideValue);
         updateTimezonesComboBox(calendar, timezoneComboBox, showOnlySomeTimezones.getValue());
         timezoneComboBox.addValueChangeListener(event -> {
-            if (!Objects.equals(calendar.getOptionOrDefault(Option.TIMEZONE, Timezone.UTC), event.getValue())) {
+            if (!Objects.equals(calendar.options().getTimeZone(), event.getValue())) {
 
                 Timezone value = event.getValue();
-                calendar.setOption(Option.TIMEZONE, value != null ? value : initialTimezone);
-                Notification.show("Timezone changed to " + calendar.getOptionOrDefault(Option.TIMEZONE, Timezone.UTC));
+                calendar.options().setTimeZone(value != null ? value : initialTimezone);
+                Notification.show("Timezone changed to " + calendar.options().getTimeZone());
             }
         });
         showOnlySomeTimezones.addValueChangeListener(event -> updateTimezonesComboBox(calendar, timezoneComboBox, event.getValue()));
@@ -77,10 +76,10 @@ public class SettingsDialog extends Dialog {
             timezoneComboBox.setItems(Timezone.getAvailableZones());
         }
 
-        if (!SOME_TIMEZONES.contains(calendar.getOptionOrDefault(Option.TIMEZONE, Timezone.UTC))) {
+        if (!SOME_TIMEZONES.contains(calendar.options().getTimeZone())) {
             timezoneComboBox.setValue(Timezone.UTC);
         } else {
-            timezoneComboBox.setValue(calendar.getOptionOrDefault(Option.TIMEZONE, Timezone.UTC));
+            timezoneComboBox.setValue(calendar.options().getTimeZone());
         }
     }
 }

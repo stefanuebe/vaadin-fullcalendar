@@ -55,7 +55,7 @@ test.describe('Callback this', () => {
         expect(await recorded(page, 'after-selectOverlap')).toBe(true);
     });
 
-    test('click of a custom button in Option.BUTTONS has the calendar as this', async ({ page }) => {
+    test('click of a custom button in the buttons option has the calendar as this', async ({ page }) => {
         await page.locator('#cal-before button:has-text("Custom")').click();
         await expect.poll(() => recorded(page, 'before-button')).toBe(true);
     });

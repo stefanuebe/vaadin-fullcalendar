@@ -1,17 +1,19 @@
 package org.vaadin.stefan.fullcalendar;
 
 import org.vaadin.stefan.fullcalendar.option.BusinessHours;
+import org.vaadin.stefan.fullcalendar.option.CalendarDuration;
+import org.vaadin.stefan.fullcalendar.option.ConstraintValue;
+import com.vaadin.browserless.BrowserlessTest;
+import com.vaadin.flow.component.UI;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.node.ObjectNode;
 
 import java.time.DayOfWeek;
-import java.time.LocalDate;
-import java.util.Map;
-import java.util.Optional;
+import java.time.Duration;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.vaadin.stefan.fullcalendar.TestUtils.assertOptionalEquals;
 
 /**
  * Tests for advanced and niche options.
@@ -19,7 +21,7 @@ import static org.vaadin.stefan.fullcalendar.TestUtils.assertOptionalEquals;
  * view-specific options, validRange/selectOverlap callbacks,
  * navigation methods, and getCurrentIntervalStart/End.
  */
-public class AdvancedOptionsTest {
+public class AdvancedOptionsTest extends BrowserlessTest {
 
     private FullCalendar calendar;
 
@@ -28,23 +30,12 @@ public class AdvancedOptionsTest {
         calendar = new FullCalendar();
     }
 
-    // -------------------------------------------------------------------------
-    // Option enum keys
-    // -------------------------------------------------------------------------
-
-    @Test
-    void option_eventConstraint_key() {
-        assertEquals("eventConstraint", Option.ENTRY_CONSTRAINT.getOptionKey());
-    }
-
-    @Test
-    void option_dateIncrement_key() {
-        assertEquals("dateIncrement", Option.DATE_INCREMENT.getOptionKey());
-    }
-
-    @Test
-    void option_dateAlignment_key() {
-        assertEquals("dateAlignment", Option.DATE_ALIGNMENT.getOptionKey());
+    /** The initial options, which the client reads on attach. They reach the property with the response. */
+    private JsonNode initialOptions() {
+        UI ui = UI.getCurrent();
+        ui.add(calendar);
+        ui.getInternals().getStateTree().runExecutionsBeforeClientResponse();
+        return (JsonNode) calendar.getElement().getPropertyRaw("initialOptions");
     }
 
     // -------------------------------------------------------------------------
@@ -53,29 +44,32 @@ public class AdvancedOptionsTest {
 
     @Test
     void setEntryConstraint_string_storesOption() {
-        calendar.setOption(Option.ENTRY_CONSTRAINT, "myGroup");
-        assertOptionalEquals("myGroup", calendar.getOption(Option.ENTRY_CONSTRAINT));
+        calendar.options().setEntryConstraint("myGroup");
+        assertEquals(ConstraintValue.ofGroupId("myGroup"), calendar.options().getEntryConstraint());
+        assertEquals("myGroup", initialOptions().get("eventConstraint").asString());
     }
 
     @Test
-    void setEntryConstraint_businessHours_sendsJsonObject() {
+    void setEntryConstraint_businessHours_sendsTheHours() {
         BusinessHours hours = BusinessHours.of(DayOfWeek.MONDAY, DayOfWeek.TUESDAY);
-        calendar.setOption(Option.ENTRY_CONSTRAINT, hours);
-        assertOptionalEquals(hours, calendar.getOption(Option.ENTRY_CONSTRAINT));
-        assertInstanceOf(ObjectNode.class, calendar.getOption(Option.ENTRY_CONSTRAINT, true).orElseThrow());
+        calendar.options().setEntryConstraint(hours);
+        assertEquals(ConstraintValue.ofWindows(hours), calendar.options().getEntryConstraint());
+        assertEquals(JsonFactory.createArray().add(hours.toJson()), initialOptions().get("eventConstraint"));
     }
 
     @Test
     void setEntryConstraintToBusinessHours_storesString() {
-        calendar.setOption(Option.ENTRY_CONSTRAINT, "businessHours");
-        assertOptionalEquals("businessHours", calendar.getOption(Option.ENTRY_CONSTRAINT));
+        calendar.options().setEntryConstraint(ConstraintValue.BUSINESS_HOURS);
+        assertEquals(ConstraintValue.BUSINESS_HOURS, calendar.options().getEntryConstraint());
+        assertEquals("businessHours", initialOptions().get("eventConstraint").asString());
     }
 
     @Test
     void setEntryConstraint_null_clearsOption() {
-        calendar.setOption(Option.ENTRY_CONSTRAINT, "myGroup");
-        calendar.setOption(Option.ENTRY_CONSTRAINT, null);
-        assertTrue(calendar.getOption(Option.ENTRY_CONSTRAINT).isEmpty());
+        calendar.options().setEntryConstraint("myGroup");
+        calendar.options().setEntryConstraint((String) null);
+        assertNull(calendar.options().getEntryConstraint());
+        assertFalse(initialOptions().has("eventConstraint"));
     }
 
     // -------------------------------------------------------------------------
@@ -84,119 +78,116 @@ public class AdvancedOptionsTest {
 
     @Test
     void setDateIncrement_storesOption() {
-        calendar.setOption(Option.DATE_INCREMENT, "P1W");
-        assertOptionalEquals("P1W", calendar.getOption(Option.DATE_INCREMENT));
+        calendar.options().setDateIncrement(CalendarDuration.ofWeeks(1));
+        assertEquals(CalendarDuration.ofWeeks(1), calendar.options().getDateIncrement());
+        assertEquals(1, initialOptions().get("dateIncrement").get("weeks").asInt());
     }
 
     @Test
     void setDateIncrement_null_clearsOption() {
-        calendar.setOption(Option.DATE_INCREMENT, "P1W");
-        calendar.setOption(Option.DATE_INCREMENT, null);
-        assertTrue(calendar.getOption(Option.DATE_INCREMENT).isEmpty());
+        calendar.options().setDateIncrement(CalendarDuration.ofWeeks(1));
+        calendar.options().setDateIncrement((CalendarDuration) null);
+        assertNull(calendar.options().getDateIncrement());
+        assertFalse(initialOptions().has("dateIncrement"));
     }
 
     @Test
     void setDateAlignment_storesOption() {
-        calendar.setOption(Option.DATE_ALIGNMENT, "week");
-        assertOptionalEquals("week", calendar.getOption(Option.DATE_ALIGNMENT));
+        calendar.options().setDateAlignment("week");
+        assertEquals("week", calendar.options().getDateAlignment());
+        assertEquals("week", initialOptions().get("dateAlignment").asString());
     }
 
     @Test
     void setDateAlignment_null_clearsOption() {
-        calendar.setOption(Option.DATE_ALIGNMENT, "week");
-        calendar.setOption(Option.DATE_ALIGNMENT, null);
-        assertTrue(calendar.getOption(Option.DATE_ALIGNMENT).isEmpty());
+        calendar.options().setDateAlignment("week");
+        calendar.options().setDateAlignment(null);
+        assertNull(calendar.options().getDateAlignment());
+        assertFalse(initialOptions().has("dateAlignment"));
     }
 
     // -------------------------------------------------------------------------
-    // 7.13 setViewSpecificOption
+    // view options
     // -------------------------------------------------------------------------
 
     @Test
-    void setViewSpecificOption_string_key_storesNestedJson() {
-        calendar.setViewSpecificOption("dayGridMonth", "dayMaxEventRows", 3);
-        Optional<Object> opt = calendar.getOption("views");
-        assertTrue(opt.isPresent());
-        ObjectNode views = (ObjectNode) opt.get();
+    void viewOptions_field_storesNestedJson() {
+        calendar.options().view(CalendarViewImpl.DAY_GRID_MONTH).setDayMaxEntries(3);
+        ObjectNode views = (ObjectNode) initialOptions().get("views");
         assertTrue(views.has("dayGridMonth"));
-        assertEquals(3, views.get("dayGridMonth").get("dayMaxEventRows").asInt());
+        assertEquals(3, views.get("dayGridMonth").get("dayMaxEvents").asInt());
     }
 
     @Test
-    void setViewSpecificOption_option_enum_storesNestedJson() {
-        calendar.setViewSpecificOption("timeGrid", Option.SLOT_DURATION, "00:30:00");
-        Optional<Object> opt = calendar.getOption("views");
-        assertTrue(opt.isPresent());
-        ObjectNode views = (ObjectNode) opt.get();
-        assertTrue(views.has("timeGrid"));
-        assertEquals("00:30:00", views.get("timeGrid").get("slotDuration").asText());
+    void viewOptions_duration_storesNestedJson() {
+        calendar.options().view(CalendarViewImpl.TIME_GRID_WEEK).setSlotDuration(Duration.ofMinutes(30));
+        ObjectNode views = (ObjectNode) initialOptions().get("views");
+        assertTrue(views.has("timeGridWeek"));
+        assertEquals(30, views.get("timeGridWeek").get("slotDuration").get("minutes").asInt());
     }
 
     @Test
-    void setViewSpecificOption_calendarView_enum_storesNestedJson() {
-        calendar.setViewSpecificOption(CalendarViewImpl.DAY_GRID_MONTH, Option.NOW_INDICATOR, true);
-        Optional<Object> opt = calendar.getOption("views");
-        assertTrue(opt.isPresent());
-        ObjectNode views = (ObjectNode) opt.get();
+    void viewOptions_boolean_storesNestedJson() {
+        calendar.options().view(CalendarViewImpl.DAY_GRID_MONTH).setNowIndicator(true);
+        ObjectNode views = (ObjectNode) initialOptions().get("views");
         String viewKey = CalendarViewImpl.DAY_GRID_MONTH.getClientSideValue();
         assertTrue(views.has(viewKey));
         assertTrue(views.get(viewKey).get("nowIndicator").asBoolean());
     }
 
     @Test
-    void setViewSpecificOption_multipleViews_storesSeparately() {
-        calendar.setViewSpecificOption("dayGrid", "dayMaxEventRows", 3);
-        calendar.setViewSpecificOption("timeGrid", "slotDuration", "00:30:00");
-        ObjectNode views = (ObjectNode) calendar.getOption("views").orElseThrow();
-        assertTrue(views.has("dayGrid"));
-        assertTrue(views.has("timeGrid"));
-        assertEquals(3, views.get("dayGrid").get("dayMaxEventRows").asInt());
-        assertEquals("00:30:00", views.get("timeGrid").get("slotDuration").asText());
+    void viewOptions_multipleViews_storesSeparately() {
+        calendar.options().view(CalendarViewImpl.DAY_GRID_MONTH).setDayMaxEntries(3);
+        calendar.options().view(CalendarViewImpl.TIME_GRID_WEEK).setSlotDuration(Duration.ofMinutes(30));
+        ObjectNode views = (ObjectNode) initialOptions().get("views");
+        assertTrue(views.has("dayGridMonth"));
+        assertTrue(views.has("timeGridWeek"));
+        assertEquals(3, views.get("dayGridMonth").get("dayMaxEvents").asInt());
+        assertEquals(30, views.get("timeGridWeek").get("slotDuration").get("minutes").asInt());
     }
 
     @Test
-    void setViewSpecificOptions_map_storesAllEntries() {
-        calendar.setViewSpecificOptions("listWeek", Map.of("noEventsText", "None", "listDaySideFormat", "DD"));
-        ObjectNode views = (ObjectNode) calendar.getOption("views").orElseThrow();
+    void viewOptions_fieldAndRawOption_storeAllEntries() {
+        FullCalendarViewOptions list = calendar.options().view(CalendarViewImpl.LIST_WEEK);
+        list.setNoEntriesText("None");
+        list.setRawOption("listDaySideFormat", "DD");
+        ObjectNode views = (ObjectNode) initialOptions().get("views");
         assertTrue(views.has("listWeek"));
-        assertEquals("None", views.get("listWeek").get("noEventsText").asText());
+        assertEquals("None", views.get("listWeek").get("noEventsText").asString());
+        assertEquals("DD", views.get("listWeek").get("listDaySideFormat").asString());
     }
 
     @Test
-    void setViewSpecificOption_null_value_removesEntireViewNode() {
-        // Set an option and then null it — the view node should be cleaned up entirely
-        calendar.setViewSpecificOption("dayGrid", "dayMaxEventRows", 3);
-        calendar.setViewSpecificOption("dayGrid", "dayMaxEventRows", null);
-        // Implementation removes the view node when it becomes empty, so views is empty/absent
-        Optional<Object> opt = calendar.getOption("views");
-        opt.ifPresent(v -> {
-            ObjectNode views = (ObjectNode) v;
-            assertFalse(views.has("dayGrid"), "empty dayGrid view node must be removed");
-        });
+    void viewOptions_null_value_removesEntireViewNode() {
+        // Set an option and then null it - the view node must not stay behind empty
+        calendar.options().view(CalendarViewImpl.DAY_GRID_MONTH).setDayMaxEntries(3);
+        calendar.options().view(CalendarViewImpl.DAY_GRID_MONTH).setDayMaxEntries(null);
+        JsonNode views = initialOptions().get("views");
+        assertTrue(views == null || !views.has("dayGridMonth"), "empty dayGridMonth view node must be removed");
     }
 
     @Test
-    void setViewSpecificOption_multipleKeys_removeOneKeepOther() {
-        calendar.setViewSpecificOption("dayGrid", "dayMaxEventRows", 3);
-        calendar.setViewSpecificOption("dayGrid", "nowIndicator", true);
+    void viewOptions_multipleKeys_removeOneKeepOther() {
+        FullCalendarViewOptions month = calendar.options().view(CalendarViewImpl.DAY_GRID_MONTH);
+        month.setDayMaxEntries(3);
+        month.setNowIndicator(true);
         // Remove only one key
-        calendar.setViewSpecificOption("dayGrid", "dayMaxEventRows", null);
-        ObjectNode views = (ObjectNode) calendar.getOption("views").orElseThrow();
-        assertTrue(views.has("dayGrid"), "dayGrid node must remain because nowIndicator is still set");
-        assertFalse(views.get("dayGrid").has("dayMaxEventRows"), "removed key must be absent");
-        assertTrue(views.get("dayGrid").has("nowIndicator"), "remaining key must still be present");
+        month.setDayMaxEntries(null);
+        ObjectNode views = (ObjectNode) initialOptions().get("views");
+        assertTrue(views.has("dayGridMonth"), "dayGridMonth node must remain because nowIndicator is still set");
+        assertFalse(views.get("dayGridMonth").has("dayMaxEvents"), "removed key must be absent");
+        assertTrue(views.get("dayGridMonth").has("nowIndicator"), "remaining key must still be present");
     }
 
     @Test
-    void setViewSpecificOption_viewType_null_throws() {
-        assertThrows(NullPointerException.class,
-                () -> calendar.setViewSpecificOption((String) null, "dayMaxEventRows", 3));
+    void viewOptions_view_null_throws() {
+        assertThrows(NullPointerException.class, () -> calendar.options().view(null));
     }
 
     @Test
-    void setViewSpecificOption_optionKey_null_throws() {
+    void viewOptions_rawOptionName_null_throws() {
         assertThrows(NullPointerException.class,
-                () -> calendar.setViewSpecificOption("dayGrid", (String) null, 3));
+                () -> calendar.options().view(CalendarViewImpl.DAY_GRID_MONTH).setRawOption(null, 3));
     }
 
     // -------------------------------------------------------------------------

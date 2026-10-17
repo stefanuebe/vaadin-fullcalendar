@@ -65,10 +65,10 @@ public class PlaygroundView extends VerticalLayout implements AfterNavigationObs
 
         // --- Calendar ---
         calendar = new FullCalendar();
-        calendar.setOption(Option.DAY_MAX_ENTRIES, 3);
-        calendar.setOption(Option.WEEK_NUMBERS, true);
-        calendar.setOption(Option.SELECTABLE, true);
-        calendar.setOption(Option.LOCALE, Locale.ENGLISH);
+        calendar.options().setDayMaxEntries(3);
+        calendar.options().setWeekNumbers(true);
+        calendar.options().setSelectable(true);
+        calendar.options().setLocale(Locale.ENGLISH);
 
         // --- Entry provider with pre-loaded entries ---
         entryProvider = new InMemoryEntryProvider<>();

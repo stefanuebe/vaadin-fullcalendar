@@ -5,7 +5,6 @@ import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.Route;
 import org.vaadin.stefan.fullcalendar.FullCalendar;
-import org.vaadin.stefan.fullcalendar.Option;
 import org.vaadin.stefan.fullcalendar.option.Timezone;
 import org.vaadin.stefan.ui.layouts.TestLayout;
 import org.vaadin.stefan.ui.menu.MenuItem;
@@ -32,7 +31,7 @@ public class AutoBrowserTimezoneTestView extends VerticalLayout {
 
         Span timezone = new Span("-");
         timezone.setId("calendar-timezone");
-        calendar.addBrowserTimezoneObtainedListener(e -> timezone.setText(calendar.<Timezone>getOption(Option.TIMEZONE).map(Timezone::getClientSideValue).orElse("-")));
+        calendar.addBrowserTimezoneObtainedListener(e -> timezone.setText(calendar.options().getTimeZone().getClientSideValue()));
 
         add(timezone, calendar);
     }

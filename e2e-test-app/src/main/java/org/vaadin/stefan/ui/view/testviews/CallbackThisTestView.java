@@ -1,13 +1,13 @@
 package org.vaadin.stefan.ui.view.testviews;
 
 import org.vaadin.stefan.fullcalendar.option.JsCallback;
-import org.vaadin.stefan.fullcalendar.option.NativeToolbarParts;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.Route;
 import org.vaadin.stefan.fullcalendar.*;
 import org.vaadin.stefan.fullcalendar.dataprovider.EntryProvider;
+import org.vaadin.stefan.fullcalendar.option.ToolbarValue;
 import org.vaadin.stefan.ui.layouts.TestLayout;
 import org.vaadin.stefan.ui.menu.MenuItem;
 
@@ -34,21 +34,21 @@ public class CallbackThisTestView extends VerticalLayout {
         add(new H2("Callback this"));
 
         FullCalendar before = createCalendar("before");
-        before.setOption(Option.ENTRY_DID_MOUNT, recordCalendarThis("before", "mount", "info"));
-        before.setOption(Option.SELECT_OVERLAP, recordCalendarThis("before", "selectOverlap", "info"));
-        before.setOption(Option.BUTTONS, Map.of("custom", Map.of("text", "Custom",
+        before.options().setEntryDidMount(recordCalendarThis("before", "mount", "info"));
+        before.options().setSelectOverlap(recordCalendarThis("before", "selectOverlap", "info"));
+        before.options().setButtons(Map.of("custom", Map.of("text", "Custom",
                 "click", recordCalendarThis("before", "button", "ev"))));
-        before.setOption(Option.HEADER_TOOLBAR, Map.of(NativeToolbarParts.START, "custom"));
-        before.setOption(Option.ENTRY_ALLOW, recordArrowThis("before", "arrow"));
+        before.options().setHeaderToolbar(ToolbarValue.ofStartEnd("custom", "", ""));
+        before.options().setEntryAllow(recordArrowThis("before", "arrow"));
         // called while the calendar is created, so it stores this and the test compares it afterwards
-        before.setOption(Option.VALID_RANGE, JsCallback.of(
+        before.options().setValidRange(JsCallback.of(
                 "function(nowDate) { (window.cbThis = window.cbThis || {})['before-validRange'] = this; return {}; }"));
 
         FullCalendar after = createCalendar("after");
 
         Button setAfter = new Button("Set after attach", e -> {
-            after.setOption(Option.ENTRY_DID_MOUNT, recordCalendarThis("after", "mount", "info"));
-            after.setOption(Option.SELECT_OVERLAP, recordCalendarThis("after", "selectOverlap", "info"));
+            after.options().setEntryDidMount(recordCalendarThis("after", "mount", "info"));
+            after.options().setSelectOverlap(recordCalendarThis("after", "selectOverlap", "info"));
         });
         setAfter.setId("set-after");
 
@@ -79,8 +79,8 @@ public class CallbackThisTestView extends VerticalLayout {
         FullCalendar calendar = new FullCalendar();
         calendar.setId("cal-" + id);
         calendar.setHeight("250px");
-        calendar.setOption(Option.INITIAL_DATE, LocalDate.of(2025, 3, 1));
-        calendar.setOption(Option.INITIAL_VIEW, CalendarViewImpl.DAY_GRID_MONTH.getClientSideValue());
+        calendar.options().setInitialDate(LocalDate.of(2025, 3, 1));
+        calendar.options().setInitialView(CalendarViewImpl.DAY_GRID_MONTH);
 
         Entry entry = new Entry();
         entry.setTitle("Entry " + id);
