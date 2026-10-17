@@ -311,14 +311,6 @@ public class SchedulerFeaturesTest {
     }
 
     @Test
-    @SuppressWarnings("removal")
-    void deprecatedSetResourceAreaColumns_setsTheResourceColumnsOption() {
-        calendar.setResourceAreaColumns(new ResourceAreaColumn("title", "Title"));
-
-        Assertions.assertFalse(calendar.options().getResourceColumns().isEmpty());
-    }
-
-    @Test
     void testSetResourceColumns() {
         List<ResourceColumn> columns = List.of(
                 new ResourceColumn("title", "Resource").withWidth(200),

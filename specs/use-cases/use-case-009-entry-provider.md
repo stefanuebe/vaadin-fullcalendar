@@ -10,7 +10,7 @@
 ## Scope
 
 **Addon module:** addon
-**Related Options:** `Option.LAZY_FETCHING`
+**Related Options:** `lazyFetching`
 **Related Events:** —
 
 ---
@@ -59,7 +59,7 @@ provider.refreshAll();
 |----|------|
 | BR-01 | Default provider is `InMemoryEntryProvider` |
 | BR-02 | `CallbackEntryProvider` queries are triggered on view change and navigation |
-| BR-03 | `LAZY_FETCHING = true` (default) prevents re-fetching when navigating within already-fetched ranges |
+| BR-03 | `lazyFetching = true` (default) prevents re-fetching when navigating within already-fetched ranges |
 | BR-04 | `refreshAll()` sends all entries to the client (in-memory) or re-triggers the callback |
 | BR-05 | `refreshItem()` sends a single entry update to the client |
 | BR-06 | Entry cache is bounded to 10,000 entries (LRU eviction) |

@@ -10,7 +10,7 @@
 ## Scope
 
 **Addon module:** addon
-**Related Options:** `Option.ENTRY_SOURCE_START_PARAM`, `Option.ENTRY_SOURCE_END_PARAM`, `Option.ENTRY_SOURCE_TIME_ZONE_PARAM`, `Option.ENTRY_SOURCE_GOOGLE_CALENDAR_API_KEY`
+**Related Options:** `startParam`, `endParam`, `timeZoneParam`, `googleCalendarApiKey`
 **Related Events:** `RemoteEntrySourceFailureEvent`, `RemoteEntryDroppedEvent`, `RemoteEntryResizedEvent`
 
 ---

@@ -10,7 +10,7 @@
 ## Scope
 
 **Addon module:** addon-scheduler
-**Related Options:** `SchedulerOption.RESOURCE_COLUMNS`
+**Related Options:** `resourceColumns`
 **Related Events:** none (leverages existing entry/resource events for reading component state)
 **Related Classes:** `ResourceColumn`, `Resource`, `FullCalendarScheduler`, `Scheduler`
 
@@ -33,7 +33,7 @@
 
 ```java
 FullCalendarScheduler scheduler = new FullCalendarScheduler();
-scheduler.setOption(SchedulerOption.LICENSE_KEY, Scheduler.AGPL_V3_LICENSE_KEY);
+scheduler.options().setSchedulerLicenseKey(Scheduler.AGPL_V3_LICENSE_KEY);
 
 // Define a component column — callback receives Resource, returns Component.
 // The "field" parameter serves as a unique column key. FullCalendar still looks up the field
@@ -50,10 +50,10 @@ ComponentResourceColumn<DatePicker> dateColumn = new ComponentResourceColumn<>(
 );
 
 // Mix with regular columns — withWidth() returns ComponentResourceColumn<DatePicker>
-scheduler.setResourceColumns(
-    new ResourceColumn("title", "Name").withWidth("200px"),
-    dateColumn.withWidth("160px")
-);
+scheduler.options().setResourceColumns(List.of(
+    new ResourceColumn("title", "Name").withWidth(200),
+    dateColumn.withWidth(160)
+));
 ```
 
 ### Runtime access to components (type-safe)
@@ -130,7 +130,7 @@ FullCalendarScheduler                     <vaadin-full-calendar-scheduler>
 
 **Implementation approach:**
 
-- `setResourceColumns()` detects `ComponentResourceColumn` instances via `instanceof`. It unbinds and destroys components of previously active columns, then binds new columns and creates components for all currently registered resources. Updates `activeComponentColumns`.
+- `options().setResourceColumns()` detects `ComponentResourceColumn` instances via `instanceof`. It unbinds and destroys components of previously active columns, then binds new columns and creates components for all currently registered resources. Updates `activeComponentColumns`.
 - `addResources()` iterates `activeComponentColumns` and calls each column's `createComponent(resource)` for each new resource. Component creation happens immediately (even before attach — Vaadin tracks server-side element tree). Components are appended to the hidden container.
 - `removeResources()` iterates `activeComponentColumns` and calls each column's `destroyComponent(resource)` for each removed resource. **This UC also fixes the pre-existing gap in `removeResources()`:** child resources must be recursively removed from `this.resources` map when their parent is removed. This ensures component cleanup and resource map stay consistent.
 - `removeAllResources()` iterates `activeComponentColumns` and calls each column's `destroyAllComponents()`
@@ -176,16 +176,16 @@ SerializableFunction<Resource, DatePicker> factory = res -> new DatePicker();
 var col1 = new ComponentResourceColumn<>("deadline", "Deadline", factory);
 var col2 = new ComponentResourceColumn<>("deadline", "Deadline", factory);
 
-scheduler1.setResourceColumns(col1);
-scheduler2.setResourceColumns(col2);
+scheduler1.options().setResourceColumns(List.of(col1));
+scheduler2.options().setResourceColumns(List.of(col2));
 
 // NOT OK: same instance in two calendars simultaneously
-// scheduler1.setResourceColumns(sharedCol);
-// scheduler2.setResourceColumns(sharedCol); // IllegalStateException — already bound
+// scheduler1.options().setResourceColumns(List.of(sharedCol));
+// scheduler2.options().setResourceColumns(List.of(sharedCol)); // IllegalStateException — already bound
 
 // OK: reuse after unbind
-scheduler1.setResourceColumns(new ResourceColumn("title")); // col1 unbound
-scheduler2.setResourceColumns(col1); // col1 now bound to scheduler2
+scheduler1.options().setResourceColumns(List.of(new ResourceColumn("title"))); // col1 unbound
+scheduler2.options().setResourceColumns(List.of(col1)); // col1 now bound to scheduler2
 ```
 
 ### Type Parameter
@@ -207,7 +207,7 @@ Map<String, DatePicker> all = dateCol.getComponents();
 
 ```java
 // Returns ComponentResourceColumn<DatePicker>, not ResourceColumn
-dateColumn.withWidth("160px").withGroup(true).withHeaderClass("bold");
+dateColumn.withWidth(160).withGroup(true).withHeaderClass("bold");
 ```
 
 The three managed methods (`withCellContent()`, `withCellDidMount()`, `withCellWillUnmount()`) throw `UnsupportedOperationException` — all overloads (String and JsCallback variants, 6 methods total).
@@ -411,7 +411,7 @@ The TypeScript side needs the following new functionality:
 - **Lit component `appendChild` move**: Safe — Lit guards against full re-initialization on reconnect. `connectedCallback`/`disconnectedCallback` fire but state is preserved.
 - **`evaluateCallbacks()` in full-calendar.ts**: Correctly handles nested `__jsCallback` markers in arrays (recurses into `resourceColumns` array elements).
 
-- `ResourceAreaColumn` and `ComponentResourceAreaColumn<T>` remain as deprecated subclasses of `ResourceColumn` / `ComponentResourceColumn<T>`. Their fluent methods return their own type, and they keep `withHeaderClassNames` / `withCellClassNames`. A `ComponentResourceAreaColumn` is no longer a `ResourceAreaColumn`, both share `ResourceColumn`. `setResourceAreaColumns` is a deprecated alias of `setResourceColumns`.
+- `ResourceAreaColumn` and `ComponentResourceAreaColumn<T>` remain as deprecated subclasses of `ResourceColumn` / `ComponentResourceColumn<T>`. Their fluent methods return their own type, and they keep `withHeaderClassNames` / `withCellClassNames`. A `ComponentResourceAreaColumn` is no longer a `ResourceAreaColumn`, both share `AbstractResourceColumn`.
 - FullCalendar 7 replaces the content of the calendar element on its first render, which removes elements attached from the server. The scheduler client parks the component elements across that first render and puts them back afterwards.
 
 ---

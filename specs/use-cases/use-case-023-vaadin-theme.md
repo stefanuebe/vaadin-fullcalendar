@@ -10,7 +10,7 @@
 ## Scope
 
 **Addon module:** addon (the scheduler inherits it)
-**Related Options:** `Option.COLOR_SCHEME`
+**Related Options:** `colorScheme`
 **Related Events:** —
 
 ---
@@ -25,7 +25,7 @@
 - Hovering a list-item entry, a more link or an entry of the list view shows a light accent
 - The application restyles the theme with `--vaadin-fc-*` variables named by purpose, on `html` or a class of one calendar
 - Entries give visual feedback on hover, like with every theme (base styles of the add-on)
-- The calendar follows the color scheme of the application. `Option.COLOR_SCHEME` overrides it for one calendar, its popover and a dragged entry
+- The calendar follows the color scheme of the application. `colorScheme` overrides it for one calendar, its popover and a dragged entry
 - The default theme is shown at once, without loading a theme and without the invisible phase of UC-027
 - A calendar with the Vaadin theme and a classic calendar can share a page and each keeps its own colors
 - Another FullCalendar theme can be selected per calendar (UC-027)
@@ -42,7 +42,7 @@ calendar.setTheme(FullCalendarTheme.VAADIN);
 UI.getCurrent().getPage().setColorScheme(ColorScheme.Value.DARK);
 
 // dark for this calendar only
-calendar.setOption(Option.COLOR_SCHEME, "dark");
+calendar.options().setColorScheme("dark");
 
 // FullCalendar's classic look instead
 calendar.setTheme(FullCalendarTheme.CLASSIC);
@@ -68,8 +68,8 @@ The variables and their defaults are listed in `specs/design-system.md` and on t
 | BR-03 | The theme comes with the main module of the add-on (no on-demand load). `vaadin-theme.ts` imports classic's stylesheet, on which it builds. `FullCalendar` names `vaadin-theme.ts` and `vaadin-theme.css` in its `@JsModule` / `@CssImport`, because Vaadin decides on a frontend bundle rebuild only from the files named there |
 | BR-04 | Colors derive from four base colors, `--vaadin-fc-bg-color`, `--vaadin-fc-text-color`, `--vaadin-fc-accent-color` and `--vaadin-fc-accent-text-color`, whose defaults are: background (`--lumo-base-color` / `--aura-surface-color-solid`), text (`--lumo-body-text-color` / `--aura-neutral`), accent (`--lumo-primary-color` / `--aura-accent-color`), accent text (`--lumo-primary-text-color` / `--aura-accent-text-color`). Without Lumo and Aura the base `--vaadin-*` colors are the fallback. Neutral backgrounds, borders and secondary text are mixed from the text color |
 | BR-05 | The rules set classic's `--fc-classic-*` variables on the outermost `.fc-vaadin` element (calendar, popover, dragged entry) inside the cascade layer `fc-palette` (ADR 0002). Unlayered application CSS overrides them without extra specificity. Entries inherit them from the calendar, so a class of the application on one calendar sets them for that calendar. Entries carry `fc-vaadin` themselves, so a rule that overrides `--fc-classic-*` for one calendar also names `.<class> .fc-vaadin` to win over an application rule on `.fc-vaadin`. The `--vaadin-fc-*` variables need no such second selector, because the theme does not set them on the entries |
-| BR-06 | Lumo and Aura switch colors through `color-scheme`, so the calendar follows the application's color scheme. `Option.COLOR_SCHEME` sets `data-color-scheme` on calendar, popover and dragged entry, which switches `color-scheme` for them |
-| BR-07 | Limitation: in a Lumo application set to dark, `Option.COLOR_SCHEME` cannot make a calendar light. Lumo's dark mode (`theme="dark"` on `html`) sets fixed dark colors instead of `light-dark()` values. A dark calendar in a light Lumo application and both directions with Aura work |
+| BR-06 | Lumo and Aura switch colors through `color-scheme`, so the calendar follows the application's color scheme. `colorScheme` sets `data-color-scheme` on calendar, popover and dragged entry, which switches `color-scheme` for them |
+| BR-07 | Limitation: in a Lumo application set to dark, `colorScheme` cannot make a calendar light. Lumo's dark mode (`theme="dark"` on `html`) sets fixed dark colors instead of `light-dark()` values. A dark calendar in a light Lumo application and both directions with Aura work |
 | BR-08 | The theme can be changed at runtime via `setTheme` |
 | BR-09 | The 7.x theme variant and its stylesheet do not exist anymore. Of its 17 `--vaadin-fc-*` variables, three keep their name. The theme reads none of the names that changed, and there is no fallback |
 | BR-10 | The theme reads the `--vaadin-fc-*` variables named by purpose (`specs/design-system.md`) and never defines them. It reads each with its default as fallback. The hover default is a light accent (10% accent). The other defaults are the colors the theme had before it read the variables |
@@ -81,9 +81,9 @@ The variables and their defaults are listed in `specs/design-system.md` and on t
 
 - [x] Entries take the accent color of Lumo and Aura, light and dark (E2E)
 - [x] The calendar background follows the application's color scheme (E2E)
-- [x] `Option.COLOR_SCHEME` makes one calendar and its popover dark in a light application, with the theme's own colors and not classic's dark palette, also with a classic calendar on the page (E2E)
+- [x] `colorScheme` makes one calendar and its popover dark in a light application, with the theme's own colors and not classic's dark palette, also with a classic calendar on the page (E2E)
 - [x] An entry dragged out of such a calendar keeps the theme's class, color scheme and accent color (E2E)
-- [x] With Aura, `Option.COLOR_SCHEME` also makes one calendar light in a dark application (E2E)
+- [x] With Aura, `colorScheme` also makes one calendar light in a dark application (E2E)
 - [x] The default theme is present at once, the calendar never gets `visibility: hidden` (E2E)
 - [x] A classic calendar on the same page keeps classic's colors (E2E)
 - [x] A class of the application on one calendar sets the colors of its entries, also over an application rule for all calendars (E2E)

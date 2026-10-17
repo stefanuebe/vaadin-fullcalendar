@@ -10,7 +10,7 @@
 ## Scope
 
 **Addon module:** addon
-**Related Options:** `Option.DROPPABLE`, `Option.DROP_ACCEPT`
+**Related Options:** `droppable`, `dropAccept`
 **Related Events:** `DropEvent`, `EntryReceiveEvent`, `EntryLeaveEvent`
 
 ---
@@ -18,14 +18,14 @@
 ## User-Facing Behavior
 
 ### External Drop
-- When `DROPPABLE = true`, external HTML elements (e.g., items from a sidebar list) can be dropped onto the calendar
+- When `droppable = true`, external HTML elements (e.g., items from a sidebar list) can be dropped onto the calendar
 - On drop, `DropEvent` fires with the drop date and optional data from the dragged element
 - The developer is responsible for creating an `Entry` from the drop data
 
 ### Inter-Calendar Drag (Entry Receive/Leave)
 - When an entry from one calendar instance is dragged to another, `EntryReceiveEvent` fires on the receiving calendar
 - `EntryLeaveEvent` fires on the source calendar when an entry leaves
-- Requires `EDITABLE = true` on the source calendar and `DROPPABLE = true` on the target
+- Requires `editable = true` on the source calendar and `droppable = true` on the target
 
 ---
 
@@ -33,10 +33,10 @@
 
 ```java
 // Enable external drops
-calendar.setOption(Option.DROPPABLE, true);
+calendar.options().setDroppable(true);
 
 // Filter which elements can be dropped (CSS selector or JS callback)
-calendar.setOption(Option.DROP_ACCEPT, ".draggable-item");
+calendar.options().setDropAccept(".draggable-item");
 
 // Handle external element drop
 calendar.addDropListener(event -> {
@@ -65,23 +65,23 @@ calendar.addEntryLeaveListener(event -> {
 
 | ID | Rule |
 |----|------|
-| BR-01 | `DROPPABLE = false` (default) disables all external drops |
-| BR-02 | `DROP_ACCEPT` filters which external elements can be dropped (CSS selector or JS callback) |
+| BR-01 | `droppable = false` (default) disables all external drops |
+| BR-02 | `dropAccept` filters which external elements can be dropped (CSS selector or JS callback) |
 | BR-03 | `DropEvent` provides the drop date (`LocalDate`) but NOT a time or an Entry — the developer creates one. Since the return type is `LocalDate` (no time component), timezone normalization does not apply. |
 | BR-04 | `EntryReceiveEvent` provides the entry data, including the extended props of the dragged entry data, but does NOT add it to the provider automatically |
-| BR-05 | Inter-calendar drag requires `EDITABLE = true` on source and `DROPPABLE = true` on target |
+| BR-05 | Inter-calendar drag requires `editable = true` on source and `droppable = true` on target |
 | BR-06 | `EntryLeaveEvent` fires on the source calendar when an entry is dragged out |
 
 ---
 
 ## Acceptance Criteria
 
-- [ ] External HTML elements can be dropped when `DROPPABLE = true`
+- [ ] External HTML elements can be dropped when `droppable = true`
 - [ ] `DropEvent` fires with correct date (LocalDate only, no time)
-- [ ] `DROP_ACCEPT` filters droppable elements
+- [ ] `dropAccept` filters droppable elements
 - [ ] `EntryReceiveEvent` fires when entry from another calendar is received
 - [ ] `EntryLeaveEvent` fires when entry leaves this calendar
-- [ ] External drops are rejected when `DROPPABLE = false`
+- [ ] External drops are rejected when `droppable = false`
 
 ---
 

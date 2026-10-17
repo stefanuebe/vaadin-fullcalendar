@@ -16,15 +16,10 @@
  */
 package org.vaadin.stefan.fullcalendar;
 
-import org.vaadin.stefan.fullcalendar.option.AbstractResourceColumn;
-import org.vaadin.stefan.fullcalendar.option.ComponentResourceColumn;
-import org.vaadin.stefan.fullcalendar.option.ResourceColumn;
 import com.vaadin.flow.component.ComponentEventListener;
 import com.vaadin.flow.shared.Registration;
 
 import java.util.*;
-import java.util.Arrays;
-import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -189,74 +184,6 @@ public interface Scheduler {
      * Does not send an extra update for the entries.
      */
     void removeAllResources();
-
-    /**
-     * Returns an optional option value for the given scheduler option.
-     *
-     * @param option scheduler option
-     * @param <T> type of value
-     * @return optional value or empty
-     * @see FullCalendarScheduler#getOption(SchedulerOption)
-     */
-    <T> Optional<T> getOption(SchedulerOption option);
-    
-    /**
-     * Configures the resource area as a multi-column data grid. Each column maps to a resource property.
-     * When set, FullCalendar renders a header row with column titles above the resource list.
-     * <p>
-     * Example:
-     * <pre>{@code
-     * scheduler.setResourceColumns(List.of(
-     *     new ResourceColumn("title", "Resource").withWidth(200),
-     *     new ResourceColumn("department", "Department").withWidth(150).withGroup(true)
-     * ));
-     * }</pre>
-     *
-     * @param columns list of column definitions; must not be null
-     * @see ResourceColumn
-     * @see ComponentResourceColumn
-     * @see <a href="https://fullcalendar.io/docs/resourceColumns">FullCalendar resourceColumns</a>
-     * @deprecated use {@link FullCalendarSchedulerOptions#setResourceColumns(List)}
-     */
-    @Deprecated(since = "8.0.0", forRemoval = true)
-    void setResourceColumns(List<? extends AbstractResourceColumn<?>> columns);
-
-    /**
-     * Convenience overload for {@link #setResourceColumns(List)}.
-     *
-     * @param columns column definitions
-     * @deprecated use {@link FullCalendarSchedulerOptions#setResourceColumns(List)}
-     */
-    @Deprecated(since = "8.0.0", forRemoval = true)
-    default void setResourceColumns(AbstractResourceColumn<?>... columns) {
-        setResourceColumns(Arrays.asList(columns));
-    }
-
-    /**
-     * Former name of {@link #setResourceColumns(List)}: configures the resource area as a multi-column data
-     * grid. Delegates to it.
-     *
-     * @param columns list of column definitions; must not be null
-     * @deprecated use {@link FullCalendarSchedulerOptions#setResourceColumns(List)}. FullCalendar 7 calls them
-     * resource columns
-     */
-    @Deprecated(since = "8.0.0", forRemoval = true)
-    default void setResourceAreaColumns(List<? extends AbstractResourceColumn<?>> columns) {
-        setResourceColumns(columns);
-    }
-
-    /**
-     * Former name of {@link #setResourceColumns(AbstractResourceColumn...)}: convenience overload for
-     * {@link #setResourceAreaColumns(List)}. Delegates to {@link #setResourceColumns(AbstractResourceColumn...)}.
-     *
-     * @param columns column definitions
-     * @deprecated use {@link FullCalendarSchedulerOptions#setResourceColumns(List)}. FullCalendar 7 calls them
-     * resource columns
-     */
-    @Deprecated(since = "8.0.0", forRemoval = true)
-    default void setResourceAreaColumns(AbstractResourceColumn<?>... columns) {
-        setResourceColumns(columns);
-    }
 
     /**
      * Propagates a server-side resource change to the client. Call this after modifying

@@ -68,7 +68,7 @@ non-business hours with the faint tone it also uses for disabled days. The plugi
 classic's conditions, and `vaadin-theme.css` colors these states with the variables above instead of reassigning the
 tones.
 
-**Color scheme**: Lumo and Aura switch colors through `color-scheme`. `Option.COLOR_SCHEME` sets `data-color-scheme` on
+**Color scheme**: Lumo and Aura switch colors through `color-scheme`. The option `colorScheme` (`options().setColorScheme(...)`) sets `data-color-scheme` on
 the calendar, its popover and a dragged entry, which switches `color-scheme` for them.
 
 **Browser compatibility**: The theme uses `color-mix(in srgb, ...)` which requires Chrome 111+, Firefox 113+, Safari 16.2+.
@@ -119,7 +119,7 @@ Entries can be styled at multiple levels (highest priority wins):
 
 | Level | Mechanism | Example |
 |-------|-----------|---------|
-| **Global** | `Option.ENTRY_COLOR`, `ENTRY_CONTRAST_COLOR` | `calendar.setOption(Option.ENTRY_COLOR, "#3788d8")` |
+| **Global** | `entryColor`, `entryContrastColor` | `calendar.options().setEntryColor("#3788d8")` |
 | **Per-resource** | `Resource.setColor()`, `setEntryContrastColor()` | `resource.setColor("#ff6b6b")` |
 | **Per-entry** | `Entry.setColor()`, `setContrastColor()` | `entry.setColor("red")` |
 | **CSS classes** | `Entry.setClassNames(Set)` or `Resource.setEntryClassNames(Set)` | `entry.setClassNames(Set.of("urgent"))` |
@@ -131,12 +131,12 @@ Entries can be styled at multiple levels (highest priority wins):
 
 | Option | Description | Default |
 |--------|-------------|---------|
-| `Option.HEIGHT` | Total calendar height (px, %, or `"auto"`) | Fills parent |
-| `Option.CONTENT_HEIGHT` | Event area height | `"auto"` |
-| `Option.ASPECT_RATIO` | Width-to-height ratio | `1.35` |
-| `Option.EXPAND_ROWS` | Stretch rows to fill vertically | `false` |
-| `SchedulerOption.RESOURCE_COLUMNS_WIDTH` | Resource column width in scheduler | Auto |
-| `SchedulerOption.SLOT_MIN_WIDTH` | Minimum slot width in timeline | Auto |
+| `calendar.setHeight(...)` (`HasSize`, there is no `height` option field) | Total calendar height (px, %, or `"auto"`) | Fills parent |
+| `contentHeight` | Event area height | `"auto"` |
+| `aspectRatio` | Width-to-height ratio | `1.35` |
+| `expandRows` | Stretch rows to fill vertically | `false` |
+| `resourceColumnsWidth` (scheduler) | Resource column width in scheduler | Auto |
+| `slotMinWidth` (scheduler) | Minimum slot width in timeline | Auto |
 
 FullCalendar resizes itself when the component's size changes. There is no `updateSize()` to call.
 
@@ -144,16 +144,15 @@ FullCalendar resizes itself when the component's size changes. There is no `upda
 
 ## 5. Toolbar
 
-Configured via `Option.HEADER_TOOLBAR` and `Option.FOOTER_TOOLBAR`:
+Configured via the options `headerToolbar` and `footerToolbar`:
 
 ```java
-calendar.setOption(Option.HEADER_TOOLBAR,
-    Map.of("left", "prev,next,today",
-           "center", "title",
-           "right", "dayGridMonth,timeGridWeek,timeGridDay"));
+calendar.options().setHeaderToolbar(
+    ToolbarValue.ofLeftRight("prev,next,today", "title",
+                             "dayGridMonth,timeGridWeek,timeGridDay"));
 ```
 
-Button labels: the `buttons` option, one map per button (e.g., `calendar.setOption("buttons", Map.of("today", Map.of("text", "Heute")))`).
+Button labels: the `buttons` option, one map per button (e.g., `calendar.options().setButtons(Map.of("today", Map.of("text", "Heute")))`).
 
 ---
 
@@ -161,7 +160,7 @@ Button labels: the `buttons` option, one map per button (e.g., `calendar.setOpti
 
 - The calendar adapts to its container size automatically (FullCalendar observes its own size)
 - The host element must have a sized ancestor — without explicit height on a parent, the calendar may collapse to 0px
-- Use `Option.DAY_MIN_WIDTH` to enable horizontal scrolling on narrow containers (sensible default: ~100px)
+- Use the option `dayMinWidth` to enable horizontal scrolling on narrow containers (sensible default: ~100px)
 
 ### Recommended Views by Width
 
@@ -177,7 +176,7 @@ When many buttons are configured on narrow screens, FullCalendar wraps toolbar s
 
 ### Animation & Reduced Motion
 
-The addon uses `filter: brightness(90%) contrast(1.2)` for entry hover and `DRAG_REVERT_DURATION` for drag animations. These do **not** automatically respect `prefers-reduced-motion`. Developers targeting WCAG should add:
+The addon uses `filter: brightness(90%) contrast(1.2)` for entry hover and `dragRevertDuration` for drag animations. These do **not** automatically respect `prefers-reduced-motion`. Developers targeting WCAG should add:
 ```css
 @media (prefers-reduced-motion: reduce) {
     vaadin-full-calendar .fc-event { transition: none !important; }

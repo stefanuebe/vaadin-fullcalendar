@@ -1,8 +1,8 @@
 # The library option names the core add-on supports, one per line: the name, then "global" or "view".
 #
 # A global option has its field in CalendarOptions, a per-view option in ViewOptions. Every name not shown as global
-# below is per view. Generated once from the non-deprecated constants of org.vaadin.stefan.fullcalendar.Option, with
-# "class" written as "className".
+# below is per view. Generated once from the option constants the add-on had before the option fields, with "class"
+# written as "className".
 #
 # A name is global when the library reads it only from the calendar options, so a per-view value has no visible
 # effect, or when the add-on chooses so. To check a name, search the library source in e2e-test-app/node_modules for
@@ -24,7 +24,7 @@
 #
 # Global by the add-on's choice:
 # - the calendar listeners of CALENDAR_LISTENER_REFINERS, because the add-on registers them itself. Of these only
-#   loading has an Option constant.
+#   loading has an option field.
 # - the options the add-on handles itself: eventDidMount, moreLinkClick
 # - navLinkDayClick and navLinkWeekClick, which have a handler of the add-on. A per-view value would replace it, so
 #   the server would no longer get the click in that view.

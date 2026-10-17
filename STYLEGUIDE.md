@@ -119,9 +119,10 @@ Anything written here becomes a rule a reviewer can cite.
 - Entries are extensible by subclassing. The `json` annotations together with the
   converters are the supported way to send own properties to the client, so they
   stay public and stable.
-- The option API (`setOption` / `getOption` with the option enums) is the central
-  way to configure a calendar. Don't add a typed setter for something an option
-  covers. Type safety comes from a converter on the option.
+- The option API (`calendar.options()` with its typed fields, and `setRawOption`
+  for the rest) is the central way to configure a calendar. Don't add a setter on
+  the calendar for something an option covers. Type safety comes from the field's
+  value type and its converter.
 - Stable styling hooks: see `docs/adr/0001-stable-v6-class-names.md`.
 - `set…` or `with…`:
   - Options classes and domain classes (`Entry`, `Resource`, `BusinessHours`) have
@@ -184,14 +185,14 @@ commit messages and issues.
   of information, such as what a value does, how it is shown, a limitation, or
   when it loads, start a new paragraph: a `<p>` in Javadoc, a blank line
   elsewhere. A summary sentence followed by one long block is hard to scan. Not
-  one block on what `ENTRY_CLASS` does and when it is applied, but a `<p>` before
+  one block on what `entryClass` does and when it is applied, but a `<p>` before
   the part on when it is applied.
 - **No lists of constants or methods inside a sentence.** Up to three names fit
   in a sentence. More go into a bullet list or a table, or are left out with a
   pointer to the Javadoc when no reader needs the full list. Not "hooks for
-  `NOW_INDICATOR_HEADER_*`, `NOW_INDICATOR_LINE_*`, `INLINE_WEEK_NUMBER_*`,
-  `ALL_DAY_HEADER_*` and `DAY_LANE_*`", but "hooks for the parts of a view, such as
-  the now indicator and the week numbers. The Javadoc of `Option` lists them."
+  `nowIndicatorHeader*`, `nowIndicatorLine*`, `inlineWeekNumber*`,
+  `allDayHeader*` and `dayLane*`", but "hooks for the parts of a view, such as
+  the now indicator and the week numbers. The options classes list them."
 - **A heading names its topic.** A reader scanning the headings must find where a
   topic is described. Not a catch-all such as "Behavior changes" or "Options"
   beside more specific sections, but "Removing options" or "Entry providers".
