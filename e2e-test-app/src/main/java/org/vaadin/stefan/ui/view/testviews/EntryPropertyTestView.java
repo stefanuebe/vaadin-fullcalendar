@@ -49,10 +49,10 @@ public class EntryPropertyTestView extends VerticalLayout {
 
         // --- Calendar ---
         FullCalendar calendar = new FullCalendar();
-        calendar.setOption(Option.LOCALE, Locale.ENGLISH);
-        calendar.setOption(Option.INITIAL_DATE, LocalDate.of(2025, 3, 1));
-        calendar.setOption(Option.INITIAL_VIEW, CalendarViewImpl.DAY_GRID_MONTH.getClientSideValue());
-        calendar.setOption(Option.EDITABLE, true);
+        calendar.options().setLocale(Locale.ENGLISH);
+        calendar.options().setInitialDate(LocalDate.of(2025, 3, 1));
+        calendar.options().setInitialView(CalendarViewImpl.DAY_GRID_MONTH);
+        calendar.options().setEditable(true);
 
         // --- Entry provider ---
         InMemoryEntryProvider<Entry> provider = new InMemoryEntryProvider<>();
@@ -174,8 +174,7 @@ public class EntryPropertyTestView extends VerticalLayout {
         calendar.setEntryProvider(provider);
 
         // entryDidMount writes extended props to data attributes for E2E verification
-        calendar.setOption(Option.ENTRY_DID_MOUNT,
-                JsCallback.of("function(info) { " +
+        calendar.options().setEntryDidMount(JsCallback.of("function(info) { " +
                 "  var ep = info.event.extendedProps; " +
                 "  if (ep.department) { " +
                 "    info.el.setAttribute('data-department', ep.department); " +
@@ -184,7 +183,7 @@ public class EntryPropertyTestView extends VerticalLayout {
                 "}"));
 
         // a FullCalendar 7 split class hook, run again on every render
-        calendar.setOption("eventTitleClass",
+        calendar.options().setEntryTitleClass(
                 JsCallback.of("info => 'dept-' + (info.event.extendedProps.department || 'none')"));
 
         Button removeDepartment = new Button("Remove department", e -> {

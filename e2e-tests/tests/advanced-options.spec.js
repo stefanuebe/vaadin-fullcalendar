@@ -56,7 +56,7 @@ test.describe('Advanced Options', () => {
     });
 
     // -------------------------------------------------------------------------
-    // Header and footer toolbar set as maps (HEADER_TOOLBAR / FOOTER_TOOLBAR)
+    // Header and footer toolbar set with ToolbarValue (headerToolbar / footerToolbar)
     // -------------------------------------------------------------------------
 
     test('header toolbar view button switches the view', async ({ page }) => {

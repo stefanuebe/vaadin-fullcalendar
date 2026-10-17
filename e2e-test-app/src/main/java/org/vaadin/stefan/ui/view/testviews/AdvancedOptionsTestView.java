@@ -7,13 +7,14 @@ import com.vaadin.flow.router.Route;
 import org.vaadin.stefan.fullcalendar.CalendarViewImpl;
 import org.vaadin.stefan.fullcalendar.Entry;
 import org.vaadin.stefan.fullcalendar.FullCalendar;
-import org.vaadin.stefan.fullcalendar.Option;
+import org.vaadin.stefan.fullcalendar.CustomCalendarView;
 import org.vaadin.stefan.fullcalendar.dataprovider.InMemoryEntryProvider;
+import org.vaadin.stefan.fullcalendar.option.ConstraintValue;
+import org.vaadin.stefan.fullcalendar.option.ToolbarValue;
 import org.vaadin.stefan.ui.layouts.TestLayout;
 import org.vaadin.stefan.ui.menu.MenuItem;
 
 import java.time.LocalDate;
-import java.util.Map;
 
 /**
  * Test view for advanced and niche options.
@@ -44,27 +45,26 @@ public class AdvancedOptionsTestView extends VerticalLayout {
         FullCalendar calendar = new FullCalendar();
         calendar.getElement().setAttribute("data-testid", "calendar");
 
-        // Enable native FC toolbars (default is false in the web component), set as maps, with a view button
-        calendar.setOption(Option.HEADER_TOOLBAR, Map.of(
-                "start", "prev,next today",
-                "center", "title",
-                "end", "dayGridMonth,timeGridWeek"));
-        calendar.setOption(Option.FOOTER_TOOLBAR, Map.of("center", "prevYear,nextYear"));
-        calendar.setOption(Option.INITIAL_DATE, LocalDate.of(2025, 3, 1));
-        calendar.setOption(Option.INITIAL_VIEW, CalendarViewImpl.DAY_GRID_MONTH.getClientSideValue());
+        // Enable native FC toolbars (default is false in the web component), with a view button
+        calendar.options().setHeaderToolbar(ToolbarValue.ofStartEnd(
+                "prev,next today", "title", "dayGridMonth,timeGridWeek"));
+        calendar.options().setFooterToolbar(ToolbarValue.ofStartEnd("", "prevYear,nextYear", ""));
+        calendar.options().setInitialDate(LocalDate.of(2025, 3, 1));
+        calendar.options().setInitialView(CalendarViewImpl.DAY_GRID_MONTH);
 
         // dateAlignment --------------------------------------------------------
         // Aligning to "month" is the default for dayGridMonth; this just exercises the setter.
-        calendar.setOption(Option.DATE_ALIGNMENT, "month");
+        calendar.options().setDateAlignment("month");
 
         // View-specific option ------------------------------------------------
         // Limit displayed event rows to 2 only in the dayGrid view family (not in other views).
         // With 5 events on 2025-03-05 this guarantees a "+N more" link in month view.
-        calendar.setViewSpecificOption("dayGrid", Option.DAY_MAX_ENTRY_ROWS, 2);
+        calendar.options().view(new CustomCalendarView.AnonymousCustomCalendarView("dayGrid", null))
+                .setDayMaxEntryRows(2);
 
         // eventConstraint -------------------------------------------------------
         // Constrain drag-and-drop to business hours (does not affect rendering, exercises setter).
-        calendar.setOption(Option.ENTRY_CONSTRAINT, "businessHours");
+        calendar.options().setEntryConstraint(ConstraintValue.BUSINESS_HOURS);
 
         // --- Entry provider --------------------------------------------------------------
         InMemoryEntryProvider<Entry> provider = new InMemoryEntryProvider<>();

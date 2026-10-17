@@ -2,6 +2,7 @@ package org.vaadin.stefan.ui.view.testviews;
 
 import org.vaadin.stefan.fullcalendar.option.Overlap;
 import org.vaadin.stefan.fullcalendar.option.DateRange;
+import org.vaadin.stefan.fullcalendar.option.BusinessHoursValue;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.Paragraph;
@@ -48,14 +49,14 @@ public class ConstraintOverlapTestView extends VerticalLayout {
 
         // --- Calendar ---
         FullCalendar calendar = new FullCalendar();
-        calendar.setOption(Option.LOCALE, Locale.UK); // Monday-start
-        calendar.setOption(Option.INITIAL_DATE, LocalDate.of(2025, 3, 3));
-        calendar.setOption(Option.INITIAL_VIEW, CalendarViewImpl.TIME_GRID_WEEK.getClientSideValue());
-        calendar.setOption(Option.EDITABLE, true);
-        calendar.setOption(Option.SELECTABLE, true);
+        calendar.options().setLocale(Locale.UK); // Monday-start
+        calendar.options().setInitialDate(LocalDate.of(2025, 3, 3));
+        calendar.options().setInitialView(CalendarViewImpl.TIME_GRID_WEEK);
+        calendar.options().setEditable(true);
+        calendar.options().setSelectable(true);
 
         // validRange: prevent navigation before 2025-03-01 and after 2025-04-30
-        calendar.setOption(Option.VALID_RANGE, new DateRange(LocalDate.of(2025, 3, 1), LocalDate.of(2025, 4, 30)));
+        calendar.options().setValidRange(new DateRange(LocalDate.of(2025, 3, 1), LocalDate.of(2025, 4, 30)));
 
         // --- Entries ---
         InMemoryEntryProvider<Entry> provider = new InMemoryEntryProvider<>();
@@ -109,7 +110,7 @@ public class ConstraintOverlapTestView extends VerticalLayout {
         calendar.setEntryProvider(provider);
 
         // businessHours option for constraint testing
-        calendar.setOption(Option.BUSINESS_HOURS, true);
+        calendar.options().setBusinessHours(BusinessHoursValue.DEFAULT);
 
         // --- Listeners ---
         calendar.addEntryDroppedListener(e -> {

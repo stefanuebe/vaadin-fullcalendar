@@ -55,7 +55,7 @@ test.describe('Render Hook Callbacks', () => {
   });
 
   test('inlineWeekNumberClass: week number cells have hook-weeknum class', async ({ page }) => {
-    // Week numbers are visible (Option.WEEK_NUMBERS in the view)
+    // Week numbers are visible (weekNumbers set in the view)
     const weeknums = page.locator('.fc-daygrid-week-number.hook-weeknum');
     const count = await weeknums.count();
     // March 2025 spans 5–6 week rows depending on locale's first-day-of-week
