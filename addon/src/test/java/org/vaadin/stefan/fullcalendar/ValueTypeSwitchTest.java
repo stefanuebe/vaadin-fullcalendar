@@ -30,6 +30,7 @@ import org.vaadin.stefan.fullcalendar.option.ListTextValue;
 import org.vaadin.stefan.fullcalendar.option.ToolbarValue;
 import org.vaadin.stefan.fullcalendar.option.NoneValue;
 import org.vaadin.stefan.fullcalendar.option.InitialDateValue;
+import org.vaadin.stefan.fullcalendar.option.LocaleValue;
 import org.vaadin.stefan.fullcalendar.option.NowValue;
 import org.vaadin.stefan.fullcalendar.option.Overlap;
 import org.vaadin.stefan.fullcalendar.option.OverlapValue;
@@ -183,6 +184,13 @@ class ValueTypeSwitchTest {
         return switch (value) {
             case InitialDateValue.Day day -> day.date().toString();
             case InitialDateValue.DateTime dateTime -> dateTime.dateTime().toString();
+        };
+    }
+
+    private static String form(LocaleValue value) {
+        return switch (value) {
+            case LocaleValue.Code code -> code.locale().toString();
+            case LocaleValue.Custom custom -> custom.locale() + " " + custom.options();
         };
     }
 

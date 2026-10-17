@@ -158,7 +158,7 @@ getListItemEntryTimeClass(): ClassNameValue
 getListItemEntryTitleClass(): ClassNameValue
 getListText(): ListTextValue
 getLoading(): JsCallback
-getLocale(): Locale
+getLocale(): LocaleValue
 getLongPressDelay(): Integer
 getMonthStartFormat(): DateFormatValue
 getMonthText(): String
@@ -546,6 +546,7 @@ setListText(ListTextValue): void
 setListText(String): void
 setLoading(JsCallback): void
 setLocale(Locale): void
+setLocale(LocaleValue): void
 setLongPressDelay(Integer): void
 setMonthStartFormat(DateFormatValue): void
 setMonthStartFormat(Map): void
