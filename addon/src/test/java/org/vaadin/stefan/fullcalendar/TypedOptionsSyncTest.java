@@ -11,6 +11,7 @@ import org.vaadin.stefan.fullcalendar.option.WeekNumberCalculationValue;
 import org.vaadin.stefan.fullcalendar.option.WidthValue;
 import org.vaadin.stefan.fullcalendar.option.CalendarDuration;
 import org.vaadin.stefan.fullcalendar.option.InitialDateValue;
+import org.vaadin.stefan.fullcalendar.option.LocaleValue;
 import org.vaadin.stefan.fullcalendar.option.AutoBoolean;
 import org.vaadin.stefan.fullcalendar.option.BusinessHours;
 import org.vaadin.stefan.fullcalendar.option.BusinessHoursValue;
@@ -116,6 +117,15 @@ public class TypedOptionsSyncTest extends BrowserlessTest {
 
         assertEquals(1, initialOptions().get("firstDay").asInt());
         assertEquals("2025-03-03", initialOptions().get("initialDate").asString());
+    }
+
+    @Test
+    void beforeAttach_customLocale_isSentAsLocaleObject() {
+        calendar.options().setLocale(LocaleValue.ofCustom(Locale.of("de", "CH"), Map.of("todayText", "Heute")));
+        attach();
+
+        assertEquals(JsonFactory.createObject().put("todayText", "Heute").put("code", "de-ch"),
+                initialOptions().get("locale"));
     }
 
     @Test
@@ -591,6 +601,7 @@ public class TypedOptionsSyncTest extends BrowserlessTest {
                     ConstraintValue.Window.span(LocalDate.of(2026, 1, 2), LocalDate.of(2026, 1, 5)),
                     JsonFactory.createObject().put("start", "2026-01-02").put("end", "2026-01-05")),
             sample(DayOfWeek.class, DayOfWeek.WEDNESDAY, JsonUtils.toJsonNode(3)),
+            sample(Locale.class, Locale.of("pt", "BR"), JsonUtils.toJsonNode("pt-br")),
             sample(Map.class, Map.of("weekday", "long"), JsonFactory.createObject().put("weekday", "long")));
 
     /**
@@ -617,6 +628,7 @@ public class TypedOptionsSyncTest extends BrowserlessTest {
             Map.entry(ConstraintValue.class, Set.of(String.class, BusinessHours[].class, ConstraintValue.Window[].class)),
             Map.entry(NowValue.class, Set.of(LocalDate.class, LocalDateTime.class)),
             Map.entry(InitialDateValue.class, Set.of(LocalDate.class, LocalDateTime.class)),
+            Map.entry(LocaleValue.class, Set.of(Locale.class)),
             Map.entry(TextValue.class, Set.of(String.class)),
             Map.entry(OrderValue.class, Set.of(String[].class, Order.Key[].class)),
             Map.entry(WidthValue.class, Set.of(int.class)),
@@ -768,7 +780,8 @@ public class TypedOptionsSyncTest extends BrowserlessTest {
         }
         for (Method perForm : perFormSetters) {
             for (Map.Entry<Object, JsonNode> argument : parameterSamples(perForm.getParameterTypes()[0], perForm)) {
-                setter.invoke(options, (Object) null);
+                // the locale cannot be removed, so it starts from the sample, which differs from the argument
+                setter.invoke(options, field.getName().equals("locale") ? value : null);
                 perForm.invoke(options, argument.getKey());
                 Object result = getter.invoke(options);
                 assertNotNull(result, perForm + " sets no value");

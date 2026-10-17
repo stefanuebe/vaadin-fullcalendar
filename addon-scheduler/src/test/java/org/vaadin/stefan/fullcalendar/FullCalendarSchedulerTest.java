@@ -1,5 +1,6 @@
 package org.vaadin.stefan.fullcalendar;
 
+import org.vaadin.stefan.fullcalendar.option.LocaleValue;
 import org.vaadin.stefan.fullcalendar.option.CalendarLocale;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -109,7 +110,8 @@ public class FullCalendarSchedulerTest {
 
     @Test
     void noArgConstructor_setsDefaultLocale() {
-        Assertions.assertSame(CalendarLocale.getDefaultLocale(), new FullCalendarScheduler().options().getLocale());
+        Assertions.assertEquals(LocaleValue.of(CalendarLocale.getDefaultLocale()),
+                new FullCalendarScheduler().options().getLocale());
     }
 
     @Test

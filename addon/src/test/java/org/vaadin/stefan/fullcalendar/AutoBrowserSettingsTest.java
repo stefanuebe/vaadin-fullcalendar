@@ -1,5 +1,6 @@
 package org.vaadin.stefan.fullcalendar;
 
+import org.vaadin.stefan.fullcalendar.option.LocaleValue;
 import org.vaadin.stefan.fullcalendar.option.CalendarLocale;
 import org.vaadin.stefan.fullcalendar.option.Timezone;
 import com.vaadin.browserless.BrowserlessTest;
@@ -246,7 +247,8 @@ public class AutoBrowserSettingsTest extends BrowserlessTest {
 
     @Test
     void locale_null_throws() {
-        assertThrows(NullPointerException.class, () -> calendar.options().setLocale(null));
+        assertThrows(NullPointerException.class, () -> calendar.options().setLocale((Locale) null));
+        assertThrows(NullPointerException.class, () -> calendar.options().setLocale((LocaleValue) null));
     }
 
     @Test
@@ -294,7 +296,7 @@ public class AutoBrowserSettingsTest extends BrowserlessTest {
 
     @Test
     void uiLocaleChange_isIgnored() {
-        Locale before = calendar.options().getLocale();
+        LocaleValue before = calendar.options().getLocale();
         UI.getCurrent().add(calendar);
 
         UI.getCurrent().setLocale(Locale.FRENCH);

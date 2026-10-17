@@ -1,5 +1,6 @@
 package org.vaadin.stefan.fullcalendar;
 
+import org.vaadin.stefan.fullcalendar.option.LocaleValue;
 import org.vaadin.stefan.fullcalendar.option.BusinessHours;
 import org.vaadin.stefan.fullcalendar.option.CalendarLocale;
 import org.vaadin.stefan.fullcalendar.option.Timezone;
@@ -71,14 +72,14 @@ public class FullCalendarTest {
     void noArgConstructor_setsDefaultLocale() {
         FullCalendar calendar = new FullCalendar();
 
-        assertSame(CalendarLocale.getDefaultLocale(), calendar.options().getLocale());
+        assertEquals(LocaleValue.of(CalendarLocale.getDefaultLocale()), calendar.options().getLocale());
     }
 
     @Test
     void initialOptionsConstructor_setsDefaultLocaleWhenNoneGiven() {
         FullCalendar calendar = new FullCalendar(JsonFactory.createObject());
 
-        assertSame(CalendarLocale.getDefaultLocale(), calendar.options().getLocale());
+        assertEquals(LocaleValue.of(CalendarLocale.getDefaultLocale()), calendar.options().getLocale());
     }
 
     @Test

@@ -24,7 +24,7 @@ import org.vaadin.stefan.fullcalendar.converters.ConstraintValueConverter;
 import org.vaadin.stefan.fullcalendar.converters.DayOfWeekConverter;
 import org.vaadin.stefan.fullcalendar.converters.InitialDateValueConverter;
 import org.vaadin.stefan.fullcalendar.converters.ListTextValueConverter;
-import org.vaadin.stefan.fullcalendar.converters.LocaleConverter;
+import org.vaadin.stefan.fullcalendar.converters.LocaleValueConverter;
 import org.vaadin.stefan.fullcalendar.converters.MoreLinkClickValueConverter;
 import org.vaadin.stefan.fullcalendar.converters.TextValueConverter;
 import org.vaadin.stefan.fullcalendar.converters.ToolbarElementsConverter;
@@ -44,6 +44,7 @@ import org.vaadin.stefan.fullcalendar.option.DisplayMode;
 import org.vaadin.stefan.fullcalendar.option.InitialDateValue;
 import org.vaadin.stefan.fullcalendar.option.JsCallback;
 import org.vaadin.stefan.fullcalendar.option.ListTextValue;
+import org.vaadin.stefan.fullcalendar.option.LocaleValue;
 import org.vaadin.stefan.fullcalendar.option.MoreLinkClickValue;
 import org.vaadin.stefan.fullcalendar.option.NativeToolbarButtonDisplay;
 import org.vaadin.stefan.fullcalendar.option.NativeToolbarParts;
@@ -152,25 +153,40 @@ class CalendarOptions implements Serializable {
 
     /**
      * The language and the regional formats of the calendar, such as the texts, the first day of the week and the date
-     * formats.
+     * formats: a locale the library brings ({@link LocaleValue#of(Locale)}), or a custom locale with its own options
+     * ({@link LocaleValue#ofCustom(Locale, Map)}).
+     * <p>
+     * The library also takes a list of codes and uses the first one it brings. The field leaves it out, because the
+     * calendar registers every locale of the library and {@link CalendarLocale} lists them, so the fallback can be
+     * chosen on the server.
      * <p>
      * The initial value is {@link CalendarLocale#getDefaultLocale()}. The calendar always has a locale, so it cannot be
      * removed. This option is not the Vaadin locale of the component, which {@code calendar.getLocale()} still returns.
      *
      * @see <a href="https://fullcalendar.io/docs/locale">locale</a>
      */
-    @JsonConverter(LocaleConverter.class)
+    @JsonConverter(LocaleValueConverter.class)
     @Setter(AccessLevel.NONE)
-    private Locale locale = CalendarLocale.getDefaultLocale();
+    private LocaleValue locale = LocaleValue.of(CalendarLocale.getDefaultLocale());
 
     /**
-     * Sets the locale, see {@link #getLocale()}.
+     * Sets a locale the library brings, see {@link #getLocale()}.
      *
      * @param locale the locale
      * @throws NullPointerException when null is passed
      */
     public void setLocale(Locale locale) {
-        this.locale = Objects.requireNonNull(locale);
+        this.locale = LocaleValue.of(locale);
+    }
+
+    /**
+     * Sets the locale in any form, see {@link #getLocale()}.
+     *
+     * @param value the locale
+     * @throws NullPointerException when null is passed
+     */
+    public void setLocale(LocaleValue value) {
+        this.locale = Objects.requireNonNull(value);
     }
 
     /**

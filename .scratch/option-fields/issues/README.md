@@ -89,6 +89,7 @@ Decided by the maintainer on 2026-10-15, after a review of 21–24 together. The
   | `ConstraintValue` | `String` (group id), `BusinessHours...` (recurring windows), `ConstraintValue.Window...` (mixed windows) |
   | `NowValue` | `LocalDate`, `LocalDateTime` |
   | `InitialDateValue` | `LocalDate`, `LocalDateTime` |
+  | `LocaleValue` | `Locale`. The custom locale takes a `Locale` and a `Map` of options and has no setter |
   | `TextValue` | `String` |
   | `DateRangeValue` | none |
   | `WeekNumberCalculationValue` | none |

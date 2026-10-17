@@ -23,6 +23,7 @@ import org.vaadin.stefan.fullcalendar.option.JsCallback;
 import org.vaadin.stefan.fullcalendar.option.ListDayFormatValue;
 import org.vaadin.stefan.fullcalendar.option.ListTextValue;
 import org.vaadin.stefan.fullcalendar.option.InitialDateValue;
+import org.vaadin.stefan.fullcalendar.option.LocaleValue;
 import org.vaadin.stefan.fullcalendar.option.NowValue;
 import org.vaadin.stefan.fullcalendar.option.Order;
 import org.vaadin.stefan.fullcalendar.option.OrderValue;
@@ -228,6 +229,13 @@ class ConverterTest {
             Map.entry(InitialDateValue.class, new ValueType(InitialDateValueConverter.class, forms(
                     InitialDateValue.ofDay(LocalDate.of(2026, 10, 15)), "2026-10-15",
                     InitialDateValue.ofDateTime(LocalDateTime.of(2026, 10, 15, 6, 0)), "2026-10-15T06:00Z"))),
+            Map.entry(LocaleValue.class, new ValueType(LocaleValueConverter.class, forms(
+                    LocaleValue.of(Locale.GERMANY), "de-de",
+                    LocaleValue.ofCustom(Locale.of("de", "CH"), Map.of("todayText", "Heute",
+                            "week", Map.of("dow", 1, "doy", 4), "moreLinkText", CALLBACK)),
+                    JsonFactory.createObject().put("code", "de-ch").put("todayText", "Heute")
+                            .<ObjectNode>set("week", JsonFactory.createObject().put("dow", 1).put("doy", 4))
+                            .set("moreLinkText", CALLBACK.toMarkerJson())))),
             Map.entry(NowValue.class, new ValueType(NowValueConverter.class, forms(
                     NowValue.ofDay(LocalDate.of(2026, 10, 15)), "2026-10-15",
                     NowValue.ofDateTime(LocalDateTime.of(2026, 10, 15, 9, 30)), "2026-10-15T09:30Z",
@@ -463,6 +471,8 @@ class ConverterTest {
     void valueTypes_rejectValuesTheLibraryReadsDifferently() {
         assertThrows(IllegalArgumentException.class, () -> ConstraintValue.ofGroupId("businessHours"));
         assertThrows(IllegalArgumentException.class, () -> EntryLimitValue.of(-1));
+        assertThrows(IllegalArgumentException.class,
+                () -> LocaleValue.ofCustom(Locale.GERMAN, Map.of("code", "de", "todayText", "Heute")));
         assertThrows(IllegalArgumentException.class, ConstraintValue::ofWindows);
         assertThrows(IllegalArgumentException.class, BusinessHoursValue::of);
         assertThrows(IllegalArgumentException.class, SlotHeaderFormatValue::of);
@@ -574,6 +584,12 @@ class ConverterTest {
                 () -> new NowValueConverter().toServerModel(JsonUtils.toJsonNode(1), null));
         assertThrows(IllegalArgumentException.class,
                 () -> new InitialDateValueConverter().toServerModel(JsonUtils.toJsonNode(1), null));
+        assertThrows(IllegalArgumentException.class,
+                () -> new LocaleValueConverter().toServerModel(JsonUtils.toJsonNode(1), null));
+        assertThrows(IllegalArgumentException.class, () -> new LocaleValueConverter()
+                .toServerModel(JsonFactory.createObject().put("todayText", "Heute"), null));
+        assertThrows(IllegalArgumentException.class, () -> new LocaleValueConverter()
+                .toServerModel(JsonFactory.createObject().put("code", 5), null));
         assertThrows(IllegalArgumentException.class,
                 () -> new StickyValueConverter().toServerModel(JsonFactory.createArray(), null));
         assertThrows(IllegalArgumentException.class,
