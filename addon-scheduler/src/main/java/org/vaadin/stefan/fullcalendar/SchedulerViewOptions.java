@@ -147,10 +147,12 @@ class SchedulerViewOptions extends ViewOptions {
     /**
      * Horizontal alignment of the resource name in the column header cells of the vertical resource views
      * ({@code resourceTimeGrid} and {@code resourceDayGrid}). In a left-to-right locale, start means left and end
-     * means right. Without a value, the theme decides.
+     * means right.
      * <p>
      * A callback gets an {@code info} object with {@code level}, the header row. It returns {@code "start"},
      * {@code "center"} or {@code "end"}.
+     * <p>
+     * The library default is decided by the theme.
      * <p>
      * The getter returns null while the option is not set; then the library default applies.
      *
@@ -161,6 +163,8 @@ class SchedulerViewOptions extends ViewOptions {
 
     /**
      * The width of the area that contains the list of resources, in pixels or as a percentage.
+     * <p>
+     * The library default is {@code "30%"} in the resource timeline views.
      * <p>
      * The getter returns null while the option is not set; then the library default applies.
      *
@@ -243,6 +247,8 @@ class SchedulerViewOptions extends ViewOptions {
      * It applies while the calendar is in print mode, which the library's adaptive plugin switches on when the browser
      * prints. {@link FullCalendarScheduler} loads that plugin. Only timeline views read it.
      * <p>
+     * The library default is 1000.
+     * <p>
      * The getter returns null while the option is not set; then the library default applies.
      *
      * @see <a href="https://fullcalendar.io/docs/printMaxRows">printMaxRows</a>
@@ -280,6 +286,8 @@ class SchedulerViewOptions extends ViewOptions {
      * It gets an {@code addInfo} object with {@code resource} (the added resource) and {@code revert} (a function
      * that reverses the action).
      * <p>
+     * The library default is no callback.
+     * <p>
      * The getter returns null while the option is not set; then the library default applies.
      *
      * @see <a href="https://fullcalendar.io/docs/resourceAdd">resourceAdd</a>
@@ -293,6 +301,8 @@ class SchedulerViewOptions extends ViewOptions {
      * <p>
      * It gets a {@code changeInfo} object with {@code resource} (with the changed data), {@code oldResource} (with
      * the data before the change) and {@code revert} (a function that reverses the action).
+     * <p>
+     * The library default is no callback.
      * <p>
      * The getter returns null while the option is not set; then the library default applies.
      *
@@ -322,6 +332,8 @@ class SchedulerViewOptions extends ViewOptions {
      * <p>
      * A callback gets an {@code info} object with {@code resource} (absent in group rows), {@code field},
      * {@code fieldValue} and more, see the library docs. It returns the class names as a string.
+     * <p>
+     * The library default is no additional class names.
      * <p>
      * The getter returns null while the option is not set; then the library default applies.
      *
@@ -359,6 +371,8 @@ class SchedulerViewOptions extends ViewOptions {
      * The cell content of a resource column replaces it in that column. A callback of the column falls back to this
      * one by returning {@code true}.
      * <p>
+     * The library default is the value of the column field as text.
+     * <p>
      * The getter returns null while the option is not set; then the library default applies.
      *
      * @see <a href="https://fullcalendar.io/docs/resource-cell-render-hooks">resourceCellContent</a>
@@ -386,11 +400,13 @@ class SchedulerViewOptions extends ViewOptions {
 
     /**
      * A callback that runs right after a cell of the resource area has been added to the DOM. It gets an {@code info}
-     * object with {@code resource} (absent in group rows), {@code field}, {@code fieldValue} and more, see the library
-     * docs.
+     * object with {@code el} (the element), {@code resource} (absent in group rows), {@code field} and more, see the
+     * library docs.
      * <p>
      * When this option is changed for an attached calendar, the new setting only applies to newly rendered elements,
      * for example after navigating to another view or period. Existing elements are not updated.
+     * <p>
+     * The library default is no callback.
      * <p>
      * The getter returns null while the option is not set; then the library default applies.
      *
@@ -406,6 +422,8 @@ class SchedulerViewOptions extends ViewOptions {
      * <p>
      * A callback gets an {@code info} object with {@code resource} (absent in group rows), {@code field},
      * {@code fieldValue} and more, see the library docs. It returns the class names as a string.
+     * <p>
+     * The library default is no additional class names.
      * <p>
      * The getter returns null while the option is not set; then the library default applies.
      *
@@ -434,11 +452,13 @@ class SchedulerViewOptions extends ViewOptions {
 
     /**
      * A callback that runs right before a cell of the resource area is removed from the DOM. It gets an {@code info}
-     * object with {@code resource} (absent in group rows), {@code field}, {@code fieldValue} and more, see the library
-     * docs.
+     * object with {@code el} (the element), {@code resource} (absent in group rows), {@code field} and more, see the
+     * library docs.
      * <p>
-     * When this option is changed for an attached calendar, the new setting only applies to newly rendered elements,
-     * for example after navigating to another view or period. Existing elements are not updated.
+     * When this option is changed for an attached calendar, the callback that is set at the time an element is removed
+     * runs for it. This includes elements that were rendered before the change.
+     * <p>
+     * The library default is no callback.
      * <p>
      * The getter returns null while the option is not set; then the library default applies.
      *
@@ -451,6 +471,8 @@ class SchedulerViewOptions extends ViewOptions {
      * <p>
      * It takes class names only, because the library accepts no callback for this option.
      * <p>
+     * The library default is no additional class names.
+     * <p>
      * The getter returns null while the option is not set; then the library default applies.
      *
      * @see <a href="https://fullcalendar.io/docs/resource-column-divider-render-hooks">resourceColumnDividerClass</a>
@@ -460,8 +482,11 @@ class SchedulerViewOptions extends ViewOptions {
     /**
      * CSS classes for the resource column header, shown above the resource data in the timeline view.
      * <p>
-     * A callback gets an {@code info} object with {@code view}, see the library docs. It returns the class names as a
+     * A callback gets an {@code info} object with {@code view}. The library docs do not list it, but the used library
+     * version passes it. It returns the class names as a
      * string.
+     * <p>
+     * The library default is no additional class names.
      * <p>
      * The getter returns null while the option is not set; then the library default applies.
      *
@@ -489,14 +514,16 @@ class SchedulerViewOptions extends ViewOptions {
     }
 
     /**
-     * Custom content for the resource column header, shown above the resource data in the timeline view. The library
-     * shows the text "Resources" by default.
+     * Custom content for the resource column header, shown above the resource data in the timeline view.
      * <p>
      * With {@code resourceColumns} set, it is shown as a header above all columns, and it is the content of a column
      * header whose column has no header content of its own.
      * <p>
-     * A callback gets an {@code info} object with {@code view}, see the library docs. It returns a text, or
+     * A callback gets an {@code info} object with {@code view}. The library docs do not list it, but the used library
+     * version passes it. It returns a text, or
      * {@code {html: '...'}} or {@code {domNodes: [...]}}.
+     * <p>
+     * The library default is the text "Resources", shown while no resource columns are set.
      * <p>
      * The getter returns null while the option is not set; then the library default applies.
      *
@@ -525,10 +552,13 @@ class SchedulerViewOptions extends ViewOptions {
 
     /**
      * A callback that runs right after the resource column header has been added to the DOM. It gets an {@code info}
-     * object with {@code view}, see the library docs.
+     * object with {@code el} (the element) and {@code view}. The library docs list only {@code el}, but the
+     * used library version also passes {@code view}.
      * <p>
      * When this option is changed for an attached calendar, the new setting only applies to newly rendered elements,
      * for example after navigating to another view or period. Existing elements are not updated.
+     * <p>
+     * The library default is no callback.
      * <p>
      * The getter returns null while the option is not set; then the library default applies.
      *
@@ -540,8 +570,11 @@ class SchedulerViewOptions extends ViewOptions {
      * CSS classes for the inner wrapper of the resource column header in the timeline view. The resource column header
      * is the header above the resource data.
      * <p>
-     * A callback gets an {@code info} object with {@code view}, see the library docs. It returns the class names as a
+     * A callback gets an {@code info} object with {@code view}. The library docs do not list it, but the used library
+     * version passes it. It returns the class names as a
      * string.
+     * <p>
+     * The library default is no additional class names.
      * <p>
      * The getter returns null while the option is not set; then the library default applies.
      *
@@ -571,10 +604,13 @@ class SchedulerViewOptions extends ViewOptions {
 
     /**
      * A callback that runs right before the resource column header is removed from the DOM. It gets an {@code info}
-     * object with {@code view}, see the library docs.
+     * object with {@code el} (the element) and {@code view}. The library docs list only {@code el}, but the
+     * used library version also passes {@code view}.
      * <p>
-     * When this option is changed for an attached calendar, the new setting only applies to newly rendered elements,
-     * for example after navigating to another view or period. Existing elements are not updated.
+     * When this option is changed for an attached calendar, the callback that is set at the time an element is removed
+     * runs for it. This includes elements that were rendered before the change.
+     * <p>
+     * The library default is no callback.
      * <p>
      * The getter returns null while the option is not set; then the library default applies.
      *
@@ -587,8 +623,11 @@ class SchedulerViewOptions extends ViewOptions {
      * CSS classes for the handle the user drags to resize a resource column in the timeline view. The handle sits at
      * the end edge of every column header except the last one and is not rendered when printing.
      * <p>
-     * A callback gets an {@code info} object with {@code view}, see the library docs. It returns the class names as a
+     * A callback gets an {@code info} object with {@code view}. The library docs do not list it, but the used library
+     * version passes it. It returns the class names as a
      * string.
+     * <p>
+     * The library default is no additional class names.
      * <p>
      * The getter returns null while the option is not set; then the library default applies.
      *
@@ -622,6 +661,8 @@ class SchedulerViewOptions extends ViewOptions {
      * A callback gets an {@code info} object with {@code resource}, {@code text}, {@code level} and more, see the
      * library docs. It returns the class names as a string.
      * <p>
+     * The library default is no additional class names.
+     * <p>
      * The getter returns null while the option is not set; then the library default applies.
      *
      * @see <a href="https://fullcalendar.io/docs/resource-day-header-render-hooks">resourceDayHeaderClass</a>
@@ -654,6 +695,8 @@ class SchedulerViewOptions extends ViewOptions {
      * A callback gets an {@code info} object with {@code resource}, {@code text}, {@code level} and more, see the
      * library docs. It returns a text, or {@code {html: '...'}} or {@code {domNodes: [...]}}.
      * <p>
+     * The library default is the title of the resource as text.
+     * <p>
      * The getter returns null while the option is not set; then the library default applies.
      *
      * @see <a href="https://fullcalendar.io/docs/resource-day-header-render-hooks">resourceDayHeaderContent</a>
@@ -681,10 +724,12 @@ class SchedulerViewOptions extends ViewOptions {
 
     /**
      * A callback that runs right after a resource day header cell has been added to the DOM. It gets an {@code info}
-     * object with {@code resource}, {@code text}, {@code level} and more, see the library docs.
+     * object with {@code el} (the element), {@code resource}, {@code text} and more, see the library docs.
      * <p>
      * When this option is changed for an attached calendar, the new setting only applies to newly rendered elements,
      * for example after navigating to another view or period. Existing elements are not updated.
+     * <p>
+     * The library default is no callback.
      * <p>
      * The getter returns null while the option is not set; then the library default applies.
      *
@@ -698,6 +743,8 @@ class SchedulerViewOptions extends ViewOptions {
      * <p>
      * A callback gets an {@code info} object with {@code resource}, {@code text}, {@code level} and more, see the
      * library docs. It returns the class names as a string.
+     * <p>
+     * The library default is no additional class names.
      * <p>
      * The getter returns null while the option is not set; then the library default applies.
      *
@@ -726,10 +773,12 @@ class SchedulerViewOptions extends ViewOptions {
 
     /**
      * A callback that runs right before a resource day header cell is removed from the DOM. It gets an {@code info}
-     * object with {@code resource}, {@code text}, {@code level} and more, see the library docs.
+     * object with {@code el} (the element), {@code resource}, {@code text} and more, see the library docs.
      * <p>
-     * When this option is changed for an attached calendar, the new setting only applies to newly rendered elements,
-     * for example after navigating to another view or period. Existing elements are not updated.
+     * When this option is changed for an attached calendar, the callback that is set at the time an element is removed
+     * runs for it. This includes elements that were rendered before the change.
+     * <p>
+     * The library default is no callback.
      * <p>
      * The getter returns null while the option is not set; then the library default applies.
      *
