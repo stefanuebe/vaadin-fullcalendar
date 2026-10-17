@@ -202,8 +202,11 @@ class SchedulerViewOptions extends ViewOptions {
     }
 
     /**
-     * The width of each slot of the time axis in the timeline view, in pixels. Without a value, the library computes
-     * a reasonable one.
+     * Minimum width of each slot of the time axis in timeline views, in pixels. Slots become wider when the view has
+     * room to spare. The library docs speak of the exact width, but the used library version treats the value as a
+     * minimum.
+     * <p>
+     * The library default is no value. Then the minimum is computed from the width of the slot labels.
      * <p>
      * The getter returns null while the option is not set; then the library default applies.
      *
@@ -227,6 +230,8 @@ class SchedulerViewOptions extends ViewOptions {
      * newly visible ones are rendered while the user scrolls.
      * <p>
      * Currently it only applies to timeline views that display resources.
+     * <p>
+     * The library default is {@code false}.
      * <p>
      * The getter returns null while the option is not set; then the library default applies.
      *
@@ -1421,6 +1426,8 @@ class SchedulerViewOptions extends ViewOptions {
      * <p>
      * It takes class names only, because the library accepts no callback for this option.
      * <p>
+     * The library default is the classes of the theme. A value is added to them.
+     * <p>
      * The getter returns null while the option is not set; then the library default applies.
      *
      * @see <a href="https://fullcalendar.io/docs/timeline-render-hooks">timelineBottomClass</a>
@@ -1431,6 +1438,8 @@ class SchedulerViewOptions extends ViewOptions {
      * CSS classes for the element above the entries in the timeline view without resources.
      * <p>
      * It takes class names only, because the library accepts no callback for this option.
+     * <p>
+     * The library default is the classes of the theme. A value is added to them.
      * <p>
      * The getter returns null while the option is not set; then the library default applies.
      *
