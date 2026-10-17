@@ -237,8 +237,10 @@ class CalendarOptions implements Serializable {
     /**
      * CSS classes for the root element of the view. A callback runs whenever the view changes.
      * <p>
-     * It gets an {@code info} object with {@code view} and more, see the library docs. It returns the class names
-     * as a string.
+     * It gets an {@code info} object with {@code view} and more, see the library docs. It returns the class names as a
+     * string.
+     * <p>
+     * The library default is the classes of the theme. A value is added to them.
      * <p>
      * The getter returns null while the option is not set; then the library default applies.
      *
@@ -287,11 +289,12 @@ class CalendarOptions implements Serializable {
     /**
      * A callback that runs right before the root element of the view is removed from the DOM.
      * <p>
-     * It gets an {@code info} object with {@code view}, {@code el} (the root element) and more, see the library
-     * docs.
+     * It gets an {@code info} object with {@code view}, {@code el} (the root element) and more, see the library docs.
      * <p>
-     * When this option is changed for an attached calendar, the new setting only applies to newly rendered
-     * elements, for example after navigating to another view or period. Existing elements are not updated.
+     * When this option is changed for an attached calendar, the callback that is set when an element is removed runs
+     * for it, also for an element that was rendered before the change.
+     * <p>
+     * The library default is no callback.
      * <p>
      * The getter returns null while the option is not set; then the library default applies.
      *
@@ -351,8 +354,10 @@ class CalendarOptions implements Serializable {
     }
 
     /**
-     * How the week numbers are calculated: by the locale, by ISO 8601 (which also makes Monday the default first
-     * day of the week), or by a callback that gets a date and returns its week number.
+     * How the week numbers are calculated: by the locale, by ISO 8601 (which also makes Monday the default first day of
+     * the week), or by a callback that gets a date and returns its week number.
+     * <p>
+     * The library default is {@code "local"}, the calculation of the locale.
      * <p>
      * The getter returns null while the option is not set; then the library default applies.
      *
@@ -806,12 +811,14 @@ class CalendarOptions implements Serializable {
     private String prevYearText;
 
     /**
-     * Accessible label ({@code aria-label}) of the "today" button in the built-in toolbar. Without a value, the
-     * locale's text is used.
+     * Accessible label ({@code aria-label}) of the "today" button in the built-in toolbar.
      * <p>
      * A text may use {@code $0} as placeholder for the localized unit text, such as "week". A callback gets the
      * localized unit text and a canonical unit id such as {@code 'day'}, {@code 'week'} or {@code 'month'}. It returns
      * the text.
+     * <p>
+     * The library default is the text of the locale (English: "Today" for the unit day, otherwise "This" and the unit
+     * text, such as "This week").
      * <p>
      * The getter returns null while the option is not set; then the library default applies.
      *
@@ -841,6 +848,8 @@ class CalendarOptions implements Serializable {
     /**
      * Text of the "today" button of the built-in toolbar. Each locale defines this text, see the locale page.
      * <p>
+     * The library default is the text of the locale (English: "Today").
+     * <p>
      * The getter returns null while the option is not set; then the library default applies.
      *
      * @see <a href="https://fullcalendar.io/docs/locale">todayText (locale object)</a>
@@ -849,10 +858,12 @@ class CalendarOptions implements Serializable {
 
     /**
      * Accessible label ({@code aria-label}) for the view buttons of the built-in toolbar that have no hint of their
-     * own. Without a value, the locale's text is used.
+     * own.
      * <p>
      * A text may use {@code $0} as placeholder for the localized button text, such as "$0 view". A callback gets the
      * localized button text and the button name from the toolbar, such as {@code 'listWeek'}, and returns the text.
+     * <p>
+     * The library default is the text of the locale (English: "$0 view").
      * <p>
      * The getter returns null while the option is not set; then the library default applies.
      *
@@ -881,7 +892,9 @@ class CalendarOptions implements Serializable {
 
     /**
      * Like {@link #getWeekTextShort() weekTextShort}, but only used when the {@code week} setting of a date format is
-     * {@code "long"}. Without a value, the locale's text shows (English: "Week").
+     * {@code "long"}.
+     * <p>
+     * The library default is the text of the locale (English: "Week").
      * <p>
      * The getter returns null while the option is not set; then the library default applies.
      *
@@ -892,7 +905,9 @@ class CalendarOptions implements Serializable {
     /**
      * Short heading text for week numbers, such as "W" in "W1". It shows above the week number column in day grid views
      * and next to the week number in the top-left cell of time grid views. It is also used for weeks in date
-     * formatting. Without a value, the locale's text shows (English: "W").
+     * formatting.
+     * <p>
+     * The library default is the text of the locale (English: "W").
      * <p>
      * The getter returns null while the option is not set; then the library default applies.
      *
@@ -902,6 +917,9 @@ class CalendarOptions implements Serializable {
 
     /**
      * Text of the year view button of the built-in toolbar. Each locale defines this text, see the locale page.
+     * <p>
+     * The library docs mention this option only in an example on the locale page. The library default is the text of
+     * the locale (English: "Year").
      * <p>
      * The getter returns null while the option is not set; then the library default applies.
      *
@@ -954,6 +972,8 @@ class CalendarOptions implements Serializable {
      * A callback runs in the browser only.
      * <p>
      * When set, the getter returns an unmodifiable map.
+     * <p>
+     * The library default is no elements.
      * <p>
      * The getter returns null while the option is not set; then the library default applies.
      *

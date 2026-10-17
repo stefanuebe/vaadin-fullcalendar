@@ -104,6 +104,8 @@ class ViewOptions implements Serializable {
     /**
      * Whether Saturday and Sunday columns are included in the calendar views.
      * <p>
+     * The library default is {@code true}.
+     * <p>
      * The getter returns null while the option is not set; then the library default applies.
      *
      * @see <a href="https://fullcalendar.io/docs/weekends">weekends</a>
@@ -1099,6 +1101,8 @@ class ViewOptions implements Serializable {
      * A callback gets an {@code info} object with {@code date}, {@code text}, {@code isPast} and more, see the library
      * docs. It returns the class names as a string.
      * <p>
+     * The library default is the classes of the theme. A value is added to them.
+     * <p>
      * The getter returns null while the option is not set; then the library default applies.
      *
      * @see <a href="https://fullcalendar.io/docs/slot-header-render-hooks">slotHeaderClass</a>
@@ -1130,6 +1134,8 @@ class ViewOptions implements Serializable {
      * A callback gets an {@code info} object with {@code date}, {@code text}, {@code isPast} and more, see the library
      * docs. It returns a text, or {@code {html: '...'}} or {@code {domNodes: [...]}}.
      * <p>
+     * The library default is its own content, the formatted text of the slot.
+     * <p>
      * The getter returns null while the option is not set; then the library default applies.
      *
      * @see <a href="https://fullcalendar.io/docs/slot-header-render-hooks">slotHeaderContent</a>
@@ -1158,11 +1164,13 @@ class ViewOptions implements Serializable {
     /**
      * A callback that runs right after a time slot header has been added to the DOM.
      * <p>
-     * The callback gets an {@code info} object with {@code date}, {@code text}, {@code isPast} and more, see the
-     * library docs.
+     * The callback gets an {@code info} object with {@code date}, {@code text}, {@code el} (the slot header element)
+     * and more, see the library docs.
      * <p>
      * When this option is changed for an attached calendar, the new setting only applies to newly rendered elements,
      * for example after navigating to another view or period. Existing elements are not updated.
+     * <p>
+     * The library default is no callback.
      * <p>
      * The getter returns null while the option is not set; then the library default applies.
      *
@@ -1175,6 +1183,8 @@ class ViewOptions implements Serializable {
      * <p>
      * A callback gets an {@code info} object with {@code inTableHeader}, {@code options} (with {@code dayMinWidth}). It
      * returns the class names as a string.
+     * <p>
+     * The library default is the classes of the theme. A value is added to them.
      * <p>
      * The getter returns null while the option is not set; then the library default applies.
      *
@@ -1208,6 +1218,8 @@ class ViewOptions implements Serializable {
      * A callback gets an {@code info} object with {@code date}, {@code text}, {@code isPast} and more, see the library
      * docs. It returns the class names as a string.
      * <p>
+     * The library default is the classes of the theme. A value is added to them.
+     * <p>
      * The getter returns null while the option is not set; then the library default applies.
      *
      * @see <a href="https://fullcalendar.io/docs/slot-header-render-hooks">slotHeaderInnerClass</a>
@@ -1234,9 +1246,12 @@ class ViewOptions implements Serializable {
     }
 
     /**
-     * CSS classes for the row that contains the slot header cells in time grid and timeline views.
+     * CSS classes for the row that contains the slot header cells in timeline views, which the Scheduler provides. The
+     * library docs also name time grid views, but the used library version applies the option in timeline views only.
      * <p>
      * It takes class names only, because the library accepts no callback for this option.
+     * <p>
+     * The library default is the classes of the theme. A value is added to them.
      * <p>
      * The getter returns null while the option is not set; then the library default applies.
      *
@@ -1247,11 +1262,13 @@ class ViewOptions implements Serializable {
     /**
      * A callback that runs right before a time slot header is removed from the DOM.
      * <p>
-     * The callback gets an {@code info} object with {@code date}, {@code text}, {@code isPast} and more, see the
-     * library docs.
+     * The callback gets an {@code info} object with {@code date}, {@code text}, {@code el} (the slot header element)
+     * and more, see the library docs.
      * <p>
-     * When this option is changed for an attached calendar, the new setting only applies to newly rendered elements,
-     * for example after navigating to another view or period. Existing elements are not updated.
+     * When this option is changed for an attached calendar, the callback that is set when an element is removed runs
+     * for it, also for an element that was rendered before the change.
+     * <p>
+     * The library default is no callback.
      * <p>
      * The getter returns null while the option is not set; then the library default applies.
      *
@@ -1264,7 +1281,10 @@ class ViewOptions implements Serializable {
      * in timeline views the vertical space passing through the resources.
      * <p>
      * A callback gets an {@code info} object with {@code date}, {@code time}, {@code view} and more, see the library
-     * docs. It returns the class names as a string.
+     * docs. It returns the class names as a string. The library docs list {@code text} as well, which the used library
+     * version does not pass.
+     * <p>
+     * The library default is the classes of the theme. A value is added to them.
      * <p>
      * The getter returns null while the option is not set; then the library default applies.
      *
@@ -1294,11 +1314,14 @@ class ViewOptions implements Serializable {
     /**
      * A callback that runs right after a time slot lane has been added to the DOM.
      * <p>
-     * The callback gets an {@code info} object with {@code date}, {@code time}, {@code view} and more, see the library
-     * docs.
+     * The callback gets an {@code info} object with {@code date}, {@code time}, {@code el} (the slot lane element) and
+     * more, see the library docs. The library docs list {@code text} as well, which the used library version does not
+     * pass.
      * <p>
      * When this option is changed for an attached calendar, the new setting only applies to newly rendered elements,
      * for example after navigating to another view or period. Existing elements are not updated.
+     * <p>
+     * The library default is no callback.
      * <p>
      * The getter returns null while the option is not set; then the library default applies.
      *
@@ -1309,11 +1332,14 @@ class ViewOptions implements Serializable {
     /**
      * A callback that runs right before a time slot lane is removed from the DOM.
      * <p>
-     * The callback gets an {@code info} object with {@code date}, {@code time}, {@code view} and more, see the library
-     * docs.
+     * The callback gets an {@code info} object with {@code date}, {@code time}, {@code el} (the slot lane element) and
+     * more, see the library docs. The library docs list {@code text} as well, which the used library version does not
+     * pass.
      * <p>
-     * When this option is changed for an attached calendar, the new setting only applies to newly rendered elements,
-     * for example after navigating to another view or period. Existing elements are not updated.
+     * When this option is changed for an attached calendar, the callback that is set when an element is removed runs
+     * for it, also for an element that was rendered before the change.
+     * <p>
+     * The library default is no callback.
      * <p>
      * The getter returns null while the option is not set; then the library default applies.
      *
@@ -1327,6 +1353,8 @@ class ViewOptions implements Serializable {
      * <p>
      * A callback gets an {@code info} object with {@code borderlessX}, {@code borderlessTop}, {@code borderlessBottom}
      * and more, see the library docs. It returns the class names as a string.
+     * <p>
+     * The library default is the classes of the theme. A value is added to them.
      * <p>
      * The getter returns null while the option is not set; then the library default applies.
      *
@@ -1359,6 +1387,8 @@ class ViewOptions implements Serializable {
      * A callback gets an {@code info} object with {@code borderlessX}, {@code borderlessTop}, {@code borderlessBottom}
      * and more, see the library docs. It returns the class names as a string.
      * <p>
+     * The library default is the classes of the theme. A value is added to them.
+     * <p>
      * The getter returns null while the option is not set; then the library default applies.
      *
      * @see <a href="https://fullcalendar.io/docs/table-render-hooks">tableClass</a>
@@ -1390,6 +1420,8 @@ class ViewOptions implements Serializable {
      * A callback gets an {@code info} object with {@code borderlessX}, {@code borderlessTop}, {@code borderlessBottom}
      * and more, see the library docs. It returns the class names as a string.
      * <p>
+     * The library default is the classes of the theme. A value is added to them.
+     * <p>
      * The getter returns null while the option is not set; then the library default applies.
      *
      * @see <a href="https://fullcalendar.io/docs/table-render-hooks">tableHeaderClass</a>
@@ -1420,6 +1452,8 @@ class ViewOptions implements Serializable {
      * <p>
      * A callback gets an {@code info} object with {@code num}, {@code text}, {@code textParts} and more, see the
      * library docs. {@code options} holds only {@code dayMinWidth}. It returns the class names as a string.
+     * <p>
+     * The library default is the classes of the theme. A value is added to them.
      * <p>
      * The getter returns null while the option is not set; then the library default applies.
      *
@@ -1453,6 +1487,8 @@ class ViewOptions implements Serializable {
      * library docs. {@code options} holds only {@code dayMinWidth}. It returns a text, or {@code {html: '...'}} or
      * {@code {domNodes: [...]}}.
      * <p>
+     * The library default is the text of the week number, formatted as {@code weekNumberFormat} says.
+     * <p>
      * The getter returns null while the option is not set; then the library default applies.
      *
      * @see <a href="https://fullcalendar.io/docs/week-number-header-render-hooks">weekNumberHeaderContent</a>
@@ -1479,14 +1515,16 @@ class ViewOptions implements Serializable {
     }
 
     /**
-     * A callback that runs right after the week number in the header above the time axis of time grid views has
-     * been added to the DOM.
+     * A callback that runs right after the week number in the header above the time axis of time grid views has been
+     * added to the DOM.
      * <p>
-     * The callback gets an {@code info} object with {@code num}, {@code text}, {@code textParts} and more, see the
-     * library docs. {@code options} holds only {@code dayMinWidth}.
+     * The callback gets an {@code info} object with {@code num}, {@code text}, {@code el} (the element) and more, see
+     * the library docs. {@code options} holds only {@code dayMinWidth}.
      * <p>
      * When this option is changed for an attached calendar, the new setting only applies to newly rendered elements,
      * for example after navigating to another view or period. Existing elements are not updated.
+     * <p>
+     * The library default is no callback.
      * <p>
      * The getter returns null while the option is not set; then the library default applies.
      *
@@ -1500,6 +1538,8 @@ class ViewOptions implements Serializable {
      * <p>
      * A callback gets an {@code info} object with {@code num}, {@code text}, {@code textParts} and more, see the
      * library docs. It returns the class names as a string.
+     * <p>
+     * The library default is the classes of the theme. A value is added to them.
      * <p>
      * The getter returns null while the option is not set; then the library default applies.
      *
@@ -1530,11 +1570,13 @@ class ViewOptions implements Serializable {
      * A callback that runs right before the week number in the header above the time axis of time grid views is removed
      * from the DOM.
      * <p>
-     * The callback gets an {@code info} object with {@code num}, {@code text}, {@code textParts} and more, see the
-     * library docs. {@code options} holds only {@code dayMinWidth}.
+     * The callback gets an {@code info} object with {@code num}, {@code text}, {@code el} (the element) and more, see
+     * the library docs. {@code options} holds only {@code dayMinWidth}.
      * <p>
-     * When this option is changed for an attached calendar, the new setting only applies to newly rendered elements,
-     * for example after navigating to another view or period. Existing elements are not updated.
+     * When this option is changed for an attached calendar, the callback that is set when an element is removed runs
+     * for it, also for an element that was rendered before the change.
+     * <p>
+     * The library default is no callback.
      * <p>
      * The getter returns null while the option is not set; then the library default applies.
      *
@@ -3021,6 +3063,8 @@ class ViewOptions implements Serializable {
      * A callback gets an {@code info} object with {@code borderlessX}, {@code borderlessTop} and
      * {@code borderlessBottom}. It returns the class names as a string.
      * <p>
+     * The library default is the classes of the theme. A value is added to them.
+     * <p>
      * The getter returns null while the option is not set; then the library default applies.
      *
      * @see <a href="https://fullcalendar.io/docs/toolbar-render-hooks">toolbarClass</a>
@@ -3049,8 +3093,10 @@ class ViewOptions implements Serializable {
     /**
      * CSS classes for each section (start, center, end) of the built-in toolbars.
      * <p>
-     * A callback gets an {@code info} object with {@code name}, the name of the section. It returns the class
-     * names as a string.
+     * A callback gets an {@code info} object with {@code name}, the name of the section. It returns the class names as
+     * a string.
+     * <p>
+     * The library default is the classes of the theme. A value is added to them.
      * <p>
      * The getter returns null while the option is not set; then the library default applies.
      *
@@ -3081,6 +3127,8 @@ class ViewOptions implements Serializable {
      * CSS classes for the title text element of the built-in toolbars.
      * <p>
      * It takes class names only, because the library accepts no callback for this option.
+     * <p>
+     * The library default is the classes of the theme. A value is added to them.
      * <p>
      * The getter returns null while the option is not set; then the library default applies.
      *
@@ -4152,12 +4200,16 @@ class ViewOptions implements Serializable {
     private Boolean showNonCurrentDates;
 
     /**
-     * The date range the user can navigate to and where entries can go. Dates outside of the range are grayed
-     * out, entries cannot be dragged or resized into them, and the prev and next buttons are disabled when they
-     * would leave the range. One bound may stay open (a {@link DateRange} with a null start or end).
+     * The date range the user can navigate to and where entries can go. Dates outside of the range are grayed out,
+     * entries cannot be dragged or resized into them, and the prev and next buttons are disabled when they would leave
+     * the range. One bound may stay open (a {@link DateRange} with a null start or end).
      * <p>
-     * A callback gets the start of the current day and returns the range. The library calls it several times per
-     * view render, so keep it cheap.
+     * A {@link DateRange} with equal bounds is rejected, although the library reads such a range as one day.
+     * <p>
+     * A callback gets the start of the current day and returns the range. The library calls it several times per view
+     * render, so keep it cheap.
+     * <p>
+     * The library default is no range, so no date is outside of it.
      * <p>
      * The getter returns null while the option is not set; then the library default applies.
      *
@@ -4167,11 +4219,15 @@ class ViewOptions implements Serializable {
     private DateRangeValue validRange;
 
     /**
-     * The exact date range a view shows. The end is exclusive. The library ignores a range with an open bound.
-     * It applies only to views that define neither a duration nor a day count.
+     * The exact date range a view shows. The end is exclusive. The library ignores a range with an open bound. It
+     * applies only to views that define neither a duration nor a day count.
      * <p>
-     * A callback gets the date the view is currently at and returns the range. The library calls it several times
-     * per view render, so keep it cheap.
+     * A {@link DateRange} with equal bounds is rejected, although the library reads such a range as one day.
+     * <p>
+     * A callback gets the date the view is currently at and returns the range. The library calls it several times per
+     * view render, so keep it cheap.
+     * <p>
+     * The library default is no range. Then the view shows the range its own duration gives.
      * <p>
      * The getter returns null while the option is not set; then the library default applies.
      *
@@ -4425,8 +4481,10 @@ class ViewOptions implements Serializable {
     private HeaderAlignValue slotHeaderAlign;
 
     /**
-     * Interval at which time slots are labeled with a header text, such as one hour to show headers on the hour
-     * marks even if {@link #getSlotDuration()} is 15 or 30 minutes.
+     * Interval at which time slots are labeled with a header text, such as one hour to show headers on the hour marks
+     * even if {@link #getSlotDuration()} is 15 or 30 minutes.
+     * <p>
+     * The library default is computed automatically from {@link #getSlotDuration()}.
      * <p>
      * The getter returns null while the option is not set; then the library default applies.
      *
@@ -4479,7 +4537,9 @@ class ViewOptions implements Serializable {
      * Sticky positioning of the header rows above the lowest one in the slot headers of timeline views, which the
      * Scheduler provides. With {@link StickyValue#STICKY} their text stays visible at the start and end edge of the
      * horizontal scroll area, with {@link StickyValue#NOT_STICKY} it scrolls away. With an offset, a number or a CSS
-     * length, that edge moves inward by the offset.
+     * length, that edge moves inward by the offset. With a centered slot header alignment, the offset has no effect.
+     * <p>
+     * The library docs do not describe this option. The library default is {@link StickyValue#STICKY}.
      * <p>
      * The getter returns null while the option is not set; then the library default applies.
      *
@@ -4509,6 +4569,8 @@ class ViewOptions implements Serializable {
     /**
      * Last time slot displayed for each day, as an exclusive end time. {@code "24:00:00"} ends at midnight. The slot
      * limit also applies when the view is scrolled back all the way.
+     * <p>
+     * The library default is {@code "24:00:00"}.
      * <p>
      * The getter returns null while the option is not set; then the library default applies.
      *
@@ -4558,7 +4620,11 @@ class ViewOptions implements Serializable {
     }
 
     /**
-     * Height of each slot of the time axis, in pixels. Without it, a value is computed.
+     * Minimum height of each slot of the time axis, in pixels. A slot is taller when its label needs more room, or when
+     * {@code expandRows} is on and the calendar has room to spare. The library docs speak of the exact height, but the
+     * used library version treats the value as a minimum.
+     * <p>
+     * The library default is no value. Then the minimum is computed from the height of the slot label.
      * <p>
      * The getter returns null while the option is not set; then the library default applies.
      *
@@ -4569,6 +4635,8 @@ class ViewOptions implements Serializable {
     /**
      * First time slot displayed for each day. {@code "00:00:00"} starts at midnight. The slot limit also applies when
      * the view is scrolled back all the way.
+     * <p>
+     * The library default is {@code "00:00:00"}.
      * <p>
      * The getter returns null while the option is not set; then the library default applies.
      *
@@ -4619,7 +4687,8 @@ class ViewOptions implements Serializable {
 
     /**
      * Time interval to which a dragged entry snaps on the time axis. Also sets the granularity of selections.
-     * Without a value, it is the same as {@link #getSlotDuration()}.
+     * <p>
+     * The library default is the value of {@link #getSlotDuration()}.
      * <p>
      * The getter returns null while the option is not set; then the library default applies.
      *
@@ -4910,8 +4979,10 @@ class ViewOptions implements Serializable {
     }
 
     /**
-     * Whether clicking elsewhere on the page clears the current selection. It applies when
-     * {@link #getSelectable()} is true.
+     * Whether clicking elsewhere on the page clears the current selection. It applies when {@link #getSelectable()} is
+     * true.
+     * <p>
+     * The library default is {@code true}.
      * <p>
      * The getter returns null while the option is not set; then the library default applies.
      *
@@ -4920,8 +4991,11 @@ class ViewOptions implements Serializable {
     private Boolean unselectAuto;
 
     /**
-     * CSS selector for elements that do not clear the current selection when clicked, see
-     * {@link #getUnselectAuto()}. Useful for a form that opens after a selection.
+     * CSS selector for elements that do not clear the current selection when clicked, see {@link #getUnselectAuto()}.
+     * Useful for a form that opens after a selection.
+     * <p>
+     * The library docs name the empty string as default. The used library version has no default, and an empty string
+     * acts like no value.
      * <p>
      * The getter returns null while the option is not set; then the library default applies.
      *
@@ -5520,19 +5594,25 @@ class ViewOptions implements Serializable {
     private String noEntriesText;
 
     /**
-     * Accessibility label of the time axis next to the timed section of time grid views, read by screen readers. The
-     * locale provides the default (English: "Timed"). A value set here wins over it.
+     * Accessibility label of the time axis next to the timed section of time grid views, read by screen readers. A
+     * value set here wins over the text of the locale.
+     * <p>
+     * The library docs name this option only in their upgrade guide. The library default is the text of the locale
+     * (English: "Timed").
      * <p>
      * The getter returns null while the option is not set; then the library default applies.
      *
-     * @see <a href="https://fullcalendar.io/docs/timegrid-view">timedText</a>
+     * @see <a href="https://fullcalendar.io/docs/upgrading-from-v6">timedText</a>
      */
     private String timedText;
 
     /**
      * Accessibility label of the button group in the built-in toolbar that switches the view, read by screen readers.
-     * The library sets it only when the group contains nothing but view buttons. The locale provides the default
-     * (English: "Change view"), and a value set here wins over it.
+     * The library sets it only on a button group with more than one button, when all of them are view buttons. A value
+     * set here wins over the text of the locale.
+     * <p>
+     * The library docs do not describe this option. The library default is the text of the locale (English: "Change
+     * view").
      * <p>
      * The getter returns null while the option is not set; then the library default applies.
      *
@@ -5802,16 +5882,19 @@ class ViewOptions implements Serializable {
     }
 
     /**
-     * Format of the time slot headers. Without a value, the time grid shows times like "5pm" and "5:30pm" in English,
-     * and a timeline view picks its header formats from its slot duration.
+     * Format of the time slot headers.
      * <p>
      * A timeline view also takes one format per header row, with {@link SlotHeaderFormatValue#of(DateFormatValue...)},
-     * the top row first, for example the month above the weekday. Timeline views come with the Scheduler. The time
-     * grid uses the first format only.
+     * the top row first, for example the month above the weekday. Timeline views come with the Scheduler. The time grid
+     * uses the first format only.
      * <p>
      * A callback gets an {@code info} object with {@code date}, {@code start}, {@code end} and more, and returns the
-     * text. The library docs speak of a date instead of the info object, but the used library version passes the
-     * info object.
+     * text. The library docs speak of a date instead of the info object, but the used library version passes the info
+     * object.
+     * <p>
+     * The library default in the time grid is
+     * {@code {hour: 'numeric', minute: '2-digit', omitZeroMinute: true, meridiem: 'short'}}, which shows times like
+     * "5pm" and "5:30pm" in English. A timeline view picks its header formats from its slot duration.
      * <p>
      * The getter returns null while the option is not set; then the library default applies.
      *
@@ -5839,10 +5922,14 @@ class ViewOptions implements Serializable {
     }
 
     /**
-     * Format of the title text in the built-in header toolbar. Without a value, the default depends on the view.
+     * Format of the title text in the built-in header toolbar.
      * <p>
-     * A callback gets an {@code info} object with {@code date}, {@code start}, {@code end} and more, see the library
-     * docs, and returns the text.
+     * A callback gets an {@code info} object with {@code date}, {@code start}, {@code end} and more, and returns the
+     * text. The library docs speak of a date instead of the info object, but the used library version passes the info
+     * object.
+     * <p>
+     * The library default depends on the view: year and long month in month views ("September 2009"), year, short month
+     * and day in week views ("Sep 13 2009"), year, long month and day in day views ("September 8 2009").
      * <p>
      * The getter returns null while the option is not set; then the library default applies.
      *
@@ -5870,13 +5957,15 @@ class ViewOptions implements Serializable {
     }
 
     /**
-     * Text format of the week numbers. The text depends on {@code weekTextShort}: with {@code "W"},
-     * {@code narrow} gives {@code "W6"}, {@code short} gives {@code "W 6"} and {@code numeric} gives {@code "6"}.
-     * Without a value, the format is {@code week: 'narrow'} in day grid views and
-     * {@code week: 'short'} in time grid views.
+     * Text format of the week numbers. The text depends on {@code weekTextShort}: with {@code "W"}, {@code narrow}
+     * gives {@code "W6"}, {@code short} gives {@code "W 6"} and {@code numeric} gives {@code "6"}.
      * <p>
-     * A callback gets an {@code info} object with {@code date}, {@code start}, {@code end} and more, see the library
-     * docs, and returns the text.
+     * A callback gets an {@code info} object with {@code date}, {@code start}, {@code end} and more, and returns the
+     * text. The library docs speak of a date instead of the info object, but the used library version passes the info
+     * object.
+     * <p>
+     * The library default is {@code week: 'narrow'} in day grid views and {@code week: 'short'} in time grid views. The
+     * library docs name {@code week: 'narrow'} for all views.
      * <p>
      * The getter returns null while the option is not set; then the library default applies.
      *
