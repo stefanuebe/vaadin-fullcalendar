@@ -1,7 +1,7 @@
 package org.vaadin.stefan.fullcalendar.converters;
 
 import org.vaadin.stefan.fullcalendar.JsonUtils;
-import org.vaadin.stefan.fullcalendar.option.DurationValue;
+import org.vaadin.stefan.fullcalendar.option.CalendarDuration;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.node.NullNode;
 
@@ -22,7 +22,7 @@ import java.time.format.DateTimeFormatter;
  * ({@code "00:00:01.500"}). Anything below a millisecond is dropped.
  * <p>
  * A string from the client is read back as {@link Duration} with the client's own duration format
- * ({@code [-][d.]hh:mm[:ss[.sss]]}, read by {@link DurationValue#ofTimeString(String)}). A string in another format,
+ * ({@code [-][d.]hh:mm[:ss[.sss]]}, read by {@link CalendarDuration#ofTimeString(String)}). A string in another format,
  * such as ISO 8601, gives {@code null}, as it does on the client.
  */
 public class DurationConverter implements JsonItemPropertyConverter<Object, Object> {
@@ -61,16 +61,15 @@ public class DurationConverter implements JsonItemPropertyConverter<Object, Obje
             return null;
         }
 
-        DurationValue value;
+        CalendarDuration value;
         try {
-            value = DurationValue.ofTimeString(clientValue.asString());
+            value = CalendarDuration.ofTimeString(clientValue.asString());
         } catch (IllegalArgumentException e) {
             return null;
         }
+
         // a Duration has no calendar days, so days in front of the string count as 24 hours each
-        return switch (value) {
-            case DurationValue.Time time -> time.time();
-            case DurationValue.Calendar calendar -> Duration.ofDays(calendar.period().getDays()).plus(calendar.time());
-        };
+        return Duration.ofDays(value.days()).plusHours(value.hours()).plusMinutes(value.minutes())
+                .plusSeconds(value.seconds()).plusMillis(value.milliseconds());
     }
 }

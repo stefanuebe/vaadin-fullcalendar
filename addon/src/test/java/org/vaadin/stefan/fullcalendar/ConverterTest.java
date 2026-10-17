@@ -1,6 +1,6 @@
 package org.vaadin.stefan.fullcalendar;
 
-import org.vaadin.stefan.fullcalendar.option.DurationValue;
+import org.vaadin.stefan.fullcalendar.option.CalendarDuration;
 import org.vaadin.stefan.fullcalendar.option.AutoBoolean;
 import org.vaadin.stefan.fullcalendar.option.BusinessHours;
 import org.vaadin.stefan.fullcalendar.option.BusinessHoursValue;
@@ -199,13 +199,6 @@ class ConverterTest {
                     new DateRange(LocalDate.of(2026, 1, 1), null), JsonFactory.createObject().put("start", "2026-01-01"),
                     new DateRange(null, LocalDate.of(2026, 7, 1)), JsonFactory.createObject().put("end", "2026-07-01"),
                     CALLBACK, CALLBACK.toMarkerJson()))),
-            Map.entry(DurationValue.class, new ValueType(DurationValueConverter.class, forms(
-                    DurationValue.ofTime(Duration.ofMinutes(90)), "01:30:00",
-                    DurationValue.ofTime(Duration.ofMillis(-1500)), "-00:00:01.500",
-                    DurationValue.ofCalendar(Period.ofMonths(1)), JsonFactory.createObject().put("months", 1),
-                    DurationValue.ofCalendar(Period.of(1, 2, 3), Duration.ofHours(12)),
-                    JsonFactory.createObject().put("years", 1).put("months", 2).put("days", 3)
-                            .put("milliseconds", 43_200_000L)))),
             Map.entry(OrderValue.class, new ValueType(OrderValueConverter.class, forms(
                     Order.of("title", "-start"), JsonFactory.createArray().add("title").add("-start"),
                     Order.of(Order.descending("duration"), CALLBACK),
@@ -259,6 +252,7 @@ class ConverterTest {
      * their fields use.
      */
     static final Map<Class<?>, Class<?>> ONE_FORM_TYPES = Map.of(
+            CalendarDuration.class, CalendarDurationConverter.class,
             DayOfWeek.class, DayOfWeekConverter.class,
             LocalDate.class, LocalDateConverter.class,
             Locale.class, LocaleConverter.class,
@@ -383,23 +377,49 @@ class ConverterTest {
     }
 
     @Test
-    void durationValue_readsTheLibraryStringsAndMilliseconds() {
-        assertEquals(DurationValue.ofTime(Duration.ofMinutes(510)), DurationValue.ofTimeString("08:30"));
-        assertEquals(DurationValue.ofCalendar(Period.ofDays(1), Duration.ofHours(12)),
-                DurationValue.ofTimeString("1.12:00:00"));
-        assertEquals(DurationValue.ofCalendar(Period.ofDays(-1), Duration.ofHours(-2)),
-                DurationValue.ofTimeString("-1.02:00:00"));
-        assertEquals(DurationValue.ofTime(Duration.ZERO), DurationValue.ofTimeString("0.00:00"));
-        // like the library, a match at the start is enough
-        assertEquals(DurationValue.ofTime(Duration.ofHours(1)), DurationValue.ofTimeString("01:00:00 extra"));
+    void calendarDuration_sendsEachUnitThatIsNotZero() {
+        CalendarDurationConverter converter = new CalendarDurationConverter();
+        assertEquals(JsonFactory.createObject().put("weeks", 1),
+                converter.toClientModel(CalendarDuration.ofWeeks(1), null));
+        assertEquals(JsonFactory.createObject().put("days", 7),
+                converter.toClientModel(CalendarDuration.ofDays(7), null));
+        assertEquals(JsonFactory.createObject().put("years", 1).put("months", 2).put("weeks", 3).put("days", 4)
+                        .put("hours", 5).put("minutes", 6).put("seconds", 7).put("milliseconds", 8),
+                converter.toClientModel(CalendarDuration.ofYears(1).plusMonths(2).plusWeeks(3).plusDays(4).plusHours(5)
+                        .plusMinutes(6).plusSeconds(7).plusMillis(8), null));
+        assertEquals(JsonFactory.createObject(), converter.toClientModel(CalendarDuration.ZERO, null));
+    }
 
-        DurationValueConverter converter = new DurationValueConverter();
-        assertEquals(DurationValue.ofTime(Duration.ofMillis(1500)),
+    @Test
+    void calendarDuration_takesTheUnitsOfDurationAndPeriod() {
+        assertEquals(CalendarDuration.ofHours(26).plusMinutes(30).plusSeconds(5).plusMillis(500),
+                CalendarDuration.of(Duration.ofDays(1).plusHours(2).plusMinutes(30).plusSeconds(5).plusMillis(500)));
+        assertEquals(CalendarDuration.ofSeconds(-1).plusMillis(-500), CalendarDuration.of(Duration.ofMillis(-1500)));
+        assertEquals(CalendarDuration.ofHours(-1).plusMinutes(-30), CalendarDuration.of(Duration.ofMinutes(-90)));
+        assertEquals(CalendarDuration.ofYears(1).plusMonths(2).plusDays(3), CalendarDuration.of(Period.of(1, 2, 3)));
+        // the library aligns weeks to the start of the week, but Period.ofWeeks is days
+        assertEquals(CalendarDuration.ofDays(14), CalendarDuration.of(Period.ofWeeks(2)));
+    }
+
+    @Test
+    void calendarDuration_readsTheLibraryStringsAndMilliseconds() {
+        assertEquals(CalendarDuration.ofHours(8).plusMinutes(30), CalendarDuration.ofTimeString("08:30"));
+        assertEquals(CalendarDuration.ofDays(1).plusHours(12), CalendarDuration.ofTimeString("1.12:00:00"));
+        assertEquals(CalendarDuration.ofDays(-1).plusHours(-2).plusMinutes(-5).plusSeconds(-3).plusMillis(-4),
+                CalendarDuration.ofTimeString("-1.02:05:03.004"));
+        assertEquals(CalendarDuration.ZERO, CalendarDuration.ofTimeString("0.00:00"));
+        // like the library, a match at the start is enough
+        assertEquals(CalendarDuration.ofHours(1), CalendarDuration.ofTimeString("01:00:00 extra"));
+
+        CalendarDurationConverter converter = new CalendarDurationConverter();
+        assertEquals(CalendarDuration.ofSeconds(1).plusMillis(500),
                 converter.toServerModel(JsonUtils.toJsonNode(1500), null));
-        assertEquals(DurationValue.ofCalendar(Period.ofDays(2)),
-                converter.toServerModel(JsonUtils.toJsonNode("2.00:00"), null));
-        assertEquals(DurationValue.ofTime(Duration.ofSeconds(5)),
-                converter.toServerModel(JsonFactory.createObject().put("milliseconds", 5000), null));
+        assertEquals(CalendarDuration.ofDays(2), converter.toServerModel(JsonUtils.toJsonNode("2.00:00"), null));
+        CalendarDuration all = CalendarDuration.ofYears(1).plusMonths(2).plusWeeks(3).plusDays(4).plusHours(5)
+                .plusMinutes(6).plusSeconds(7).plusMillis(8);
+        assertEquals(all, converter.toServerModel(converter.toClientModel(all, null), null));
+        CalendarDuration negative = CalendarDuration.ofWeeks(-1).plusMinutes(-30);
+        assertEquals(negative, converter.toServerModel(converter.toClientModel(negative, null), null));
     }
 
     @Test
@@ -453,7 +473,6 @@ class ConverterTest {
         assertThrows(IllegalArgumentException.class, () -> Order.ascending("-start"));
         assertThrows(IllegalArgumentException.class, () -> Order.of("title", ""));
         assertThrows(IllegalArgumentException.class, () -> Order.of(new String[0]));
-        assertThrows(IllegalArgumentException.class, () -> DurationValue.ofCalendar(Period.ZERO));
         assertThrows(IllegalArgumentException.class, () -> ConstraintValue.Window.span((LocalDate) null, null));
         assertThrows(IllegalArgumentException.class,
                 () -> ConstraintValue.Window.span(LocalDate.of(2026, 1, 2), LocalDate.of(2026, 1, 2)));
@@ -461,8 +480,8 @@ class ConverterTest {
                 LocalDateTime.of(2026, 1, 2, 10, 0), LocalDateTime.of(2026, 1, 2, 9, 0)));
         assertThrows(IllegalArgumentException.class, () -> BusinessHours.allDays()
                 .recurringStartDate(LocalDate.of(2026, 3, 1)).recurringEndDate(LocalDate.of(2026, 3, 1)));
-        assertThrows(IllegalArgumentException.class, () -> DurationValue.ofTimeString("PT1H"));
-        assertThrows(IllegalArgumentException.class, () -> DurationValue.ofTimeString("8"));
+        assertThrows(IllegalArgumentException.class, () -> CalendarDuration.ofTimeString("PT1H"));
+        assertThrows(IllegalArgumentException.class, () -> CalendarDuration.ofTimeString("8"));
     }
 
     @Test
@@ -582,9 +601,11 @@ class ConverterTest {
         assertThrows(IllegalArgumentException.class,
                 () -> new WeekNumberCalculationValueConverter().toServerModel(JsonUtils.toJsonNode("x"), null));
         assertThrows(IllegalArgumentException.class,
-                () -> new DurationValueConverter().toServerModel(JsonUtils.toJsonNode(true), null));
-        assertThrows(IllegalArgumentException.class, () -> new DurationValueConverter()
-                .toServerModel(JsonFactory.createObject().put("weeks", 1), null));
+                () -> new CalendarDurationConverter().toServerModel(JsonUtils.toJsonNode(true), null));
+        assertThrows(IllegalArgumentException.class, () -> new CalendarDurationConverter()
+                .toServerModel(JsonFactory.createObject().put("fortnights", 1), null));
+        assertThrows(IllegalArgumentException.class, () -> new CalendarDurationConverter()
+                .toServerModel(JsonFactory.createObject().put("hours", 1.5), null));
         assertThrows(IllegalArgumentException.class,
                 () -> new OrderValueConverter().toServerModel(JsonUtils.toJsonNode(1), null));
         assertThrows(IllegalArgumentException.class,
