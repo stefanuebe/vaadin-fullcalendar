@@ -4,7 +4,7 @@
 |---|---|
 | GitHub | #400 |
 | Labels | enhancement, ready-for-agent |
-| Status | done (2026-10-17) |
+| Status | done (2026-10-17, ae47bb6c) |
 | Blocked by | `25-fields-dates` |
 | Spec | `../option-fields-spec.md`; shared rules in `README.md` |
 
@@ -16,7 +16,7 @@
 
 **Blocked by:** `25-fields-dates`
 
-**Status:** done (2026-10-17)
+**Status:** done (2026-10-17, ae47bb6c)
 
 - [x] A date-time set as initial date reaches the client as the library reads it, a date as before.
 - [x] The setter table in `README.md` and `PER_FORM_PARAMETERS` have `InitialDateValue`; the converter tests include both forms.
