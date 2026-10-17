@@ -7,6 +7,10 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.vaadin.stefan.fullcalendar.dataprovider.InMemoryEntryProvider;
 
+import tools.jackson.databind.node.ObjectNode;
+import org.vaadin.stefan.fullcalendar.option.TextContent;
+import org.vaadin.stefan.fullcalendar.option.WidthValue;
+
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Optional;
@@ -20,113 +24,70 @@ public class FullCalendarSchedulerTest {
         calendar = new FullCalendarScheduler();
     }
 
+    private ObjectNode initialOptions() {
+        return (ObjectNode) calendar.getElement().getPropertyRaw("initialOptions");
+    }
+
     @Test
     void testSetLicenseKey() {
-        calendar.setOption(SchedulerOption.LICENSE_KEY, "123456");
+        calendar.options().setSchedulerLicenseKey("123456");
 
-        Optional<Object> option = calendar.getOption("schedulerLicenseKey");
-
-        Assertions.assertTrue(option.isPresent());
-        Assertions.assertEquals("123456", option.get());
+        Assertions.assertEquals("123456", calendar.options().getSchedulerLicenseKey());
+        Assertions.assertEquals("123456", initialOptions().get("schedulerLicenseKey").asString());
     }
-    
+
     @Test
     void testSetResourceColumnHeaderContent() {
-        calendar.setOption(SchedulerOption.RESOURCE_COLUMN_HEADER_CONTENT, "Hello");
+        calendar.options().setResourceColumnHeaderContent("Hello");
 
-        Optional<Object> option = calendar.getOption("resourceColumnHeaderContent");
-
-        Assertions.assertTrue(option.isPresent());
-        Assertions.assertEquals("Hello", option.get());
+        Assertions.assertEquals(TextContent.of("Hello"), calendar.options().getResourceColumnHeaderContent());
+        Assertions.assertEquals("Hello", initialOptions().get("resourceColumnHeaderContent").asString());
     }
-    
+
     @Test
     void testSetResourceColumnsWidth() {
-        calendar.setOption(SchedulerOption.RESOURCE_COLUMNS_WIDTH, "10%");
+        calendar.options().setResourceColumnsWidth(WidthValue.ofPercent(10));
 
-        Optional<Object> option = calendar.getOption("resourceColumnsWidth");
-
-        Assertions.assertTrue(option.isPresent());
-        Assertions.assertEquals("10%", option.get());
+        Assertions.assertEquals(WidthValue.ofPercent(10), calendar.options().getResourceColumnsWidth());
+        Assertions.assertEquals("10%", initialOptions().get("resourceColumnsWidth").asString());
     }
-    
+
     @Test
     void testSetSlotWidtht() {
-        calendar.setOption(SchedulerOption.SLOT_MIN_WIDTH, "100");
+        calendar.options().setSlotMinWidth(100);
 
-        Optional<Object> option = calendar.getOption("slotMinWidth");
-
-        Assertions.assertTrue(option.isPresent());
-        Assertions.assertEquals("100", option.get());
+        Assertions.assertEquals(100, calendar.options().getSlotMinWidth());
+        Assertions.assertEquals(100, initialOptions().get("slotMinWidth").asInt());
     }
-    
+
     @Test
     void testSetResourceInitiallyExpanded() {
-        calendar.setOption(SchedulerOption.RESOURCES_INITIALLY_EXPANDED, false);
+        calendar.options().setResourcesInitiallyExpanded(false);
 
-        Optional<Object> option = calendar.getOption("resourcesInitiallyExpanded");
-
-        Assertions.assertTrue(option.isPresent());
-        Assertions.assertEquals(false, option.get());
+        Assertions.assertEquals(false, calendar.options().getResourcesInitiallyExpanded());
+        Assertions.assertFalse(initialOptions().get("resourcesInitiallyExpanded").asBoolean());
     }
-    
+
     @Test
     void testSetFilterResourcesWithEvents() {
-        calendar.setOption(SchedulerOption.FILTER_RESOURCES_WITH_ENTRIES, true);
+        calendar.options().setFilterResourcesWithEntries(true);
 
-        Optional<Object> option = calendar.getOption("filterResourcesWithEvents");
-
-        Assertions.assertTrue(option.isPresent());
-        Assertions.assertEquals(true, option.get());
+        Assertions.assertEquals(true, calendar.options().getFilterResourcesWithEntries());
+        Assertions.assertTrue(initialOptions().get("filterResourcesWithEvents").asBoolean());
     }
-    
+
     @Test
     void testSetResourceOrder() {
-        calendar.setOption(SchedulerOption.RESOURCE_ORDER, "-title");
+        calendar.options().setResourceOrder("-title");
 
-        Optional<Object> option = calendar.getOption("resourceOrder");
-
-        Assertions.assertTrue(option.isPresent());
-        Assertions.assertEquals("-title", option.get());
-    }
-
-    @Test
-    void testNonArgsConstructor() {
-        // this shall assure that all init options are handled
-        assertExistingOptionCount(calendar, 2); // dayMaxEvents + timeZone. The locale is a typed field, the height comes from setHeightFull().
-    }
-
-    @Test
-    void testArgsConstructor() {
-        int entryLimit = 5;
-        FullCalendar calendar = new FullCalendarScheduler();
-        calendar.setMaxEntriesPerDay(entryLimit);
-
-        // this shall assure that all init options are handled
-        assertExistingOptionCount(calendar, 2); // dayMaxEvents + timeZone. The locale is a typed field, the height comes from setHeightFull().
-
-        Assertions.assertEquals(entryLimit, calendar.getOption(Option.DAY_MAX_ENTRIES).orElse(-1));
+        Assertions.assertNotNull(calendar.options().getResourceOrder());
+        Assertions.assertEquals("-title", initialOptions().get("resourceOrder").get(0).asString());
     }
 
     @Test
     void noArgConstructor_setsDefaultLocale() {
         Assertions.assertEquals(LocaleValue.of(CalendarLocale.getDefaultLocale()),
                 new FullCalendarScheduler().options().getLocale());
-    }
-
-    @Test
-    @SuppressWarnings("removal")
-    void deprecatedEntryResourcesEditable_setsSameOptionAsEntryResourceEditable() {
-        SchedulerOption alias = SchedulerOption.ENTRY_RESOURCES_EDITABLE;
-        SchedulerOption renamed = SchedulerOption.ENTRY_RESOURCE_EDITABLE;
-
-        Assertions.assertEquals(renamed.getOptionKey(), alias.getOptionKey());
-        Assertions.assertEquals(renamed.getConverters(), alias.getConverters());
-    }
-
-    private void assertExistingOptionCount(FullCalendar calendar, int expectedOptionsCount) {
-        // deprecated aliases share the key of their renamed constant, so count keys, not constants
-        Assertions.assertEquals(expectedOptionsCount, Arrays.stream(Option.values()).map(Option::getOptionKey).distinct().map(calendar::getOption).filter(Optional::isPresent).count());
     }
 
     @Test
