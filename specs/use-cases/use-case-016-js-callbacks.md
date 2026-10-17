@@ -85,6 +85,7 @@ calendar.setOption(Option.ENTRY_WILL_UNMOUNT,
 | BR-05 | Scheduler render hooks: `RESOURCE_LABEL_CONTENT`, `RESOURCE_LABEL_CLASS_NAMES`, `RESOURCE_LABEL_DID_MOUNT`, `RESOURCE_LANE_CONTENT`, etc. |
 | BR-06 | Callbacks must be synchronous (no async/await) |
 | BR-07 | Native DOM event listeners registered via `addEntryNativeEventListener(eventName, jsCode)` are automatically merged into `ENTRY_DID_MOUNT`. Example: `calendar.addEntryNativeEventListener("click", "console.log('clicked', e.target)")` registers a browser `click` handler on each entry's DOM element. |
+| BR-08 | The calendar merges the automatic entry id (`setAutoProvideEntryIdOnClient`, on by default), the `ENTRY_DID_MOUNT` callback and the native listeners into one function. It calls the id snippet and then the callback, each with `this` and all arguments, and registers the native listeners last. So the callback may have any function form (also an arrow function with an expression body) and can override the entry id. The library mounts drag previews too, so the callback and the listeners run for them, while the entry id is left out |
 
 ---
 
@@ -94,6 +95,7 @@ calendar.setOption(Option.ENTRY_WILL_UNMOUNT,
 - [ ] `SELECT_ALLOW` callback can accept/reject selections
 - [ ] Custom properties are accessible in JS callbacks via `extendedProps`
 - [ ] Scheduler render hooks customize resource rendering
+- [x] An `ENTRY_DID_MOUNT` arrow function with a block or an expression body runs, the entry id and the native listeners are still set, and the callback can override the id (`entry-did-mount-forms.spec.js`)
 - [ ] Invalid JS does not crash the calendar — graceful degradation *(manual verification)*
 
 ---
@@ -106,6 +108,7 @@ calendar.setOption(Option.ENTRY_WILL_UNMOUNT,
 
 ### E2E Tests
 - [ ] `interaction-callbacks.spec.js` — callback behavior
+- [x] `entry-did-mount-forms.spec.js`: `ENTRY_DID_MOUNT` in each function form, merged with the entry id and the native listeners
 
 ---
 

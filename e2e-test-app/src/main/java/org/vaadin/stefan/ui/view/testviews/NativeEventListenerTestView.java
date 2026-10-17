@@ -56,7 +56,7 @@ public class NativeEventListenerTestView extends VerticalLayout {
         entry.setAllDay(true);
         calendar.setEntryProvider(EntryProvider.inMemoryFrom(entry));
 
-        // ENTRY_DID_MOUNT via JsCallback — must end with closing brace for merge to work
+        // ENTRY_DID_MOUNT via JsCallback
         calendar.setOption(FullCalendar.Option.ENTRY_DID_MOUNT,
                 JsCallback.of("function(info) { info.el.setAttribute('data-did-mount', 'true'); }"));
 
