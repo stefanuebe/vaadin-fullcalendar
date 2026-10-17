@@ -29,6 +29,9 @@ import java.util.Objects;
  * Order.of("title", "-start");   // by title, then by start, latest first
  * Order.of(Order.ascending("title"), JsCallback.of("(a, b) => a.extendedProps.rank - b.extendedProps.rank"));
  * }</pre>
+ * <p>
+ * The second example reads an extended property of an entry. For resources, a compare function gets plain objects
+ * with the extended properties merged in, so it reads {@code a.rank} instead of {@code a.extendedProps.rank}.
  *
  * @param keys the sort keys, at least one
  */
