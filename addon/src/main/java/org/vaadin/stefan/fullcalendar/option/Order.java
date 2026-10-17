@@ -56,7 +56,7 @@ public record Order(List<Key> keys) implements OrderValue {
      * @param properties the property names, such as {@code "title"} or {@code "-start"}, at least one
      * @return the order
      * @throws NullPointerException     when null is passed or contained
-     * @throws IllegalArgumentException when no name is passed or a name is empty
+     * @throws IllegalArgumentException when no name is passed, a name is empty or contains a comma
      */
     public static Order of(String... properties) {
         return new Order(Arrays.stream(properties)
@@ -82,7 +82,7 @@ public record Order(List<Key> keys) implements OrderValue {
      * @param property the property name, such as {@code "title"}
      * @return the key
      * @throws NullPointerException     when null is passed
-     * @throws IllegalArgumentException when the name is empty or starts with {@code -}
+     * @throws IllegalArgumentException when the name is empty, starts with {@code -} or contains a comma
      */
     public static Property ascending(String property) {
         return new Property(property, false);
@@ -94,7 +94,7 @@ public record Order(List<Key> keys) implements OrderValue {
      * @param property the property name, such as {@code "start"}
      * @return the key
      * @throws NullPointerException     when null is passed
-     * @throws IllegalArgumentException when the name is empty or starts with {@code -}
+     * @throws IllegalArgumentException when the name is empty, starts with {@code -} or contains a comma
      */
     public static Property descending(String property) {
         return new Property(property, true);
@@ -120,6 +120,11 @@ public record Order(List<Key> keys) implements OrderValue {
             if (name.isEmpty() || name.startsWith("-")) {
                 throw new IllegalArgumentException("Not a property name: \"" + name + "\". Use Order.descending "
                         + "to sort descending.");
+            }
+            // the library does not split a name at a comma, so "title,start" would sort by nothing
+            if (name.contains(",")) {
+                throw new IllegalArgumentException("Not a property name: \"" + name + "\". Pass each property on "
+                        + "its own, as in Order.of(\"title\", \"start\").");
             }
         }
     }

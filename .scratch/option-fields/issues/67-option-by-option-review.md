@@ -25,9 +25,9 @@ Asked for by the maintainer (2026-10-16), after the review of wave 1: a human ca
 **Status:** ready-for-agent
 
 - [x] Every option constant is checked on all three points, the result is recorded per option (in this ticket or a file beside it).
-- [ ] Every finding is fixed, or recorded with its reason as a deliberate gap.
-- [ ] Every field whose library docs disagree with the library code says so in its Javadoc, the two cases of wave 2 included.
-- [ ] The list of options that cannot be mapped 1:1 goes to the maintainer.
+- [x] Every finding is fixed, or recorded with its reason as a deliberate gap.
+- [x] Every field whose library docs disagree with the library code says so in its Javadoc, the two cases of wave 2 included.
+- [x] The list of options that cannot be mapped 1:1 goes to the maintainer.
 
 ## Review run (2026-10-17)
 
@@ -63,11 +63,21 @@ The kinds of findings (details and sources in the reports and the verify files):
 
 ## Fixes (2026-10-17, branch `option-fields-67`)
 
-**State:** fixes done and reviewed; the full gate has not run; nothing of the fixes is committed yet (only the browser checks `dc1a919b`, the writers' brief `bef56830` and the six writers' Javadoc commits with their merges up to `a53ae0f6`). The working tree holds the code changes and all review fixes.
+**State:** done (2026-10-17). Full gate green (`mvn clean install`, E2E 465 passed), committed on `option-fields-67`.
 
 - **Browser checks** (`../67-review/browser-checks.md`): `allDayText` newline is a line break (the wave-2 example above was wrong and is removed); `listDayFormat`/`listDayAltFormat` ignore `false`; seven hidden days throw; a changed WillUnmount callback runs for elements rendered before the change; `entryDidMount` does not run for entries behind "+N more" with a number limit; `unselectCancel ""` acts like no value; `refetchResourcesOnNavigate` has no effect on the add-on's resource list.
 - **Code:** `ListDayFormatValue` and its converter removed, `listDayFormat`/`listDayAltFormat` take `DateFormatValue` (D5); `Order.Property` rejects a comma (D3); `setHiddenDays` rejects all seven days (D6); tests in `ConverterTest`, `TypedOptionsSyncTest`, `ValueTypeSwitchTest` and the api pin files adjusted. The targeted tests passed (244).
 - **Javadoc:** six Sonnet writers in worktrees (brief `../67-review/fix-brief.md`), one pass making the class and callback default sentences uniform, then five review rounds of three agents (Standards and Spec on Sonnet, claims against the library code on Opus). Rounds 4 and 5 found no major. Rejected review findings, with reasons: `virtualization` is read by the library (`8f1316dc.js:1390`); the D2 note is outdated for `columnEntryTitleClass`, `rowEntryTitleClass`, `moreLinkInnerClass`, `slotHeaderRowClass`, which the current library docs describe; the `entryDidMount` braces sentence waits for ticket 77; the sentence "the add-on also adds stable class names" was removed everywhere (legacy class names are an internal compatibility layer).
 - **Minors left as they are** (maintainer, 2026-10-17): number defaults written with and without `{@code}`; default and getter sentence sometimes in one paragraph; the duration setters' "the duration, days count as 24 hours, or null"; a few phrasing differences ("Show or hide…" against "Whether…"); the `buttons` `hint` docs note does not say what the used version does.
 
-**Next step:** run the full gate (`demo/.vaadin/vaadin-dev shutdown` if running, `mvn clean install` with `JAVA_HOME=~/.vaadin/jdk/jbr-25.0.4.1`, delete `e2e-test-app` `prod.bundle`, then `mvn clean verify -Pit` in `e2e-test-app/`), commit the working tree on `option-fields-67` (explicit files, check the branch first), tick the acceptance criteria above, then hand the maintainer the list of options that cannot be mapped 1:1 (fourth criterion) and merge locally like 70–76. Then ticket 77.
+**Library forms not mapped 1:1** (handed to the maintainer 2026-10-17; each reason is in the Javadoc of the type):
+
+- Format command strings (`"MMMM yyyy"`) of every format option: they need a formatting plugin (Luxon or Moment) the add-on does not ship. `DateFormat` and `JsCallback` give the same output (`DateFormatValue`, ticket 24).
+- `listDayFormat`/`listDayAltFormat` `false`: the library docs name it, the used version ignores it (browser check), so there is no form for it.
+- Content `{domNodes: [...]}`: DOM nodes cannot come from the server (`ContentValue`).
+- `locale` as a list of codes: left out, the calendar takes one locale (`LocaleValue`).
+- `now` as a `Date` or milliseconds: covered by the date and date-time forms (ticket 24).
+- Resource column `headerDefault` (a React node) and `isMain` (the library overwrites it) (`AbstractResourceColumn`).
+- `validRange` with equal bounds: rejected, as in 7.x (D4).
+- `height`: no field, reachable with `setRawOption("height", …)` (spec, *Out of Scope*).
+

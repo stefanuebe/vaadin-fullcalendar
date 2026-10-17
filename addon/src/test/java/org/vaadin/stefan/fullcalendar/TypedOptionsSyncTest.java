@@ -27,7 +27,6 @@ import org.vaadin.stefan.fullcalendar.option.HeaderAlign;
 import org.vaadin.stefan.fullcalendar.option.HeaderAlignValue;
 import org.vaadin.stefan.fullcalendar.option.HeightValue;
 import org.vaadin.stefan.fullcalendar.option.JsCallback;
-import org.vaadin.stefan.fullcalendar.option.ListDayFormatValue;
 import org.vaadin.stefan.fullcalendar.option.ListTextValue;
 import org.vaadin.stefan.fullcalendar.option.NowValue;
 import org.vaadin.stefan.fullcalendar.option.OverlapValue;
@@ -59,6 +58,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.Period;
 import java.util.Arrays;
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -158,6 +158,10 @@ public class TypedOptionsSyncTest extends BrowserlessTest {
 
         calendar.options().setHiddenDays(null);
         assertNull(calendar.options().getHiddenDays());
+
+        // the library throws when no day stays visible
+        assertThrows(IllegalArgumentException.class,
+                () -> calendar.options().setHiddenDays(EnumSet.allOf(DayOfWeek.class)));
         calendar.options().setHiddenDays(new HashSet<>());
         assertEquals(Set.of(), calendar.options().getHiddenDays());
     }
@@ -618,7 +622,6 @@ public class TypedOptionsSyncTest extends BrowserlessTest {
             Map.entry(MoreLinkClickValue.class, Set.of(String.class, CalendarView.class)),
             Map.entry(OverlapValue.class, Set.of(boolean.class)),
             Map.entry(DateFormatValue.class, Set.of(Map.class)),
-            Map.entry(ListDayFormatValue.class, Set.of(Map.class)),
             Map.entry(SlotHeaderFormatValue.class, Set.of(Map.class)),
             Map.entry(ListTextValue.class, Set.of(String.class)),
             Map.entry(HeightValue.class, Set.of(int.class, String.class)),

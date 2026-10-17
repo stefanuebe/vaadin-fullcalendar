@@ -81,9 +81,10 @@ class SchedulerViewOptions extends ViewOptions {
      * <p>
      * It takes a list of resource property names, where a leading {@code -} sorts descending, a mix with compare
      * functions ({@link Order}), or a single {@link JsCallback} that compares two resources. Each name is one property
-     * name; a comma does not separate names. A compare function gets two plain objects, not resource API objects: the
-     * resource fields with the extended properties merged in, so {@code a.rank}, not {@code a.extendedProps.rank}. The
-     * library docs describe only the string form; the list and function forms come from the library code.
+     * name, so a name cannot hold a comma. A compare function gets two plain objects, not resource API objects. They
+     * hold the resource fields with the extended properties merged in, so a function reads {@code a.rank}, not
+     * {@code a.extendedProps.rank}. The library docs describe only the string form. The list and function forms come
+     * from the library code.
      * <p>
      * The getter returns null while the option is not set; then the library default applies.
      *
@@ -124,7 +125,7 @@ class SchedulerViewOptions extends ViewOptions {
      * In the vertical resource views ({@code resourceTimeGrid} and {@code resourceDayGrid}), puts the date headings
      * above the resource headings instead of the resource headings above the date headings.
      * <p>
-     * The library default is false.
+     * The library default is {@code false}.
      * <p>
      * The getter returns null while the option is not set; then the library default applies.
      *
@@ -159,8 +160,8 @@ class SchedulerViewOptions extends ViewOptions {
      * ({@code resourceTimeGrid} and {@code resourceDayGrid}). In a left-to-right locale, start means left and end
      * means right.
      * <p>
-     * A callback gets an {@code info} object with {@code level}, the header row. It returns {@code "start"},
-     * {@code "center"} or {@code "end"}.
+     * A callback gets an {@code info} object with {@code level} (the header row), {@code isNarrow} and
+     * {@code inPopover}. It returns {@code "start"}, {@code "center"} or {@code "end"}.
      * <p>
      * The library default is decided by the theme.
      * <p>
@@ -290,7 +291,7 @@ class SchedulerViewOptions extends ViewOptions {
      * It gets {@code resources}, an array of all resources, the same as the library's {@code Calendar.getResources}
      * returns.
      * <p>
-     * The library has no default. Without a value, no callback runs.
+     * The library default is no callback.
      * <p>
      * The getter returns null while the option is not set; then the library default applies.
      *
@@ -338,7 +339,7 @@ class SchedulerViewOptions extends ViewOptions {
      * It gets a {@code removeInfo} object with {@code resource} (the removed resource) and {@code revert} (a function
      * that reverses the action).
      * <p>
-     * The library has no default. Without a value, no callback runs.
+     * The library default is no callback.
      * <p>
      * The getter returns null while the option is not set; then the library default applies.
      *
@@ -350,12 +351,15 @@ class SchedulerViewOptions extends ViewOptions {
      * CSS classes for the cells of the resource area in the timeline view. Each cell shows one column field, the
      * resource title or a column of {@code resourceColumns}.
      * <p>
-     * The hook also runs for the cells of group rows, which have no resource.
+     * The hook also runs for the cells of a group column (a resource column with {@code group} set), whose
+     * {@code info} holds only {@code fieldValue} and {@code view}. The group rows of {@code resourceGroupField} use
+     * the {@code resourceGroupHeader…} options instead.
      * <p>
-     * A callback gets an {@code info} object with {@code resource} (absent in group rows), {@code field},
+     * A callback gets an {@code info} object with {@code resource} (absent in group columns), {@code field},
      * {@code fieldValue} and more, see the library docs. It returns the class names as a string.
      * <p>
-     * The library default is no additional class names.
+     * The library default is no classes. A theme can set classes of its own, and the classes set here are added to
+     * them.
      * <p>
      * The getter returns null while the option is not set; then the library default applies.
      *
@@ -386,7 +390,7 @@ class SchedulerViewOptions extends ViewOptions {
      * Custom content for the cells of the resource area in the timeline view. Branch on {@code info.field} to change
      * the title cell only.
      * <p>
-     * A callback gets an {@code info} object with {@code resource} (absent in group rows), {@code field},
+     * A callback gets an {@code info} object with {@code resource} (absent in group columns), {@code field},
      * {@code fieldValue} and more, see the library docs. It returns a text, or {@code {html: '...'}} or
      * {@code {domNodes: [...]}}.
      * <p>
@@ -422,7 +426,7 @@ class SchedulerViewOptions extends ViewOptions {
 
     /**
      * A callback that runs right after a cell of the resource area has been added to the DOM. It gets an {@code info}
-     * object with {@code el} (the element), {@code resource} (absent in group rows), {@code field} and more, see the
+     * object with {@code el} (the element), {@code resource} (absent in group columns), {@code field} and more, see the
      * library docs.
      * <p>
      * When this option is changed for an attached calendar, the new setting only applies to newly rendered elements,
@@ -440,12 +444,15 @@ class SchedulerViewOptions extends ViewOptions {
      * CSS classes for the inner wrapper of a cell of the resource area in the timeline view. The inner wrapper holds
      * the content and is useful for adjusting padding.
      * <p>
-     * The hook also runs for the cells of group rows, which have no resource.
+     * The hook also runs for the cells of a group column (a resource column with {@code group} set), whose
+     * {@code info} holds only {@code fieldValue} and {@code view}. The group rows of {@code resourceGroupField} use
+     * the {@code resourceGroupHeader…} options instead.
      * <p>
-     * A callback gets an {@code info} object with {@code resource} (absent in group rows), {@code field},
+     * A callback gets an {@code info} object with {@code resource} (absent in group columns), {@code field},
      * {@code fieldValue} and more, see the library docs. It returns the class names as a string.
      * <p>
-     * The library default is no additional class names.
+     * The library default is no classes. A theme can set classes of its own, and the classes set here are added to
+     * them.
      * <p>
      * The getter returns null while the option is not set; then the library default applies.
      *
@@ -474,7 +481,7 @@ class SchedulerViewOptions extends ViewOptions {
 
     /**
      * A callback that runs right before a cell of the resource area is removed from the DOM. It gets an {@code info}
-     * object with {@code el} (the element), {@code resource} (absent in group rows), {@code field} and more, see the
+     * object with {@code el} (the element), {@code resource} (absent in group columns), {@code field} and more, see the
      * library docs.
      * <p>
      * When this option is changed for an attached calendar, the callback that is set at the time an element is removed
@@ -493,7 +500,8 @@ class SchedulerViewOptions extends ViewOptions {
      * <p>
      * It takes class names only, because the library accepts no callback for this option.
      * <p>
-     * The library default is no additional class names.
+     * The library default is no classes. A theme can set classes of its own, and the classes set here are added to
+     * them.
      * <p>
      * The getter returns null while the option is not set; then the library default applies.
      *
@@ -508,7 +516,8 @@ class SchedulerViewOptions extends ViewOptions {
      * version passes it. It returns the class names as a
      * string.
      * <p>
-     * The library default is no additional class names.
+     * The library default is no classes. A theme can set classes of its own, and the classes set here are added to
+     * them.
      * <p>
      * The getter returns null while the option is not set; then the library default applies.
      *
@@ -596,7 +605,8 @@ class SchedulerViewOptions extends ViewOptions {
      * version passes it. It returns the class names as a
      * string.
      * <p>
-     * The library default is no additional class names.
+     * The library default is no classes. A theme can set classes of its own, and the classes set here are added to
+     * them.
      * <p>
      * The getter returns null while the option is not set; then the library default applies.
      *
@@ -649,7 +659,8 @@ class SchedulerViewOptions extends ViewOptions {
      * version passes it. It returns the class names as a
      * string.
      * <p>
-     * The library default is no additional class names.
+     * The library default is no classes. A theme can set classes of its own, and the classes set here are added to
+     * them.
      * <p>
      * The getter returns null while the option is not set; then the library default applies.
      *
@@ -683,7 +694,8 @@ class SchedulerViewOptions extends ViewOptions {
      * A callback gets an {@code info} object with {@code resource}, {@code text}, {@code level} and more, see the
      * library docs. It returns the class names as a string.
      * <p>
-     * The library default is no additional class names.
+     * The library default is no classes. A theme can set classes of its own, and the classes set here are added to
+     * them.
      * <p>
      * The getter returns null while the option is not set; then the library default applies.
      *
@@ -717,7 +729,7 @@ class SchedulerViewOptions extends ViewOptions {
      * A callback gets an {@code info} object with {@code resource}, {@code text}, {@code level} and more, see the
      * library docs. It returns a text, or {@code {html: '...'}} or {@code {domNodes: [...]}}.
      * <p>
-     * The library default is the title of the resource as text.
+     * The library default is the title of the resource as text, or its id when it has no title.
      * <p>
      * The getter returns null while the option is not set; then the library default applies.
      *
@@ -766,7 +778,8 @@ class SchedulerViewOptions extends ViewOptions {
      * A callback gets an {@code info} object with {@code resource}, {@code text}, {@code level} and more, see the
      * library docs. It returns the class names as a string.
      * <p>
-     * The library default is no additional class names.
+     * The library default is no classes. A theme can set classes of its own, and the classes set here are added to
+     * them.
      * <p>
      * The getter returns null while the option is not set; then the library default applies.
      *
@@ -814,8 +827,8 @@ class SchedulerViewOptions extends ViewOptions {
      * <p>
      * A callback gets an {@code info} object with {@code isExpanded}. It returns the class names as a string.
      * <p>
-     * The library default is no class names, but the active theme sets some for it. Class names set here are added to
-     * them; they do not replace them.
+     * The library default is no classes. A theme can set classes of its own, and the classes set here are added to
+     * them.
      * <p>
      * The getter returns null while the option is not set; then the library default applies.
      *
@@ -887,8 +900,8 @@ class SchedulerViewOptions extends ViewOptions {
      * A callback gets an {@code info} object with {@code fieldValue} and {@code view}. It returns the class names as a
      * string.
      * <p>
-     * The library default is no class names, but the active theme sets some for it, and the add-on adds some stable
-     * class names of its own. Class names set here are added to them; they do not replace them.
+     * The library default is no classes. A theme can set classes of its own, and the classes set here are added to
+     * them.
      * <p>
      * The getter returns null while the option is not set; then the library default applies.
      *
@@ -962,7 +975,7 @@ class SchedulerViewOptions extends ViewOptions {
      * When this option is changed for an attached calendar, the new setting only applies to newly rendered elements,
      * for example after navigating to another view or period. Existing elements are not updated.
      * <p>
-     * The library has no default. Without a value, no callback runs.
+     * The library default is no callback.
      * <p>
      * The getter returns null while the option is not set; then the library default applies.
      *
@@ -980,8 +993,8 @@ class SchedulerViewOptions extends ViewOptions {
      * A callback gets an {@code info} object with {@code fieldValue} and {@code view}. It returns the class names as a
      * string.
      * <p>
-     * The library default is no class names, but the active theme sets some for it, and the add-on adds some stable
-     * class names of its own. Class names set here are added to them; they do not replace them.
+     * The library default is no classes. A theme can set classes of its own, and the classes set here are added to
+     * them.
      * <p>
      * The getter returns null while the option is not set; then the library default applies.
      *
@@ -1015,10 +1028,10 @@ class SchedulerViewOptions extends ViewOptions {
      * The library ignores this option while a resource column is marked as a group column ({@code resourceColumns}).
      * The hooks of that column apply then. The library docs do not say this.
      * <p>
-     * When this option is changed for an attached calendar, the callback that is set when an element is removed runs
-     * for that element.
+     * When this option is changed for an attached calendar, the callback that is set at the time an element is removed
+     * runs for it. This includes elements that were rendered before the change.
      * <p>
-     * The library has no default. Without a value, no callback runs.
+     * The library default is no callback.
      * <p>
      * The getter returns null while the option is not set; then the library default applies.
      *
@@ -1030,14 +1043,14 @@ class SchedulerViewOptions extends ViewOptions {
      * CSS classes for the resource group lane, the horizontal area of a group along the time slots in the
      * resource timeline view.
      * <p>
-     * The library ignores this option while a resource column is marked as a group column ({@code resourceColumns}).
-     * The hooks of that column apply then. The library docs do not say this.
+     * While a resource column is marked as a group column ({@code resourceColumns}), the library renders no group
+     * lanes, so this option has no effect. The library docs do not say this.
      * <p>
      * A callback gets an {@code info} object with {@code fieldValue} and {@code view}. It returns the class names as a
      * string.
      * <p>
-     * The library default is no class names, but the active theme sets some for it, and the add-on adds some stable
-     * class names of its own. Class names set here are added to them; they do not replace them.
+     * The library default is no classes. A theme can set classes of its own, and the classes set here are added to
+     * them.
      * <p>
      * The getter returns null while the option is not set; then the library default applies.
      *
@@ -1068,8 +1081,8 @@ class SchedulerViewOptions extends ViewOptions {
      * Custom content for the resource group lane, the horizontal area of a group along the time slots in the
      * resource timeline view.
      * <p>
-     * The library ignores this option while a resource column is marked as a group column ({@code resourceColumns}).
-     * The hooks of that column apply then. The library docs do not say this.
+     * While a resource column is marked as a group column ({@code resourceColumns}), the library renders no group
+     * lanes, so this option has no effect. The library docs do not say this.
      * <p>
      * A callback gets an {@code info} object with {@code fieldValue} and {@code view}. It returns a text, or
      * {@code {html: '...'}} or {@code {domNodes: [...]}}.
@@ -1105,13 +1118,13 @@ class SchedulerViewOptions extends ViewOptions {
      * A callback that runs right after a resource group lane has been added to the DOM. It gets an {@code info} object
      * with {@code fieldValue}, {@code view} and {@code el}, the element.
      * <p>
-     * The library ignores this option while a resource column is marked as a group column ({@code resourceColumns}).
-     * The hooks of that column apply then. The library docs do not say this.
+     * While a resource column is marked as a group column ({@code resourceColumns}), the library renders no group
+     * lanes, so this option has no effect. The library docs do not say this.
      * <p>
      * When this option is changed for an attached calendar, the new setting only applies to newly rendered elements,
      * for example after navigating to another view or period. Existing elements are not updated.
      * <p>
-     * The library has no default. Without a value, no callback runs.
+     * The library default is no callback.
      * <p>
      * The getter returns null while the option is not set; then the library default applies.
      *
@@ -1123,14 +1136,14 @@ class SchedulerViewOptions extends ViewOptions {
      * CSS classes for the inner wrapper of a resource group lane cell in the resource timeline view. A group's lane is
      * the horizontal area running along the time slots.
      * <p>
-     * The library ignores this option while a resource column is marked as a group column ({@code resourceColumns}).
-     * The hooks of that column apply then. The library docs do not say this.
+     * While a resource column is marked as a group column ({@code resourceColumns}), the library renders no group
+     * lanes, so this option has no effect. The library docs do not say this.
      * <p>
      * A callback gets an {@code info} object with {@code fieldValue} and {@code view}. It returns the class names as a
      * string.
      * <p>
-     * The library default is no class names. Class names set here are added to the class names of the active theme;
-     * they do not replace them.
+     * The library default is no classes. A theme can set classes of its own, and the classes set here are added to
+     * them.
      * <p>
      * The getter returns null while the option is not set; then the library default applies.
      *
@@ -1161,13 +1174,13 @@ class SchedulerViewOptions extends ViewOptions {
      * A callback that runs right before a resource group lane is removed from the DOM. It gets an {@code info} object
      * with {@code fieldValue}, {@code view} and {@code el}, the element.
      * <p>
-     * The library ignores this option while a resource column is marked as a group column ({@code resourceColumns}).
-     * The hooks of that column apply then. The library docs do not say this.
+     * While a resource column is marked as a group column ({@code resourceColumns}), the library renders no group
+     * lanes, so this option has no effect. The library docs do not say this.
      * <p>
-     * When this option is changed for an attached calendar, the callback that is set when an element is removed runs
-     * for that element.
+     * When this option is changed for an attached calendar, the callback that is set at the time an element is removed
+     * runs for it. This includes elements that were rendered before the change.
      * <p>
-     * The library has no default. Without a value, no callback runs.
+     * The library default is no callback.
      * <p>
      * The getter returns null while the option is not set; then the library default applies.
      *
@@ -1180,8 +1193,8 @@ class SchedulerViewOptions extends ViewOptions {
      * <p>
      * It takes class names only, because the library accepts no callback for this option.
      * <p>
-     * The library default is no class names, but the active theme sets some for it. Class names set here are added to
-     * them; they do not replace them.
+     * The library default is no classes. A theme can set classes of its own, and the classes set here are added to
+     * them.
      * <p>
      * The getter returns null while the option is not set; then the library default applies.
      *
@@ -1194,8 +1207,8 @@ class SchedulerViewOptions extends ViewOptions {
      * <p>
      * It takes class names only, because the library accepts no callback for this option.
      * <p>
-     * The library default is no class names, but the active theme sets some for it. Class names set here are added to
-     * them; they do not replace them.
+     * The library default is no classes. A theme can set classes of its own, and the classes set here are added to
+     * them.
      * <p>
      * The getter returns null while the option is not set; then the library default applies.
      *
@@ -1209,8 +1222,8 @@ class SchedulerViewOptions extends ViewOptions {
      * A callback gets an {@code info} object with {@code resource} and {@code options}, which holds only
      * {@code eventOverlap}. The library docs list {@code resource} only. It returns the class names as a string.
      * <p>
-     * The library default is no class names, but the active theme sets some for it. Class names set here are added to
-     * them; they do not replace them.
+     * The library default is no classes. A theme can set classes of its own, and the classes set here are added to
+     * them.
      * <p>
      * The getter returns null while the option is not set; then the library default applies.
      *
@@ -1278,8 +1291,8 @@ class SchedulerViewOptions extends ViewOptions {
      * A callback gets an {@code info} object with {@code resource} and {@code options}, which holds only
      * {@code eventOverlap}. The library docs list {@code resource} only. It returns the class names as a string.
      * <p>
-     * The library default is no class names, but the active theme sets some for it, and the add-on adds some stable
-     * class names of its own. Class names set here are added to them; they do not replace them.
+     * The library default is no classes. A theme can set classes of its own, and the classes set here are added to
+     * them.
      * <p>
      * The getter returns null while the option is not set; then the library default applies.
      *
@@ -1314,7 +1327,7 @@ class SchedulerViewOptions extends ViewOptions {
      * When this option is changed for an attached calendar, the new setting only applies to newly rendered elements,
      * for example after navigating to another view or period. Existing elements are not updated.
      * <p>
-     * The library has no default. Without a value, no callback runs.
+     * The library default is no callback.
      * <p>
      * The getter returns null while the option is not set; then the library default applies.
      *
@@ -1328,8 +1341,8 @@ class SchedulerViewOptions extends ViewOptions {
      * A callback gets an {@code info} object with {@code resource} and {@code options}, which holds only
      * {@code eventOverlap}. The library docs list {@code resource} only. It returns the class names as a string.
      * <p>
-     * The library default is no class names. Class names set here are added to the class names of the active theme;
-     * they do not replace them.
+     * The library default is no classes. A theme can set classes of its own, and the classes set here are added to
+     * them.
      * <p>
      * The getter returns null while the option is not set; then the library default applies.
      *
@@ -1395,10 +1408,10 @@ class SchedulerViewOptions extends ViewOptions {
      * with {@code resource}, {@code options} and {@code el}, the element. {@code options} holds only
      * {@code eventOverlap}. The library docs list {@code resource} and {@code el} only.
      * <p>
-     * When this option is changed for an attached calendar, the callback that is set when an element is removed runs
-     * for that element.
+     * When this option is changed for an attached calendar, the callback that is set at the time an element is removed
+     * runs for it. This includes elements that were rendered before the change.
      * <p>
-     * The library has no default. Without a value, no callback runs.
+     * The library default is no callback.
      * <p>
      * The getter returns null while the option is not set; then the library default applies.
      *
@@ -1412,8 +1425,8 @@ class SchedulerViewOptions extends ViewOptions {
      * <p>
      * It takes class names only, because the library accepts no callback for this option.
      * <p>
-     * The library default is no class names, but the active theme sets some for it. Class names set here are added to
-     * them; they do not replace them.
+     * The library default is no classes. A theme can set classes of its own, and the classes set here are added to
+     * them.
      * <p>
      * The getter returns null while the option is not set; then the library default applies.
      *
@@ -1426,7 +1439,8 @@ class SchedulerViewOptions extends ViewOptions {
      * <p>
      * It takes class names only, because the library accepts no callback for this option.
      * <p>
-     * The library default is the classes of the theme. A value is added to them.
+     * The library default is no classes. A theme can set classes of its own, and the classes set here are added to
+     * them.
      * <p>
      * The getter returns null while the option is not set; then the library default applies.
      *
@@ -1439,7 +1453,8 @@ class SchedulerViewOptions extends ViewOptions {
      * <p>
      * It takes class names only, because the library accepts no callback for this option.
      * <p>
-     * The library default is the classes of the theme. A value is added to them.
+     * The library default is no classes. A theme can set classes of its own, and the classes set here are added to
+     * them.
      * <p>
      * The getter returns null while the option is not set; then the library default applies.
      *

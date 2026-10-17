@@ -78,7 +78,6 @@ Decided by the maintainer on 2026-10-15, after a review of 21–24 together. The
   | `MoreLinkClickValue` | `String` (view name), `CalendarView`; the actions are constants of `MoreLinkClickValue.Action` |
   | `OverlapValue` | `boolean` |
   | `DateFormatValue` | `Map<String, Object>` |
-  | `ListDayFormatValue` | `Map<String, Object>` |
   | `SlotHeaderFormatValue` | `Map<String, Object>`. The formats per header row come from `SlotHeaderFormatValue.of(DateFormatValue...)` and have no setter, because each row is itself a value type |
   | `ListTextValue` | `String` |
   | `HeightValue` | `int`, `String` |
