@@ -4,7 +4,7 @@
 |---|---|
 | GitHub | – |
 | Labels | enhancement, ready-for-agent |
-| Status | ready-for-agent |
+| Status | done (2026-10-17, 775c734f) |
 | Blocked by | `51-remove-old-option-api` |
 | Spec | – |
 
@@ -14,7 +14,7 @@
 
 **Blocked by:** `51-remove-old-option-api`
 
-**Status:** ready-for-agent
+**Status:** done
 
-- [ ] Nothing in the repository references `ResourceAreaColumn` or `ComponentResourceAreaColumn`, apart from the tickets that record their history.
-- [ ] Full gate green: `mvn clean install`, then the E2E run in `e2e-test-app`.
+- [x] Nothing in the repository references `ResourceAreaColumn` or `ComponentResourceAreaColumn`, apart from the tickets that record their history.
+- [x] Full gate green: `mvn clean install`, then the E2E run in `e2e-test-app`.
