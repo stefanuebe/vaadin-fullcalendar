@@ -4,7 +4,7 @@
 |---|---|
 | GitHub | #399 |
 | Labels | enhancement, ready-for-agent |
-| Status | done (2026-10-17) |
+| Status | done (2026-10-17, b8873763) |
 | Blocked by | `57-value-types-order-ranges-lengths-durations` |
 | Spec | `../option-fields-spec.md`; shared rules in `README.md` |
 
@@ -23,7 +23,7 @@ The fields concerned: `dateIncrement`, `defaultAllDayEntryDuration`, `defaultTim
 
 **Blocked by:** `57-value-types-order-ranges-lengths-durations`
 
-**Status:** done (2026-10-17)
+**Status:** done (2026-10-17, b8873763)
 
 - [x] `CalendarDuration` replaces `DurationValue`; every field listed above takes it, and the client receives each unit as the library reads it, `{weeks: n}` included.
 - [x] `CalendarDuration.ofWeeks(1)` and `CalendarDuration.ofDays(7)` reach the client as `{weeks: 1}` and `{days: 7}`.
