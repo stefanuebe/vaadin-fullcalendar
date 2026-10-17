@@ -111,6 +111,8 @@ test.describe('FullCalendar Vaadin theme', () => {
             await gotoView(page, query(appTheme.query, 'scheme=light'));
 
             const entry = page.locator('#cal-vaadin-dark .fc-event').first();
+            // The view squeezes its calendars into the page, so each scrolls its week rows. Today's row may be hidden.
+            await entry.scrollIntoViewIfNeeded();
             const box = await entry.boundingBox();
             await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
             await page.mouse.down();

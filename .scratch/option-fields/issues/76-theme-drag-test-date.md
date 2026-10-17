@@ -2,9 +2,9 @@
 
 | | |
 |---|---|
-| GitHub | – |
-| Labels | bug, ready-for-agent |
-| Status | ready-for-agent |
+| GitHub | #404 |
+| Labels | bug |
+| Status | done (2026-10-17, 818813dd) |
 | Blocked by | – |
 | Spec | – |
 
@@ -14,7 +14,7 @@
 
 **Blocked by:** none
 
-**Status:** ready-for-agent
+**Status:** done
 
-- [ ] The drag test passes whatever today's date is, for example by scrolling the entry into view before reading its bounding box, or by a fixed initial date in the view.
-- [ ] The test still fails with the bug it guards put back (the mirror without the theme class).
+- [x] The drag test passes whatever today's date is, for example by scrolling the entry into view before reading its bounding box, or by a fixed initial date in the view.
+- [x] The test still fails with the bug it guards put back (the mirror without the theme class).
