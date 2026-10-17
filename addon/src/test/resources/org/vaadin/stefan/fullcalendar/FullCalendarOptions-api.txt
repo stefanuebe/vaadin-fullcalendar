@@ -133,7 +133,7 @@ getHeaderToolbarClass(): ClassNameValue
 getHeadingLevel(): Integer
 getHiddenDays(): Set
 getHighlightClass(): String
-getInitialDate(): LocalDate
+getInitialDate(): InitialDateValue
 getInitialView(): ViewName
 getInlineWeekNumberClass(): ClassNameValue
 getInlineWeekNumberContent(): ContentValue
@@ -500,7 +500,9 @@ setHeaderToolbarClass(String): void
 setHeadingLevel(Integer): void
 setHiddenDays(Set): void
 setHighlightClass(String): void
+setInitialDate(InitialDateValue): void
 setInitialDate(LocalDate): void
+setInitialDate(LocalDateTime): void
 setInitialView(CalendarView): void
 setInitialView(String): void
 setInitialView(ViewName): void

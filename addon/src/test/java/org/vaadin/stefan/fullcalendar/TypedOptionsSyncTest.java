@@ -10,6 +10,7 @@ import org.vaadin.stefan.fullcalendar.option.ToolbarValue;
 import org.vaadin.stefan.fullcalendar.option.WeekNumberCalculationValue;
 import org.vaadin.stefan.fullcalendar.option.WidthValue;
 import org.vaadin.stefan.fullcalendar.option.CalendarDuration;
+import org.vaadin.stefan.fullcalendar.option.InitialDateValue;
 import org.vaadin.stefan.fullcalendar.option.AutoBoolean;
 import org.vaadin.stefan.fullcalendar.option.BusinessHours;
 import org.vaadin.stefan.fullcalendar.option.BusinessHoursValue;
@@ -115,6 +116,14 @@ public class TypedOptionsSyncTest extends BrowserlessTest {
 
         assertEquals(1, initialOptions().get("firstDay").asInt());
         assertEquals("2025-03-03", initialOptions().get("initialDate").asString());
+    }
+
+    @Test
+    void beforeAttach_initialDateWithATime_isSentAsUtcDateTime() {
+        calendar.options().setInitialDate(LocalDateTime.of(2025, 3, 3, 6, 0));
+        attach();
+
+        assertEquals("2025-03-03T06:00Z", initialOptions().get("initialDate").asString());
     }
 
     @Test
@@ -607,6 +616,7 @@ public class TypedOptionsSyncTest extends BrowserlessTest {
             Map.entry(BusinessHoursValue.class, Set.of(BusinessHours[].class)),
             Map.entry(ConstraintValue.class, Set.of(String.class, BusinessHours[].class, ConstraintValue.Window[].class)),
             Map.entry(NowValue.class, Set.of(LocalDate.class, LocalDateTime.class)),
+            Map.entry(InitialDateValue.class, Set.of(LocalDate.class, LocalDateTime.class)),
             Map.entry(TextValue.class, Set.of(String.class)),
             Map.entry(OrderValue.class, Set.of(String[].class, Order.Key[].class)),
             Map.entry(WidthValue.class, Set.of(int.class)),

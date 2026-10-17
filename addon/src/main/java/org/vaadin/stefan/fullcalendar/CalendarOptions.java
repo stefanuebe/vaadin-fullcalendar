@@ -22,8 +22,8 @@ import lombok.Setter;
 import org.vaadin.stefan.fullcalendar.converters.ClassNameValueConverter;
 import org.vaadin.stefan.fullcalendar.converters.ConstraintValueConverter;
 import org.vaadin.stefan.fullcalendar.converters.DayOfWeekConverter;
+import org.vaadin.stefan.fullcalendar.converters.InitialDateValueConverter;
 import org.vaadin.stefan.fullcalendar.converters.ListTextValueConverter;
-import org.vaadin.stefan.fullcalendar.converters.LocalDateConverter;
 import org.vaadin.stefan.fullcalendar.converters.LocaleConverter;
 import org.vaadin.stefan.fullcalendar.converters.MoreLinkClickValueConverter;
 import org.vaadin.stefan.fullcalendar.converters.TextValueConverter;
@@ -41,6 +41,7 @@ import org.vaadin.stefan.fullcalendar.option.ConstraintValue;
 import org.vaadin.stefan.fullcalendar.option.ContentValue;
 import org.vaadin.stefan.fullcalendar.option.Direction;
 import org.vaadin.stefan.fullcalendar.option.DisplayMode;
+import org.vaadin.stefan.fullcalendar.option.InitialDateValue;
 import org.vaadin.stefan.fullcalendar.option.JsCallback;
 import org.vaadin.stefan.fullcalendar.option.ListTextValue;
 import org.vaadin.stefan.fullcalendar.option.MoreLinkClickValue;
@@ -56,6 +57,7 @@ import org.vaadin.stefan.fullcalendar.option.WeekNumberCalculationValue;
 import java.io.Serializable;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
@@ -107,6 +109,10 @@ class CalendarOptions implements Serializable {
     /**
      * The date the calendar shows when it is created. The default is the current date.
      * <p>
+     * A date and time is read as UTC, like the start and end of entries, and the calendar shows it in its time zone.
+     * The time matters for views shorter than a day, such as a timeline of six hours, whose range starts at the given
+     * hour.
+     * <p>
      * It has no effect on a calendar the browser already shows. Use {@link FullCalendar#gotoDate(LocalDate)} instead.
      * <p>
      * The getter returns null while the option is not set; then the library default applies.
@@ -114,8 +120,35 @@ class CalendarOptions implements Serializable {
      * @see FullCalendar#gotoDate(LocalDate)
      * @see <a href="https://fullcalendar.io/docs/initialDate">initialDate</a>
      */
-    @JsonConverter(LocalDateConverter.class)
-    private LocalDate initialDate;
+    @JsonConverter(InitialDateValueConverter.class)
+    private InitialDateValue initialDate;
+
+    /**
+     * Sets a date as the initial date, see {@link #getInitialDate()}.
+     *
+     * @param date the date, or null to remove the option
+     */
+    public void setInitialDate(LocalDate date) {
+        this.initialDate = date == null ? null : InitialDateValue.ofDay(date);
+    }
+
+    /**
+     * Sets a date and time as the initial date, see {@link #getInitialDate()}.
+     *
+     * @param dateTime the date and time, read as UTC like the start and end of entries, or null to remove the option
+     */
+    public void setInitialDate(LocalDateTime dateTime) {
+        this.initialDate = dateTime == null ? null : InitialDateValue.ofDateTime(dateTime);
+    }
+
+    /**
+     * Sets the initial date in any form, see {@link #getInitialDate()}.
+     *
+     * @param value the date, or null to remove the option
+     */
+    public void setInitialDate(InitialDateValue value) {
+        this.initialDate = value;
+    }
 
     /**
      * The language and the regional formats of the calendar, such as the texts, the first day of the week and the date
