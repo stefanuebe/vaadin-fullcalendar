@@ -124,42 +124,25 @@ public class AutoBrowserSettingsTest extends BrowserlessTest {
     }
 
     @Test
-    void timezoneNull_viaSetOption_isLocal() {
-        calendar.options().setTimeZone(TOKYO);
-
-        calendar.setOption(Option.TIMEZONE, null);
-
-        assertEquals(Timezone.LOCAL, calendar.getOption(Option.TIMEZONE).orElseThrow());
-        assertEquals("local", calendar.getOption(Option.TIMEZONE, true).orElseThrow());
-    }
-
-    @Test
     void timezoneClientSideValue_isWhatTheClientGets() {
         calendar.setBrowserTimezone("Europe/Berlin");
-        assertEquals("local", calendar.getOption(Option.TIMEZONE, true).orElseThrow());
+        attach();
+        assertEquals("local", initialOptions().get("timeZone").asString());
 
+        calendar = new FullCalendar();
         calendar.options().setTimeZone(TOKYO);
-        assertEquals("Asia/Tokyo", calendar.getOption(Option.TIMEZONE, true).orElseThrow());
+        attach();
+        assertEquals("Asia/Tokyo", initialOptions().get("timeZone").asString());
     }
 
     @Test
-    void timezoneLocal_viaSetOption_followsTheBrowser() {
+    void timezoneLocal_set_followsTheBrowser() {
         calendar.options().setTimeZone(TOKYO);
 
-        calendar.setOption(Option.TIMEZONE, "Local");
+        calendar.options().setTimeZone(Timezone.LOCAL);
         calendar.setBrowserTimezone("Europe/Berlin");
 
-        assertEquals(BERLIN, calendar.getOption(Option.TIMEZONE).orElseThrow());
-    }
-
-    @Test
-    void timezoneLocal_stringKey_behavesLikeOptionKey() {
-        calendar.setBrowserTimezone("Europe/Berlin");
-        calendar.options().setTimeZone(TOKYO);
-
-        calendar.setOption("timeZone", "local");
-
-        assertEquals(BERLIN, calendar.getOption(Option.TIMEZONE).orElseThrow());
+        assertEquals(BERLIN, calendar.options().getTimeZone());
     }
 
     @Test
@@ -168,12 +151,12 @@ public class AutoBrowserSettingsTest extends BrowserlessTest {
         initialOptions.put("timeZone", "local");
         calendar = new FullCalendar(initialOptions);
 
-        assertEquals(Timezone.LOCAL, calendar.getOption(Option.TIMEZONE).orElseThrow());
+        assertEquals(Timezone.LOCAL, calendar.options().getTimeZone());
         assertTrue(calendar.options().getRawOption("timeZone").isEmpty());
 
         calendar.setBrowserTimezone("Europe/Berlin");
 
-        assertEquals(BERLIN, calendar.getOption(Option.TIMEZONE).orElseThrow());
+        assertEquals(BERLIN, calendar.options().getTimeZone());
     }
 
     @Test
@@ -182,13 +165,13 @@ public class AutoBrowserSettingsTest extends BrowserlessTest {
         initialOptions.put("timeZone", "Europe/Berlin");
         calendar = new FullCalendar(initialOptions);
 
-        assertEquals(BERLIN, calendar.getOption(Option.TIMEZONE).orElseThrow());
+        assertEquals(BERLIN, calendar.options().getTimeZone());
         assertEquals(BERLIN, calendar.getTimezoneForOffsets());
         assertTrue(calendar.options().getRawOption("timeZone").isEmpty());
 
         calendar.setBrowserTimezone("Asia/Tokyo");
 
-        assertEquals(BERLIN, calendar.getOption(Option.TIMEZONE).orElseThrow());
+        assertEquals(BERLIN, calendar.options().getTimeZone());
     }
 
     @Test
@@ -197,7 +180,7 @@ public class AutoBrowserSettingsTest extends BrowserlessTest {
         initialOptions.putNull("timeZone");
         calendar = new FullCalendar(initialOptions);
 
-        assertEquals(Timezone.LOCAL, calendar.getOption(Option.TIMEZONE).orElseThrow());
+        assertEquals(Timezone.LOCAL, calendar.options().getTimeZone());
         assertTrue(calendar.options().getRawOption("timeZone").isEmpty());
     }
 

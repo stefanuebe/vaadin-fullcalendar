@@ -104,8 +104,8 @@ public class SerializationTest {
     @Test
     void calendarWithInMemoryEntriesIsSerializable() throws Exception {
         FullCalendar calendar = new FullCalendar();
-        calendar.setOption(Option.TIMEZONE, Timezone.getSystem());
-        calendar.setOption(Option.LOCALE, Locale.ENGLISH);
+        calendar.options().setTimeZone(Timezone.getSystem());
+        calendar.options().setLocale(Locale.ENGLISH);
 
         InMemoryEntryProvider<Entry> provider = calendar.getEntryProvider().asInMemory();
         Entry entry = new Entry();
@@ -138,8 +138,8 @@ public class SerializationTest {
     @Test
     void calendarWithOptionsIsSerializable() throws Exception {
         FullCalendar calendar = new FullCalendar();
-        calendar.setOption(Option.EDITABLE, true);
-        calendar.setMaxEntriesPerDay(5);
+        calendar.options().setEditable(true);
+        calendar.options().setDayMaxEntries(5);
         calendar.changeView(CalendarViewImpl.TIME_GRID_WEEK);
         assertNotNull(roundtrip(calendar));
     }
