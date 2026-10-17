@@ -2,9 +2,9 @@
 
 | | |
 |---|---|
-| GitHub | – |
+| GitHub | #403 |
 | Labels | enhancement, ready-for-agent |
-| Status | ready-for-agent |
+| Status | done (2026-10-17, e28bc813) |
 | Blocked by | `38-scheduler-resource-columns`, `40-scheduler-hooks-cells-columns` |
 | Spec | `../option-fields-spec.md`; shared rules in `README.md` |
 
@@ -18,10 +18,18 @@
 
 **Blocked by:** `38-scheduler-resource-columns`, `40-scheduler-hooks-cells-columns`
 
-**Status:** ready-for-agent
+**Status:** done (2026-10-17, e28bc813)
 
-- [ ] Each listed `ColSpec` setting can be set on a `ResourceColumn` and reaches the client.
-- [ ] A `ComponentResourceColumn` keeps its binding and its own cell content.
-- [ ] `ResourceColumn` and `ComponentResourceColumn` share a self-typed base; a chain keeps the subtype, and `ComponentResourceColumn` has no covariant overrides.
-- [ ] The `withWidth` Javadoc says what the library reads, and the constructor Javadoc no longer promises HTML.
-- [ ] The `JsCallback` overloads of the content and class settings are gone; `withHeaderContent` exists.
+- [x] Each listed `ColSpec` setting can be set on a `ResourceColumn` and reaches the client.
+- [x] A `ComponentResourceColumn` keeps its binding and its own cell content.
+- [x] `ResourceColumn` and `ComponentResourceColumn` share a self-typed base; a chain keeps the subtype, and `ComponentResourceColumn` has no covariant overrides.
+- [x] The `withWidth` Javadoc says what the library reads, and the constructor Javadoc no longer promises HTML.
+- [x] The `JsCallback` overloads of the content and class settings are gone; `withHeaderContent` exists.
+
+**Done (2026-10-17):** `AbstractResourceColumn<S>` holds the settings of `ColSpec` apart from the cell content and its hooks, with `with…` methods returning `self()`; `ResourceColumn` adds `cellContent`, `cellDidMount` and `cellWillUnmount`; `ComponentResourceColumn<T>` writes those itself and has no `with…` method of its own. The columns write their values with the options' converters (`ContentValueConverter`, `ClassNameValueConverter`, `WidthValueConverter`). `setResourceColumns` and the field take `AbstractResourceColumn<?>`.
+
+**Deviation from the decision, for the maintainer:** `withMain(boolean)` is left out. The library overwrites `isMain` of every column in `processColOptions` (`fullcalendar-scheduler/chunks/8f1316dc.js`, about line 2078: the first column without `group` gets `true`, every other `false`), and no other code reads it from the column, so a setter would have no effect. The Javadoc of `AbstractResourceColumn` says so.
+
+**Deprecated classes:** `ResourceAreaColumn` and `ComponentResourceAreaColumn` keep extending `ResourceColumn` and `ComponentResourceColumn` with covariant overrides of the `with…` methods 7.x had, plus the deprecated `withWidth(String)` (a whole number of pixels or a percentage; another string leaves the width unset, as the library ignored it) and the `…ClassNames` methods. A callback for content or classes still compiles, because `JsCallback` implements the value types. The getters return the value types; the migration guide says so.
+
+Wiki (branch 8.0): `Samples.md` and `Features.md` use `withWidth(int)`; the migration guide's resource column section describes the shared base, the width and the getter types. Review: three rounds with three agents (round 1 two majors in the migration guide, fixed). Gate: `mvn clean install` green; E2E 463 passed, 2 failed, the date-dependent theme drag test of 76.

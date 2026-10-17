@@ -1,6 +1,7 @@
 package org.vaadin.stefan.fullcalendar;
 
 import org.vaadin.stefan.fullcalendar.option.ComponentResourceColumn;
+import org.vaadin.stefan.fullcalendar.option.AbstractResourceColumn;
 import org.vaadin.stefan.fullcalendar.option.ResourceColumn;
 import org.vaadin.stefan.fullcalendar.option.EntryPrintLayout;
 import com.vaadin.flow.component.html.Span;
@@ -173,7 +174,7 @@ class SchedulerOptionsTest {
     void deprecatedSetOptionWithServerValue_goesThroughTheColumnHandling() {
         FullCalendarScheduler calendar = new FullCalendarScheduler();
         var column = new ComponentResourceColumn<Span>("status", resource -> new Span());
-        List<ResourceColumn> columns = List.of(column);
+        List<AbstractResourceColumn<?>> columns = List.of(column);
 
         calendar.setOption(SchedulerOption.RESOURCE_COLUMNS, columns, columns);
 

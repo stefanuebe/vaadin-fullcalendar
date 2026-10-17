@@ -16,20 +16,24 @@
  */
 package org.vaadin.stefan.fullcalendar.option;
 
-import org.vaadin.stefan.fullcalendar.Resource;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.function.SerializableFunction;
 import lombok.NonNull;
+import org.vaadin.stefan.fullcalendar.JsonUtils;
+import org.vaadin.stefan.fullcalendar.Resource;
+import org.vaadin.stefan.fullcalendar.converters.WidthValueConverter;
 
 /**
- * Former name of {@link ComponentResourceColumn}. Its fluent methods return {@code ComponentResourceAreaColumn},
- * so existing code keeps compiling. It is a {@link ResourceColumn}, but not a {@link ResourceAreaColumn}.
+ * Former name of {@link ComponentResourceColumn}. Its {@code with…} methods that existed before return
+ * {@code ComponentResourceAreaColumn}, so existing code keeps compiling.
  *
  * @param <T> the component type returned by the factory callback
- * @deprecated use {@link ComponentResourceColumn}. FullCalendar 7 calls them resource columns
+ * @deprecated use {@link ComponentResourceColumn}. The library calls them resource columns
  */
 @Deprecated(since = "8.0.0", forRemoval = true)
 public class ComponentResourceAreaColumn<T extends Component> extends ComponentResourceColumn<T> {
+
+    private static final WidthValueConverter WIDTH = new WidthValueConverter();
 
     public ComponentResourceAreaColumn(@NonNull String field, String headerContent,
                                        @NonNull SerializableFunction<Resource, T> componentFactory) {
@@ -42,32 +46,20 @@ public class ComponentResourceAreaColumn<T extends Component> extends ComponentR
     }
 
     @Override
-    public ComponentResourceAreaColumn<T> withWidth(String width) {
-        super.withWidth(width);
-        return this;
-    }
-
-    @Override
     public ComponentResourceAreaColumn<T> withGroup(boolean group) {
         super.withGroup(group);
         return this;
     }
 
     @Override
-    public ComponentResourceAreaColumn<T> withHeaderClass(String className) {
+    public ComponentResourceAreaColumn<T> withHeaderClass(ClassNameValue className) {
         super.withHeaderClass(className);
         return this;
     }
 
     @Override
-    public ComponentResourceAreaColumn<T> withHeaderClass(JsCallback callback) {
-        super.withHeaderClass(callback);
-        return this;
-    }
-
-    @Override
-    public ComponentResourceAreaColumn<T> withHeaderDidMount(String jsFunction) {
-        super.withHeaderDidMount(jsFunction);
+    public ComponentResourceAreaColumn<T> withHeaderClass(String classNames) {
+        super.withHeaderClass(classNames);
         return this;
     }
 
@@ -78,8 +70,8 @@ public class ComponentResourceAreaColumn<T extends Component> extends ComponentR
     }
 
     @Override
-    public ComponentResourceAreaColumn<T> withHeaderWillUnmount(String jsFunction) {
-        super.withHeaderWillUnmount(jsFunction);
+    public ComponentResourceAreaColumn<T> withHeaderDidMount(String jsFunction) {
+        super.withHeaderDidMount(jsFunction);
         return this;
     }
 
@@ -90,23 +82,49 @@ public class ComponentResourceAreaColumn<T extends Component> extends ComponentR
     }
 
     @Override
-    public ComponentResourceAreaColumn<T> withCellClass(String className) {
+    public ComponentResourceAreaColumn<T> withHeaderWillUnmount(String jsFunction) {
+        super.withHeaderWillUnmount(jsFunction);
+        return this;
+    }
+
+    @Override
+    public ComponentResourceAreaColumn<T> withCellClass(ClassNameValue className) {
         super.withCellClass(className);
         return this;
     }
 
     @Override
-    public ComponentResourceAreaColumn<T> withCellClass(JsCallback callback) {
-        super.withCellClass(callback);
+    public ComponentResourceAreaColumn<T> withCellClass(String classNames) {
+        super.withCellClass(classNames);
         return this;
     }
 
     /**
-     * Former name of {@link #withHeaderClass(String)}: sets a static CSS class name string for the column
-     * header. Separate several classes with spaces. Delegates to it.
+     * Former way to set the width as a string. It takes a whole number of pixels or a percentage, such as
+     * {@code "150px"} or {@code "20%"}. Any other string leaves the width unset.
      *
-     * @param classNames static class name string
-     * @return this instance for fluent chaining
+     * @param width the width, such as {@code "150px"} or {@code "20%"}, or null for the library default
+     * @return this column
+     * @deprecated use {@link #withWidth(int)} or {@link #withWidth(WidthValue)}
+     */
+    @Deprecated(since = "8.0.0", forRemoval = true)
+    public ComponentResourceAreaColumn<T> withWidth(String width) {
+        WidthValue value;
+        try {
+            value = width == null ? null : WIDTH.toServerModel(JsonUtils.toJsonNode(width), null);
+        } catch (IllegalArgumentException e) {
+            value = null;
+        }
+        withWidth(value);
+
+        return this;
+    }
+
+    /**
+     * Former name of {@link #withHeaderClass(String)}. Delegates to it.
+     *
+     * @param classNames the class names, separated by spaces, or null for none
+     * @return this column
      * @deprecated use {@link #withHeaderClass(String)}
      */
     @Deprecated(since = "8.0.0", forRemoval = true)
@@ -115,24 +133,23 @@ public class ComponentResourceAreaColumn<T extends Component> extends ComponentR
     }
 
     /**
-     * Former name of {@link #withHeaderClass(JsCallback)}: sets a JavaScript callback for dynamic CSS
-     * class names on the column header. Delegates to it.
+     * Former name of {@link #withHeaderClass(ClassNameValue)}, which also takes a {@link JsCallback}. Delegates to
+     * it.
      *
-     * @param callback JsCallback returning a class name string
-     * @return this instance for fluent chaining
-     * @deprecated use {@link #withHeaderClass(JsCallback)}. Return a class name string. FullCalendar 7 drops arrays.
+     * @param className the classes or callback, or null for none
+     * @return this column
+     * @deprecated use {@link #withHeaderClass(ClassNameValue)}. A callback returns a class name string
      */
     @Deprecated(since = "8.0.0", forRemoval = true)
-    public ComponentResourceAreaColumn<T> withHeaderClassNames(JsCallback callback) {
-        return withHeaderClass(callback);
+    public ComponentResourceAreaColumn<T> withHeaderClassNames(ClassNameValue className) {
+        return withHeaderClass(className);
     }
 
     /**
-     * Former name of {@link #withCellClass(String)}: sets a static CSS class name string for each cell of
-     * this column. Separate several classes with spaces. Delegates to it.
+     * Former name of {@link #withCellClass(String)}. Delegates to it.
      *
-     * @param classNames static class name string
-     * @return this instance for fluent chaining
+     * @param classNames the class names, separated by spaces, or null for none
+     * @return this column
      * @deprecated use {@link #withCellClass(String)}
      */
     @Deprecated(since = "8.0.0", forRemoval = true)
@@ -141,39 +158,37 @@ public class ComponentResourceAreaColumn<T extends Component> extends ComponentR
     }
 
     /**
-     * Former name of {@link #withCellClass(JsCallback)}: sets a JsCallback for dynamic CSS class names on
-     * each cell. Delegates to it.
+     * Former name of {@link #withCellClass(ClassNameValue)}, which also takes a {@link JsCallback}. Delegates to
+     * it.
      *
-     * @param callback JsCallback returning a class name string
-     * @return this instance for fluent chaining
-     * @deprecated use {@link #withCellClass(JsCallback)}. Return a class name string. FullCalendar 7 drops arrays.
+     * @param className the classes or callback, or null for none
+     * @return this column
+     * @deprecated use {@link #withCellClass(ClassNameValue)}. A callback returns a class name string
      */
     @Deprecated(since = "8.0.0", forRemoval = true)
-    public ComponentResourceAreaColumn<T> withCellClassNames(JsCallback callback) {
-        return withCellClass(callback);
+    public ComponentResourceAreaColumn<T> withCellClassNames(ClassNameValue className) {
+        return withCellClass(className);
     }
 
     /**
-     * Former name of {@link #getHeaderClass()}: returns the header class (String or JsCallback), or {@code
-     * null} if not set. Delegates to it.
+     * Former name of {@link #getHeaderClass()}. Delegates to it.
      *
-     * @return header class or null
+     * @return the classes of the column header, or null
      * @deprecated use {@link #getHeaderClass()}
      */
     @Deprecated(since = "8.0.0", forRemoval = true)
-    public Object getHeaderClassNames() {
+    public ClassNameValue getHeaderClassNames() {
         return getHeaderClass();
     }
 
     /**
-     * Former name of {@link #getCellClass()}: returns the cell class (String or JsCallback), or {@code
-     * null} if not set. Delegates to it.
+     * Former name of {@link #getCellClass()}. Delegates to it.
      *
-     * @return cell class or null
+     * @return the classes of each cell, or null
      * @deprecated use {@link #getCellClass()}
      */
     @Deprecated(since = "8.0.0", forRemoval = true)
-    public Object getCellClassNames() {
+    public ClassNameValue getCellClassNames() {
         return getCellClass();
     }
 }

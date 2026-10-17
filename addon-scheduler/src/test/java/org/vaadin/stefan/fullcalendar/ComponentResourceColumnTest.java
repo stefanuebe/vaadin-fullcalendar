@@ -184,7 +184,7 @@ public class ComponentResourceColumnTest {
     void testFluentMethodsReturnComponentResourceColumn() {
         var col = new ComponentResourceColumn<Span>("col", resource -> new Span());
 
-        Assertions.assertInstanceOf(ComponentResourceColumn.class, col.withWidth("100px"));
+        Assertions.assertInstanceOf(ComponentResourceColumn.class, col.withWidth(100));
         Assertions.assertInstanceOf(ComponentResourceColumn.class, col.withGroup(true));
         Assertions.assertInstanceOf(ComponentResourceColumn.class, col.withHeaderClass("cls"));
         Assertions.assertInstanceOf(ComponentResourceColumn.class,
@@ -202,48 +202,25 @@ public class ComponentResourceColumnTest {
                 col.withCellClass(JsCallback.of("function() { return ''; }")));
     }
 
-    // ---- Blocked methods (UnsupportedOperationException) ----
+    // ---- Cell content and its hooks ----
 
     @Test
-    void testWithCellContentStringThrows() {
-        var col = new ComponentResourceColumn<Span>("col", resource -> new Span());
-        Assertions.assertThrows(UnsupportedOperationException.class,
-                () -> col.withCellContent("text"));
+    void testToJsonWritesItsOwnCellContentAndHooks() {
+        ObjectNode json = new ComponentResourceColumn<Span>("col", resource -> new Span()).toJson();
+
+        Assertions.assertTrue(json.get("cellContent").get("__jsCallback").asString().contains("domNodes"));
+        Assertions.assertTrue(json.get("cellDidMount").get("__jsCallback").asString().contains("data-rc-column-key"));
+        Assertions.assertTrue(
+                json.get("cellWillUnmount").get("__jsCallback").asString().contains("data-rc-column-key"));
     }
 
+    /** The column writes the cell content and its hooks itself, and its chain keeps the type through the base. */
     @Test
-    void testWithCellContentCallbackThrows() {
-        var col = new ComponentResourceColumn<Span>("col", resource -> new Span());
-        Assertions.assertThrows(UnsupportedOperationException.class,
-                () -> col.withCellContent(JsCallback.of("function() {}")));
-    }
-
-    @Test
-    void testWithCellDidMountStringThrows() {
-        var col = new ComponentResourceColumn<Span>("col", resource -> new Span());
-        Assertions.assertThrows(UnsupportedOperationException.class,
-                () -> col.withCellDidMount("function() {}"));
-    }
-
-    @Test
-    void testWithCellDidMountCallbackThrows() {
-        var col = new ComponentResourceColumn<Span>("col", resource -> new Span());
-        Assertions.assertThrows(UnsupportedOperationException.class,
-                () -> col.withCellDidMount(JsCallback.of("function() {}")));
-    }
-
-    @Test
-    void testWithCellWillUnmountStringThrows() {
-        var col = new ComponentResourceColumn<Span>("col", resource -> new Span());
-        Assertions.assertThrows(UnsupportedOperationException.class,
-                () -> col.withCellWillUnmount("function() {}"));
-    }
-
-    @Test
-    void testWithCellWillUnmountCallbackThrows() {
-        var col = new ComponentResourceColumn<Span>("col", resource -> new Span());
-        Assertions.assertThrows(UnsupportedOperationException.class,
-                () -> col.withCellWillUnmount(JsCallback.of("function() {}")));
+    void testCellContentAndItsHooksCannotBeSet_andNoWithMethodIsOverridden() {
+        Assertions.assertTrue(Arrays.stream(ComponentResourceColumn.class.getMethods())
+                .noneMatch(method -> method.getName().matches("withCell(Content|DidMount|WillUnmount)")));
+        Assertions.assertTrue(Arrays.stream(ComponentResourceColumn.class.getDeclaredMethods())
+                .noneMatch(method -> method.getName().startsWith("with")));
     }
 
     // ---- toJson ----
@@ -291,13 +268,13 @@ public class ComponentResourceColumnTest {
     @Test
     void testToJsonInheritsParentProperties() {
         var col = new ComponentResourceColumn<Span>("col", "Header", resource -> new Span())
-                .withWidth("200px")
+                .withWidth(200)
                 .withGroup(true)
                 .withHeaderClass("my-class");
 
         ObjectNode json = col.toJson();
 
-        Assertions.assertEquals("200px", json.get("width").asString());
+        Assertions.assertEquals(200, json.get("width").asInt());
         Assertions.assertTrue(json.get("group").asBoolean());
         Assertions.assertEquals("my-class", json.get("headerClass").asString());
     }
@@ -412,7 +389,7 @@ public class ComponentResourceColumnTest {
 
     @Test
     void testMixedColumnsProduceCorrectJson() {
-        var regular = new ResourceColumn("title", "Name").withWidth("200px");
+        var regular = new ResourceColumn("title", "Name").withWidth(200);
         var component = new ComponentResourceColumn<Span>("status", "Status",
                 resource -> new Span());
 

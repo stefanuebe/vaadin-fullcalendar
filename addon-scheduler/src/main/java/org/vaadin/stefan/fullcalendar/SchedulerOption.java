@@ -16,6 +16,7 @@
  */
 package org.vaadin.stefan.fullcalendar;
 
+import org.vaadin.stefan.fullcalendar.option.AbstractResourceColumn;
 import org.vaadin.stefan.fullcalendar.option.ResourceColumn;
 import org.vaadin.stefan.fullcalendar.option.EntryPrintLayout;
 import org.vaadin.stefan.fullcalendar.option.HeaderAlign;
@@ -386,12 +387,12 @@ public enum SchedulerOption {
      * <p>
      * Raw JSON is sent as it is, cannot carry component columns and unbinds the component columns set before.
      * <dl>
-     *   <dt>Type</dt>    <dd>{@link List} of {@link ResourceColumn}</dd>
+     *   <dt>Type</dt>    <dd>{@link List} of {@link AbstractResourceColumn}</dd>
      *   <dt>Default</dt> <dd>none, the resource area is a plain list of resource titles</dd>
      * </dl>
      * <pre>{@code
      * scheduler.options().setResourceColumns(List.of(
-     *         new ResourceColumn("title", "Resource").withWidth("200px"),
+     *         new ResourceColumn("title", "Resource").withWidth(200),
      *         new ResourceColumn("department", "Department").withGroup(true)));
      * }</pre>
      *

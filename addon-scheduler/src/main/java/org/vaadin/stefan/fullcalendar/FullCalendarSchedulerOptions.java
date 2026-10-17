@@ -17,8 +17,8 @@
 package org.vaadin.stefan.fullcalendar;
 
 import lombok.experimental.Delegate;
+import org.vaadin.stefan.fullcalendar.option.AbstractResourceColumn;
 import org.vaadin.stefan.fullcalendar.option.ComponentResourceColumn;
-import org.vaadin.stefan.fullcalendar.option.ResourceColumn;
 
 import java.util.List;
 import java.util.Objects;
@@ -59,7 +59,7 @@ public class FullCalendarSchedulerOptions extends FullCalendarOptions {
      * @throws IllegalArgumentException when two columns have the same field
      * @throws IllegalStateException when a {@link ComponentResourceColumn} is bound to another calendar
      */
-    public void setResourceColumns(List<? extends ResourceColumn> resourceColumns) {
+    public void setResourceColumns(List<? extends AbstractResourceColumn<?>> resourceColumns) {
         scheduler.applyResourceColumns(resourceColumns);
     }
 

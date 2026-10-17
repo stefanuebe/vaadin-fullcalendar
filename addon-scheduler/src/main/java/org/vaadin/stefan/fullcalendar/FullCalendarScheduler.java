@@ -16,8 +16,8 @@
  */
 package org.vaadin.stefan.fullcalendar;
 
+import org.vaadin.stefan.fullcalendar.option.AbstractResourceColumn;
 import org.vaadin.stefan.fullcalendar.option.ComponentResourceColumn;
-import org.vaadin.stefan.fullcalendar.option.ResourceColumn;
 import org.vaadin.stefan.fullcalendar.option.CalendarLocale;
 import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.ComponentEventListener;
@@ -341,14 +341,14 @@ public class FullCalendarScheduler extends FullCalendar implements Scheduler {
 
     @Override
     @Deprecated(since = "8.0.0", forRemoval = true)
-    public void setResourceColumns(List<? extends ResourceColumn> columns) {
+    public void setResourceColumns(List<? extends AbstractResourceColumn<?>> columns) {
         Objects.requireNonNull(columns);
         options().setResourceColumns(columns);
     }
 
     /** Binds the component columns and sets the field, see {@link FullCalendarSchedulerOptions#setResourceColumns(List)}. */
-    void applyResourceColumns(List<? extends ResourceColumn> columns) {
-        List<ResourceColumn> copy = columns == null ? List.of() : List.copyOf(columns);
+    void applyResourceColumns(List<? extends AbstractResourceColumn<?>> columns) {
+        List<AbstractResourceColumn<?>> copy = columns == null ? List.of() : List.copyOf(columns);
         bindResourceColumns(copy);
         ((SchedulerCalendarOptions) calendarOptions).setResourceColumns(copy.isEmpty() ? null : copy);
         optionsChanged();
@@ -358,10 +358,10 @@ public class FullCalendarScheduler extends FullCalendar implements Scheduler {
      * Validates the columns and binds the component columns, so their components exist before the columns
      * reach the client.
      */
-    private void bindResourceColumns(List<? extends ResourceColumn> columns) {
+    private void bindResourceColumns(List<? extends AbstractResourceColumn<?>> columns) {
         // validate no duplicate field keys
         Set<String> fieldKeys = new HashSet<>();
-        for (ResourceColumn col : columns) {
+        for (AbstractResourceColumn<?> col : columns) {
             if (!fieldKeys.add(col.getField())) {
                 throw new IllegalArgumentException("Duplicate column field key: '" + col.getField() + "'");
             }
@@ -375,7 +375,7 @@ public class FullCalendarScheduler extends FullCalendar implements Scheduler {
         activeComponentColumns.clear();
 
         // bind new component columns
-        for (ResourceColumn col : columns) {
+        for (AbstractResourceColumn<?> col : columns) {
             if (col instanceof ComponentResourceColumn<?> compCol) {
                 compCol.getInternals().bind(this);
                 activeComponentColumns.add(compCol);
@@ -583,8 +583,8 @@ public class FullCalendarScheduler extends FullCalendar implements Scheduler {
     protected void setOption(String option, Object value, Object valueForServerSide,
                              List<JsonItemPropertyConverter<?, ?>> converters) {
         if (SchedulerOption.RESOURCE_COLUMNS.getOptionKey().equals(option)) {
-            if (value instanceof List<?> list && list.stream().allMatch(ResourceColumn.class::isInstance)) {
-                applyResourceColumns(list.stream().map(ResourceColumn.class::cast).toList());
+            if (value instanceof List<?> list && list.stream().allMatch(AbstractResourceColumn.class::isInstance)) {
+                applyResourceColumns(list.stream().map(column -> (AbstractResourceColumn<?>) column).toList());
                 value = null; // removes a raw value set before, which would win over the field
             } else {
                 applyResourceColumns(null);
@@ -662,7 +662,7 @@ public class FullCalendarScheduler extends FullCalendar implements Scheduler {
     @SuppressWarnings("unchecked")
     @Override
     public <T> Optional<T> getOption(String option, boolean forceClientSideValue) {
-        List<ResourceColumn> columns = ((SchedulerCalendarOptions) calendarOptions).getResourceColumns();
+        List<AbstractResourceColumn<?>> columns = ((SchedulerCalendarOptions) calendarOptions).getResourceColumns();
         if (columns != null && SchedulerOption.RESOURCE_COLUMNS.getOptionKey().equals(option)) {
             return Optional.of((T) (forceClientSideValue
                     ? new ResourceColumnsConverter().toClientModel(columns, null)
