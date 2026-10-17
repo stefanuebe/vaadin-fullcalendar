@@ -17,3 +17,5 @@
 **Status:** ready-for-agent
 
 - [ ] The release notes name each item above.
+
+**Note from 77 and 78 (2026-10-17):** a fix, also on 7.x: `entryDidMount` takes any function form now (an arrow function with a block or an expression body, a brace in the parameters), and the automatic entry id and the native entry listeners still apply. The callback and the listeners now also run for drag previews, as the library calls `eventDidMount` for them. The entry id is still left out there. `ResourceAreaColumn` and `ComponentResourceAreaColumn` are removed (78), the migration guide (56) names the replacements.
