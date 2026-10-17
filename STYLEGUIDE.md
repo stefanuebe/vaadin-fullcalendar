@@ -123,6 +123,18 @@ Anything written here becomes a rule a reviewer can cite.
   way to configure a calendar. Don't add a typed setter for something an option
   covers. Type safety comes from a converter on the option.
 - Stable styling hooks: see `docs/adr/0001-stable-v6-class-names.md`.
+- `set…` or `with…`:
+  - Options classes and domain classes (`Entry`, `Resource`, `BusinessHours`) have
+    `set…` setters that return nothing. Chaining them is not possible: the options
+    objects reach their setters through `@Delegate`, so a chained setter would return
+    the inner data class, and Lombok cannot generate a setter returning another type.
+  - Small configuration objects handed to the calendar (entry sources, `Draggable`,
+    resource columns) have `with…` methods that change the object and return it.
+  - A type meant for inheritance chains only through a self type (`RemoteEntrySource<S>`,
+    the resource column base), so the chain keeps the subtype without covariant
+    overrides in each subclass. Otherwise it has `set…` setters returning nothing.
+  - `RRule` keeps its prefix-less chaining methods, named after the iCalendar RRULE
+    properties (`dtstart`, `count`, `interval`).
 
 ### Vaadin / UI conventions
 

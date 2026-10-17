@@ -144,7 +144,7 @@ Decided by the maintainer on 2026-10-15, after a review of 21–24 together. The
 | `72-resource-column-forms.md` | All column settings of `resourceColumns` | 38, 40 |
 | `73-locale-forms.md` | Locale fallbacks and custom locales | 16 |
 | `74-initial-date-time.md` | Initial date with a time | 25 |
-| `75-set-vs-with.md` | Review `set…` versus `with…` | 72 |
+| `75-set-vs-with.md` | Review `set…` versus `with…` | – |
 | `25-fields-dates.md` | Fields: dates, ranges and durations | 11, 12, 24, 57, 60 |
 | `26-fields-time-grid.md` | Fields: time grid and slots | 11, 12, 21, 24, 57, 60 |
 | `27-fields-interaction.md` | Fields: interaction | 11, 12, 22, 23, 57, 60 |
