@@ -18,7 +18,8 @@ package org.vaadin.stefan.fullcalendar.option;
 
 import org.vaadin.stefan.fullcalendar.Entry;
 import org.vaadin.stefan.fullcalendar.JsonFactory;
-import org.vaadin.stefan.fullcalendar.Option;
+import org.vaadin.stefan.fullcalendar.FullCalendarOptions;
+import org.vaadin.stefan.fullcalendar.FullCalendarViewOptions;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.node.ObjectNode;
 
@@ -41,7 +42,7 @@ import java.util.Objects;
  *
  * <p>Example:
  * <pre>{@code
- * calendar.setOption(Option.ENTRY_DID_MOUNT,
+ * calendar.options().setEntryDidMount(
  *     JsCallback.of("function(arg) { arg.el.title = arg.event.title; }"));
  * }</pre>
  *
@@ -52,12 +53,13 @@ import java.util.Objects;
  *
  * <p>A callback that is a regular function is called with {@code this} set to the calendar object of the
  * FullCalendar library, once the calendar exists. That includes callbacks nested in an option value, such as the
- * {@code click} of a button in {@link Option#BUTTONS}. An arrow function keeps its lexical {@code this}, so it does
- * not get the calendar.
+ * {@code click} of a button in {@link FullCalendarOptions#getButtons() buttons}. An arrow function keeps its lexical
+ * {@code this}, so it does not get the calendar.
  *
  * <p>A callback that the library calls while it creates the calendar keeps the {@code this} the library gives it.
- * For a {@link Option#VALID_RANGE} function that is the calendar as well. For a {@link Option#NOW} function or a
- * date format function, such as one for {@link Option#TITLE_FORMAT}, it is an internal object of the library in
+ * For a {@link FullCalendarViewOptions#getValidRange() validRange} function that is the calendar as well. For a
+ * {@link FullCalendarViewOptions#getNow() now} function or a date format function, such as one for
+ * {@link FullCalendarViewOptions#getTitleFormat() titleFormat}, it is an internal object of the library in
  * that call. Later calls get the calendar.
  */
 public final class JsCallback implements ClassNameValue, ContentValue, CssSelectorValue, DateFormatValue,
@@ -77,8 +79,8 @@ public final class JsCallback implements ClassNameValue, ContentValue, CssSelect
      * Creates a JsCallback wrapping the given JavaScript function string.
      * Returns {@code null} if {@code jsFunction} is {@code null} or blank (whitespace-only),
      * as a convenience for "clear callback" patterns:
-     * {@code setOption(Option.X, JsCallback.of(null))} and
-     * {@code setOption(Option.X, JsCallback.of(""))} both clear the option.
+     * {@code options().setEntryDidMount(JsCallback.of(null))} and
+     * {@code options().setEntryDidMount(JsCallback.of(""))} both clear the option.
      * <p>
      * The function string is passed to the browser as-is. No syntax validation is performed
      * server-side. Syntactically invalid JavaScript will produce a {@code SyntaxError} in the
@@ -94,9 +96,9 @@ public final class JsCallback implements ClassNameValue, ContentValue, CssSelect
     /**
      * Returns {@code null}, for use as a readable way to clear a previously set callback:
      * <pre>{@code
-     * calendar.setOption(Option.ENTRY_DID_MOUNT, JsCallback.clearCallback());
+     * calendar.options().setEntryDidMount(JsCallback.clearCallback());
      * }</pre>
-     * Equivalent to passing {@code null} directly to {@code setOption}, but more expressive
+     * Equivalent to passing {@code null} directly to the setter, but more expressive
      * about the intent.
      *
      * @return always {@code null}

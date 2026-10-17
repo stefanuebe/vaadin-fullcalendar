@@ -17,17 +17,18 @@
 package org.vaadin.stefan.fullcalendar.option;
 
 import org.vaadin.stefan.fullcalendar.ClientSideValue;
-import org.vaadin.stefan.fullcalendar.Option;
+import org.vaadin.stefan.fullcalendar.FullCalendarViewOptions;
 
 /**
- * Horizontal alignment of header cell text. Used by {@link Option#DAY_HEADER_ALIGN}, {@link Option#SLOT_HEADER_ALIGN}
- * and the scheduler's {@code SchedulerOption.RESOURCE_DAY_HEADER_ALIGN}.
+ * Horizontal alignment of header cell text. Used by {@link FullCalendarViewOptions#getDayHeaderAlign() dayHeaderAlign},
+ * {@link FullCalendarViewOptions#getSlotHeaderAlign() slotHeaderAlign} and the scheduler's
+ * {@code resourceDayHeaderAlign}.
  * <p>
  * FullCalendar documents {@code slotHeaderAlign} only partly or not at all. It takes the same values.
  *
  * @see <a href="https://fullcalendar.io/docs/day-header-render-hooks">dayHeaderAlign</a>
  * @see <a href="https://fullcalendar.io/docs/resource-day-header-render-hooks">resourceDayHeaderAlign</a>
- * @see Option#SLOT_HEADER_ALIGN
+ * @see FullCalendarViewOptions#getSlotHeaderAlign()
  */
 public enum HeaderAlign implements ClientSideValue, HeaderAlignValue {
     /** Aligned to the start (left in left-to-right calendars). */

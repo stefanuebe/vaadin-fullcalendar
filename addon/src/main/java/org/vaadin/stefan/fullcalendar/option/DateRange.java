@@ -16,15 +16,15 @@
  */
 package org.vaadin.stefan.fullcalendar.option;
 
-import org.vaadin.stefan.fullcalendar.Option;
+import org.vaadin.stefan.fullcalendar.FullCalendarViewOptions;
 import java.time.LocalDate;
 
 /**
- * A range of dates, for example the value of {@link Option#VALID_RANGE}. Either bound may be {@code null} for an
- * open-ended range. The end is exclusive, as in FullCalendar.
+ * A range of dates, for example the value of {@link FullCalendarViewOptions#getValidRange() validRange}. Either bound
+ * may be {@code null} for an open-ended range. The end is exclusive, as in FullCalendar.
  * <pre>{@code
  * // nothing before March 2025
- * calendar.setOption(Option.VALID_RANGE, new DateRange(LocalDate.of(2025, 3, 1), null));
+ * calendar.options().setValidRange(new DateRange(LocalDate.of(2025, 3, 1), null));
  * }</pre>
  *
  * @param start first date of the range, or {@code null} for an open start

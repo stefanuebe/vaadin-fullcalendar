@@ -7,9 +7,8 @@ import tools.jackson.databind.JsonNode;
  *
  * @param <SERVER_TYPE> server-side type
  * @deprecated No method of the addon accepts this interface, and we see no use in keeping it. Use
- * {@link org.vaadin.stefan.fullcalendar.converters.JsonItemPropertyConverter} instead, which
- * {@link FullCalendar#setOption(String, Object, org.vaadin.stefan.fullcalendar.converters.JsonItemPropertyConverter...)}
- * accepts. If you need this interface, please open an issue at
+ * {@link org.vaadin.stefan.fullcalendar.converters.JsonItemPropertyConverter} instead. If you need this interface,
+ * please open an issue at
  * <a href="https://github.com/stefanuebe/vaadin-fullcalendar/issues">https://github.com/stefanuebe/vaadin-fullcalendar/issues</a>.
  */
 @Deprecated(since = "8.0.0", forRemoval = true)
