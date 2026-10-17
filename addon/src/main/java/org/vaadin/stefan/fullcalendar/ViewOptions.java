@@ -26,7 +26,7 @@ import org.vaadin.stefan.fullcalendar.converters.CssSelectorValueConverter;
 import org.vaadin.stefan.fullcalendar.converters.DateFormatValueConverter;
 import org.vaadin.stefan.fullcalendar.converters.DateRangeValueConverter;
 import org.vaadin.stefan.fullcalendar.converters.DayOfWeekArrayConverter;
-import org.vaadin.stefan.fullcalendar.converters.DurationValueConverter;
+import org.vaadin.stefan.fullcalendar.converters.CalendarDurationConverter;
 import org.vaadin.stefan.fullcalendar.converters.EntryLimitValueConverter;
 import org.vaadin.stefan.fullcalendar.converters.HeaderAlignValueConverter;
 import org.vaadin.stefan.fullcalendar.converters.HeightValueConverter;
@@ -51,7 +51,7 @@ import org.vaadin.stefan.fullcalendar.option.DateFormat;
 import org.vaadin.stefan.fullcalendar.option.DateFormatValue;
 import org.vaadin.stefan.fullcalendar.option.DateRange;
 import org.vaadin.stefan.fullcalendar.option.DateRangeValue;
-import org.vaadin.stefan.fullcalendar.option.DurationValue;
+import org.vaadin.stefan.fullcalendar.option.CalendarDuration;
 import org.vaadin.stefan.fullcalendar.option.EntryLimitValue;
 import org.vaadin.stefan.fullcalendar.option.HeaderAlignValue;
 import org.vaadin.stefan.fullcalendar.option.HeightValue;
@@ -3752,8 +3752,8 @@ class ViewOptions implements Serializable {
      *
      * @see <a href="https://fullcalendar.io/docs/dateIncrement">dateIncrement</a>
      */
-    @JsonConverter(DurationValueConverter.class)
-    private DurationValue dateIncrement;
+    @JsonConverter(CalendarDurationConverter.class)
+    private CalendarDuration dateIncrement;
 
     /**
      * Sets a time-based duration, see {@link #getDateIncrement()}.
@@ -3761,16 +3761,19 @@ class ViewOptions implements Serializable {
      * @param duration the duration, days count as 24 hours, or null to remove the option
      */
     public void setDateIncrement(Duration duration) {
-        this.dateIncrement = duration == null ? null : DurationValue.ofTime(duration);
+        this.dateIncrement = duration == null ? null : CalendarDuration.of(duration);
     }
 
     /**
-     * Sets a calendar-based duration, see {@link #getDateIncrement()}.
+     * Sets a calendar-based duration in years, months and days, see {@link #getDateIncrement()}.
+     * <p>
+     * A {@link Period} has no weeks, so {@code Period.ofWeeks(n)} arrives as {@code n * 7} days, without the
+     * alignment to the start of the week. For weeks, use {@link CalendarDuration#ofWeeks(int)}.
      *
-     * @param period the years, months and days, not zero, or null to remove the option
+     * @param period the years, months and days, or null to remove the option
      */
     public void setDateIncrement(Period period) {
-        this.dateIncrement = period == null ? null : DurationValue.ofCalendar(period);
+        this.dateIncrement = period == null ? null : CalendarDuration.of(period);
     }
 
     /**
@@ -3779,15 +3782,15 @@ class ViewOptions implements Serializable {
      * @param text the duration, such as {@code "08:30"} or {@code "1.12:00"}, or null to remove the option
      */
     public void setDateIncrement(String text) {
-        this.dateIncrement = text == null ? null : DurationValue.ofTimeString(text);
+        this.dateIncrement = text == null ? null : CalendarDuration.ofTimeString(text);
     }
 
     /**
-     * Sets the duration in any form, see {@link #getDateIncrement()}.
+     * Sets the duration, see {@link #getDateIncrement()}.
      *
      * @param value the duration, or null to remove the option
      */
-    public void setDateIncrement(DurationValue value) {
+    public void setDateIncrement(CalendarDuration value) {
         this.dateIncrement = value;
     }
 
@@ -3836,9 +3839,9 @@ class ViewOptions implements Serializable {
      *
      * @see <a href="https://fullcalendar.io/docs/defaultAllDayEventDuration">defaultAllDayEventDuration</a>
      */
-    @JsonConverter(DurationValueConverter.class)
+    @JsonConverter(CalendarDurationConverter.class)
     @JsonName("defaultAllDayEventDuration")
-    private DurationValue defaultAllDayEntryDuration;
+    private CalendarDuration defaultAllDayEntryDuration;
 
     /**
      * Sets a time-based duration, see {@link #getDefaultAllDayEntryDuration()}.
@@ -3846,16 +3849,19 @@ class ViewOptions implements Serializable {
      * @param duration the duration, days count as 24 hours, or null to remove the option
      */
     public void setDefaultAllDayEntryDuration(Duration duration) {
-        this.defaultAllDayEntryDuration = duration == null ? null : DurationValue.ofTime(duration);
+        this.defaultAllDayEntryDuration = duration == null ? null : CalendarDuration.of(duration);
     }
 
     /**
-     * Sets a calendar-based duration, see {@link #getDefaultAllDayEntryDuration()}.
+     * Sets a calendar-based duration in years, months and days, see {@link #getDefaultAllDayEntryDuration()}.
+     * <p>
+     * A {@link Period} has no weeks, so {@code Period.ofWeeks(n)} arrives as {@code n * 7} days, without the
+     * alignment to the start of the week. For weeks, use {@link CalendarDuration#ofWeeks(int)}.
      *
-     * @param period the years, months and days, not zero, or null to remove the option
+     * @param period the years, months and days, or null to remove the option
      */
     public void setDefaultAllDayEntryDuration(Period period) {
-        this.defaultAllDayEntryDuration = period == null ? null : DurationValue.ofCalendar(period);
+        this.defaultAllDayEntryDuration = period == null ? null : CalendarDuration.of(period);
     }
 
     /**
@@ -3865,15 +3871,15 @@ class ViewOptions implements Serializable {
      * @param text the duration, such as {@code "08:30"} or {@code "1.12:00"}, or null to remove the option
      */
     public void setDefaultAllDayEntryDuration(String text) {
-        this.defaultAllDayEntryDuration = text == null ? null : DurationValue.ofTimeString(text);
+        this.defaultAllDayEntryDuration = text == null ? null : CalendarDuration.ofTimeString(text);
     }
 
     /**
-     * Sets the duration in any form, see {@link #getDefaultAllDayEntryDuration()}.
+     * Sets the duration, see {@link #getDefaultAllDayEntryDuration()}.
      *
      * @param value the duration, or null to remove the option
      */
-    public void setDefaultAllDayEntryDuration(DurationValue value) {
+    public void setDefaultAllDayEntryDuration(CalendarDuration value) {
         this.defaultAllDayEntryDuration = value;
     }
 
@@ -3889,9 +3895,9 @@ class ViewOptions implements Serializable {
      *
      * @see <a href="https://fullcalendar.io/docs/defaultTimedEventDuration">defaultTimedEventDuration</a>
      */
-    @JsonConverter(DurationValueConverter.class)
+    @JsonConverter(CalendarDurationConverter.class)
     @JsonName("defaultTimedEventDuration")
-    private DurationValue defaultTimedEntryDuration;
+    private CalendarDuration defaultTimedEntryDuration;
 
     /**
      * Sets a time-based duration, see {@link #getDefaultTimedEntryDuration()}.
@@ -3899,16 +3905,19 @@ class ViewOptions implements Serializable {
      * @param duration the duration, days count as 24 hours, or null to remove the option
      */
     public void setDefaultTimedEntryDuration(Duration duration) {
-        this.defaultTimedEntryDuration = duration == null ? null : DurationValue.ofTime(duration);
+        this.defaultTimedEntryDuration = duration == null ? null : CalendarDuration.of(duration);
     }
 
     /**
-     * Sets a calendar-based duration, see {@link #getDefaultTimedEntryDuration()}.
+     * Sets a calendar-based duration in years, months and days, see {@link #getDefaultTimedEntryDuration()}.
+     * <p>
+     * A {@link Period} has no weeks, so {@code Period.ofWeeks(n)} arrives as {@code n * 7} days, without the
+     * alignment to the start of the week. For weeks, use {@link CalendarDuration#ofWeeks(int)}.
      *
-     * @param period the years, months and days, not zero, or null to remove the option
+     * @param period the years, months and days, or null to remove the option
      */
     public void setDefaultTimedEntryDuration(Period period) {
-        this.defaultTimedEntryDuration = period == null ? null : DurationValue.ofCalendar(period);
+        this.defaultTimedEntryDuration = period == null ? null : CalendarDuration.of(period);
     }
 
     /**
@@ -3918,28 +3927,28 @@ class ViewOptions implements Serializable {
      * @param text the duration, such as {@code "08:30"} or {@code "1.12:00"}, or null to remove the option
      */
     public void setDefaultTimedEntryDuration(String text) {
-        this.defaultTimedEntryDuration = text == null ? null : DurationValue.ofTimeString(text);
+        this.defaultTimedEntryDuration = text == null ? null : CalendarDuration.ofTimeString(text);
     }
 
     /**
-     * Sets the duration in any form, see {@link #getDefaultTimedEntryDuration()}.
+     * Sets the duration, see {@link #getDefaultTimedEntryDuration()}.
      *
      * @param value the duration, or null to remove the option
      */
-    public void setDefaultTimedEntryDuration(DurationValue value) {
+    public void setDefaultTimedEntryDuration(CalendarDuration value) {
         this.defaultTimedEntryDuration = value;
     }
 
     /**
-     * The exact duration of a custom view. A duration in weeks, such as one week, aligns the view to the start of
-     * the week, a duration of seven days does not.
+     * The exact duration of a custom view. A duration in weeks, such as {@code CalendarDuration.ofWeeks(1)}, aligns
+     * the view to the start of the week. A duration of seven days does not.
      * <p>
      * The getter returns null while the option is not set; then the library default applies.
      *
      * @see <a href="https://fullcalendar.io/docs/duration">duration</a>
      */
-    @JsonConverter(DurationValueConverter.class)
-    private DurationValue duration;
+    @JsonConverter(CalendarDurationConverter.class)
+    private CalendarDuration duration;
 
     /**
      * Sets a time-based duration, see {@link #getDuration()}.
@@ -3947,16 +3956,19 @@ class ViewOptions implements Serializable {
      * @param duration the duration, days count as 24 hours, or null to remove the option
      */
     public void setDuration(Duration duration) {
-        this.duration = duration == null ? null : DurationValue.ofTime(duration);
+        this.duration = duration == null ? null : CalendarDuration.of(duration);
     }
 
     /**
-     * Sets a calendar-based duration, see {@link #getDuration()}.
+     * Sets a calendar-based duration in years, months and days, see {@link #getDuration()}.
+     * <p>
+     * A {@link Period} has no weeks, so {@code Period.ofWeeks(n)} arrives as {@code n * 7} days, without the
+     * alignment to the start of the week. For weeks, use {@link CalendarDuration#ofWeeks(int)}.
      *
-     * @param period the years, months and days, not zero, or null to remove the option
+     * @param period the years, months and days, or null to remove the option
      */
     public void setDuration(Period period) {
-        this.duration = period == null ? null : DurationValue.ofCalendar(period);
+        this.duration = period == null ? null : CalendarDuration.of(period);
     }
 
     /**
@@ -3965,15 +3977,15 @@ class ViewOptions implements Serializable {
      * @param text the duration, such as {@code "08:30"} or {@code "1.12:00"}, or null to remove the option
      */
     public void setDuration(String text) {
-        this.duration = text == null ? null : DurationValue.ofTimeString(text);
+        this.duration = text == null ? null : CalendarDuration.ofTimeString(text);
     }
 
     /**
-     * Sets the duration in any form, see {@link #getDuration()}.
+     * Sets the duration, see {@link #getDuration()}.
      *
      * @param value the duration, or null to remove the option
      */
-    public void setDuration(DurationValue value) {
+    public void setDuration(CalendarDuration value) {
         this.duration = value;
     }
 
@@ -4041,8 +4053,8 @@ class ViewOptions implements Serializable {
      *
      * @see <a href="https://fullcalendar.io/docs/nextDayThreshold">nextDayThreshold</a>
      */
-    @JsonConverter(DurationValueConverter.class)
-    private DurationValue nextDayThreshold;
+    @JsonConverter(CalendarDurationConverter.class)
+    private CalendarDuration nextDayThreshold;
 
     /**
      * Sets a time-based duration, see {@link #getNextDayThreshold()}.
@@ -4050,16 +4062,19 @@ class ViewOptions implements Serializable {
      * @param duration the duration, days count as 24 hours, or null to remove the option
      */
     public void setNextDayThreshold(Duration duration) {
-        this.nextDayThreshold = duration == null ? null : DurationValue.ofTime(duration);
+        this.nextDayThreshold = duration == null ? null : CalendarDuration.of(duration);
     }
 
     /**
-     * Sets a calendar-based duration, see {@link #getNextDayThreshold()}.
+     * Sets a calendar-based duration in years, months and days, see {@link #getNextDayThreshold()}.
+     * <p>
+     * A {@link Period} has no weeks, so {@code Period.ofWeeks(n)} arrives as {@code n * 7} days, without the
+     * alignment to the start of the week. For weeks, use {@link CalendarDuration#ofWeeks(int)}.
      *
-     * @param period the years, months and days, not zero, or null to remove the option
+     * @param period the years, months and days, or null to remove the option
      */
     public void setNextDayThreshold(Period period) {
-        this.nextDayThreshold = period == null ? null : DurationValue.ofCalendar(period);
+        this.nextDayThreshold = period == null ? null : CalendarDuration.of(period);
     }
 
     /**
@@ -4068,15 +4083,15 @@ class ViewOptions implements Serializable {
      * @param text the duration, such as {@code "08:30"} or {@code "1.12:00"}, or null to remove the option
      */
     public void setNextDayThreshold(String text) {
-        this.nextDayThreshold = text == null ? null : DurationValue.ofTimeString(text);
+        this.nextDayThreshold = text == null ? null : CalendarDuration.ofTimeString(text);
     }
 
     /**
-     * Sets the duration in any form, see {@link #getNextDayThreshold()}.
+     * Sets the duration, see {@link #getNextDayThreshold()}.
      *
      * @param value the duration, or null to remove the option
      */
-    public void setNextDayThreshold(DurationValue value) {
+    public void setNextDayThreshold(CalendarDuration value) {
         this.nextDayThreshold = value;
     }
 
@@ -4271,25 +4286,28 @@ class ViewOptions implements Serializable {
      *
      * @see <a href="https://fullcalendar.io/docs/scrollTime">scrollTime</a>
      */
-    @JsonConverter(DurationValueConverter.class)
-    private DurationValue scrollTime;
+    @JsonConverter(CalendarDurationConverter.class)
+    private CalendarDuration scrollTime;
 
     /**
      * Sets a time-based duration, see {@link #getScrollTime()}.
      *
-     * @param duration the duration, or null to remove the option
+     * @param duration the duration, days count as 24 hours, or null to remove the option
      */
     public void setScrollTime(Duration duration) {
-        this.scrollTime = duration == null ? null : DurationValue.ofTime(duration);
+        this.scrollTime = duration == null ? null : CalendarDuration.of(duration);
     }
 
     /**
      * Sets a calendar-based duration in years, months and days, see {@link #getScrollTime()}.
+     * <p>
+     * A {@link Period} has no weeks, so {@code Period.ofWeeks(n)} arrives as {@code n * 7} days, without the
+     * alignment to the start of the week. For weeks, use {@link CalendarDuration#ofWeeks(int)}.
      *
-     * @param period the years, months and days, not zero, or null to remove the option
+     * @param period the years, months and days, or null to remove the option
      */
     public void setScrollTime(Period period) {
-        this.scrollTime = period == null ? null : DurationValue.ofCalendar(period);
+        this.scrollTime = period == null ? null : CalendarDuration.of(period);
     }
 
     /**
@@ -4299,15 +4317,15 @@ class ViewOptions implements Serializable {
      * @param text the duration, or null to remove the option
      */
     public void setScrollTime(String text) {
-        this.scrollTime = text == null ? null : DurationValue.ofTimeString(text);
+        this.scrollTime = text == null ? null : CalendarDuration.ofTimeString(text);
     }
 
     /**
-     * Sets the duration in any form, see {@link #getScrollTime()}.
+     * Sets the duration, see {@link #getScrollTime()}.
      *
      * @param value the duration, or null to remove the option
      */
-    public void setScrollTime(DurationValue value) {
+    public void setScrollTime(CalendarDuration value) {
         this.scrollTime = value;
     }
 
@@ -4338,25 +4356,28 @@ class ViewOptions implements Serializable {
      *
      * @see <a href="https://fullcalendar.io/docs/slotDuration">slotDuration</a>
      */
-    @JsonConverter(DurationValueConverter.class)
-    private DurationValue slotDuration;
+    @JsonConverter(CalendarDurationConverter.class)
+    private CalendarDuration slotDuration;
 
     /**
      * Sets a time-based duration, see {@link #getSlotDuration()}.
      *
-     * @param duration the duration, or null to remove the option
+     * @param duration the duration, days count as 24 hours, or null to remove the option
      */
     public void setSlotDuration(Duration duration) {
-        this.slotDuration = duration == null ? null : DurationValue.ofTime(duration);
+        this.slotDuration = duration == null ? null : CalendarDuration.of(duration);
     }
 
     /**
      * Sets a calendar-based duration in years, months and days, see {@link #getSlotDuration()}.
+     * <p>
+     * A {@link Period} has no weeks, so {@code Period.ofWeeks(n)} arrives as {@code n * 7} days, without the
+     * alignment to the start of the week. For weeks, use {@link CalendarDuration#ofWeeks(int)}.
      *
-     * @param period the years, months and days, not zero, or null to remove the option
+     * @param period the years, months and days, or null to remove the option
      */
     public void setSlotDuration(Period period) {
-        this.slotDuration = period == null ? null : DurationValue.ofCalendar(period);
+        this.slotDuration = period == null ? null : CalendarDuration.of(period);
     }
 
     /**
@@ -4366,15 +4387,15 @@ class ViewOptions implements Serializable {
      * @param text the duration, or null to remove the option
      */
     public void setSlotDuration(String text) {
-        this.slotDuration = text == null ? null : DurationValue.ofTimeString(text);
+        this.slotDuration = text == null ? null : CalendarDuration.ofTimeString(text);
     }
 
     /**
-     * Sets the duration in any form, see {@link #getSlotDuration()}.
+     * Sets the duration, see {@link #getSlotDuration()}.
      *
      * @param value the duration, or null to remove the option
      */
-    public void setSlotDuration(DurationValue value) {
+    public void setSlotDuration(CalendarDuration value) {
         this.slotDuration = value;
     }
 
@@ -4411,25 +4432,28 @@ class ViewOptions implements Serializable {
      *
      * @see <a href="https://fullcalendar.io/docs/slotHeaderInterval">slotHeaderInterval</a>
      */
-    @JsonConverter(DurationValueConverter.class)
-    private DurationValue slotHeaderInterval;
+    @JsonConverter(CalendarDurationConverter.class)
+    private CalendarDuration slotHeaderInterval;
 
     /**
      * Sets a time-based duration, see {@link #getSlotHeaderInterval()}.
      *
-     * @param duration the duration, or null to remove the option
+     * @param duration the duration, days count as 24 hours, or null to remove the option
      */
     public void setSlotHeaderInterval(Duration duration) {
-        this.slotHeaderInterval = duration == null ? null : DurationValue.ofTime(duration);
+        this.slotHeaderInterval = duration == null ? null : CalendarDuration.of(duration);
     }
 
     /**
      * Sets a calendar-based duration in years, months and days, see {@link #getSlotHeaderInterval()}.
+     * <p>
+     * A {@link Period} has no weeks, so {@code Period.ofWeeks(n)} arrives as {@code n * 7} days, without the
+     * alignment to the start of the week. For weeks, use {@link CalendarDuration#ofWeeks(int)}.
      *
-     * @param period the years, months and days, not zero, or null to remove the option
+     * @param period the years, months and days, or null to remove the option
      */
     public void setSlotHeaderInterval(Period period) {
-        this.slotHeaderInterval = period == null ? null : DurationValue.ofCalendar(period);
+        this.slotHeaderInterval = period == null ? null : CalendarDuration.of(period);
     }
 
     /**
@@ -4439,15 +4463,15 @@ class ViewOptions implements Serializable {
      * @param text the duration, or null to remove the option
      */
     public void setSlotHeaderInterval(String text) {
-        this.slotHeaderInterval = text == null ? null : DurationValue.ofTimeString(text);
+        this.slotHeaderInterval = text == null ? null : CalendarDuration.ofTimeString(text);
     }
 
     /**
-     * Sets the duration in any form, see {@link #getSlotHeaderInterval()}.
+     * Sets the duration, see {@link #getSlotHeaderInterval()}.
      *
      * @param value the duration, or null to remove the option
      */
-    public void setSlotHeaderInterval(DurationValue value) {
+    public void setSlotHeaderInterval(CalendarDuration value) {
         this.slotHeaderInterval = value;
     }
 
@@ -4490,25 +4514,28 @@ class ViewOptions implements Serializable {
      *
      * @see <a href="https://fullcalendar.io/docs/slotMaxTime">slotMaxTime</a>
      */
-    @JsonConverter(DurationValueConverter.class)
-    private DurationValue slotMaxTime;
+    @JsonConverter(CalendarDurationConverter.class)
+    private CalendarDuration slotMaxTime;
 
     /**
      * Sets a time-based duration, see {@link #getSlotMaxTime()}.
      *
-     * @param duration the duration, or null to remove the option
+     * @param duration the duration, days count as 24 hours, or null to remove the option
      */
     public void setSlotMaxTime(Duration duration) {
-        this.slotMaxTime = duration == null ? null : DurationValue.ofTime(duration);
+        this.slotMaxTime = duration == null ? null : CalendarDuration.of(duration);
     }
 
     /**
      * Sets a calendar-based duration in years, months and days, see {@link #getSlotMaxTime()}.
+     * <p>
+     * A {@link Period} has no weeks, so {@code Period.ofWeeks(n)} arrives as {@code n * 7} days, without the
+     * alignment to the start of the week. For weeks, use {@link CalendarDuration#ofWeeks(int)}.
      *
-     * @param period the years, months and days, not zero, or null to remove the option
+     * @param period the years, months and days, or null to remove the option
      */
     public void setSlotMaxTime(Period period) {
-        this.slotMaxTime = period == null ? null : DurationValue.ofCalendar(period);
+        this.slotMaxTime = period == null ? null : CalendarDuration.of(period);
     }
 
     /**
@@ -4518,15 +4545,15 @@ class ViewOptions implements Serializable {
      * @param text the duration, or null to remove the option
      */
     public void setSlotMaxTime(String text) {
-        this.slotMaxTime = text == null ? null : DurationValue.ofTimeString(text);
+        this.slotMaxTime = text == null ? null : CalendarDuration.ofTimeString(text);
     }
 
     /**
-     * Sets the duration in any form, see {@link #getSlotMaxTime()}.
+     * Sets the duration, see {@link #getSlotMaxTime()}.
      *
      * @param value the duration, or null to remove the option
      */
-    public void setSlotMaxTime(DurationValue value) {
+    public void setSlotMaxTime(CalendarDuration value) {
         this.slotMaxTime = value;
     }
 
@@ -4547,25 +4574,28 @@ class ViewOptions implements Serializable {
      *
      * @see <a href="https://fullcalendar.io/docs/slotMinTime">slotMinTime</a>
      */
-    @JsonConverter(DurationValueConverter.class)
-    private DurationValue slotMinTime;
+    @JsonConverter(CalendarDurationConverter.class)
+    private CalendarDuration slotMinTime;
 
     /**
      * Sets a time-based duration, see {@link #getSlotMinTime()}.
      *
-     * @param duration the duration, or null to remove the option
+     * @param duration the duration, days count as 24 hours, or null to remove the option
      */
     public void setSlotMinTime(Duration duration) {
-        this.slotMinTime = duration == null ? null : DurationValue.ofTime(duration);
+        this.slotMinTime = duration == null ? null : CalendarDuration.of(duration);
     }
 
     /**
      * Sets a calendar-based duration in years, months and days, see {@link #getSlotMinTime()}.
+     * <p>
+     * A {@link Period} has no weeks, so {@code Period.ofWeeks(n)} arrives as {@code n * 7} days, without the
+     * alignment to the start of the week. For weeks, use {@link CalendarDuration#ofWeeks(int)}.
      *
-     * @param period the years, months and days, not zero, or null to remove the option
+     * @param period the years, months and days, or null to remove the option
      */
     public void setSlotMinTime(Period period) {
-        this.slotMinTime = period == null ? null : DurationValue.ofCalendar(period);
+        this.slotMinTime = period == null ? null : CalendarDuration.of(period);
     }
 
     /**
@@ -4575,15 +4605,15 @@ class ViewOptions implements Serializable {
      * @param text the duration, or null to remove the option
      */
     public void setSlotMinTime(String text) {
-        this.slotMinTime = text == null ? null : DurationValue.ofTimeString(text);
+        this.slotMinTime = text == null ? null : CalendarDuration.ofTimeString(text);
     }
 
     /**
-     * Sets the duration in any form, see {@link #getSlotMinTime()}.
+     * Sets the duration, see {@link #getSlotMinTime()}.
      *
      * @param value the duration, or null to remove the option
      */
-    public void setSlotMinTime(DurationValue value) {
+    public void setSlotMinTime(CalendarDuration value) {
         this.slotMinTime = value;
     }
 
@@ -4595,25 +4625,28 @@ class ViewOptions implements Serializable {
      *
      * @see <a href="https://fullcalendar.io/docs/snapDuration">snapDuration</a>
      */
-    @JsonConverter(DurationValueConverter.class)
-    private DurationValue snapDuration;
+    @JsonConverter(CalendarDurationConverter.class)
+    private CalendarDuration snapDuration;
 
     /**
      * Sets a time-based duration, see {@link #getSnapDuration()}.
      *
-     * @param duration the duration, or null to remove the option
+     * @param duration the duration, days count as 24 hours, or null to remove the option
      */
     public void setSnapDuration(Duration duration) {
-        this.snapDuration = duration == null ? null : DurationValue.ofTime(duration);
+        this.snapDuration = duration == null ? null : CalendarDuration.of(duration);
     }
 
     /**
      * Sets a calendar-based duration in years, months and days, see {@link #getSnapDuration()}.
+     * <p>
+     * A {@link Period} has no weeks, so {@code Period.ofWeeks(n)} arrives as {@code n * 7} days, without the
+     * alignment to the start of the week. For weeks, use {@link CalendarDuration#ofWeeks(int)}.
      *
-     * @param period the years, months and days, not zero, or null to remove the option
+     * @param period the years, months and days, or null to remove the option
      */
     public void setSnapDuration(Period period) {
-        this.snapDuration = period == null ? null : DurationValue.ofCalendar(period);
+        this.snapDuration = period == null ? null : CalendarDuration.of(period);
     }
 
     /**
@@ -4623,15 +4656,15 @@ class ViewOptions implements Serializable {
      * @param text the duration, or null to remove the option
      */
     public void setSnapDuration(String text) {
-        this.snapDuration = text == null ? null : DurationValue.ofTimeString(text);
+        this.snapDuration = text == null ? null : CalendarDuration.ofTimeString(text);
     }
 
     /**
-     * Sets the duration in any form, see {@link #getSnapDuration()}.
+     * Sets the duration, see {@link #getSnapDuration()}.
      *
      * @param value the duration, or null to remove the option
      */
-    public void setSnapDuration(DurationValue value) {
+    public void setSnapDuration(CalendarDuration value) {
         this.snapDuration = value;
     }
 

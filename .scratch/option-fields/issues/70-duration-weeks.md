@@ -2,9 +2,9 @@
 
 | | |
 |---|---|
-| GitHub | – |
+| GitHub | #399 |
 | Labels | enhancement, ready-for-agent |
-| Status | ready-for-agent |
+| Status | done (2026-10-17) |
 | Blocked by | `57-value-types-order-ranges-lengths-durations` |
 | Spec | `../option-fields-spec.md`; shared rules in `README.md` |
 
@@ -23,10 +23,12 @@ The fields concerned: `dateIncrement`, `defaultAllDayEntryDuration`, `defaultTim
 
 **Blocked by:** `57-value-types-order-ranges-lengths-durations`
 
-**Status:** ready-for-agent
+**Status:** done (2026-10-17)
 
-- [ ] `CalendarDuration` replaces `DurationValue`; every field listed above takes it, and the client receives each unit as the library reads it, `{weeks: n}` included.
-- [ ] `CalendarDuration.ofWeeks(1)` and `CalendarDuration.ofDays(7)` reach the client as `{weeks: 1}` and `{days: 7}`.
-- [ ] The shortcut setters for `Duration`, `Period` and `String` remain; the `Period` ones and `of(Period)` carry the note on `Period.ofWeeks`.
-- [ ] The rules and the setter table in `README.md` describe `CalendarDuration` as a data type without forms; `ConverterTest`, `ValueTypeSwitchTest` and `PER_FORM_PARAMETERS` in `TypedOptionsSyncTest` are updated.
-- [ ] The Javadoc of `duration` and `CalendarDuration` matches what is sent.
+- [x] `CalendarDuration` replaces `DurationValue`; every field listed above takes it, and the client receives each unit as the library reads it, `{weeks: n}` included.
+- [x] `CalendarDuration.ofWeeks(1)` and `CalendarDuration.ofDays(7)` reach the client as `{weeks: 1}` and `{days: 7}`.
+- [x] The shortcut setters for `Duration`, `Period` and `String` remain; the `Period` ones and `of(Period)` carry the note on `Period.ofWeeks`.
+- [x] The rules and the setter table in `README.md` describe `CalendarDuration` as a data type without forms; `ConverterTest`, `ValueTypeSwitchTest` and `PER_FORM_PARAMETERS` in `TypedOptionsSyncTest` are updated.
+- [x] The Javadoc of `duration` and `CalendarDuration` matches what is sent.
+
+**Done (2026-10-17):** `CalendarDuration` is a record of the eight units; the converter sends an object of the units that are not zero, also for a time-only duration (before: an `"hh:mm:ss"` string). The library refines all eleven options with `createDuration`, which reads both alike, an empty object included. `of(Duration)` splits into hours, minutes, seconds and milliseconds with one sign; reading back takes a number of milliseconds, the library string and an object with the plural unit names and integer values. Review: two rounds with three agents (standards, spec, library integration and test quality), no major. Left as minors: the read-back does not take the singular unit names the library also reads (`week`, `ms`), because the add-on never writes them. Gate: `mvn clean install` green; E2E 463 passed, 2 failed in `vaadin-theme.spec.js` (drag out of the dark calendar), the same on `master`, a date-dependent test, see 76.

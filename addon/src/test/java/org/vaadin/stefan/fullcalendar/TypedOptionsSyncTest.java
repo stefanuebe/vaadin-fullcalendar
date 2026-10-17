@@ -9,7 +9,7 @@ import org.vaadin.stefan.fullcalendar.option.TextValue;
 import org.vaadin.stefan.fullcalendar.option.ToolbarValue;
 import org.vaadin.stefan.fullcalendar.option.WeekNumberCalculationValue;
 import org.vaadin.stefan.fullcalendar.option.WidthValue;
-import org.vaadin.stefan.fullcalendar.option.DurationValue;
+import org.vaadin.stefan.fullcalendar.option.CalendarDuration;
 import org.vaadin.stefan.fullcalendar.option.AutoBoolean;
 import org.vaadin.stefan.fullcalendar.option.BusinessHours;
 import org.vaadin.stefan.fullcalendar.option.BusinessHoursValue;
@@ -539,6 +539,7 @@ public class TypedOptionsSyncTest extends BrowserlessTest {
             sample(String.class, "x", JsonUtils.toJsonNode("x")),
             sample(DayOfWeek.class, DayOfWeek.WEDNESDAY, JsonUtils.toJsonNode(3)),
             sample(LocalDate.class, LocalDate.of(2026, 1, 2), JsonUtils.toJsonNode("2026-01-02")),
+            sample(CalendarDuration.class, CalendarDuration.ofWeeks(1), JsonFactory.createObject().put("weeks", 1)),
             sample(Locale.class, Locale.GERMANY, JsonUtils.toJsonNode("de-de")),
             sample(ViewName.class, ViewName.of("timeGridDay"), JsonUtils.toJsonNode("timeGridDay")),
             sample(Set.class, Set.of(DayOfWeek.WEDNESDAY), JsonFactory.createArray().add(3)),
@@ -574,7 +575,8 @@ public class TypedOptionsSyncTest extends BrowserlessTest {
             sample(LocalDate.class, LocalDate.of(2026, 1, 2), JsonUtils.toJsonNode("2026-01-02")),
             sample(LocalDateTime.class, LocalDateTime.of(2026, 1, 2, 3, 4), JsonUtils.toJsonNode("2026-01-02T03:04Z")),
             sample(CalendarView.class, CalendarViewImpl.TIME_GRID_DAY, JsonUtils.toJsonNode("timeGridDay")),
-            sample(Duration.class, Duration.ofMinutes(90), JsonUtils.toJsonNode("01:30:00")),
+            sample(Duration.class, Duration.ofMinutes(90),
+                    JsonFactory.createObject().put("hours", 1).put("minutes", 30)),
             sample(Period.class, Period.ofMonths(1), JsonFactory.createObject().put("months", 1)),
             sample(ConstraintValue.Window.class,
                     ConstraintValue.Window.span(LocalDate.of(2026, 1, 2), LocalDate.of(2026, 1, 5)),
@@ -607,7 +609,6 @@ public class TypedOptionsSyncTest extends BrowserlessTest {
             Map.entry(NowValue.class, Set.of(LocalDate.class, LocalDateTime.class)),
             Map.entry(TextValue.class, Set.of(String.class)),
             Map.entry(OrderValue.class, Set.of(String[].class, Order.Key[].class)),
-            Map.entry(DurationValue.class, Set.of(Duration.class, Period.class, String.class)),
             Map.entry(WidthValue.class, Set.of(int.class)),
             Map.entry(DateRangeValue.class, Set.of()),
             Map.entry(WeekNumberCalculationValue.class, Set.of()),
@@ -617,18 +618,12 @@ public class TypedOptionsSyncTest extends BrowserlessTest {
      * A value and client JSON for one setter whose parameter type has a different sample, keyed by the setter name and
      * parameter type, such as {@code "setSlotDuration(String)"}. A setter not listed here uses PARAMETER_SAMPLES.
      */
-    private static final Map<String, Map.Entry<Object, JsonNode>> SETTER_SAMPLES = Map.ofEntries(
-            Map.entry("setDateIncrement(String)", Map.entry("08:30", JsonUtils.toJsonNode("08:30:00"))),
-            Map.entry("setDefaultAllDayEntryDuration(String)", Map.entry("08:30", JsonUtils.toJsonNode("08:30:00"))),
-            Map.entry("setDefaultTimedEntryDuration(String)", Map.entry("08:30", JsonUtils.toJsonNode("08:30:00"))),
-            Map.entry("setDuration(String)", Map.entry("08:30", JsonUtils.toJsonNode("08:30:00"))),
-            Map.entry("setNextDayThreshold(String)", Map.entry("08:30", JsonUtils.toJsonNode("08:30:00"))),
-            Map.entry("setScrollTime(String)", Map.entry("01:00", JsonUtils.toJsonNode("01:00:00"))),
-            Map.entry("setSlotDuration(String)", Map.entry("01:00", JsonUtils.toJsonNode("01:00:00"))),
-            Map.entry("setSlotHeaderInterval(String)", Map.entry("01:00", JsonUtils.toJsonNode("01:00:00"))),
-            Map.entry("setSlotMaxTime(String)", Map.entry("01:00", JsonUtils.toJsonNode("01:00:00"))),
-            Map.entry("setSlotMinTime(String)", Map.entry("01:00", JsonUtils.toJsonNode("01:00:00"))),
-            Map.entry("setSnapDuration(String)", Map.entry("01:00", JsonUtils.toJsonNode("01:00:00"))));
+    private static final Map<String, Map.Entry<Object, JsonNode>> SETTER_SAMPLES = Stream.of(
+                    "setDateIncrement", "setDefaultAllDayEntryDuration", "setDefaultTimedEntryDuration",
+                    "setDuration", "setNextDayThreshold", "setScrollTime", "setSlotDuration", "setSlotHeaderInterval",
+                    "setSlotMaxTime", "setSlotMinTime", "setSnapDuration")
+            .collect(Collectors.toMap(setter -> setter + "(String)", setter -> Map.entry("-1.08:30",
+                    JsonFactory.createObject().put("days", -1).put("hours", -8).put("minutes", -30))));
 
     /**
      * A second value for the parameter types with two values only, so a setter that ignores its argument and writes

@@ -9,7 +9,6 @@ import org.vaadin.stefan.fullcalendar.option.TextValue;
 import org.vaadin.stefan.fullcalendar.option.WeekNumberCalculation;
 import org.vaadin.stefan.fullcalendar.option.WeekNumberCalculationValue;
 import org.vaadin.stefan.fullcalendar.option.WidthValue;
-import org.vaadin.stefan.fullcalendar.option.DurationValue;
 import org.vaadin.stefan.fullcalendar.option.AutoBoolean;
 import org.vaadin.stefan.fullcalendar.option.BusinessHours;
 import org.vaadin.stefan.fullcalendar.option.BusinessHoursValue;
@@ -90,13 +89,6 @@ class ValueTypeSwitchTest {
         return switch (value) {
             case DateRange range -> "range";
             case JsCallback callback -> "callback";
-        };
-    }
-
-    private static String form(DurationValue value) {
-        return switch (value) {
-            case DurationValue.Time time -> time.time().toString();
-            case DurationValue.Calendar calendar -> calendar.period() + " " + calendar.time();
         };
     }
 

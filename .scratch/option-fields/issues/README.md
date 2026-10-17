@@ -92,7 +92,7 @@ Decided by the maintainer on 2026-10-15, after a review of 21–24 together. The
   | `DateRangeValue` | none |
   | `WeekNumberCalculationValue` | none |
   | `OrderValue` | `String...` (property names), `Order.Key...` (mixed keys) |
-  | `DurationValue` | `Duration`, `Period`, `String` (library format) |
+  | `CalendarDuration` | `Duration`, `Period`, `String` (library format). Not a value type but a data type without forms (70): one record holds every unit the library reads, weeks included, so a field of it is one-form (`ONE_FORM_TYPES`, `ONE_FORM_SAMPLES`) and has no row in `PER_FORM_PARAMETERS` |
   | `ToolbarValue` | none: a form has three sections, which a one-argument setter cannot take |
   | `AutoBoolean` | none: one enum covers every form, its field keeps the Lombok setter |
 
@@ -145,6 +145,7 @@ Decided by the maintainer on 2026-10-15, after a review of 21–24 together. The
 | `73-locale-forms.md` | Locale fallbacks and custom locales | 16 |
 | `74-initial-date-time.md` | Initial date with a time | 25 |
 | `75-set-vs-with.md` | Review `set…` versus `with…` | – |
+| `76-theme-drag-test-date.md` | The theme drag test depends on today's date | – |
 | `25-fields-dates.md` | Fields: dates, ranges and durations | 11, 12, 24, 57, 60 |
 | `26-fields-time-grid.md` | Fields: time grid and slots | 11, 12, 21, 24, 57, 60 |
 | `27-fields-interaction.md` | Fields: interaction | 11, 12, 22, 23, 57, 60 |
