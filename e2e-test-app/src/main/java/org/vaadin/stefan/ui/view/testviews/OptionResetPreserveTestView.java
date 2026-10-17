@@ -8,7 +8,6 @@ import com.vaadin.flow.router.Route;
 import org.vaadin.stefan.fullcalendar.Entry;
 import org.vaadin.stefan.fullcalendar.FullCalendar;
 import org.vaadin.stefan.fullcalendar.option.JsCallback;
-import org.vaadin.stefan.fullcalendar.Option;
 import org.vaadin.stefan.ui.layouts.TestLayout;
 import org.vaadin.stefan.ui.menu.MenuItem;
 
@@ -41,8 +40,8 @@ public class OptionResetPreserveTestView extends VerticalLayout {
 
         FullCalendar calendar = new FullCalendar();
         calendar.setId("cal-option-reset-preserve");
-        calendar.setOption(Option.INITIAL_DATE, LocalDate.of(2025, 3, 3));
-        calendar.setOption(Option.ENTRY_COLOR, "red");
+        calendar.options().setInitialDate(LocalDate.of(2025, 3, 3));
+        calendar.options().setEntryColor("red");
         calendar.options().setRawOption("eventDataTransform", JsCallback.of("""
                 (() => {
                     window.preserveEvaluations = (window.preserveEvaluations || 0) + 1;
@@ -50,8 +49,8 @@ public class OptionResetPreserveTestView extends VerticalLayout {
                 })()"""));
         calendar.getEntryProvider().asInMemory().addEntry(timed);
 
-        add(new Button("Set entry color", e -> calendar.setOption(Option.ENTRY_COLOR, "blue")),
-                new Button("Remove entry color", e -> calendar.setOption(Option.ENTRY_COLOR, null)), calendar);
+        add(new Button("Set entry color", e -> calendar.options().setEntryColor("blue")),
+                new Button("Remove entry color", e -> calendar.options().setEntryColor(null)), calendar);
         setFlexGrow(1, calendar);
     }
 }

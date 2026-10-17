@@ -10,8 +10,9 @@ import org.vaadin.stefan.fullcalendar.CalendarViewImpl;
 import org.vaadin.stefan.fullcalendar.Entry;
 import org.vaadin.stefan.fullcalendar.FullCalendar;
 import org.vaadin.stefan.fullcalendar.option.JsCallback;
+import org.vaadin.stefan.fullcalendar.option.MoreLinkClickValue;
+import org.vaadin.stefan.fullcalendar.option.Timezone;
 import org.vaadin.stefan.fullcalendar.JsonFactory;
-import org.vaadin.stefan.fullcalendar.Option;
 import org.vaadin.stefan.fullcalendar.dataprovider.EntryProvider;
 import org.vaadin.stefan.ui.layouts.TestLayout;
 import org.vaadin.stefan.ui.menu.MenuItem;
@@ -19,11 +20,12 @@ import tools.jackson.databind.node.ObjectNode;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.List;
 import java.util.Locale;
 
 /**
- * Test view for removing options of an attached calendar with {@code setOption(option, null)}.
+ * Test view for removing options of an attached calendar with {@code options().setXxx(null)}.
  * <p>
  * The calendar shows the week of 2025-03-03 in German, with an all-day entry and a timed entry. Its entries come from
  * a callback entry provider. The span "fetch-count" shows how often it was asked for entries.
@@ -61,6 +63,8 @@ import java.util.Locale;
 @Route(value = "option-reset", layout = TestLayout.class)
 @MenuItem(label = "Option Reset")
 public class OptionResetTestView extends VerticalLayout {
+
+    private static final Timezone NEW_YORK = new Timezone(ZoneId.of("America/New_York"));
 
     private int fetchCount;
     private int viewRenderedCount;
@@ -113,10 +117,10 @@ public class OptionResetTestView extends VerticalLayout {
         initialOptions.set("views", views);
         FullCalendar calendar = new FullCalendar(initialOptions);
         calendar.setId("cal-option-reset");
-        calendar.setOption(Option.LOCALE, Locale.GERMAN);
-        calendar.setOption(Option.INITIAL_DATE, LocalDate.of(2025, 3, 3));
-        calendar.setOption(Option.INITIAL_VIEW, CalendarViewImpl.TIME_GRID_WEEK.getClientSideValue());
-        calendar.setViewSpecificOption(CalendarViewImpl.TIME_GRID_WEEK, Option.SLOT_MAX_TIME, "20:00:00");
+        calendar.options().setLocale(Locale.GERMAN);
+        calendar.options().setInitialDate(LocalDate.of(2025, 3, 3));
+        calendar.options().setInitialView(CalendarViewImpl.TIME_GRID_WEEK);
+        calendar.options().view(CalendarViewImpl.TIME_GRID_WEEK).setSlotMaxTime("20:00:00");
         calendar.setEntryProvider(EntryProvider.fromCallbacks(query -> {
             fetchCountSpan.setText(String.valueOf(++fetchCount));
             return entries.stream();
@@ -126,45 +130,42 @@ public class OptionResetTestView extends VerticalLayout {
                 e -> viewRenderedCountSpan.setText(String.valueOf(++viewRenderedCount)));
 
         HorizontalLayout buttons = new HorizontalLayout(
-                new Button("Set entry color", e -> calendar.setOption(Option.ENTRY_COLOR, "red")),
-                new Button("Remove entry color", e -> calendar.setOption(Option.ENTRY_COLOR, null)),
+                new Button("Set entry color", e -> calendar.options().setEntryColor("red")),
+                new Button("Remove entry color", e -> calendar.options().setEntryColor(null)),
                 new Button("Set entry color while detached",
-                        e -> attachAgain(calendar, () -> calendar.setOption(Option.ENTRY_COLOR, "orange"))),
+                        e -> attachAgain(calendar, () -> calendar.options().setEntryColor("orange"))),
                 new Button("Remove entry color while detached",
-                        e -> attachAgain(calendar, () -> calendar.setOption(Option.ENTRY_COLOR, null))),
-                new Button("Set entry text color", e -> calendar.setOption(Option.ENTRY_TEXT_COLOR, "yellow")),
-                new Button("Remove entry text color", e -> calendar.setOption(Option.ENTRY_TEXT_COLOR, null)),
-                new Button("Set all-day text", e -> calendar.setOption(Option.ALL_DAY_TEXT, "Custom")),
-                new Button("Remove all-day text", e -> calendar.setOption(Option.ALL_DAY_TEXT, null)),
-                new Button("Set locale all-day text", e -> calendar.setOption(Option.ALL_DAY_TEXT, "Ganztägig")),
-                new Button("Set English locale", e -> calendar.setOption(Option.LOCALE, Locale.ENGLISH)),
-                new Button("Hide entry time", e -> calendar.setOption(Option.DISPLAY_ENTRY_TIME, false)),
-                new Button("Remove entry time display", e -> calendar.setOption(Option.DISPLAY_ENTRY_TIME, null)),
-                // no Option constant exists for eventAdd, because the add-on itself never uses it
-                new Button("Set entry add callback", e -> calendar.setOption("eventAdd", JsCallback.of(
+                        e -> attachAgain(calendar, () -> calendar.options().setEntryColor(null))),
+                new Button("Set entry text color", e -> calendar.options().setEntryContrastColor("yellow")),
+                new Button("Remove entry text color", e -> calendar.options().setEntryContrastColor(null)),
+                new Button("Set all-day text", e -> calendar.options().setAllDayText("Custom")),
+                new Button("Remove all-day text", e -> calendar.options().setAllDayText(null)),
+                new Button("Set locale all-day text", e -> calendar.options().setAllDayText("Ganztägig")),
+                new Button("Set English locale", e -> calendar.options().setLocale(Locale.ENGLISH)),
+                new Button("Hide entry time", e -> calendar.options().setDisplayEntryTime(false)),
+                new Button("Remove entry time display", e -> calendar.options().setDisplayEntryTime(null)),
+                // no typed field exists for eventAdd, because the add-on itself never uses it
+                new Button("Set entry add callback", e -> calendar.options().setRawOption("eventAdd", JsCallback.of(
                         "function() { window.optionResetEventAdds = (window.optionResetEventAdds || 0) + 1; }"))),
-                new Button("Set time zone", e -> calendar.setOption(Option.TIMEZONE, "America/New_York")),
-                new Button("Remove time zone", e -> calendar.setOption(Option.TIMEZONE, null)),
+                new Button("Set time zone", e -> calendar.options().setTimeZone(NEW_YORK)),
+                new Button("Remove time zone", e -> calendar.options().setTimeZone(Timezone.LOCAL)),
                 new Button("Set time zone while detached",
-                        e -> attachAgain(calendar, () -> calendar.setOption(Option.TIMEZONE, "America/New_York"))),
-                new Button("Set week entry color", e -> calendar.setViewSpecificOption(
-                        CalendarViewImpl.TIME_GRID_WEEK, Option.ENTRY_COLOR, "blue")),
-                new Button("Set week all-day text", e -> calendar.setViewSpecificOption(
-                        CalendarViewImpl.TIME_GRID_WEEK, Option.ALL_DAY_TEXT, "Week")),
-                new Button("Remove week all-day text", e -> calendar.setViewSpecificOption(
-                        CalendarViewImpl.TIME_GRID_WEEK, Option.ALL_DAY_TEXT, null)),
-                new Button("Set view did mount", e -> calendar.setOption(Option.VIEW_DID_MOUNT,
+                        e -> attachAgain(calendar, () -> calendar.options().setTimeZone(NEW_YORK))),
+                new Button("Set week entry color", e -> calendar.options().view(CalendarViewImpl.TIME_GRID_WEEK).setEntryColor("blue")),
+                new Button("Set week all-day text", e -> calendar.options().view(CalendarViewImpl.TIME_GRID_WEEK).setAllDayText("Week")),
+                new Button("Remove week all-day text", e -> calendar.options().view(CalendarViewImpl.TIME_GRID_WEEK).setAllDayText(null)),
+                new Button("Set view did mount", e -> calendar.options().setViewDidMount(
                         JsCallback.of("function() {}"))),
-                new Button("Remove view did mount", e -> calendar.setOption(Option.VIEW_DID_MOUNT, null)),
-                new Button("Set more link popover", e -> calendar.setOption(Option.MORE_LINK_CLICK,
-                        FullCalendar.MoreLinkClickAction.POPUP)),
-                new Button("Remove more link action", e -> calendar.setOption(Option.MORE_LINK_CLICK, null)),
-                new Button("Set entry did mount", e -> calendar.setOption(Option.ENTRY_DID_MOUNT,
+                new Button("Remove view did mount", e -> calendar.options().setViewDidMount(null)),
+                new Button("Set more link popover", e -> calendar.options().setMoreLinkClick(
+                        MoreLinkClickValue.Action.POPUP)),
+                new Button("Remove more link action", e -> calendar.options().setMoreLinkClick((MoreLinkClickValue) null)),
+                new Button("Set entry did mount", e -> calendar.options().setEntryDidMount(
                         JsCallback.of("function(info) { info.el.dataset.mounted = 'yes'; }"))),
                 // also without the add-on's own eventDidMount code for entry ids, so no eventDidMount callback remains
                 new Button("Remove entry did mount while detached", e -> attachAgain(calendar, () -> {
                     calendar.setAutoProvideEntryIdOnClient(false);
-                    calendar.setOption(Option.ENTRY_DID_MOUNT, null);
+                    calendar.options().setEntryDidMount(null);
                 })),
                 new Button("Show month", e -> calendar.changeView(CalendarViewImpl.DAY_GRID_MONTH)),
                 new Button("Show week", e -> calendar.changeView(CalendarViewImpl.TIME_GRID_WEEK)),

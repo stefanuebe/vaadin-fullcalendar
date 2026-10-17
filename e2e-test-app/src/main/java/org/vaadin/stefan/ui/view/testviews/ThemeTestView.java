@@ -54,7 +54,7 @@ public class ThemeTestView extends VerticalLayout {
             buttons.add(button);
         }
 
-        Button weekNumbersOff = new Button("week numbers off", e -> first.setOption(Option.WEEK_NUMBERS, false));
+        Button weekNumbersOff = new Button("week numbers off", e -> first.options().setWeekNumbers(false));
         weekNumbersOff.setId("first-week-numbers-off");
         buttons.add(weekNumbersOff);
 
@@ -83,7 +83,7 @@ public class ThemeTestView extends VerticalLayout {
 
         FullCalendarScheduler scheduler = new FullCalendarScheduler();
         scheduler.setId("cal-scheduler");
-        scheduler.setOption(SchedulerOption.LICENSE_KEY, Scheduler.DEVELOPER_LICENSE_KEY);
+        scheduler.options().setSchedulerLicenseKey(Scheduler.DEVELOPER_LICENSE_KEY);
         scheduler.setTheme(FullCalendarTheme.MONARCH);
         scheduler.changeView(SchedulerView.RESOURCE_TIMELINE_DAY);
         scheduler.addResource(new Resource("room-a", "Room A", null));
@@ -99,7 +99,7 @@ public class ThemeTestView extends VerticalLayout {
         FullCalendar calendar = new FullCalendar();
         calendar.setId(id);
         calendar.setTheme(theme);
-        calendar.setOption(Option.INITIAL_DATE, LocalDate.of(2025, 3, 10));
+        calendar.options().setInitialDate(LocalDate.of(2025, 3, 10));
 
         Entry entry = new Entry();
         entry.setTitle("Themed entry");
