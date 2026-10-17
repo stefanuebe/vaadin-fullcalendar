@@ -27,9 +27,9 @@ public class ExternalDragDemo extends AbstractCalendarView {
     @Override
     protected FullCalendar createCalendar(ObjectNode defaultInitialOptions) {
         FullCalendar calendar = new FullCalendar(defaultInitialOptions);
-        calendar.setOption(Option.DAY_MAX_ENTRIES, 3);
+        calendar.options().setDayMaxEntries(3);
 
-        calendar.setOption(Option.DROPPABLE, true);
+        calendar.options().setDroppable(true);
 
         InMemoryEntryProvider<Entry> provider = new InMemoryEntryProvider<>();
         calendar.setEntryProvider(provider);

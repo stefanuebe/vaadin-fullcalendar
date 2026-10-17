@@ -15,7 +15,7 @@ import org.vaadin.stefan.fullcalendar.CalendarViewImpl;
 import org.vaadin.stefan.fullcalendar.Entry;
 import org.vaadin.stefan.fullcalendar.FullCalendar;
 import org.vaadin.stefan.fullcalendar.option.NativeToolbarParts;
-import org.vaadin.stefan.fullcalendar.Option;
+import org.vaadin.stefan.fullcalendar.option.ToolbarValue;
 import org.vaadin.stefan.fullcalendar.dataprovider.InMemoryEntryProvider;
 import org.vaadin.stefan.ui.layouts.MainLayout;
 import org.vaadin.stefan.ui.menu.MenuItem;
@@ -58,17 +58,16 @@ public class CustomThemeDemo extends VerticalLayout {
         FullCalendar calendar = new FullCalendar();
         ((InMemoryEntryProvider<Entry>) calendar.getEntryProvider())
                 .addEntries(EntryService.createSimpleInstance().getEntries());
-        calendar.setOption(Option.DAY_MAX_ENTRIES, 3);
-        calendar.setOption(Option.EDITABLE, true);
+        calendar.options().setDayMaxEntries(3);
+        calendar.options().setEditable(true);
         // without these listeners the calendar moves a dropped or resized entry back, see
         // FullCalendar#setAutoRevertUnappliedEntryChanges
         calendar.addEntryDroppedListener(event -> event.applyChangesOnEntry());
         calendar.addEntryResizedListener(event -> event.applyChangesOnEntry());
-        calendar.setOption(Option.HEADER_TOOLBAR, Map.of(
-                NativeToolbarParts.START, NativeToolbarParts.PREV + "," + NativeToolbarParts.NEXT + " "
-                        + NativeToolbarParts.TODAY,
-                NativeToolbarParts.CENTER, NativeToolbarParts.TITLE,
-                NativeToolbarParts.END, CalendarViewImpl.DAY_GRID_MONTH.getClientSideValue() + ","
+        calendar.options().setHeaderToolbar(ToolbarValue.ofStartEnd(
+                NativeToolbarParts.PREV + "," + NativeToolbarParts.NEXT + " " + NativeToolbarParts.TODAY,
+                NativeToolbarParts.TITLE,
+                CalendarViewImpl.DAY_GRID_MONTH.getClientSideValue() + ","
                         + CalendarViewImpl.TIME_GRID_WEEK.getClientSideValue() + ","
                         + CalendarViewImpl.LIST_WEEK.getClientSideValue()));
 
@@ -93,7 +92,7 @@ public class CustomThemeDemo extends VerticalLayout {
 
         Checkbox dark = new Checkbox("Dark color scheme");
         dark.addValueChangeListener(event ->
-                calendar.setOption(Option.COLOR_SCHEME, event.getValue() ? "dark" : "light"));
+                calendar.options().setColorScheme(event.getValue() ? "dark" : "light"));
 
         HorizontalLayout controls = new HorizontalLayout(theme, palette, dark);
         controls.setAlignItems(Alignment.BASELINE);

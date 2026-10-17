@@ -35,7 +35,7 @@ public abstract class AbstractEntryProviderDemo extends AbstractCalendarView {
 
         FullCalendar calendar = new FullCalendar(defaultInitialOptions);
         calendar.setEntryProvider(entryProvider);
-        calendar.setOption(Option.DAY_MAX_ENTRIES, 3);
+        calendar.options().setDayMaxEntries(3);
         return calendar;
     }
 

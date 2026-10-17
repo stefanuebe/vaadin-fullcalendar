@@ -5,7 +5,6 @@ import org.vaadin.stefan.fullcalendar.FullCalendar;
 
 import java.time.LocalDate;
 
-import static org.vaadin.stefan.fullcalendar.Option.*;
 
 /**
  * Demonstrates entry URL navigation and keyboard-accessible interactive entries.
@@ -18,7 +17,7 @@ public class EntryUrlInteractiveSample extends AbstractSample {
     @Override
     protected void buildSample(FullCalendar calendar) {
         // Make all entries keyboard-accessible globally
-        calendar.setOption(ENTRY_INTERACTIVE, true);
+        calendar.options().setEntryInteractive(true);
 
         // URL entry — FullCalendar wraps this in an <a> tag
         Entry link = new Entry();
