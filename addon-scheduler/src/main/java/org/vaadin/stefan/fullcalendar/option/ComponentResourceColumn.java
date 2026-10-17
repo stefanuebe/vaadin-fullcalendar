@@ -36,9 +36,8 @@ import java.util.*;
  * tree (hidden container) but their DOM elements are physically moved into FullCalendar cells
  * via {@code cellDidMount} / {@code cellWillUnmount} lifecycle hooks.
  * <p>
- * The {@code cellContent}, {@code cellDidMount}, and {@code cellWillUnmount} properties are
- * managed internally and cannot be set manually — calling any of those {@code withXxx()} methods
- * throws {@link UnsupportedOperationException}.
+ * The column writes {@code cellContent}, {@code cellDidMount} and {@code cellWillUnmount} itself, so it has no
+ * methods to set them. The other settings come from {@link AbstractResourceColumn}.
  * <p>
  * Example:
  * <pre>{@code
@@ -49,8 +48,8 @@ import java.util.*;
  *         return picker;
  *     });
  * scheduler.options().setResourceColumns(List.of(
- *     new ResourceColumn("title", "Name").withWidth("200px"),
- *     dateColumn.withWidth("160px")
+ *     new ResourceColumn("title", "Name").withWidth(200),
+ *     dateColumn.withWidth(160)
  * ));
  *
  * // Type-safe access at runtime
@@ -61,7 +60,7 @@ import java.util.*;
  * @see ResourceColumn
  * @see FullCalendarSchedulerOptions#setResourceColumns(java.util.List)
  */
-public class ComponentResourceColumn<T extends Component> extends ResourceColumn {
+public class ComponentResourceColumn<T extends Component> extends AbstractResourceColumn<ComponentResourceColumn<T>> {
 
     private final SerializableFunction<Resource, T> componentFactory;
     private final Map<String, T> components = new LinkedHashMap<>();
@@ -322,125 +321,10 @@ public class ComponentResourceColumn<T extends Component> extends ResourceColumn
     }
 
     @Override
-    public ComponentResourceColumn<T> withWidth(String width) {
-        super.withWidth(width);
-        return this;
-    }
-
-    @Override
-    public ComponentResourceColumn<T> withGroup(boolean group) {
-        super.withGroup(group);
-        return this;
-    }
-
-    @Override
-    public ComponentResourceColumn<T> withHeaderClass(String className) {
-        super.withHeaderClass(className);
-        return this;
-    }
-
-    @Override
-    public ComponentResourceColumn<T> withHeaderClass(JsCallback callback) {
-        super.withHeaderClass(callback);
-        return this;
-    }
-
-    @Override
-    public ComponentResourceColumn<T> withHeaderDidMount(String jsFunction) {
-        super.withHeaderDidMount(jsFunction);
-        return this;
-    }
-
-    @Override
-    public ComponentResourceColumn<T> withHeaderDidMount(JsCallback callback) {
-        super.withHeaderDidMount(callback);
-        return this;
-    }
-
-    @Override
-    public ComponentResourceColumn<T> withHeaderWillUnmount(String jsFunction) {
-        super.withHeaderWillUnmount(jsFunction);
-        return this;
-    }
-
-    @Override
-    public ComponentResourceColumn<T> withHeaderWillUnmount(JsCallback callback) {
-        super.withHeaderWillUnmount(callback);
-        return this;
-    }
-
-    @Override
-    public ComponentResourceColumn<T> withCellClass(String className) {
-        super.withCellClass(className);
-        return this;
-    }
-
-    @Override
-    public ComponentResourceColumn<T> withCellClass(JsCallback callback) {
-        super.withCellClass(callback);
-        return this;
-    }
-
-    /**
-     * @throws UnsupportedOperationException always — cell content is managed internally
-     */
-    @Override
-    public ComponentResourceColumn<T> withCellContent(String staticContent) {
-        throw new UnsupportedOperationException(
-                "cellContent is managed internally by ComponentResourceColumn");
-    }
-
-    /**
-     * @throws UnsupportedOperationException always — cell content is managed internally
-     */
-    @Override
-    public ComponentResourceColumn<T> withCellContent(JsCallback callback) {
-        throw new UnsupportedOperationException(
-                "cellContent is managed internally by ComponentResourceColumn");
-    }
-
-    /**
-     * @throws UnsupportedOperationException always — cellDidMount is managed internally
-     */
-    @Override
-    public ComponentResourceColumn<T> withCellDidMount(String jsFunction) {
-        throw new UnsupportedOperationException(
-                "cellDidMount is managed internally by ComponentResourceColumn");
-    }
-
-    /**
-     * @throws UnsupportedOperationException always — cellDidMount is managed internally
-     */
-    @Override
-    public ComponentResourceColumn<T> withCellDidMount(JsCallback callback) {
-        throw new UnsupportedOperationException(
-                "cellDidMount is managed internally by ComponentResourceColumn");
-    }
-
-    /**
-     * @throws UnsupportedOperationException always — cellWillUnmount is managed internally
-     */
-    @Override
-    public ComponentResourceColumn<T> withCellWillUnmount(String jsFunction) {
-        throw new UnsupportedOperationException(
-                "cellWillUnmount is managed internally by ComponentResourceColumn");
-    }
-
-    /**
-     * @throws UnsupportedOperationException always — cellWillUnmount is managed internally
-     */
-    @Override
-    public ComponentResourceColumn<T> withCellWillUnmount(JsCallback callback) {
-        throw new UnsupportedOperationException(
-                "cellWillUnmount is managed internally by ComponentResourceColumn");
-    }
-
-    @Override
     public ObjectNode toJson() {
         ObjectNode json = super.toJson();
 
-        // Add auto-generated cellContent, cellDidMount, cellWillUnmount
-        // (parent fields are null since withXxx throws, so super.toJson() didn't write them)
+        // the cell content and its hooks move the component of the resource into the cell
         String columnKey = getField();
 
         json.set("cellContent", JsCallback.of(

@@ -16,222 +16,96 @@
  */
 package org.vaadin.stefan.fullcalendar.option;
 
-import org.vaadin.stefan.fullcalendar.JsonFactory;
-import org.vaadin.stefan.fullcalendar.Resource;
-import org.vaadin.stefan.fullcalendar.FullCalendarSchedulerOptions;
+import lombok.Getter;
 import lombok.NonNull;
+import org.vaadin.stefan.fullcalendar.FullCalendarSchedulerOptions;
+import org.vaadin.stefan.fullcalendar.Resource;
+import org.vaadin.stefan.fullcalendar.converters.ContentValueConverter;
 import tools.jackson.databind.node.ObjectNode;
 
-import java.io.Serializable;
-
 /**
- * Represents a column definition for the resource area sidebar in timeline views.
- * When {@link FullCalendarSchedulerOptions#setResourceColumns(java.util.List) resourceColumns} is configured,
- * the resource area becomes a multi-column data grid with a header row.
+ * A column of the resource area in timeline views. When columns are set with
+ * {@link FullCalendarSchedulerOptions#setResourceColumns(java.util.List) resourceColumns}, the resource area becomes a
+ * grid of data with a header row.
  * <p>
- * Each column maps to a resource property name (from the resource's built-in fields or
- * {@link Resource#setExtendedProp(String, Object) extendedProps}).
+ * Each column shows a resource property, a built-in field or a key of the
+ * {@link Resource#setExtendedProp(String, Object) extended properties}. Besides the settings of
+ * {@link AbstractResourceColumn}, it takes the content of its cells and their hooks.
  * <p>
- * Use the fluent {@code withXxx()} methods to configure optional properties:
+ * For example:
  * <pre>{@code
- * ResourceColumn deptCol = new ResourceColumn("department", "Department")
- *     .withWidth("150px")
+ * ResourceColumn department = new ResourceColumn("department", "Department")
+ *     .withWidth(150)
  *     .withGroup(true);
- * ResourceColumn capCol = new ResourceColumn("capacity", "Capacity")
- *     .withWidth("80px")
- *     .withCellDidMount(JsCallback.of("function(info) { info.el.title = 'Tooltip'; }"));
- * scheduler.options().setResourceColumns(List.of(deptCol, capCol));
+ * ResourceColumn capacity = new ResourceColumn("capacity", "Capacity")
+ *     .withWidth(WidthValue.ofPercent(20))
+ *     .withCellDidMount(JsCallback.of("info => info.el.title = 'Seats'"));
+ * scheduler.options().setResourceColumns(List.of(department, capacity));
  * }</pre>
  *
  * @see FullCalendarSchedulerOptions#setResourceColumns(java.util.List)
- * @see <a href="https://fullcalendar.io/docs/resourceColumns">FullCalendar resourceColumns</a>
+ * @see <a href="https://fullcalendar.io/docs/resourceColumns">resourceColumns</a>
  */
-public class ResourceColumn implements Serializable {
+@Getter
+public class ResourceColumn extends AbstractResourceColumn<ResourceColumn> {
 
-    private final String field;
-    private Object headerContent; // String or JsCallback
-    private boolean group;
-    private String width;
-    private Object headerClass; // String or JsCallback
-    private JsCallback headerDidMount;
-    private JsCallback headerWillUnmount;
-    private Object cellContent; // String or JsCallback
-    private Object cellClass; // String or JsCallback
+    private static final ContentValueConverter CONTENT = new ContentValueConverter();
+
+    /** The content of each cell, or null for the value of the field. */
+    private ContentValue cellContent;
+    /** The callback that runs after each cell has been added to the DOM, or null for none. */
     private JsCallback cellDidMount;
+    /** The callback that runs before each cell is removed from the DOM, or null for none. */
     private JsCallback cellWillUnmount;
 
     /**
-     * Creates a new column definition for the given resource field name.
-     * The field name must match a property in the resource's JSON representation
-     * (e.g., {@code "title"} or any key added via {@link Resource#setExtendedProp(String, Object)}).
+     * Creates a column for the given resource property.
      *
-     * @param field the resource property name to display in this column; must not be null
+     * @param field the resource property, such as {@code "title"} or a key added with
+     *              {@link Resource#setExtendedProp(String, Object)}
      */
     public ResourceColumn(@NonNull String field) {
-        this.field = field;
+        super(field);
     }
 
     /**
-     * Creates a new column definition with a field name and header text.
-     * <p>
-     * {@code headerContent} sets static text/HTML for the column header.
+     * Creates a column for the given resource property with a header text.
      *
-     * @param field         the resource property name; must not be null
-     * @param headerContent plain text or HTML string to display as the column header
+     * @param field      the resource property
+     * @param headerText the text of the column header, shown as text, or null for none
      */
-    public ResourceColumn(@NonNull String field, String headerContent) {
-        this.field = field;
-        this.headerContent = headerContent;
+    public ResourceColumn(@NonNull String field, String headerText) {
+        super(field, headerText);
     }
 
     /**
-     * Sets the column width. Accepts any CSS width value.
+     * Sets the content of each cell: a text, HTML or a callback, see {@link ContentValue}. Without it, a cell shows
+     * the value of the field.
      *
-     * @param width CSS width string, e.g., {@code "150px"}, {@code "20%"}
-     * @return this instance for fluent chaining
+     * @param content the content, or null for the value of the field
+     * @return this column
      */
-    public ResourceColumn withWidth(String width) {
-        this.width = width;
+    public ResourceColumn withCellContent(ContentValue content) {
+        this.cellContent = content;
         return this;
     }
 
     /**
-     * When {@code true}, designates this column as the one to display the group label.
+     * Sets a text as the content of each cell. It is shown as text. For HTML, use
+     * {@link #withCellContent(ContentValue)} with {@link ContentValue#ofHtml(String)}.
      *
-     * @param group whether this column displays the group label
-     * @return this instance for fluent chaining
+     * @param text the text, or null for the value of the field
+     * @return this column
      */
-    public ResourceColumn withGroup(boolean group) {
-        this.group = group;
-        return this;
+    public ResourceColumn withCellContent(String text) {
+        return withCellContent(text == null ? null : TextContent.of(text));
     }
 
     /**
-     * Sets a static CSS class name string for the column header. Separate several classes with spaces.
+     * Sets a callback that runs after each cell has been added to the DOM.
      *
-     * @param className static class name string
-     * @return this instance for fluent chaining
-     */
-    public ResourceColumn withHeaderClass(String className) {
-        this.headerClass = className;
-        return this;
-    }
-
-    /**
-     * Sets a JavaScript callback for dynamic CSS class names on the column header.
-     *
-     * @param callback JsCallback returning a class name string. FullCalendar 7 drops arrays.
-     * @return this instance for fluent chaining
-     */
-    public ResourceColumn withHeaderClass(JsCallback callback) {
-        this.headerClass = callback;
-        return this;
-    }
-
-    /**
-     * Sets a JavaScript function string called after the column header is added to the DOM.
-     *
-     * @param jsFunction JavaScript function string
-     * @return this instance for fluent chaining
-     */
-    public ResourceColumn withHeaderDidMount(String jsFunction) {
-        this.headerDidMount = JsCallback.of(jsFunction);
-        return this;
-    }
-
-    /**
-     * Sets a JsCallback called after the column header is added to the DOM.
-     *
-     * @param callback JsCallback
-     * @return this instance for fluent chaining
-     */
-    public ResourceColumn withHeaderDidMount(JsCallback callback) {
-        this.headerDidMount = callback;
-        return this;
-    }
-
-    /**
-     * Sets a JavaScript function string called before the column header is removed from the DOM.
-     *
-     * @param jsFunction JavaScript function string
-     * @return this instance for fluent chaining
-     */
-    public ResourceColumn withHeaderWillUnmount(String jsFunction) {
-        this.headerWillUnmount = JsCallback.of(jsFunction);
-        return this;
-    }
-
-    /**
-     * Sets a JsCallback called before the column header is removed from the DOM.
-     *
-     * @param callback JsCallback
-     * @return this instance for fluent chaining
-     */
-    public ResourceColumn withHeaderWillUnmount(JsCallback callback) {
-        this.headerWillUnmount = callback;
-        return this;
-    }
-
-    /**
-     * Sets a static string for the cell content of this column.
-     *
-     * @param staticContent static string or HTML
-     * @return this instance for fluent chaining
-     */
-    public ResourceColumn withCellContent(String staticContent) {
-        this.cellContent = staticContent;
-        return this;
-    }
-
-    /**
-     * Sets a JsCallback for the cell content of this column.
-     *
-     * @param callback JsCallback
-     * @return this instance for fluent chaining
-     */
-    public ResourceColumn withCellContent(JsCallback callback) {
-        this.cellContent = callback;
-        return this;
-    }
-
-    /**
-     * Sets a static CSS class name string for each cell of this column. Separate several classes with spaces.
-     *
-     * @param className static class name string
-     * @return this instance for fluent chaining
-     */
-    public ResourceColumn withCellClass(String className) {
-        this.cellClass = className;
-        return this;
-    }
-
-    /**
-     * Sets a JsCallback for dynamic CSS class names on each cell.
-     *
-     * @param callback JsCallback returning a class name string. FullCalendar 7 drops arrays.
-     * @return this instance for fluent chaining
-     */
-    public ResourceColumn withCellClass(JsCallback callback) {
-        this.cellClass = callback;
-        return this;
-    }
-
-    /**
-     * Sets a JavaScript function string called after each cell is added to the DOM.
-     *
-     * @param jsFunction JavaScript function string
-     * @return this instance for fluent chaining
-     */
-    public ResourceColumn withCellDidMount(String jsFunction) {
-        this.cellDidMount = JsCallback.of(jsFunction);
-        return this;
-    }
-
-    /**
-     * Sets a JsCallback called after each cell is added to the DOM.
-     *
-     * @param callback JsCallback
-     * @return this instance for fluent chaining
+     * @param callback the callback, or null for none
+     * @return this column
      */
     public ResourceColumn withCellDidMount(JsCallback callback) {
         this.cellDidMount = callback;
@@ -239,110 +113,45 @@ public class ResourceColumn implements Serializable {
     }
 
     /**
-     * Sets a JavaScript function string called before each cell is removed from the DOM.
+     * Sets a JavaScript function that runs after each cell has been added to the DOM.
      *
-     * @param jsFunction JavaScript function string
-     * @return this instance for fluent chaining
+     * @param jsFunction the function, such as {@code "info => info.el.title = info.resource.title"}, or null for none
+     * @return this column
      */
-    public ResourceColumn withCellWillUnmount(String jsFunction) {
-        this.cellWillUnmount = JsCallback.of(jsFunction);
-        return this;
+    public ResourceColumn withCellDidMount(String jsFunction) {
+        return withCellDidMount(JsCallback.of(jsFunction));
     }
 
     /**
-     * Sets a JsCallback called before each cell is removed from the DOM.
+     * Sets a callback that runs before each cell is removed from the DOM.
      *
-     * @param callback JsCallback
-     * @return this instance for fluent chaining
+     * @param callback the callback, or null for none
+     * @return this column
      */
     public ResourceColumn withCellWillUnmount(JsCallback callback) {
         this.cellWillUnmount = callback;
         return this;
     }
 
-    public String getField() {
-        return field;
-    }
-
     /**
-     * Returns the header content (String or JsCallback), or {@code null} if not set.
-     */
-    public Object getHeaderContent() {
-        return headerContent;
-    }
-
-    public boolean isGroup() {
-        return group;
-    }
-
-    public String getWidth() {
-        return width;
-    }
-
-    /**
-     * Returns the header class (String or JsCallback), or {@code null} if not set.
-     */
-    public Object getHeaderClass() {
-        return headerClass;
-    }
-
-    public JsCallback getHeaderDidMount() {
-        return headerDidMount;
-    }
-
-    public JsCallback getHeaderWillUnmount() {
-        return headerWillUnmount;
-    }
-
-    /**
-     * Returns the cell content (String or JsCallback), or {@code null} if not set.
-     */
-    public Object getCellContent() {
-        return cellContent;
-    }
-
-    /**
-     * Returns the cell class (String or JsCallback), or {@code null} if not set.
-     */
-    public Object getCellClass() {
-        return cellClass;
-    }
-
-    public JsCallback getCellDidMount() {
-        return cellDidMount;
-    }
-
-    public JsCallback getCellWillUnmount() {
-        return cellWillUnmount;
-    }
-
-    /**
-     * Serializes this column definition to a JSON object for the FullCalendar
-     * {@code resourceColumns} option.
+     * Sets a JavaScript function that runs before each cell is removed from the DOM.
      *
-     * @return JSON object node
+     * @param jsFunction the function, or null for none
+     * @return this column
      */
-    public ObjectNode toJson() {
-        ObjectNode json = JsonFactory.createObject();
-        json.put("field", field);
-        if (headerContent != null) serializeMixed(json, "headerContent", headerContent);
-        if (width != null) json.put("width", width);
-        if (group) json.put("group", true);
-        if (headerClass != null) serializeMixed(json, "headerClass", headerClass);
-        if (headerDidMount != null) json.set("headerDidMount", headerDidMount.toMarkerJson());
-        if (headerWillUnmount != null) json.set("headerWillUnmount", headerWillUnmount.toMarkerJson());
-        if (cellContent != null) serializeMixed(json, "cellContent", cellContent);
-        if (cellClass != null) serializeMixed(json, "cellClass", cellClass);
-        if (cellDidMount != null) json.set("cellDidMount", cellDidMount.toMarkerJson());
-        if (cellWillUnmount != null) json.set("cellWillUnmount", cellWillUnmount.toMarkerJson());
-        return json;
+    public ResourceColumn withCellWillUnmount(String jsFunction) {
+        return withCellWillUnmount(JsCallback.of(jsFunction));
     }
 
-    private static void serializeMixed(ObjectNode json, String key, Object value) {
-        if (value instanceof JsCallback cb) {
-            json.set(key, cb.toMarkerJson());
-        } else {
-            json.put(key, (String) value);
+    @Override
+    public ObjectNode toJson() {
+        ObjectNode json = super.toJson();
+        if (cellContent != null) {
+            json.set("cellContent", CONTENT.toClientModel(cellContent, null));
         }
+        putCallback(json, "cellDidMount", cellDidMount);
+        putCallback(json, "cellWillUnmount", cellWillUnmount);
+
+        return json;
     }
 }

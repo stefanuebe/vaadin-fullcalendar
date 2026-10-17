@@ -1,5 +1,9 @@
 package org.vaadin.stefan.fullcalendar;
 
+import org.vaadin.stefan.fullcalendar.option.ComponentResourceColumn;
+import org.vaadin.stefan.fullcalendar.option.WidthValue;
+import org.vaadin.stefan.fullcalendar.option.ContentValue;
+import org.vaadin.stefan.fullcalendar.option.ClassName;
 import org.vaadin.stefan.fullcalendar.option.ComponentResourceAreaColumn;
 import org.vaadin.stefan.fullcalendar.option.ResourceAreaColumn;
 import org.vaadin.stefan.fullcalendar.option.ResourceColumn;
@@ -56,7 +60,7 @@ public class SchedulerFeaturesTest {
     @Test
     void testResourceColumnFull() {
         ResourceColumn col = new ResourceColumn("department", "Department")
-                .withWidth("150px")
+                .withWidth(150)
                 .withGroup(true)
                 .withHeaderClass("dept-header")
                 .withHeaderDidMount("function(info) { console.log('mount'); }")
@@ -66,7 +70,7 @@ public class SchedulerFeaturesTest {
 
         Assertions.assertEquals("department", json.get("field").asString(), "field");
         Assertions.assertEquals("Department", json.get("headerContent").asString(), "headerContent");
-        Assertions.assertEquals("150px", json.get("width").asString(), "width");
+        Assertions.assertEquals(150, json.get("width").asInt(), "width");
         Assertions.assertTrue(json.get("group").asBoolean(), "group is true");
         Assertions.assertEquals("dept-header", json.get("headerClass").asString(), "headerClass");
         // headerDidMount and headerWillUnmount are now JsCallback markers
@@ -91,6 +95,66 @@ public class SchedulerFeaturesTest {
         Assertions.assertFalse(json.has("group"), "group key absent when false (clean JSON)");
     }
 
+    /** Every setting of the library's ColSpec that can come from the server, in the form the library reads. */
+    @Test
+    void everyColumnSetting_reachesTheColumnObject() {
+        JsCallback callback = JsCallback.of("info => 'x'");
+        ObjectNode json = new ResourceColumn("dept")
+                .withHeaderContent(ContentValue.ofHtml("<b>Dept</b>"))
+                .withWidth(WidthValue.ofPercent(25))
+                .withGroup(true)
+                .withHeaderClass("h")
+                .withHeaderInnerClass(callback)
+                .withHeaderResizerClass("r")
+                .withHeaderDidMount(callback)
+                .withHeaderWillUnmount(callback)
+                .withCellContent(callback)
+                .withCellClass(callback)
+                .withCellInnerClass("ci")
+                .withCellDidMount(callback)
+                .withCellWillUnmount(callback)
+                .toJson();
+
+        ObjectNode expected = JsonFactory.createObject().put("field", "dept")
+                .<ObjectNode>set("headerContent", JsonFactory.createObject().put("html", "<b>Dept</b>"))
+                .put("width", "25%")
+                .put("group", true)
+                .put("headerClass", "h")
+                .<ObjectNode>set("headerInnerClass", callback.toMarkerJson())
+                .put("headerResizerClass", "r")
+                .<ObjectNode>set("headerDidMount", callback.toMarkerJson())
+                .<ObjectNode>set("headerWillUnmount", callback.toMarkerJson())
+                .<ObjectNode>set("cellClass", callback.toMarkerJson())
+                .put("cellInnerClass", "ci")
+                .<ObjectNode>set("cellContent", callback.toMarkerJson())
+                .<ObjectNode>set("cellDidMount", callback.toMarkerJson())
+                .set("cellWillUnmount", callback.toMarkerJson());
+        Assertions.assertEquals(expected, json);
+    }
+
+    @Test
+    void columnText_isSentAsText_andTheWidthInPixelsAsNumber() {
+        ObjectNode json = new ResourceColumn("dept", "<b>Dept</b>").withCellContent("<i>n/a</i>").withWidth(120)
+                .toJson();
+
+        Assertions.assertEquals("<b>Dept</b>", json.get("headerContent").asString());
+        Assertions.assertEquals("<i>n/a</i>", json.get("cellContent").asString());
+        Assertions.assertEquals(120, json.get("width").asInt());
+        Assertions.assertTrue(json.get("width").isInt());
+    }
+
+    /** The with… methods of the base return the subtype, so a chain needs no cast. */
+    @Test
+    void componentColumnChain_keepsItsType() {
+        ComponentResourceColumn<Span> column = new ComponentResourceColumn<Span>("status", resource -> new Span())
+                .withHeaderContent("Status")
+                .withWidth(80)
+                .withHeaderInnerClass("hi")
+                .withCellInnerClass("ci");
+
+        Assertions.assertEquals("hi", column.toJson().get("headerInnerClass").asString());
+    }
+
     @Test
     void testResourceColumnRenderHooks() {
         String classNames = "h1 h2";
@@ -102,8 +166,7 @@ public class SchedulerFeaturesTest {
                 .withHeaderDidMount(didMount)
                 .withHeaderWillUnmount(willUnmount);
 
-        // headerClass with String overload stays as String
-        Assertions.assertEquals(classNames, col.getHeaderClass());
+        Assertions.assertEquals(ClassName.of(classNames), col.getHeaderClass());
         // headerDidMount/willUnmount with String overload wraps in JsCallback
         Assertions.assertNotNull(col.getHeaderDidMount());
         Assertions.assertEquals(didMount, col.getHeaderDidMount().getJsFunction());
@@ -233,7 +296,8 @@ public class SchedulerFeaturesTest {
         ObjectNode json = col.toJson();
         Assertions.assertEquals("h", json.get("headerClass").asString());
         Assertions.assertEquals("c", json.get("cellClass").asString());
-        Assertions.assertEquals("h", col.getHeaderClassNames());
+        Assertions.assertEquals(ClassName.of("h"), col.getHeaderClassNames());
+        Assertions.assertEquals(100, json.get("width").asInt());
     }
 
     @Test
@@ -244,6 +308,15 @@ public class SchedulerFeaturesTest {
                 .withCellClassNames("c");
 
         Assertions.assertEquals("c", col.toJson().get("cellClass").asString());
+        Assertions.assertEquals(80, col.toJson().get("width").asInt());
+    }
+
+    @Test
+    @SuppressWarnings("removal")
+    void deprecatedWidthString_takesPixelsAndPercentages_andLeavesOtherStringsUnset() {
+        Assertions.assertEquals("25%",
+                new ResourceAreaColumn("dept").withWidth("25%").toJson().get("width").asString());
+        Assertions.assertNull(new ResourceAreaColumn("dept").withWidth("10em").getWidth());
     }
 
     @Test
@@ -257,8 +330,8 @@ public class SchedulerFeaturesTest {
     @Test
     void testSetResourceColumns() {
         List<ResourceColumn> columns = List.of(
-                new ResourceColumn("title", "Resource").withWidth("200px"),
-                new ResourceColumn("department", "Department").withWidth("150px").withGroup(true)
+                new ResourceColumn("title", "Resource").withWidth(200),
+                new ResourceColumn("department", "Department").withWidth(150).withGroup(true)
         );
 
         calendar.setResourceColumns(columns);

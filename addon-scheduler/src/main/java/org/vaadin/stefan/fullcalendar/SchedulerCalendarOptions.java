@@ -21,8 +21,8 @@ import lombok.Getter;
 import lombok.Setter;
 import org.vaadin.stefan.fullcalendar.converter.ResourceColumnsConverter;
 import org.vaadin.stefan.fullcalendar.json.JsonConverter;
+import org.vaadin.stefan.fullcalendar.option.AbstractResourceColumn;
 import org.vaadin.stefan.fullcalendar.option.ComponentResourceColumn;
-import org.vaadin.stefan.fullcalendar.option.ResourceColumn;
 
 import java.util.List;
 
@@ -49,10 +49,10 @@ class SchedulerCalendarOptions extends CalendarOptions {
      */
     @Setter(AccessLevel.NONE)
     @JsonConverter(ResourceColumnsConverter.class)
-    private List<ResourceColumn> resourceColumns;
+    private List<AbstractResourceColumn<?>> resourceColumns;
 
     /** Sets the field only. The binding of the component columns is in {@link FullCalendarScheduler}. */
-    void setResourceColumns(List<ResourceColumn> resourceColumns) {
+    void setResourceColumns(List<AbstractResourceColumn<?>> resourceColumns) {
         this.resourceColumns = resourceColumns;
     }
 

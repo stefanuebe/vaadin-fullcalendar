@@ -86,9 +86,9 @@ public class ComponentColumnsDemo extends VerticalLayout {
                 });
 
         scheduler.setResourceColumns(List.of(
-                new ResourceColumn("title", "Task").withWidth("150px"),
-                startColumn.withWidth("170px"),
-                endColumn.withWidth("170px")
+                new ResourceColumn("title", "Task").withWidth(150),
+                startColumn.withWidth(170),
+                endColumn.withWidth(170)
         ));
 
         // Resources with entries
