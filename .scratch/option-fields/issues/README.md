@@ -86,7 +86,7 @@ Decided by the maintainer on 2026-10-15, after a review of 21–24 together. The
   | `StickyValue` | `String` (offset) |
   | `EntryLimitValue` | `int` |
   | `BusinessHoursValue` | `BusinessHours...` |
-  | `ConstraintValue` | `String` (group id), `BusinessHours...` (recurring windows), `ConstraintValue.Window...` (mixed windows) |
+  | `ConstraintValue` | `String` (group id), `BusinessHours...` (recurring windows), `ConstraintValue.Window...` (mixed windows). The resources (`ofResources`, 71) have no setter, because `setX(String...)` with one id would call the group id setter `setX(String)`; windows limited to resources come from `ofWindows(…).withResources(…)` |
   | `NowValue` | `LocalDate`, `LocalDateTime` |
   | `InitialDateValue` | `LocalDate`, `LocalDateTime` |
   | `LocaleValue` | `Locale`. The custom locale takes a `Locale` and a `Map` of options and has no setter |

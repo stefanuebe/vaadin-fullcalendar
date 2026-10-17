@@ -28,13 +28,15 @@ import tools.jackson.databind.node.ObjectNode;
 import java.time.DateTimeException;
 import java.time.Duration;
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Set;
 
 /**
  * Converts a {@link ConstraintValue} to its client form and back: the group id, {@code "businessHours"}, or an array
  * of windows: business hours objects, objects with {@code start} and/or {@code end} for fixed spans, and objects with
- * {@code rrule}, {@code duration}, {@code exdate} and {@code exrule} as an entry has them. A single
- * window object, which the library takes as well, is read as one window.
+ * {@code rrule}, {@code duration}, {@code exdate} and {@code exrule} as an entry has them. Resource ids go into each
+ * window as {@code resourceIds}, or alone into one object for resources at any time. A single window object, which
+ * the library takes as well, is read as one window.
  */
 public class ConstraintValueConverter implements JsonItemPropertyConverter<ConstraintValue, Object> {
 
@@ -45,6 +47,7 @@ public class ConstraintValueConverter implements JsonItemPropertyConverter<Const
     private static final String DURATION = "duration";
     private static final String EXDATE = "exdate";
     private static final String EXRULE = "exrule";
+    private static final String RESOURCE_IDS = "resourceIds";
     private static final Set<String> RRULE_KEYS = Set.of(RRULE, DURATION, EXDATE, EXRULE);
     private static final DurationConverter DURATION_CONVERTER = new DurationConverter();
     private static final int DATE_LENGTH = "2026-01-01".length();
@@ -61,19 +64,30 @@ public class ConstraintValueConverter implements JsonItemPropertyConverter<Const
             case ConstraintValue.CalendarBusinessHours ignored -> JsonUtils.toJsonNode(BUSINESS_HOURS);
             case ConstraintValue.Windows windows -> {
                 ArrayNode array = JsonFactory.createArray();
-                windows.windows().forEach(window -> array.add(toJson(window)));
+                windows.windows().forEach(window -> array.add(withResourceIds(toJson(window), windows.resourceIds())));
                 yield array;
             }
+            case ConstraintValue.Resources resources ->
+                    withResourceIds(JsonFactory.createObject(), resources.resourceIds());
         };
     }
 
     @Override
     public ConstraintValue toServerModel(JsonNode clientValue, Object currentInstance) {
-        if (clientValue.isObject()) {
-            return ConstraintValue.ofWindows(toWindow(clientValue));
+        if (clientValue.isObject() && clientValue.size() == 1 && clientValue.has(RESOURCE_IDS)) {
+            return new ConstraintValue.Resources(resourceIds(clientValue));
         }
-        if (clientValue.isArray()) {
-            return new ConstraintValue.Windows(clientValue.valueStream().map(ConstraintValueConverter::toWindow).toList());
+        if (clientValue.isObject() || clientValue.isArray()) {
+            List<JsonNode> windows = clientValue.isObject() ? List.of(clientValue) : clientValue.valueStream().toList();
+            List<List<String>> resourceIds = windows.stream().map(ConstraintValueConverter::resourceIds).distinct()
+                    .toList();
+            if (resourceIds.size() > 1) {
+                throw new IllegalArgumentException("Windows with different resource ids: " + clientValue);
+            }
+
+            return new ConstraintValue.Windows(windows.stream().map(ConstraintValueConverter::withoutResourceIds)
+                    .map(ConstraintValueConverter::toWindow).toList(),
+                    resourceIds.isEmpty() ? List.of() : resourceIds.getFirst());
         }
         if (!clientValue.isString()) {
             throw new IllegalArgumentException("Not a constraint value: " + clientValue);
@@ -91,6 +105,39 @@ public class ConstraintValueConverter implements JsonItemPropertyConverter<Const
             case ConstraintValue.DateTimeSpan span -> span(JsonUtils.formatClientSideDateTimeString(span.start()),
                     JsonUtils.formatClientSideDateTimeString(span.end()));
         };
+    }
+
+    private static JsonNode withResourceIds(JsonNode window, List<String> resourceIds) {
+        if (resourceIds.isEmpty()) {
+            return window;
+        }
+
+        return ((ObjectNode) window.deepCopy()).set(RESOURCE_IDS, JsonUtils.toJsonNode(resourceIds));
+    }
+
+    /** The resource ids of a window, empty when it has none. */
+    private static List<String> resourceIds(JsonNode window) {
+        JsonNode ids = window.path(RESOURCE_IDS);
+        if (ids.isMissingNode()) {
+            return List.of();
+        }
+
+        if (!ids.isArray() || !ids.valueStream().allMatch(JsonNode::isString)) {
+            throw new IllegalArgumentException("Not a list of resource ids: " + ids);
+        }
+
+        return ids.valueStream().map(JsonNode::asString).toList();
+    }
+
+    private static JsonNode withoutResourceIds(JsonNode window) {
+        if (!window.has(RESOURCE_IDS)) {
+            return window;
+        }
+
+        ObjectNode copy = (ObjectNode) window.deepCopy();
+        copy.remove(RESOURCE_IDS);
+
+        return copy;
     }
 
     private static ObjectNode rruleWindow(ConstraintValue.RRuleWindow window) {

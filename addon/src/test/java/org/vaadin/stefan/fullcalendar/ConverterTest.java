@@ -138,6 +138,17 @@ class ConverterTest {
             Map.entry(ConstraintValue.class, new ValueType(ConstraintValueConverter.class, forms(
                     ConstraintValue.ofGroupId("meetings"), "meetings",
                     ConstraintValue.BUSINESS_HOURS, "businessHours",
+                    ConstraintValue.ofResources("room-a", "room-b"),
+                    JsonFactory.createObject()
+                            .set("resourceIds", JsonFactory.createArray().add("room-a").add("room-b")),
+                    ConstraintValue.ofWindows(BusinessHours.businessWeek().start(10).end(18),
+                                    ConstraintValue.Window.span(LocalDate.of(2026, 11, 2), LocalDate.of(2026, 11, 7)))
+                            .withResources("room-a"),
+                    JsonFactory.createArray()
+                            .add(BusinessHours.businessWeek().start(10).end(18).toJson()
+                                    .set("resourceIds", JsonFactory.createArray().add("room-a")))
+                            .add(JsonFactory.createObject().put("start", "2026-11-02").put("end", "2026-11-07")
+                                    .set("resourceIds", JsonFactory.createArray().add("room-a"))),
                     ConstraintValue.ofWindows(BusinessHours.businessWeek().start(10).end(18)),
                     array(BusinessHours.businessWeek().start(10).end(18)),
                     ConstraintValue.ofWindows(BusinessHours.of(DayOfWeek.MONDAY), BusinessHours.of(DayOfWeek.FRIDAY)),
@@ -474,6 +485,9 @@ class ConverterTest {
         assertThrows(IllegalArgumentException.class,
                 () -> LocaleValue.ofCustom(Locale.GERMAN, Map.of("code", "de", "todayText", "Heute")));
         assertThrows(IllegalArgumentException.class, ConstraintValue::ofWindows);
+        assertThrows(IllegalArgumentException.class, ConstraintValue::ofResources);
+        assertThrows(IllegalArgumentException.class,
+                () -> ConstraintValue.ofWindows(BusinessHours.businessWeek()).withResources());
         assertThrows(IllegalArgumentException.class, BusinessHoursValue::of);
         assertThrows(IllegalArgumentException.class, SlotHeaderFormatValue::of);
         assertThrows(NullPointerException.class, () -> SlotHeaderFormatValue.of((DateFormatValue) null));
@@ -496,6 +510,23 @@ class ConverterTest {
                 .recurringStartDate(LocalDate.of(2026, 3, 1)).recurringEndDate(LocalDate.of(2026, 3, 1)));
         assertThrows(IllegalArgumentException.class, () -> CalendarDuration.ofTimeString("PT1H"));
         assertThrows(IllegalArgumentException.class, () -> CalendarDuration.ofTimeString("8"));
+    }
+
+    @Test
+    void constraintValueConverter_readsResourceIds_andRejectsIdsThatDifferPerWindow() {
+        ConstraintValueConverter converter = new ConstraintValueConverter();
+        ObjectNode window = JsonFactory.createObject().put("start", "2026-11-02");
+        assertEquals(ConstraintValue.ofWindows(ConstraintValue.Window.span(LocalDate.of(2026, 11, 2), null))
+                        .withResources("room-a"),
+                converter.toServerModel(window.deepCopy().set("resourceIds", JsonFactory.createArray().add("room-a")),
+                        null));
+        assertThrows(IllegalArgumentException.class, () -> converter.toServerModel(JsonFactory.createArray()
+                .add(window.deepCopy().set("resourceIds", JsonFactory.createArray().add("room-a")))
+                .add(window), null));
+        assertThrows(IllegalArgumentException.class, () -> converter.toServerModel(
+                JsonFactory.createObject().set("resourceIds", JsonFactory.createArray().add(1)), null));
+        assertEquals(List.of("room-b"), ConstraintValue.ofWindows(BusinessHours.businessWeek()).withResources("room-a")
+                .withResources("room-b").resourceIds());
     }
 
     @Test
