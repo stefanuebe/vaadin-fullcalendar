@@ -4,7 +4,7 @@
 |---|---|
 | GitHub | #403 |
 | Labels | enhancement, ready-for-agent |
-| Status | done (2026-10-17) |
+| Status | done (2026-10-17, e28bc813) |
 | Blocked by | `38-scheduler-resource-columns`, `40-scheduler-hooks-cells-columns` |
 | Spec | `../option-fields-spec.md`; shared rules in `README.md` |
 
@@ -18,7 +18,7 @@
 
 **Blocked by:** `38-scheduler-resource-columns`, `40-scheduler-hooks-cells-columns`
 
-**Status:** done (2026-10-17)
+**Status:** done (2026-10-17, e28bc813)
 
 - [x] Each listed `ColSpec` setting can be set on a `ResourceColumn` and reaches the client.
 - [x] A `ComponentResourceColumn` keeps its binding and its own cell content.
