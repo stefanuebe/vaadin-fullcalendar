@@ -1,9 +1,12 @@
 package org.vaadin.stefan.ui.view.testviews;
 
+import org.vaadin.stefan.fullcalendar.option.ContentValue;
 import org.vaadin.stefan.fullcalendar.option.DisplayMode;
 import org.vaadin.stefan.fullcalendar.option.JsCallback;
 import org.vaadin.stefan.fullcalendar.option.NativeToolbarButtonDisplay;
 import org.vaadin.stefan.fullcalendar.option.NativeToolbarParts;
+import org.vaadin.stefan.fullcalendar.option.TextContent;
+import org.vaadin.stefan.fullcalendar.option.ToolbarValue;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
@@ -38,8 +41,8 @@ public class Fc7OptionsTestView extends VerticalLayout {
         add(new H2("FullCalendar 7 options"));
 
         FullCalendar calendar = new FullCalendar();
-        calendar.setOption(Option.INITIAL_DATE, LocalDate.of(2025, 3, 10));
-        calendar.setOption(Option.INITIAL_VIEW, CalendarViewImpl.DAY_GRID_MONTH.getClientSideValue());
+        calendar.options().setInitialDate(LocalDate.of(2025, 3, 10));
+        calendar.options().setInitialView(CalendarViewImpl.DAY_GRID_MONTH);
 
         // Buttons set before attach: override the today text, add a custom button
         Map<String, Map<String, Object>> buttons = new LinkedHashMap<>();
@@ -51,15 +54,13 @@ public class Fc7OptionsTestView extends VerticalLayout {
         buttons.put("iconAuto", Map.of("text", "Icon auto",
                 "iconContent", Map.of("html", "<span class=\"hook-icon\">*</span>")));
         buttons.put("custom1", Map.of("text", "Custom One", "click", JsCallback.of(CLICK_CALLBACK.formatted("custom1"))));
-        calendar.setOption(Option.BUTTONS, buttons);
+        calendar.options().setButtons(buttons);
         // Toolbar elements: content from a callback and plain text
-        calendar.setOption(Option.TOOLBAR_ELEMENTS, Map.of(
+        calendar.options().setToolbarElements(Map.<String, ContentValue>of(
                 "callbackElement", JsCallback.of("function() { return { html: '<span class=\"hook-toolbar-element\">From callback</span>' }; }"),
-                "textElement", "Plain text element"));
-        calendar.setOption(Option.HEADER_TOOLBAR, Map.of(
-                NativeToolbarParts.START, "prev,next today custom1 textOnly iconAuto",
-                NativeToolbarParts.CENTER, NativeToolbarParts.TITLE,
-                NativeToolbarParts.END, "callbackElement textElement"));
+                "textElement", new TextContent("Plain text element")));
+        calendar.options().setHeaderToolbar(ToolbarValue.ofStartEnd(
+                "prev,next today custom1 textOnly iconAuto", NativeToolbarParts.TITLE, "callbackElement textElement"));
 
         // Entries: one timed, one all-day, one background
         Entry timed = new Entry();
@@ -83,21 +84,21 @@ public class Fc7OptionsTestView extends VerticalLayout {
         calendar.setEntryProvider(EntryProvider.inMemoryFrom(timed, allDay, background));
 
         // Render hooks, one per family. Each marks its target so the test does not depend on FullCalendar's own classes.
-        calendar.setOption(Option.BLOCK_ENTRY_CLASS, JsCallback.of("function(info) { return 'hook-block'; }"));
-        calendar.setOption(Option.ROW_ENTRY_CLASS, JsCallback.of("function(info) { return 'hook-row'; }"));
-        calendar.setOption(Option.COLUMN_ENTRY_CLASS, JsCallback.of("function(info) { return 'hook-column'; }"));
-        calendar.setOption(Option.LIST_ITEM_ENTRY_CLASS, JsCallback.of("function(info) { return 'hook-list-item'; }"));
-        calendar.setOption(Option.BACKGROUND_ENTRY_CLASS, JsCallback.of("function(info) { return 'hook-background'; }"));
-        calendar.setOption(Option.BACKGROUND_ENTRY_CONTENT,
+        calendar.options().setBlockEntryClass(JsCallback.of("function(info) { return 'hook-block'; }"));
+        calendar.options().setRowEntryClass(JsCallback.of("function(info) { return 'hook-row'; }"));
+        calendar.options().setColumnEntryClass(JsCallback.of("function(info) { return 'hook-column'; }"));
+        calendar.options().setListItemEntryClass(JsCallback.of("function(info) { return 'hook-list-item'; }"));
+        calendar.options().setBackgroundEntryClass(JsCallback.of("function(info) { return 'hook-background'; }"));
+        calendar.options().setBackgroundEntryContent(
                 JsCallback.of("function(info) { return { html: '<span class=\"hook-background-content\">BG</span>' }; }"));
-        calendar.setOption(Option.BACKGROUND_ENTRY_DID_MOUNT,
+        calendar.options().setBackgroundEntryDidMount(
                 JsCallback.of("function(info) { info.el.setAttribute('data-bg-mounted', 'true'); }"));
-        calendar.setOption(Option.TOOLBAR_CLASS, "hook-toolbar");
-        calendar.setOption(Option.BUTTON_CLASS, JsCallback.of("function(info) { return 'hook-button'; }"));
+        calendar.options().setToolbarClass("hook-toolbar");
+        calendar.options().setButtonClass(JsCallback.of("function(info) { return 'hook-button'; }"));
 
         // Plain options
-        calendar.setOption(Option.NO_ENTRIES_TEXT, "Nothing planned");
-        calendar.setOption(Option.HEADING_LEVEL, 3);
+        calendar.options().setNoEntriesText("Nothing planned");
+        calendar.options().setHeadingLevel(3);
 
         // View switchers
         HorizontalLayout views = new HorizontalLayout();
@@ -109,11 +110,9 @@ public class Fc7OptionsTestView extends VerticalLayout {
         Button applyLate = new Button("Apply late button", e -> {
             Map<String, Map<String, Object>> all = new LinkedHashMap<>(buttons);
             all.put("custom2", Map.of("text", "Custom Two", "click", JsCallback.of(CLICK_CALLBACK.formatted("custom2"))));
-            calendar.setOption(Option.BUTTONS, all);
-            calendar.setOption(Option.HEADER_TOOLBAR, Map.of(
-                    NativeToolbarParts.START, "prev,next today custom1 textOnly iconAuto custom2",
-                    NativeToolbarParts.CENTER, NativeToolbarParts.TITLE,
-                    NativeToolbarParts.END, "callbackElement textElement"));
+            calendar.options().setButtons(all);
+            calendar.options().setHeaderToolbar(ToolbarValue.ofStartEnd(
+                "prev,next today custom1 textOnly iconAuto custom2", NativeToolbarParts.TITLE, "callbackElement textElement"));
         });
         applyLate.setId("apply-late-button");
         views.add(applyLate);

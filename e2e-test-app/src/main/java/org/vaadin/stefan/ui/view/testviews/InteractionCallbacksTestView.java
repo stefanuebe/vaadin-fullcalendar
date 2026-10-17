@@ -120,14 +120,14 @@ public class InteractionCallbacksTestView extends VerticalLayout {
         FullCalendar calendar = new FullCalendar();
 
         // Fix the date for reproducible tests
-        calendar.setOption(Option.LOCALE, Locale.UK); // Monday-start week, so 2025-03-03 is first visible day
-        calendar.setOption(Option.INITIAL_DATE, LocalDate.of(2025, 3, 3));
-        calendar.setOption(Option.INITIAL_VIEW, CalendarViewImpl.TIME_GRID_WEEK.getClientSideValue());
-        calendar.setOption(Option.EDITABLE, true);
-        calendar.setOption(Option.SELECTABLE, true);
-        calendar.setOption(Option.DROPPABLE, true);
-        calendar.setOption(Option.UNSELECT_AUTO, true);
-        calendar.setOption(Option.SELECT_MIRROR, true);
+        calendar.options().setLocale(Locale.UK); // Monday-start week, so 2025-03-03 is first visible day
+        calendar.options().setInitialDate(LocalDate.of(2025, 3, 3));
+        calendar.options().setInitialView(CalendarViewImpl.TIME_GRID_WEEK);
+        calendar.options().setEditable(true);
+        calendar.options().setSelectable(true);
+        calendar.options().setDroppable(true);
+        calendar.options().setUnselectAuto(true);
+        calendar.options().setSelectMirror(true);
 
         // Add some timed entries so drag/resize can be tested
         InMemoryEntryProvider<Entry> provider = new InMemoryEntryProvider<>();
@@ -205,11 +205,11 @@ public class InteractionCallbacksTestView extends VerticalLayout {
         });
 
         // selectAllow: deny selections before 2025-03-01
-        calendar.setOption(Option.SELECT_ALLOW,
+        calendar.options().setSelectAllow(
                 JsCallback.of("function(selectInfo) { return selectInfo.start >= new Date(2025, 2, 1); }"));
 
         // eventAllow: prevent drops onto Monday 2025-03-03 (used for the Playwright deny test)
-        calendar.setOption(Option.ENTRY_ALLOW,
+        calendar.options().setEntryAllow(
                 JsCallback.of("function(dropInfo, draggedEvent) { " +
                 "  var d = dropInfo.start; " +
                 "  return !(d.getFullYear() === 2025 && d.getMonth() === 2 && d.getDate() === 3); " +

@@ -13,8 +13,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Test view for the scheduler options {@link SchedulerOption#VIRTUALIZATION} and
- * {@link SchedulerOption#RESOURCE_ROW_CLASS}. 300 resources are shown in resourceTimelineDay.
+ * Test view for the scheduler options {@code virtualization} and
+ * {@code resourceRowClass}. 300 resources are shown in resourceTimelineDay.
  * Virtualization is on initially, a button switches it off.
  * <p>
  * Route: /test/scheduler-virtualization
@@ -32,13 +32,13 @@ public class SchedulerVirtualizationTestView extends VerticalLayout {
         add(new H2("Scheduler virtualization"));
 
         FullCalendarScheduler calendar = new FullCalendarScheduler();
-        calendar.setOption(SchedulerOption.LICENSE_KEY, Scheduler.DEVELOPER_LICENSE_KEY);
-        calendar.setOption(Option.INITIAL_DATE, LocalDate.of(2025, 3, 3));
-        calendar.setOption(Option.INITIAL_VIEW, SchedulerView.RESOURCE_TIMELINE_DAY.getClientSideValue());
-        calendar.setOption(Option.HEIGHT, "500px");
-        calendar.setOption(SchedulerOption.VIRTUALIZATION, true);
-        calendar.setOption(SchedulerOption.RESOURCE_ROW_CLASS, "hook-resource-row");
-        calendar.setOption(SchedulerOption.PRINT_MAX_ROWS, PRINT_MAX_ROWS);
+        calendar.options().setSchedulerLicenseKey(Scheduler.DEVELOPER_LICENSE_KEY);
+        calendar.options().setInitialDate(LocalDate.of(2025, 3, 3));
+        calendar.options().setInitialView(SchedulerView.RESOURCE_TIMELINE_DAY);
+        calendar.options().setRawOption("height", "500px");
+        calendar.options().setVirtualization(true);
+        calendar.options().setResourceRowClass("hook-resource-row");
+        calendar.options().setPrintMaxRows(PRINT_MAX_ROWS);
 
         List<Resource> resources = new ArrayList<>();
         for (int i = 0; i < RESOURCE_COUNT; i++) {
@@ -46,7 +46,7 @@ public class SchedulerVirtualizationTestView extends VerticalLayout {
         }
         calendar.addResources(resources);
 
-        Button off = new Button("Virtualization off", e -> calendar.setOption(SchedulerOption.VIRTUALIZATION, false));
+        Button off = new Button("Virtualization off", e -> calendar.options().setVirtualization(false));
         off.setId("virtualization-off");
 
         add(off, calendar);

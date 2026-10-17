@@ -42,15 +42,15 @@ public class VaadinThemeTestView extends VerticalLayout {
         FullCalendar standard = createCalendar("cal-vaadin");
 
         FullCalendar dark = createCalendar("cal-vaadin-dark");
-        dark.setOption(Option.COLOR_SCHEME, "dark");
+        dark.options().setColorScheme("dark");
         // its entries can be dragged, to check the entry FullCalendar shows outside the calendar while dragging
-        dark.setOption(Option.EDITABLE, true);
+        dark.options().setEditable(true);
 
         FullCalendar light = createCalendar("cal-vaadin-light");
-        light.setOption(Option.COLOR_SCHEME, "light");
+        light.options().setColorScheme("light");
 
         Button removeColorScheme = new Button("Remove color scheme", event -> {
-            light.setOption(Option.COLOR_SCHEME, null);
+            light.options().setColorScheme(null);
             event.getSource().setEnabled(false);
         });
 
@@ -65,7 +65,7 @@ public class VaadinThemeTestView extends VerticalLayout {
 
         FullCalendar source = new FullCalendar();
         source.setId("cal-vaadin-source");
-        source.setOption(Option.INITIAL_DATE, LocalDate.of(2025, 3, 10));
+        source.options().setInitialDate(LocalDate.of(2025, 3, 10));
         source.addRemoteEntrySource(new JsonFeedEntrySource("/test-data/vaadin-theme-entries.json"));
 
         add(removeColorScheme, standard, dark, light, classic, custom, customVariable, source);
@@ -76,7 +76,7 @@ public class VaadinThemeTestView extends VerticalLayout {
     private FullCalendar createCalendar(String id) {
         FullCalendar calendar = new FullCalendar();
         calendar.setId(id);
-        calendar.setOption(Option.DAY_MAX_ENTRIES, 1);
+        calendar.options().setDayMaxEntries(1);
 
         Entry first = new Entry();
         first.setTitle("First entry");

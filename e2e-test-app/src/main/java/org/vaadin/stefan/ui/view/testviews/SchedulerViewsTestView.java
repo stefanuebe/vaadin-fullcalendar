@@ -33,23 +33,23 @@ public class SchedulerViewsTestView extends VerticalLayout {
         add(new H2("Scheduler Views"));
 
         FullCalendarScheduler calendar = new FullCalendarScheduler();
-        calendar.setOption(SchedulerOption.LICENSE_KEY, Scheduler.DEVELOPER_LICENSE_KEY);
+        calendar.options().setSchedulerLicenseKey(Scheduler.DEVELOPER_LICENSE_KEY);
         calendar.getElement().setAttribute("data-testid", "calendar");
-        calendar.setOption(Option.INITIAL_DATE, LocalDate.of(2025, 3, 3));
-        calendar.setOption(Option.INITIAL_VIEW, SchedulerView.RESOURCE_TIMELINE_DAY.getClientSideValue());
+        calendar.options().setInitialDate(LocalDate.of(2025, 3, 3));
+        calendar.options().setInitialView(SchedulerView.RESOURCE_TIMELINE_DAY);
 
         // timeline hooks
-        calendar.setOption(SchedulerOption.RESOURCE_COLUMN_HEADER_CONTENT, "Rooms");
-        calendar.setOption(SchedulerOption.RESOURCE_COLUMNS_WIDTH, "200px");
-        calendar.setOption(SchedulerOption.RESOURCE_CELL_CLASS,
+        calendar.options().setResourceColumnHeaderContent("Rooms");
+        calendar.options().setResourceColumnsWidth(200);
+        calendar.options().setResourceCellClass(
                 JsCallback.of("function(info) { return info.field === 'title' ? 'hook-resource-cell' : ''; }"));
-        calendar.setOption(SchedulerOption.RESOURCE_LANE_CLASS, "hook-lane");
-        calendar.setOption(SchedulerOption.RESOURCE_LANE_TOP_CONTENT,
+        calendar.options().setResourceLaneClass("hook-lane");
+        calendar.options().setResourceLaneTopContent(
                 JsCallback.of("function(info) { return 'Top ' + info.resource.title; }"));
 
         // vertical resource view hooks
-        calendar.setOption(SchedulerOption.RESOURCE_DAY_HEADER_CLASS, "hook-day-header");
-        calendar.setOption(SchedulerOption.RESOURCE_DAY_HEADER_CONTENT,
+        calendar.options().setResourceDayHeaderClass("hook-day-header");
+        calendar.options().setResourceDayHeaderContent(
                 JsCallback.of("function(info) { return 'Res ' + info.resource.title; }"));
 
         Resource roomA = new Resource("a", "Room A", "#00ff00");

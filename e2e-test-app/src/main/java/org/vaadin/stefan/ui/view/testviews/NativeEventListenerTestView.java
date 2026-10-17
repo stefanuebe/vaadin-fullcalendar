@@ -47,8 +47,8 @@ public class NativeEventListenerTestView extends VerticalLayout {
         FullCalendar calendar = new FullCalendar();
 
         // Fix date for reproducible tests
-        calendar.setOption(Option.INITIAL_DATE, LocalDate.of(2025, 3, 10));
-        calendar.setOption(Option.INITIAL_VIEW, CalendarViewImpl.DAY_GRID_MONTH.getClientSideValue());
+        calendar.options().setInitialDate(LocalDate.of(2025, 3, 10));
+        calendar.options().setInitialView(CalendarViewImpl.DAY_GRID_MONTH);
 
         Entry entry = new Entry();
         entry.setTitle("Click Me");

@@ -13,7 +13,6 @@ import org.vaadin.stefan.fullcalendar.Entry;
 import org.vaadin.stefan.fullcalendar.FullCalendar;
 import org.vaadin.stefan.fullcalendar.option.JsCallback;
 import org.vaadin.stefan.fullcalendar.option.MoreLinkClickValue;
-import org.vaadin.stefan.fullcalendar.Option;
 import org.vaadin.stefan.fullcalendar.dataprovider.InMemoryEntryProvider;
 import org.vaadin.stefan.ui.layouts.TestLayout;
 import org.vaadin.stefan.ui.menu.MenuItem;
@@ -45,9 +44,9 @@ public class MoreLinkClickTestView extends VerticalLayout implements HasUrlParam
         add(new H2("More Link Click"));
 
         calendar.getElement().setAttribute("data-testid", "calendar");
-        calendar.setOption(Option.INITIAL_DATE, LocalDate.of(2025, 3, 1));
-        calendar.setOption(Option.INITIAL_VIEW, CalendarViewImpl.DAY_GRID_MONTH.getClientSideValue());
-        calendar.setOption(Option.DAY_MAX_ENTRY_ROWS, 2);
+        calendar.options().setInitialDate(LocalDate.of(2025, 3, 1));
+        calendar.options().setInitialView(CalendarViewImpl.DAY_GRID_MONTH);
+        calendar.options().setDayMaxEntryRows(2);
 
         // 5 all-day entries on 2025-03-05 produce a "+N more" link with 2 rows
         InMemoryEntryProvider<Entry> provider = new InMemoryEntryProvider<>();

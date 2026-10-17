@@ -35,11 +35,11 @@ public class RenderHooksTestView extends VerticalLayout {
                 "The all-day row gets class 'hook-allday'."));
 
         FullCalendar calendar = new FullCalendar();
-        calendar.setOption(Option.WEEK_NUMBERS, true);
+        calendar.options().setWeekNumbers(true);
 
         // Fix the displayed date for reproducible tests
-        calendar.setOption(Option.INITIAL_DATE, LocalDate.of(2025, 3, 1));
-        calendar.setOption(Option.INITIAL_VIEW, CalendarViewImpl.DAY_GRID_MONTH.getClientSideValue());
+        calendar.options().setInitialDate(LocalDate.of(2025, 3, 1));
+        calendar.options().setInitialView(CalendarViewImpl.DAY_GRID_MONTH);
 
         // Add a timed entry so the time-grid hooks can also be tested via the timegrid view
         Entry timedEntry = new Entry();
@@ -50,37 +50,37 @@ public class RenderHooksTestView extends VerticalLayout {
         calendar.setEntryProvider(EntryProvider.inMemoryFrom(timedEntry));
 
         // --- dayCellClass: every cell gets 'hook-day-cell' ---
-        calendar.setOption(Option.DAY_CELL_CLASS,
+        calendar.options().setDayCellClass(
                 JsCallback.of("function(info) { return 'hook-day-cell'; }"));
 
         // --- dayCellTopContent: wrap day number in a span with data-testid ---
-        calendar.setOption(Option.DAY_CELL_TOP_CONTENT,
+        calendar.options().setDayCellTopContent(
                 JsCallback.of("function(info) { " +
                 "  return { html: '<span data-testid=\"hook-day-content\" class=\"hook-day-num\">' " +
                 "    + info.dayNumberText + '</span>' }; }"));
 
         // --- dayCellDidMount: marks every mounted cell with a data attribute ---
-        calendar.setOption(Option.DAY_CELL_DID_MOUNT,
+        calendar.options().setDayCellDidMount(
                 JsCallback.of("function(info) { info.el.setAttribute('data-hook-mounted', 'true'); }"));
 
         // --- dayHeaderClass: a plain class name string, no callback ---
-        calendar.setOption(Option.DAY_HEADER_CLASS, "hook-header");
+        calendar.options().setDayHeaderClass("hook-header");
 
         // --- dayHeaderContent: wrap header text in a span ---
-        calendar.setOption(Option.DAY_HEADER_CONTENT,
+        calendar.options().setDayHeaderContent(
                 JsCallback.of("function(info) { " +
                 "  return { html: '<span class=\"hook-header-text\">' + info.text + '</span>' }; }"));
 
         // --- inlineWeekNumberClass: every day grid week number gets 'hook-weeknum' ---
-        calendar.setOption(Option.INLINE_WEEK_NUMBER_CLASS,
+        calendar.options().setInlineWeekNumberClass(
                 JsCallback.of("function(info) { return 'hook-weeknum'; }"));
 
         // --- inlineWeekNumberContent: prefix with 'W' ---
-        calendar.setOption(Option.INLINE_WEEK_NUMBER_CONTENT,
+        calendar.options().setInlineWeekNumberContent(
                 JsCallback.of("function(info) { return { html: '<span class=\"hook-weeknum-text\">W' + info.num + '</span>' }; }"));
 
         // --- allDayHeaderClass: all-day row header gets 'hook-allday' (timegrid only) ---
-        calendar.setOption(Option.ALL_DAY_HEADER_CLASS, "hook-allday");
+        calendar.options().setAllDayHeaderClass("hook-allday");
 
         add(calendar);
         setFlexGrow(1, calendar);

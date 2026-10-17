@@ -46,10 +46,10 @@ public class SchedulerDropListenersTestView extends VerticalLayout {
                 new Span(" | plain event type: "), plainType, new Span(" | serverStart: "), serverStart));
 
         FullCalendarScheduler calendar = new FullCalendarScheduler();
-        calendar.setOption(SchedulerOption.LICENSE_KEY, Scheduler.DEVELOPER_LICENSE_KEY);
-        calendar.setOption(Option.INITIAL_DATE, LocalDate.of(2025, 3, 3));
-        calendar.setOption(Option.INITIAL_VIEW, SchedulerView.RESOURCE_TIMELINE_DAY.getClientSideValue());
-        calendar.setOption(Option.EDITABLE, true);
+        calendar.options().setSchedulerLicenseKey(Scheduler.DEVELOPER_LICENSE_KEY);
+        calendar.options().setInitialDate(LocalDate.of(2025, 3, 3));
+        calendar.options().setInitialView(SchedulerView.RESOURCE_TIMELINE_DAY);
+        calendar.options().setEditable(true);
 
         Resource roomA = new Resource("a", "Room A", null);
         calendar.addResources(roomA, new Resource("b", "Room B", null));
