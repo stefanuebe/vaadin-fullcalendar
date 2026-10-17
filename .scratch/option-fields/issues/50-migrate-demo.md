@@ -18,3 +18,5 @@
 
 - [x] No use of `setOption`, `getOption`, `removeOption`, `setViewSpecificOption`, `getOptionOrDefault`, `Option` or `SchedulerOption` is left in the listed files.
 - [x] The migrated tests pass.
+
+**Left as they are after the review (2026-10-17), demo only, for the maintainer to judge:** `OptionResetPlayground` no longer offers `locale` (it cannot be removed any more) and parses `firstDay` (above 7 throws) and `now` (an ISO date) strictly. `CalendarViewToolbar`'s time zone selector shows UTC for a calendar on `Timezone.LOCAL`; that was so on master before the migration. `SettingsDialog` offers `Timezone.LOCAL`, so opening it no longer switches a LOCAL calendar to UTC.
