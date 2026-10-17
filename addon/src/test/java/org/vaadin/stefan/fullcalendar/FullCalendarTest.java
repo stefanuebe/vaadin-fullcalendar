@@ -60,7 +60,7 @@ public class FullCalendarTest {
     }
 
     @Test
-    void testNonArgsConstructor() {
+    void noArgConstructor_leavesEditableToTheLibrary() {
         FullCalendar calendar = new FullCalendar();
 
         // no add-on default, the library's default applies
@@ -82,7 +82,7 @@ public class FullCalendarTest {
     }
 
     @Test
-    void testArgsConstructor_dayMaxEvents() {
+    void dayMaxEntries_setAndGet() {
         int entryLimit = 5;
 
         FullCalendar calendar = new FullCalendar();
@@ -126,7 +126,7 @@ public class FullCalendarTest {
     }
 
     @Test
-    void testClientSideOptionMethods() {
+    void firstDayAndLocale_setAndGet() {
         FullCalendar calendar = createTestCalendar();
 
         calendar.options().setFirstDay(DayOfWeek.MONDAY);
@@ -318,7 +318,7 @@ public class FullCalendarTest {
     }
 
     @Test
-    void testGetAndSetOption() {
+    void typedOptions_setAndRemove() {
         FullCalendar calendar = createTestCalendar();
 
         calendar.options().setAllDayText("someValue");

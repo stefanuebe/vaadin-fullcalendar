@@ -18,7 +18,7 @@ import java.util.Locale;
 import java.util.Objects;
 
 public class SettingsDialog extends Dialog {
-    public static final List<Timezone> SOME_TIMEZONES = Arrays.asList(Timezone.UTC, Timezone.getSystem(), new Timezone(ZoneId.of("America/Los_Angeles")), new Timezone(ZoneId.of("Japan")));
+    public static final List<Timezone> SOME_TIMEZONES = Arrays.asList(Timezone.LOCAL, Timezone.UTC, Timezone.getSystem(), new Timezone(ZoneId.of("America/Los_Angeles")), new Timezone(ZoneId.of("Japan")));
     private static final long serialVersionUID = 1L;
 
     public SettingsDialog(FullCalendar calendar) {

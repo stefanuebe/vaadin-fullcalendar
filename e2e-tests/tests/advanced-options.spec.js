@@ -31,7 +31,7 @@ test.describe('Advanced Options', () => {
     });
 
     // -------------------------------------------------------------------------
-    // View-specific option: dayMaxEventRows=2 for dayGrid → +N more link
+    // View-specific option: dayMaxEventRows=2 for dayGridMonth → +N more link
     // -------------------------------------------------------------------------
 
     test('more link is present due to view-specific dayMaxEventRows=2', async ({ page }) => {

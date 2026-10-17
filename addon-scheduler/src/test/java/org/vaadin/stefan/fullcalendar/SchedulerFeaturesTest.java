@@ -325,7 +325,7 @@ public class SchedulerFeaturesTest {
                 new ResourceColumn("department", "Department").withWidth(150).withGroup(true)
         );
 
-        calendar.setResourceColumns(columns);
+        calendar.options().setResourceColumns(columns);
 
         Assertions.assertEquals(columns, calendar.options().getResourceColumns());
     }
@@ -335,7 +335,7 @@ public class SchedulerFeaturesTest {
         ResourceColumn col1 = new ResourceColumn("title", "Title");
         ResourceColumn col2 = new ResourceColumn("eventColor", "Color");
 
-        calendar.setResourceColumns(col1, col2);
+        calendar.options().setResourceColumns(List.of(col1, col2));
 
         Assertions.assertEquals(List.of(col1, col2), calendar.options().getResourceColumns());
     }

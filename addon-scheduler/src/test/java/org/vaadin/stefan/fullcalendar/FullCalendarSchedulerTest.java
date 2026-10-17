@@ -1,5 +1,6 @@
 package org.vaadin.stefan.fullcalendar;
 
+import org.vaadin.stefan.fullcalendar.option.Order;
 import org.vaadin.stefan.fullcalendar.option.LocaleValue;
 import org.vaadin.stefan.fullcalendar.option.CalendarLocale;
 import org.junit.jupiter.api.Assertions;
@@ -80,7 +81,7 @@ public class FullCalendarSchedulerTest {
     void testSetResourceOrder() {
         calendar.options().setResourceOrder("-title");
 
-        Assertions.assertNotNull(calendar.options().getResourceOrder());
+        Assertions.assertEquals(Order.of("-title"), calendar.options().getResourceOrder());
         Assertions.assertEquals("-title", initialOptions().get("resourceOrder").get(0).asString());
     }
 

@@ -57,7 +57,7 @@ class JsCallbackTest {
         FullCalendar calendar = new FullCalendar();
         calendar.options().setEntryDidMount(
             JsCallback.of("function(info) {}"));
-        calendar.options().setEntryDidMount( null);
+        calendar.options().setEntryDidMount(null);
         assertNull(calendar.options().getEntryDidMount());
     }
 
@@ -244,7 +244,7 @@ class JsCallbackTest {
         calendar.addEntryNativeEventListener("mouseover", "e => {}");
 
         // Clear user callback
-        calendar.options().setEntryDidMount( null);
+        calendar.options().setEntryDidMount(null);
 
         String merged = calendar.buildEntryDidMountMerged();
         assertNotNull(merged, "native listener should still produce a merged function");

@@ -10,7 +10,6 @@ import org.vaadin.stefan.fullcalendar.CalendarViewImpl;
 import org.vaadin.stefan.fullcalendar.Entry;
 import org.vaadin.stefan.fullcalendar.FullCalendar;
 import org.vaadin.stefan.fullcalendar.option.JsCallback;
-import org.vaadin.stefan.fullcalendar.option.MoreLinkClickValue;
 import org.vaadin.stefan.fullcalendar.option.Timezone;
 import org.vaadin.stefan.fullcalendar.JsonFactory;
 import org.vaadin.stefan.fullcalendar.dataprovider.EntryProvider;
@@ -157,9 +156,9 @@ public class OptionResetTestView extends VerticalLayout {
                 new Button("Set view did mount", e -> calendar.options().setViewDidMount(
                         JsCallback.of("function() {}"))),
                 new Button("Remove view did mount", e -> calendar.options().setViewDidMount(null)),
-                new Button("Set more link popover", e -> calendar.options().setMoreLinkClick(
-                        MoreLinkClickValue.Action.POPUP)),
-                new Button("Remove more link action", e -> calendar.options().setMoreLinkClick((MoreLinkClickValue) null)),
+                // moreLinkClick of the initial JSON is a raw option, so these change the raw option
+                new Button("Set more link popover", e -> calendar.options().setRawOption("moreLinkClick", "popover")),
+                new Button("Remove more link action", e -> calendar.options().setRawOption("moreLinkClick", null)),
                 new Button("Set entry did mount", e -> calendar.options().setEntryDidMount(
                         JsCallback.of("function(info) { info.el.dataset.mounted = 'yes'; }"))),
                 // also without the add-on's own eventDidMount code for entry ids, so no eventDidMount callback remains

@@ -7,7 +7,6 @@ import com.vaadin.flow.router.Route;
 import org.vaadin.stefan.fullcalendar.CalendarViewImpl;
 import org.vaadin.stefan.fullcalendar.Entry;
 import org.vaadin.stefan.fullcalendar.FullCalendar;
-import org.vaadin.stefan.fullcalendar.CustomCalendarView;
 import org.vaadin.stefan.fullcalendar.dataprovider.InMemoryEntryProvider;
 import org.vaadin.stefan.fullcalendar.option.ConstraintValue;
 import org.vaadin.stefan.fullcalendar.option.ToolbarValue;
@@ -57,10 +56,9 @@ public class AdvancedOptionsTestView extends VerticalLayout {
         calendar.options().setDateAlignment("month");
 
         // View-specific option ------------------------------------------------
-        // Limit displayed event rows to 2 only in the dayGrid view family (not in other views).
+        // Limit displayed event rows to 2 only in the month view (not in other views).
         // With 5 events on 2025-03-05 this guarantees a "+N more" link in month view.
-        calendar.options().view(new CustomCalendarView.AnonymousCustomCalendarView("dayGrid", null))
-                .setDayMaxEntryRows(2);
+        calendar.options().view(CalendarViewImpl.DAY_GRID_MONTH).setDayMaxEntryRows(2);
 
         // eventConstraint -------------------------------------------------------
         // Constrain drag-and-drop to business hours (does not affect rendering, exercises setter).

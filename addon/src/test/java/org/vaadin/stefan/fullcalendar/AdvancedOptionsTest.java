@@ -50,12 +50,11 @@ public class AdvancedOptionsTest extends BrowserlessTest {
     }
 
     @Test
-    void setEntryConstraint_businessHours_sendsJsonObject() {
+    void setEntryConstraint_businessHours_sendsTheHours() {
         BusinessHours hours = BusinessHours.of(DayOfWeek.MONDAY, DayOfWeek.TUESDAY);
         calendar.options().setEntryConstraint(hours);
         assertEquals(ConstraintValue.ofWindows(hours), calendar.options().getEntryConstraint());
-        assertTrue(initialOptions().has("eventConstraint"));
-        assertFalse(initialOptions().get("eventConstraint").isString());
+        assertEquals(JsonFactory.createArray().add(hours.toJson()), initialOptions().get("eventConstraint"));
     }
 
     @Test
@@ -108,7 +107,7 @@ public class AdvancedOptionsTest extends BrowserlessTest {
     }
 
     // -------------------------------------------------------------------------
-    // 7.13 view options
+    // view options
     // -------------------------------------------------------------------------
 
     @Test

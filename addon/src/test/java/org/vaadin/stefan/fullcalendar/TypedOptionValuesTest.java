@@ -29,7 +29,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Typed option values (time zone, valid range, more-link click action, day max entries) reach the client the same
- * way before and after attach (#259). The same holds for the typed values of the FullCalendar 7 options (#264),
+ * way before and after attach (#259). The same holds for the typed values of the newer library options (#264),
  * including callbacks nested in a map like the buttons.
  */
 public class TypedOptionValuesTest extends BrowserlessTest {
@@ -97,7 +97,8 @@ public class TypedOptionValuesTest extends BrowserlessTest {
     void timezone_utcId_sendsUtc() {
         calendar.options().setTimeZone(new Timezone(ZoneId.of("UTC")));
 
-        assertEquals(Timezone.UTC.getClientSideValue(), calendar.options().getTimeZone().getClientSideValue());
+        assertEquals(Timezone.UTC, calendar.options().getTimeZone());
+        assertEquals("UTC", initialClientValue("timeZone").asString());
     }
 
     @Test
@@ -197,27 +198,21 @@ public class TypedOptionValuesTest extends BrowserlessTest {
     // Day max entries
     // -------------------------------------------------------------------------
 
-    /** Set on a view, because the calendar sets the calendar-wide value itself until the old option API is removed. */
-    private JsonNode dayMaxEntriesOfView(FullCalendar calendar) {
-        return initialClientValue(calendar, "views").get("dayGridMonth").get("dayMaxEvents");
-    }
-
     @Test
     void dayMaxEntries_values_reachTheClient() {
-        calendar.options().view(CalendarViewImpl.DAY_GRID_MONTH).setDayMaxEntries(3);
-        assertEquals(EntryLimitValue.of(3),
-                calendar.options().view(CalendarViewImpl.DAY_GRID_MONTH).getDayMaxEntries());
-        assertEquals(3, dayMaxEntriesOfView(calendar).asInt());
+        calendar.options().setDayMaxEntries(3);
+        assertEquals(EntryLimitValue.of(3), calendar.options().getDayMaxEntries());
+        assertEquals(3, initialClientValue("dayMaxEvents").asInt());
 
         FullCalendar cellHeight = new FullCalendar();
-        cellHeight.options().view(CalendarViewImpl.DAY_GRID_MONTH).setDayMaxEntries(EntryLimitValue.CELL_HEIGHT);
-        assertTrue(dayMaxEntriesOfView(cellHeight).isBoolean());
-        assertTrue(dayMaxEntriesOfView(cellHeight).booleanValue());
+        cellHeight.options().setDayMaxEntries(EntryLimitValue.CELL_HEIGHT);
+        assertTrue(initialClientValue(cellHeight, "dayMaxEvents").isBoolean());
+        assertTrue(initialClientValue(cellHeight, "dayMaxEvents").booleanValue());
 
         FullCalendar none = new FullCalendar();
-        none.options().view(CalendarViewImpl.DAY_GRID_MONTH).setDayMaxEntries(NoneValue.NONE);
-        assertTrue(dayMaxEntriesOfView(none).isBoolean());
-        assertFalse(dayMaxEntriesOfView(none).booleanValue());
+        none.options().setDayMaxEntries(NoneValue.NONE);
+        assertTrue(initialClientValue(none, "dayMaxEvents").isBoolean());
+        assertFalse(initialClientValue(none, "dayMaxEvents").booleanValue());
     }
 
     // -------------------------------------------------------------------------

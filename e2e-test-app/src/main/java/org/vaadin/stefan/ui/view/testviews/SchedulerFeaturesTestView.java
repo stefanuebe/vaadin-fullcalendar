@@ -64,10 +64,10 @@ public class SchedulerFeaturesTestView extends VerticalLayout {
         // Note: use "dept" (not "department") for the column field so individual resource rows
         // don't show the department text — only group headers should show "Engineering"/"Design"
         // to avoid Playwright strict mode violations (multiple elements matching the same text)
-        calendar.setResourceColumns(
+        calendar.options().setResourceColumns(List.of(
                 new ResourceColumn("title", "Resource Name"),
                 new ResourceColumn("dept", "Dept").withHeaderClass("dept-header").withCellClass("dept-cell")
-        );
+        ));
 
         // 2. Group resources by the "department" extendedProp
         calendar.options().setResourceGroupField("department");

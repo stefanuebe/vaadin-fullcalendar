@@ -18,7 +18,6 @@ package org.vaadin.stefan.fullcalendar;
 
 import org.vaadin.stefan.fullcalendar.option.CalendarLocale;
 import org.vaadin.stefan.fullcalendar.option.DateRange;
-import org.vaadin.stefan.fullcalendar.option.EntryLimitValue;
 import org.vaadin.stefan.fullcalendar.option.JsCallback;
 import org.vaadin.stefan.fullcalendar.option.MoreLinkClickValue;
 import org.vaadin.stefan.fullcalendar.option.Timezone;
@@ -191,7 +190,6 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
      * Uses {@link InMemoryEntryProvider} by default.
      */
     public FullCalendar() {
-        options().setDayMaxEntries(EntryLimitValue.NONE);
         postConstruct();
     }
 

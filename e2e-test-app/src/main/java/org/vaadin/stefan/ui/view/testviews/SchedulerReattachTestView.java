@@ -43,9 +43,9 @@ public class SchedulerReattachTestView extends VerticalLayout {
         calendar.options().setInitialDate(LocalDate.of(2025, 3, 3));
         calendar.changeView(SchedulerView.RESOURCE_TIMELINE_WEEK);
 
-        calendar.setResourceColumns(
+        calendar.options().setResourceColumns(List.of(
                 new ResourceColumn("title", "Resource Name")
-        );
+        ));
 
         // Resources
         Resource r1 = new Resource("r1", "Alice", "blue");

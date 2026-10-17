@@ -59,7 +59,7 @@ public class ComponentResourceColumnsTestView extends VerticalLayout {
         calendar.options().setSchedulerLicenseKey(Scheduler.DEVELOPER_LICENSE_KEY);
         calendar.getElement().setAttribute("data-testid", "calendar");
         calendar.options().setInitialDate(LocalDate.of(2025, 3, 3));
-        calendar.options().setInitialView(SchedulerView.RESOURCE_TIMELINE_WEEK.getClientSideValue());
+        calendar.options().setInitialView(SchedulerView.RESOURCE_TIMELINE_WEEK);
 
         // Component columns
         dateColumn = new ComponentResourceColumn<>("deadline", "Deadline",

@@ -235,8 +235,9 @@ public class TypedOptionsSyncTest extends BrowserlessTest {
     void initialState_hasNoAddonDefaults_soTheLibraryDefaultsApply() {
         attach();
 
-        // only editable was set by the server, the others by the client, see library-defaults.spec.js
-        for (String name : List.of("editable", "weekNumbers", "tableHeaderSticky", "footerScrollbarSticky")) {
+        // editable and dayMaxEvents were set by the server, the others by the client, see library-defaults.spec.js
+        for (String name : List.of("editable", "dayMaxEvents", "weekNumbers", "tableHeaderSticky",
+                "footerScrollbarSticky")) {
             assertFalse(initialOptions().has(name), name);
         }
     }
@@ -510,6 +511,7 @@ public class TypedOptionsSyncTest extends BrowserlessTest {
     void rawViews_replaceTheGeneratedViews() {
         calendar.setCustomCalendarViews(THREE_DAYS);
         calendar.options().view(CalendarViewImpl.TIME_GRID_WEEK).setWeekends(false);
+        calendar.options().view(CalendarViewImpl.LIST_WEEK).setRawOption("weekends", false);
         calendar.options().setRawOption("views", JsonFactory.createObject()
                 .set("dayGridMonth", JsonFactory.createObject().put("weekends", false)));
         attach();
@@ -517,6 +519,26 @@ public class TypedOptionsSyncTest extends BrowserlessTest {
         JsonNode views = initialOptions().get("views");
         assertEquals(1, views.size());
         assertFalse(views.get("dayGridMonth").get("weekends").asBoolean());
+    }
+
+    @Test
+    void viewRawOption_winsOverTheViewValueOfTheSameKey() {
+        calendar.options().view(THREE_DAYS).setDayCellClass("view-value");
+        calendar.options().view(THREE_DAYS).setRawOption("dayCellClass", "raw");
+        attach();
+
+        assertEquals("raw", initialOptions().get("views").get("threeDays").get("dayCellClass").asString());
+    }
+
+    @Test
+    void viewRawOption_isMergedIntoTheGeneratedViews() {
+        calendar.setCustomCalendarViews(THREE_DAYS);
+        calendar.options().view(THREE_DAYS).setRawOption("weekends", false);
+        attach();
+
+        JsonNode threeDays = initialOptions().get("views").get("threeDays");
+        assertEquals("dayGrid", threeDays.get("type").asString());
+        assertFalse(threeDays.get("weekends").asBoolean());
     }
 
     /**

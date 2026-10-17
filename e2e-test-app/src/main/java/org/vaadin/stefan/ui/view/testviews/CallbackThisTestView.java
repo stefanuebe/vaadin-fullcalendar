@@ -1,7 +1,6 @@
 package org.vaadin.stefan.ui.view.testviews;
 
 import org.vaadin.stefan.fullcalendar.option.JsCallback;
-import org.vaadin.stefan.fullcalendar.option.NativeToolbarParts;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
@@ -39,7 +38,7 @@ public class CallbackThisTestView extends VerticalLayout {
         before.options().setSelectOverlap(recordCalendarThis("before", "selectOverlap", "info"));
         before.options().setButtons(Map.of("custom", Map.of("text", "Custom",
                 "click", recordCalendarThis("before", "button", "ev"))));
-        before.options().setHeaderToolbar(ToolbarValue.ofStartEnd(NativeToolbarParts.START, "", ""));
+        before.options().setHeaderToolbar(ToolbarValue.ofStartEnd("custom", "", ""));
         before.options().setEntryAllow(recordArrowThis("before", "arrow"));
         // called while the calendar is created, so it stores this and the test compares it afterwards
         before.options().setValidRange(JsCallback.of(

@@ -121,6 +121,8 @@ class SchedulerResourceColumnsOptionTest extends BrowserlessTest {
         respond();
 
         assertEquals("raw", initialColumns().get(0).get("field").asString());
+        // the raw value only wins on the client, the field keeps its columns bound
+        assertTrue(componentColumn.isBound());
     }
 
     @Test
