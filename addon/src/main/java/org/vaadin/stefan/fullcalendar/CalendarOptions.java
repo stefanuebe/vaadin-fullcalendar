@@ -541,6 +541,8 @@ class CalendarOptions implements Serializable {
      * The callback runs for every new potential selection while the user is dragging. It gets a {@code selectInfo}
      * with {@code start}, {@code end}, {@code allDay} and more. See the library docs.
      * <p>
+     * The library has no default. Without a value, no callback checks the selection.
+     * <p>
      * The getter returns null while the option is not set; then the library default applies.
      *
      * @see <a href="https://fullcalendar.io/docs/selectAllow">selectAllow</a>
@@ -550,6 +552,8 @@ class CalendarOptions implements Serializable {
     /**
      * Limits where the user can select to certain windows of time. It takes the same values as
      * {@link #getEntryConstraint()} and applies when selecting is enabled.
+     * <p>
+     * The library has no default. Without a value, the selection is not limited to windows of time.
      * <p>
      * The getter returns null while the option is not set; then the library default applies.
      *

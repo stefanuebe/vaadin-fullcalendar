@@ -1952,10 +1952,16 @@ class ViewOptions implements Serializable {
     }
 
     /**
-     * CSS classes for the outermost element of row entries. Without a value, no classes are added.
+     * CSS classes for the outermost element of row entries.
+     * <p>
+     * Row entries are the entries drawn as horizontal bars: all-day entries in day grid and time grid views and entries
+     * in timeline views. This hook applies in addition to the general entry hook.
      * <p>
      * A callback gets an {@code info} object with {@code event}, {@code timeText}, {@code isStart} and more, see the
      * library docs. It returns the class names as a string.
+     * <p>
+     * The library default is no class names, but the active theme sets some for it, and the add-on adds some stable
+     * class names of its own. Class names set here are added to them; they do not replace them.
      * <p>
      * The getter returns null while the option is not set; then the library default applies.
      *
@@ -1984,10 +1990,16 @@ class ViewOptions implements Serializable {
     }
 
     /**
-     * CSS classes for the element before the "inner" wrapper of row entries. Without a value, no classes are added.
+     * CSS classes for the element before the "inner" wrapper of row entries.
+     * <p>
+     * Row entries are the entries drawn as horizontal bars: all-day entries in day grid and time grid views and entries
+     * in timeline views. This hook applies in addition to the general entry hook.
      * <p>
      * A callback gets an {@code info} object with {@code event}, {@code timeText}, {@code isStart} and more, see the
      * library docs. It returns the class names as a string.
+     * <p>
+     * The library default is no class names, but the active theme sets some for it. Class names set here are added to
+     * them; they do not replace them.
      * <p>
      * The getter returns null while the option is not set; then the library default applies.
      *
@@ -2022,8 +2034,13 @@ class ViewOptions implements Serializable {
      * assistive
      * technology. Useful for decorations such as an arrow showing that the entry continues from an earlier date.
      * <p>
+     * Row entries are the entries drawn as horizontal bars: all-day entries in day grid and time grid views and entries
+     * in timeline views. This hook applies in addition to the general entry hook.
+     * <p>
      * A callback gets an {@code info} object with {@code event}, {@code timeText}, {@code isStart} and more, see the
      * library docs. It returns a text, or {@code {html: '...'}} or {@code {domNodes: [...]}}.
+     * <p>
+     * The library default is no content.
      * <p>
      * The getter returns null while the option is not set; then the library default applies.
      *
@@ -2052,10 +2069,16 @@ class ViewOptions implements Serializable {
     }
 
     /**
-     * CSS classes for the element after the "inner" wrapper of row entries. Without a value, no classes are added.
+     * CSS classes for the element after the "inner" wrapper of row entries.
+     * <p>
+     * Row entries are the entries drawn as horizontal bars: all-day entries in day grid and time grid views and entries
+     * in timeline views. This hook applies in addition to the general entry hook.
      * <p>
      * A callback gets an {@code info} object with {@code event}, {@code timeText}, {@code isStart} and more, see the
      * library docs. It returns the class names as a string.
+     * <p>
+     * The library default is no class names, but the active theme sets some for it. Class names set here are added to
+     * them; they do not replace them.
      * <p>
      * The getter returns null while the option is not set; then the library default applies.
      *
@@ -2090,8 +2113,13 @@ class ViewOptions implements Serializable {
      * assistive
      * technology. Useful for decorations such as an arrow showing that the entry continues past a later date.
      * <p>
+     * Row entries are the entries drawn as horizontal bars: all-day entries in day grid and time grid views and entries
+     * in timeline views. This hook applies in addition to the general entry hook.
+     * <p>
      * A callback gets an {@code info} object with {@code event}, {@code timeText}, {@code isStart} and more, see the
      * library docs. It returns a text, or {@code {html: '...'}} or {@code {domNodes: [...]}}.
+     * <p>
+     * The library default is no content.
      * <p>
      * The getter returns null while the option is not set; then the library default applies.
      *
@@ -2120,10 +2148,16 @@ class ViewOptions implements Serializable {
     }
 
     /**
-     * CSS classes for the "inner" wrapper element of row entries. Without a value, no classes are added.
+     * CSS classes for the "inner" wrapper element of row entries.
+     * <p>
+     * Row entries are the entries drawn as horizontal bars: all-day entries in day grid and time grid views and entries
+     * in timeline views. This hook applies in addition to the general entry hook.
      * <p>
      * A callback gets an {@code info} object with {@code event}, {@code timeText}, {@code isStart} and more, see the
      * library docs. It returns the class names as a string.
+     * <p>
+     * The library default is no class names, but the active theme sets some for it. Class names set here are added to
+     * them; they do not replace them.
      * <p>
      * The getter returns null while the option is not set; then the library default applies.
      *
@@ -2153,11 +2187,16 @@ class ViewOptions implements Serializable {
     }
 
     /**
-     * CSS classes for the time element within the "inner" wrapper of row entries. Without a value, no classes are
-     * added.
+     * CSS classes for the time element within the "inner" wrapper of row entries.
+     * <p>
+     * Row entries are the entries drawn as horizontal bars: all-day entries in day grid and time grid views and entries
+     * in timeline views. This hook applies in addition to the general entry hook.
      * <p>
      * A callback gets an {@code info} object with {@code event}, {@code isNarrow} and {@code isShort}, see the library
      * docs. It returns the class names as a string.
+     * <p>
+     * The library default is no class names, but the active theme sets some for it. Class names set here are added to
+     * them; they do not replace them.
      * <p>
      * The getter returns null while the option is not set; then the library default applies.
      *
@@ -2188,11 +2227,16 @@ class ViewOptions implements Serializable {
     }
 
     /**
-     * CSS classes for the title element within the "inner" wrapper of row entries. Without a value, no classes are
-     * added.
+     * CSS classes for the title element within the "inner" wrapper of row entries.
+     * <p>
+     * Row entries are the entries drawn as horizontal bars: all-day entries in day grid and time grid views and entries
+     * in timeline views. This hook applies in addition to the general entry hook.
      * <p>
      * A callback gets an {@code info} object with {@code event}, {@code isNarrow} and {@code isShort}, see the library
      * docs. It returns the class names as a string.
+     * <p>
+     * The library default is no class names, but the active theme sets some for it. Class names set here are added to
+     * them; they do not replace them.
      * <p>
      * The getter returns null while the option is not set; then the library default applies.
      *
@@ -2902,7 +2946,11 @@ class ViewOptions implements Serializable {
      * CSS classes for each single month of multi-month views.
      * <p>
      * A callback gets an {@code info} object with {@code multiMonthColumns} (0 until the layout is measured),
-     * {@code isFirst} and {@code isLast}. It returns the class names as a string.
+     * {@code isFirst} and {@code isLast}. The library docs also list {@code date}; the used library version does not
+     * pass it. It returns the class names as a string.
+     * <p>
+     * The library default is no class names, but the active theme sets some for it, and the add-on adds some stable
+     * class names of its own. Class names set here are added to them; they do not replace them.
      * <p>
      * The getter returns null while the option is not set; then the library default applies.
      *
@@ -2933,6 +2981,8 @@ class ViewOptions implements Serializable {
      * A callback that runs right after the element of a single month of multi-month views has been added to the
      * DOM. It has no effect in the used library version, because the library never calls it.
      * <p>
+     * The library has no default. Without a value, no callback runs.
+     * <p>
      * The getter returns null while the option is not set; then the library default applies.
      *
      * @see <a href="https://fullcalendar.io/docs/single-month-render-hooks">singleMonthDidMount</a>
@@ -2942,8 +2992,12 @@ class ViewOptions implements Serializable {
     /**
      * CSS classes for the month header (the title above each month grid) of multi-month views.
      * <p>
-     * A callback gets an {@code info} object with {@code hasNavLink}, {@code isSticky}, {@code isNarrow} and more, see
-     * the library docs. It returns the class names as a string.
+     * A callback gets an {@code info} object with {@code multiMonthColumns}, {@code isSticky}, {@code isNarrow} and
+     * {@code hasNavLink}. The library docs also list {@code date}; the used library version does not pass it. It
+     * returns the class names as a string.
+     * <p>
+     * The library default is no class names, but the active theme sets some for it, and the add-on adds some stable
+     * class names of its own. Class names set here are added to them; they do not replace them.
      * <p>
      * The getter returns null while the option is not set; then the library default applies.
      *
@@ -2973,8 +3027,12 @@ class ViewOptions implements Serializable {
     /**
      * CSS classes for the inner element of the month header of multi-month views. This element may be a nav link.
      * <p>
-     * A callback gets an {@code info} object with {@code hasNavLink}, {@code isSticky}, {@code isNarrow} and more, see
-     * the library docs. It returns the class names as a string.
+     * A callback gets an {@code info} object with {@code multiMonthColumns}, {@code isSticky}, {@code isNarrow} and
+     * {@code hasNavLink}. The library docs also list {@code date}; the used library version does not pass it. It
+     * returns the class names as a string.
+     * <p>
+     * The library default is no class names, but the active theme sets some for it. Class names set here are added to
+     * them; they do not replace them.
      * <p>
      * The getter returns null while the option is not set; then the library default applies.
      *
@@ -3006,8 +3064,10 @@ class ViewOptions implements Serializable {
      * DOM. In the used library version it gets an {@code info} object without data (its {@code el} is undefined),
      * so it cannot reach the element.
      * <p>
-     * When this option is changed for an attached calendar, the new setting only applies to newly rendered
-     * elements, for example after navigating to another view or period. Existing elements are not updated.
+     * When this option is changed for an attached calendar, the callback that is set when an element is removed runs
+     * for that element.
+     * <p>
+     * The library has no default. Without a value, no callback runs.
      * <p>
      * The getter returns null while the option is not set; then the library default applies.
      *
@@ -3661,6 +3721,9 @@ class ViewOptions implements Serializable {
      * A callback gets an {@code info} object with {@code num}, {@code text}, {@code numericText} and more, see the
      * library docs. It returns the class names as a string.
      * <p>
+     * The library default is no class names, but the active theme sets some for it, and the add-on adds some stable
+     * class names of its own. Class names set here are added to them; they do not replace them.
+     * <p>
      * The getter returns null while the option is not set; then the library default applies.
      *
      * @see <a href="https://fullcalendar.io/docs/row-more-link-render-hooks">rowMoreLinkClass</a>
@@ -3692,6 +3755,9 @@ class ViewOptions implements Serializable {
      * <p>
      * A callback gets an {@code info} object with {@code num}, {@code text}, {@code numericText} and more, see the
      * library docs. It returns the class names as a string.
+     * <p>
+     * The library default is no class names, but the active theme sets some for it. Class names set here are added to
+     * them; they do not replace them.
      * <p>
      * The getter returns null while the option is not set; then the library default applies.
      *
@@ -4145,6 +4211,8 @@ class ViewOptions implements Serializable {
      * Whether a month view renders the dates of the previous and the next month. Dates that are disabled do not
      * render entries.
      * <p>
+     * The library default is {@code true}, except in the {@code multiMonthYear} view, which turns it off.
+     * <p>
      * The getter returns null while the option is not set; then the library default applies.
      *
      * @see <a href="https://fullcalendar.io/docs/showNonCurrentDates">showNonCurrentDates</a>
@@ -4282,6 +4350,8 @@ class ViewOptions implements Serializable {
      * A change on an attached calendar does not scroll it at once. The new value applies from the next change of the
      * date range.
      * <p>
+     * The library default is {@code "06:00:00"}, 6 am.
+     * <p>
      * The getter returns null while the option is not set; then the library default applies.
      *
      * @see <a href="https://fullcalendar.io/docs/scrollTime">scrollTime</a>
@@ -4333,6 +4403,8 @@ class ViewOptions implements Serializable {
      * Whether the view scrolls to {@link #getScrollTime()} every time the date range changes, via the API or by the
      * user navigating.
      * <p>
+     * The library default is {@code true}.
+     * <p>
      * The getter returns null while the option is not set; then the library default applies.
      *
      * @see <a href="https://fullcalendar.io/docs/scrollTimeReset">scrollTimeReset</a>
@@ -4343,6 +4415,8 @@ class ViewOptions implements Serializable {
      * Minimum pixel width of each mini-month in the multi-month grid, padding included. If the available
      * width would make a month smaller, the months wrap to the next row.
      * <p>
+     * The library default is {@code 350}, set by the multi-month views.
+     * <p>
      * The getter returns null while the option is not set; then the library default applies.
      *
      * @see <a href="https://fullcalendar.io/docs/singleMonthMinWidth">singleMonthMinWidth</a>
@@ -4351,6 +4425,9 @@ class ViewOptions implements Serializable {
 
     /**
      * Duration of each time slot in time grid and timeline views.
+     * <p>
+     * The library default is 30 minutes ({@code "00:30:00"}) in the time grid views. A timeline view computes a
+     * duration from its header interval when none is set.
      * <p>
      * The getter returns null while the option is not set; then the library default applies.
      *
@@ -4403,6 +4480,8 @@ class ViewOptions implements Serializable {
      * Whether timed entries in time grid views visually overlap. With {@code true}, at most half of each entry
      * is obscured. With {@code false}, entries never overlap.
      * <p>
+     * The library default is {@code true}.
+     * <p>
      * The getter returns null while the option is not set; then the library default applies.
      *
      * @see <a href="https://fullcalendar.io/docs/slotEventOverlap">slotEventOverlap</a>
@@ -4416,6 +4495,9 @@ class ViewOptions implements Serializable {
      * <p>
      * A callback gets an {@code info} object with {@code level} and {@code isTime}. It returns {@code "start"},
      * {@code "center"} or {@code "end"}.
+     * <p>
+     * The library default is {@code "start"}. The library docs do not describe this option; the linked page lists the
+     * slot header hooks only.
      * <p>
      * The getter returns null while the option is not set; then the library default applies.
      *
@@ -4835,6 +4917,8 @@ class ViewOptions implements Serializable {
      * Whether the user can select days or time slots by clicking and dragging. A selection fires a
      * {@link TimeslotsSelectedEvent} on the server.
      * <p>
+     * The library default is {@code false}.
+     * <p>
      * The getter returns null while the option is not set; then the library default applies.
      *
      * @see <a href="https://fullcalendar.io/docs/selectable">selectable</a>
@@ -4844,6 +4928,9 @@ class ViewOptions implements Serializable {
     /**
      * Time in milliseconds a touch user must hold down before a date becomes selectable.
      * Without it, {@link #getLongPressDelay()} applies. It has no effect on non-touch devices.
+     * <p>
+     * The library default is the value of {@link #getLongPressDelay()}, which is {@code 1000} milliseconds by default.
+     * The library docs name {@code 1000} as the default of this option.
      * <p>
      * The getter returns null while the option is not set; then the library default applies.
      *
@@ -4858,6 +4945,8 @@ class ViewOptions implements Serializable {
      * A change on an attached calendar takes effect when the view is rendered again, for example after a view
      * change.
      * <p>
+     * The library default is {@code 0}.
+     * <p>
      * The getter returns null while the option is not set; then the library default applies.
      *
      * @see <a href="https://fullcalendar.io/docs/selectMinDistance">selectMinDistance</a>
@@ -4867,6 +4956,8 @@ class ViewOptions implements Serializable {
     /**
      * Whether a placeholder entry is drawn while the user drags a selection, instead of the standard highlighting
      * of each cell. It applies to time grid views only.
+     * <p>
+     * The library default is {@code false}.
      * <p>
      * The getter returns null while the option is not set; then the library default applies.
      *
@@ -4883,6 +4974,8 @@ class ViewOptions implements Serializable {
      * <p>
      * An all-day entry counts as intersecting in time grid views, although it does not visually overlap the time
      * slots.
+     * <p>
+     * The library default is {@code true}, which allows the selection.
      * <p>
      * The getter returns null while the option is not set; then the library default applies.
      *
@@ -5355,7 +5448,9 @@ class ViewOptions implements Serializable {
 
     /**
      * Whether the title of row entries sticks to the start edge of the visible area while the user scrolls horizontally
-     * past a long entry, so the title stays readable. Themes can change the default.
+     * past a long entry, so the title stays readable.
+     * <p>
+     * The library default is {@code true}. The library docs do not describe this option.
      * <p>
      * The getter returns null while the option is not set; then the library default applies.
      *
@@ -5770,11 +5865,12 @@ class ViewOptions implements Serializable {
     }
 
     /**
-     * Format of the text above each month in multi-month views. Without a value, the format is the long month if the
-     * calendar spans a single year, otherwise the long month and the year.
+     * Format of the text above each month in multi-month views. The library default is the long month if the calendar
+     * spans a single year, otherwise the long month and the year.
      * <p>
      * A callback gets an {@code info} object with {@code date}, {@code start}, {@code end} and more, see the library
-     * docs, and returns the text.
+     * docs, and returns the text. The library docs speak of a date instead of the info object, but the used library
+     * version passes the info object.
      * <p>
      * The getter returns null while the option is not set; then the library default applies.
      *
