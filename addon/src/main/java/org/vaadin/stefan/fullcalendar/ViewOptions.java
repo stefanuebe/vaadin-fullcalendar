@@ -754,13 +754,14 @@ class ViewOptions implements Serializable {
 
     /**
      * CSS classes for the filler elements that keep the calendar layout aligned. They fill space in the all-day section
-     * to offset the scrollbar width of the timed section, and in resource timeline views where the resource rows do
-     * not fill the full height.
+     * to offset the scrollbar width of the timed section, and in resource timeline views where the resource rows do not
+     * fill the full height.
      * <p>
      * A callback gets an {@code info} object with {@code inTableHeader}, see the library docs. It returns the class
      * names as a string.
      * <p>
-     * The getter returns null while the option is not set; then the library default applies.
+     * The library has no default for this option. A theme may set classes for it, which the library joins with the
+     * classes set here. The getter returns null while the option is not set; then the library default applies.
      *
      * @see <a href="https://fullcalendar.io/docs/filler-render-hooks">fillerClass</a>
      */
@@ -790,7 +791,8 @@ class ViewOptions implements Serializable {
      * <p>
      * It takes class names only, because the library accepts no callback for this option.
      * <p>
-     * The getter returns null while the option is not set; then the library default applies.
+     * The library has no default for this option. A theme may set classes for it, which the library joins with the
+     * classes set here. The getter returns null while the option is not set; then the library default applies.
      *
      * @see <a href="https://fullcalendar.io/docs/highlight-render-hooks">highlightClass</a>
      */
@@ -815,7 +817,8 @@ class ViewOptions implements Serializable {
      * A callback gets an {@code info} object with {@code num}, {@code text}, {@code textParts} and more, see the
      * library docs. It returns the class names as a string.
      * <p>
-     * The getter returns null while the option is not set; then the library default applies.
+     * The library has no default for this option. A theme may set classes for it, which the library joins with the
+     * classes set here. The getter returns null while the option is not set; then the library default applies.
      *
      * @see <a href="https://fullcalendar.io/docs/inline-week-number-render-hooks">inlineWeekNumberClass</a>
      */
@@ -846,7 +849,8 @@ class ViewOptions implements Serializable {
      * A callback gets an {@code info} object with {@code num}, {@code text}, {@code textParts} and more, see the
      * library docs. It returns a text, or {@code {html: '...'}} or {@code {domNodes: [...]}}.
      * <p>
-     * The getter returns null while the option is not set; then the library default applies.
+     * The library default is the library's own week number text. The getter returns null while the option is not set;
+     * then the library default applies.
      *
      * @see <a href="https://fullcalendar.io/docs/inline-week-number-render-hooks">inlineWeekNumberContent</a>
      */
@@ -874,13 +878,14 @@ class ViewOptions implements Serializable {
     /**
      * A callback that runs right after the week number shown inline in day grid cells has been added to the DOM.
      * <p>
-     * The callback gets an {@code info} object with {@code num}, {@code text}, {@code textParts} and more, see the
-     * library docs.
+     * The callback gets an {@code info} object with {@code el} (the element), {@code num}, {@code text} and more, see
+     * the library docs.
      * <p>
      * When this option is changed for an attached calendar, the new setting only applies to newly rendered elements,
      * for example after navigating to another view or period. Existing elements are not updated.
      * <p>
-     * The getter returns null while the option is not set; then the library default applies.
+     * The library default is no callback. The getter returns null while the option is not set; then the library default
+     * applies.
      *
      * @see <a href="https://fullcalendar.io/docs/inline-week-number-render-hooks">inlineWeekNumberDidMount</a>
      */
@@ -889,13 +894,14 @@ class ViewOptions implements Serializable {
     /**
      * A callback that runs right before the week number shown inline in day grid cells is removed from the DOM.
      * <p>
-     * The callback gets an {@code info} object with {@code num}, {@code text}, {@code textParts} and more, see the
-     * library docs.
+     * The callback gets an {@code info} object with {@code el} (the element), {@code num}, {@code text} and more, see
+     * the library docs.
      * <p>
-     * When this option is changed for an attached calendar, the new setting only applies to newly rendered elements,
-     * for example after navigating to another view or period. Existing elements are not updated.
+     * The library calls the callback that is set when an element is removed. When this option is changed for an
+     * attached calendar, that includes elements that were rendered before the change.
      * <p>
-     * The getter returns null while the option is not set; then the library default applies.
+     * The library default is no callback. The getter returns null while the option is not set; then the library default
+     * applies.
      *
      * @see <a href="https://fullcalendar.io/docs/inline-week-number-render-hooks">inlineWeekNumberWillUnmount</a>
      */
@@ -2548,10 +2554,11 @@ class ViewOptions implements Serializable {
     /**
      * CSS classes for the time element inside the inner wrapper of an entry. Background entries are not affected.
      * <p>
-     * A callback gets an {@code info} object with {@code event}, {@code isNarrow} and {@code isShort}, see the
+     * A callback gets an {@code info} object with {@code event}, {@code timeText}, {@code isNarrow} and more, see the
      * library docs. It returns the class names as a string.
      * <p>
-     * The getter returns null while the option is not set; then the library default applies.
+     * The library has no default for this option. A theme may set classes for it, which the library joins with the
+     * classes set here. The getter returns null while the option is not set; then the library default applies.
      *
      * @see <a href="https://fullcalendar.io/docs/event-render-hooks">eventTimeClass</a>
      */
@@ -2580,10 +2587,11 @@ class ViewOptions implements Serializable {
     /**
      * CSS classes for the title element inside the inner wrapper of an entry. Background entries are not affected.
      * <p>
-     * A callback gets an {@code info} object with {@code event}, {@code isNarrow} and {@code isShort}, see the
+     * A callback gets an {@code info} object with {@code event}, {@code timeText}, {@code isNarrow} and more, see the
      * library docs. It returns the class names as a string.
      * <p>
-     * The getter returns null while the option is not set; then the library default applies.
+     * The library has no default for this option. A theme may set classes for it, which the library joins with the
+     * classes set here. The getter returns null while the option is not set; then the library default applies.
      *
      * @see <a href="https://fullcalendar.io/docs/event-render-hooks">eventTitleClass</a>
      */
@@ -2611,13 +2619,16 @@ class ViewOptions implements Serializable {
 
     /**
      * A callback that runs right before the element of an entry is removed from the DOM. Background entries are not
-     * affected. It gets an {@code info} object with {@code event}, {@code timeText}, {@code isStart} and more, see the
-     * library docs.
+     * affected. It gets an {@code info} object with {@code el} (the element), {@code event}, {@code timeText} and more,
+     * see the library docs.
      * <p>
-     * When this option is changed for an attached calendar, the new setting only applies to newly rendered elements,
-     * for example after navigating to another view or period. Existing elements are not updated.
+     * The library calls the callback that is set when an element is removed. When this option is changed for an
+     * attached calendar, that includes elements that were rendered before the change. With a limit of entries per day,
+     * such as {@code dayMaxEntries}, the library renders only the entries that fit. An entry behind a "+N more" link
+     * has no element until the popover renders it, so no callback runs for it before.
      * <p>
-     * The getter returns null while the option is not set; then the library default applies.
+     * The library default is no callback. The getter returns null while the option is not set; then the library default
+     * applies.
      *
      * @see <a href="https://fullcalendar.io/docs/event-render-hooks">eventWillUnmount</a>
      */
@@ -2625,13 +2636,14 @@ class ViewOptions implements Serializable {
     private JsCallback entryWillUnmount;
 
     /**
-     * CSS classes for the element after the inner wrapper of a list item entry, that is a timed entry in day
-     * grid views and an entry in list views. They apply in addition to the general entry classes.
+     * CSS classes for the element after the inner wrapper of a list item entry, that is a timed entry in day grid views
+     * and an entry in list views. They apply in addition to the general entry classes.
      * <p>
      * A callback gets an {@code info} object with {@code event}, {@code timeText}, {@code isStart} and more, see the
      * library docs. It returns the class names as a string.
      * <p>
-     * The getter returns null while the option is not set; then the library default applies.
+     * The library has no default for this option. A theme may set classes for it, which the library joins with the
+     * classes set here. The getter returns null while the option is not set; then the library default applies.
      *
      * @see <a href="https://fullcalendar.io/docs/list-item-event-render-hooks">listItemEventAfterClass</a>
      */
@@ -2658,13 +2670,14 @@ class ViewOptions implements Serializable {
     }
 
     /**
-     * CSS classes for the element before the inner wrapper of a list item entry, that is a timed entry in day
-     * grid views and an entry in list views. They apply in addition to the general entry classes.
+     * CSS classes for the element before the inner wrapper of a list item entry, that is a timed entry in day grid
+     * views and an entry in list views. They apply in addition to the general entry classes.
      * <p>
      * A callback gets an {@code info} object with {@code event}, {@code timeText}, {@code isStart} and more, see the
      * library docs. It returns the class names as a string.
      * <p>
-     * The getter returns null while the option is not set; then the library default applies.
+     * The library has no default for this option. A theme may set classes for it, which the library joins with the
+     * classes set here. The getter returns null while the option is not set; then the library default applies.
      *
      * @see <a href="https://fullcalendar.io/docs/list-item-event-render-hooks">listItemEventBeforeClass</a>
      */
@@ -2691,13 +2704,14 @@ class ViewOptions implements Serializable {
     }
 
     /**
-     * CSS classes for the outermost element of a list item entry, that is a timed entry in day grid views and an
-     * entry in list views. They apply in addition to the general entry classes.
+     * CSS classes for the outermost element of a list item entry, that is a timed entry in day grid views and an entry
+     * in list views. They apply in addition to the general entry classes.
      * <p>
      * A callback gets an {@code info} object with {@code event}, {@code timeText}, {@code isStart} and more, see the
      * library docs. It returns the class names as a string.
      * <p>
-     * The getter returns null while the option is not set; then the library default applies.
+     * The library has no default for this option. A theme may set classes for it, which the library joins with the
+     * classes set here. The getter returns null while the option is not set; then the library default applies.
      *
      * @see <a href="https://fullcalendar.io/docs/list-item-event-render-hooks">listItemEventClass</a>
      */
@@ -2724,13 +2738,14 @@ class ViewOptions implements Serializable {
     }
 
     /**
-     * CSS classes for the inner wrapper of a list item entry, that is a timed entry in day grid views and an
-     * entry in list views. They apply in addition to the general entry classes.
+     * CSS classes for the inner wrapper of a list item entry, that is a timed entry in day grid views and an entry in
+     * list views. They apply in addition to the general entry classes.
      * <p>
      * A callback gets an {@code info} object with {@code event}, {@code timeText}, {@code isStart} and more, see the
      * library docs. It returns the class names as a string.
      * <p>
-     * The getter returns null while the option is not set; then the library default applies.
+     * The library has no default for this option. A theme may set classes for it, which the library joins with the
+     * classes set here. The getter returns null while the option is not set; then the library default applies.
      *
      * @see <a href="https://fullcalendar.io/docs/list-item-event-render-hooks">listItemEventInnerClass</a>
      */
@@ -2757,13 +2772,14 @@ class ViewOptions implements Serializable {
     }
 
     /**
-     * CSS classes for the time element inside the inner wrapper of a list item entry, that is a timed entry in
-     * day grid views and an entry in list views. They apply in addition to the general entry classes.
+     * CSS classes for the time element inside the inner wrapper of a list item entry, that is a timed entry in day grid
+     * views and an entry in list views. They apply in addition to the general entry classes.
      * <p>
-     * A callback gets an {@code info} object with {@code event}, {@code isNarrow} and {@code isShort}, see the
+     * A callback gets an {@code info} object with {@code event}, {@code timeText}, {@code isNarrow} and more, see the
      * library docs. It returns the class names as a string.
      * <p>
-     * The getter returns null while the option is not set; then the library default applies.
+     * The library has no default for this option. A theme may set classes for it, which the library joins with the
+     * classes set here. The getter returns null while the option is not set; then the library default applies.
      *
      * @see <a href="https://fullcalendar.io/docs/list-item-event-render-hooks">listItemEventTimeClass</a>
      */
@@ -2790,13 +2806,14 @@ class ViewOptions implements Serializable {
     }
 
     /**
-     * CSS classes for the title element inside the inner wrapper of a list item entry, that is a timed entry in
-     * day grid views and an entry in list views. They apply in addition to the general entry classes.
+     * CSS classes for the title element inside the inner wrapper of a list item entry, that is a timed entry in day
+     * grid views and an entry in list views. They apply in addition to the general entry classes.
      * <p>
      * A callback gets an {@code info} object with {@code event}, {@code timeText}, {@code isNarrow} and more, see the
      * library docs. It returns the class names as a string.
      * <p>
-     * The getter returns null while the option is not set; then the library default applies.
+     * The library has no default for this option. A theme may set classes for it, which the library joins with the
+     * classes set here. The getter returns null while the option is not set; then the library default applies.
      *
      * @see <a href="https://fullcalendar.io/docs/list-item-event-render-hooks">listItemEventTitleClass</a>
      */
@@ -3159,7 +3176,8 @@ class ViewOptions implements Serializable {
      * <p>
      * It takes class names only, because the library accepts no callback for this option.
      * <p>
-     * The getter returns null while the option is not set; then the library default applies.
+     * The library has no default for this option. A theme may set classes for it, which the library joins with the
+     * classes set here. The getter returns null while the option is not set; then the library default applies.
      *
      * @see <a href="https://fullcalendar.io/docs/list-day-render-hooks">listDaysClass</a>
      */
@@ -3171,7 +3189,8 @@ class ViewOptions implements Serializable {
      * A callback gets an {@code info} object with {@code date}, {@code isToday}, {@code view} and more, see the library
      * docs. It returns the class names as a string.
      * <p>
-     * The getter returns null while the option is not set; then the library default applies.
+     * The library has no default for this option. A theme may set classes for it, which the library joins with the
+     * classes set here. The getter returns null while the option is not set; then the library default applies.
      *
      * @see <a href="https://fullcalendar.io/docs/list-day-render-hooks">listDayBodyClass</a>
      */
@@ -3202,7 +3221,8 @@ class ViewOptions implements Serializable {
      * A callback gets an {@code info} object with {@code date}, {@code isToday}, {@code isFirst} and more, see the
      * library docs. It returns the class names as a string.
      * <p>
-     * The getter returns null while the option is not set; then the library default applies.
+     * The library has no default for this option. A theme may set classes for it, which the library joins with the
+     * classes set here. The getter returns null while the option is not set; then the library default applies.
      *
      * @see <a href="https://fullcalendar.io/docs/list-day-render-hooks">listDayClass</a>
      */
@@ -3233,7 +3253,8 @@ class ViewOptions implements Serializable {
      * A callback gets an {@code info} object with {@code date}, {@code isPast}, {@code isToday} and more, see the
      * library docs. It returns the class names as a string.
      * <p>
-     * The getter returns null while the option is not set; then the library default applies.
+     * The library has no default for this option. A theme may set classes for it, which the library joins with the
+     * classes set here. The getter returns null while the option is not set; then the library default applies.
      *
      * @see <a href="https://fullcalendar.io/docs/list-day-header-render-hooks">listDayHeaderClass</a>
      */
@@ -3265,7 +3286,9 @@ class ViewOptions implements Serializable {
      * A callback gets an {@code info} object with {@code date}, {@code text}, {@code level} and more, see the library
      * docs. It returns a text, or {@code {html: '...'}} or {@code {domNodes: [...]}}.
      * <p>
-     * The getter returns null while the option is not set; then the library default applies.
+     * The library default is the text of the day formats, see {@link #getListDayFormat()} and
+     * {@link #getListDayAltFormat()}. The getter returns null while the option is not set; then the library default
+     * applies.
      *
      * @see <a href="https://fullcalendar.io/docs/list-day-header-render-hooks">listDayHeaderContent</a>
      */
@@ -3298,7 +3321,8 @@ class ViewOptions implements Serializable {
      * When this option is changed for an attached calendar, the new setting only applies to newly rendered elements,
      * for example after navigating to another view or period. Existing elements are not updated.
      * <p>
-     * The getter returns null while the option is not set; then the library default applies.
+     * The library default is no callback. The getter returns null while the option is not set; then the library default
+     * applies.
      *
      * @see <a href="https://fullcalendar.io/docs/list-day-header-render-hooks">listDayHeaderDidMount</a>
      */
@@ -3311,7 +3335,8 @@ class ViewOptions implements Serializable {
      * 0 for the primary day format side and 1 for the alternative format side, see the library docs. It returns the
      * class names as a string.
      * <p>
-     * The getter returns null while the option is not set; then the library default applies.
+     * The library has no default for this option. A theme may set classes for it, which the library joins with the
+     * classes set here. The getter returns null while the option is not set; then the library default applies.
      *
      * @see <a href="https://fullcalendar.io/docs/list-day-header-render-hooks">listDayHeaderInnerClass</a>
      */
@@ -3341,10 +3366,11 @@ class ViewOptions implements Serializable {
      * is removed from the DOM. It gets an {@code info} object with {@code el} (the element), {@code date},
      * {@code isToday} and more, see the library docs.
      * <p>
-     * When this option is changed for an attached calendar, the new setting only applies to newly rendered elements,
-     * for example after navigating to another view or period. Existing elements are not updated.
+     * The library calls the callback that is set when an element is removed. When this option is changed for an
+     * attached calendar, that includes elements that were rendered before the change.
      * <p>
-     * The getter returns null while the option is not set; then the library default applies.
+     * The library default is no callback. The getter returns null while the option is not set; then the library default
+     * applies.
      *
      * @see <a href="https://fullcalendar.io/docs/list-day-header-render-hooks">listDayHeaderWillUnmount</a>
      */
@@ -3357,7 +3383,8 @@ class ViewOptions implements Serializable {
      * A callback gets an {@code info} object with {@code num}, {@code text}, {@code numericText} and more, see the
      * library docs. It returns the class names as a string.
      * <p>
-     * The getter returns null while the option is not set; then the library default applies.
+     * The library has no default for this option. A theme may set classes for it, which the library joins with the
+     * classes set here. The getter returns null while the option is not set; then the library default applies.
      *
      * @see <a href="https://fullcalendar.io/docs/more-link-render-hooks">moreLinkClass</a>
      */
@@ -3388,7 +3415,8 @@ class ViewOptions implements Serializable {
      * A callback gets an {@code info} object with {@code num}, {@code text}, {@code numericText} and more, see the
      * library docs. It returns a text, or {@code {html: '...'}} or {@code {domNodes: [...]}}.
      * <p>
-     * The getter returns null while the option is not set; then the library default applies.
+     * The library default is the library's own text, see {@link #getMoreLinkText()}. The getter returns null while the
+     * option is not set; then the library default applies.
      *
      * @see <a href="https://fullcalendar.io/docs/more-link-render-hooks">moreLinkContent</a>
      */
@@ -3420,7 +3448,8 @@ class ViewOptions implements Serializable {
      * When this option is changed for an attached calendar, the new setting only applies to newly rendered elements,
      * for example after navigating to another view or period. Existing elements are not updated.
      * <p>
-     * The getter returns null while the option is not set; then the library default applies.
+     * The library default is no callback. The getter returns null while the option is not set; then the library default
+     * applies.
      *
      * @see <a href="https://fullcalendar.io/docs/more-link-render-hooks">moreLinkDidMount</a>
      */
@@ -3432,7 +3461,8 @@ class ViewOptions implements Serializable {
      * A callback gets an {@code info} object with {@code num}, {@code text}, {@code numericText} and more, see the
      * library docs. It returns the class names as a string.
      * <p>
-     * The getter returns null while the option is not set; then the library default applies.
+     * The library has no default for this option. A theme may set classes for it, which the library joins with the
+     * classes set here. The getter returns null while the option is not set; then the library default applies.
      *
      * @see <a href="https://fullcalendar.io/docs/more-link-render-hooks">moreLinkInnerClass</a>
      */
@@ -3461,10 +3491,11 @@ class ViewOptions implements Serializable {
      * A callback that runs right before a "+N more" link is removed from the DOM. It gets an {@code info} object with
      * {@code el} (the element), {@code num}, {@code text}, {@code numericText} and more, see the library docs.
      * <p>
-     * When this option is changed for an attached calendar, the new setting only applies to newly rendered elements,
-     * for example after navigating to another view or period. Existing elements are not updated.
+     * The library calls the callback that is set when an element is removed. When this option is changed for an
+     * attached calendar, that includes elements that were rendered before the change.
      * <p>
-     * The getter returns null while the option is not set; then the library default applies.
+     * The library default is no callback. The getter returns null while the option is not set; then the library default
+     * applies.
      *
      * @see <a href="https://fullcalendar.io/docs/more-link-render-hooks">moreLinkWillUnmount</a>
      */
@@ -3990,9 +4021,10 @@ class ViewOptions implements Serializable {
     }
 
     /**
-     * Whether a month view always shows six weeks. With {@code false}, it shows four, five or six weeks, depending
-     * on the month.
+     * Whether a month view always shows six weeks. With {@code false}, it shows four, five or six weeks, depending on
+     * the month.
      * <p>
+     * The library default is {@code true} in the built-in month views, {@code dayGridMonth} and {@code multiMonthYear}.
      * The getter returns null while the option is not set; then the library default applies.
      *
      * @see <a href="https://fullcalendar.io/docs/fixedWeekCount">fixedWeekCount</a>
@@ -4003,7 +4035,11 @@ class ViewOptions implements Serializable {
      * Whether the library assigns an end to entries without one, using {@link #getDefaultTimedEntryDuration()} or
      * {@link #getDefaultAllDayEntryDuration()}. With {@code false}, the end of such an entry stays unset.
      * <p>
-     * The getter returns null while the option is not set; then the library default applies.
+     * When this option is changed for an attached calendar, the new setting only applies to entries received
+     * afterwards, for example after navigating to another view or period. Existing entries are not updated.
+     * <p>
+     * The library default is {@code false}. The getter returns null while the option is not set; then the library
+     * default applies.
      *
      * @see <a href="https://fullcalendar.io/docs/forceEventDuration">forceEventDuration</a>
      */
@@ -4012,21 +4048,24 @@ class ViewOptions implements Serializable {
 
     /**
      * The heading level of the title of the library's toolbar in the document outline. The title is rendered as a
-     * {@code div} with an {@code aria-level} attribute, so the level does not change how it looks. Set it to match
-     * the page around the calendar, so screen readers find the title at the right level.
+     * {@code div} with an {@code aria-level} attribute, so the level does not change how it looks. Set it to match the
+     * page around the calendar, so screen readers find the title at the right level.
      * <p>
-     * The getter returns null while the option is not set; then the library default applies.
+     * The library default is {@code 2}. The getter returns null while the option is not set; then the library default
+     * applies.
      *
      * @see <a href="https://fullcalendar.io/docs/headingLevel">headingLevel</a>
      */
     private Integer headingLevel;
 
     /**
-     * The days of the week to hide. Without a value, no day is hidden, unless {@code weekends} is {@code false}.
+     * The days of the week to hide. At least one day must stay visible. Hiding every day, also together with
+     * {@code weekends} set to {@code false}, makes the library throw an error.
      * <p>
      * When set, the getter returns an unmodifiable set.
      * <p>
-     * The getter returns null while the option is not set; then the library default applies.
+     * The library default is an empty set, so no day is hidden, unless {@code weekends} is {@code false}. The getter
+     * returns null while the option is not set; then the library default applies.
      *
      * @see <a href="https://fullcalendar.io/docs/hiddenDays">hiddenDays</a>
      */
@@ -4229,20 +4268,22 @@ class ViewOptions implements Serializable {
     private Integer dayNarrowWidth;
 
     /**
-     * Expand the rows of a view to fill its height, if they do not take up the entire height by themselves.
-     * Applies to time grid and timeline views.
+     * Expand the rows of a view to fill its height, if they do not take up the entire height by themselves. Applies to
+     * time grid and timeline views. It has no effect while the calendar height is automatic.
      * <p>
-     * The getter returns null while the option is not set; then the library default applies.
+     * The library default is {@code false}. The getter returns null while the option is not set; then the library
+     * default applies.
      *
      * @see <a href="https://fullcalendar.io/docs/expandRows">expandRows</a>
      */
     private Boolean expandRows;
 
     /**
-     * Maximum number of month columns the multi-month grid tries to render. Fewer columns are shown if each
-     * month would become smaller than {@link #getSingleMonthMinWidth()}. Use {@code 1} for a single column.
+     * Maximum number of month columns the multi-month grid tries to render. Fewer columns are shown if each month would
+     * become smaller than {@link #getSingleMonthMinWidth()}. Use {@code 1} for a single column.
      * <p>
-     * The getter returns null while the option is not set; then the library default applies.
+     * The library default is {@code 3}. The getter returns null while the option is not set; then the library default
+     * applies.
      *
      * @see <a href="https://fullcalendar.io/docs/multiMonthMaxColumns">multiMonthMaxColumns</a>
      */
@@ -4811,10 +4852,11 @@ class ViewOptions implements Serializable {
 
     /**
      * Time in milliseconds a touch user must hold down before an entry can be dragged or a date selected.
-     * {@link #getEntryLongPressDelay()} and {@link #getSelectLongPressDelay()} override it for one of the two.
-     * It has no effect on non-touch devices.
+     * {@link #getEntryLongPressDelay()} and {@link #getSelectLongPressDelay()} override it for one of the two. It has
+     * no effect on non-touch devices.
      * <p>
-     * The getter returns null while the option is not set; then the library default applies.
+     * The library default is {@code 1000}. The getter returns null while the option is not set; then the library
+     * default applies.
      *
      * @see <a href="https://fullcalendar.io/docs/longPressDelay">longPressDelay</a>
      */
@@ -5331,10 +5373,13 @@ class ViewOptions implements Serializable {
 
     /**
      * Whether the horizontal scrollbar of the view sticks to the bottom of the viewport while the user scrolls, for
-     * views that have one, such as timeline views. {@link AutoBoolean#AUTO}, the library default, activates it when the
-     * calendar height is automatic and so can be very tall.
+     * views that have one, such as timeline views. {@link AutoBoolean#AUTO} activates it when the calendar height is
+     * automatic and so can be very tall. {@link AutoBoolean#TRUE} does the same, because the scrollbar sticks only
+     * while the calendar height is automatic ({@code height} or {@code contentHeight} is {@code auto}).
+     * {@link AutoBoolean#FALSE} turns it off.
      * <p>
-     * The getter returns null while the option is not set; then the library default applies.
+     * The library default is {@link AutoBoolean#AUTO}. The getter returns null while the option is not set; then the
+     * library default applies.
      *
      * @see <a href="https://fullcalendar.io/docs/footerScrollbarSticky">footerScrollbarSticky</a>
      */
@@ -5400,10 +5445,12 @@ class ViewOptions implements Serializable {
     private String closeHint;
 
     /**
-     * Accessible label of the list of entries under each day in list views, read by screen readers. The locale provides
-     * the default (English: "Events"). A value set here wins over it.
+     * Accessible label of the list of entries under each day in list views and in the timeline views of the scheduler,
+     * read by screen readers. The library docs do not describe this option; the behavior comes from the library code. A
+     * value set here wins over the default.
      * <p>
-     * The getter returns null while the option is not set; then the library default applies.
+     * The library default is the text of the locale, "Events" in English. The getter returns null while the option is
+     * not set; then the library default applies.
      *
      * @see <a href="https://fullcalendar.io/docs/hints">eventsHint</a>
      */
@@ -5412,12 +5459,13 @@ class ViewOptions implements Serializable {
 
     /**
      * Accessible hint (the {@code title} attribute) for the "+N more" link. It describes what happens when the link
-     * opens the entry popover. Without a value, the locale's text is used.
+     * opens the entry popover.
      * <p>
      * A text may use {@code $0} as placeholder for the number of hidden entries, such as "Click to see $0 more
      * entries". A callback gets that number and returns the text.
      * <p>
-     * The getter returns null while the option is not set; then the library default applies.
+     * The library default is the text of the locale, "Show 3 more events" for three entries in English. The getter
+     * returns null while the option is not set; then the library default applies.
      *
      * @see <a href="https://fullcalendar.io/docs/hints">moreLinkHint</a>
      */
@@ -5446,12 +5494,13 @@ class ViewOptions implements Serializable {
      * Text of the "+N more" link that shows when too many entries do not fit in a day.
      * <p>
      * A text is put after the number, so "more" shows "+3 more". A callback gets the number of hidden entries and
-     * returns the whole text. Very small cells and the more links of time grid columns show only
-     * the number.
+     * returns the whole text. Very small cells and the more links of time grid columns show only the number.
      * <p>
-     * For full control of the link's content use {@code moreLinkContent}.
+     * For full control of the link's content use {@code moreLinkContent}. The library docs do not describe this option;
+     * the behavior comes from the library code.
      * <p>
-     * The getter returns null while the option is not set; then the library default applies.
+     * The library default is the text of the locale, "more" in English. The getter returns null while the option is not
+     * set; then the library default applies.
      *
      * @see <a href="https://fullcalendar.io/docs/more-link-render-hooks">more-link render hooks</a>
      */
@@ -5609,13 +5658,14 @@ class ViewOptions implements Serializable {
     }
 
     /**
-     * Format of the time text shown on entries. It is shown for timed entries only. Without a value, the format depends
-     * on the view, such as {@code 7:00} in time grid views and {@code 7p} in day grid views.
+     * Format of the time text shown on entries. It is shown for timed entries only.
      * <p>
-     * A callback gets an {@code info} object with {@code date}, {@code start}, {@code end} and more, see the library
-     * docs, and returns the text.
+     * A callback gets an {@code info} object with {@code date}, {@code start}, {@code end} and more, and returns the
+     * text. The library docs speak of a date instead of the info object, but the used library version passes the info
+     * object.
      * <p>
-     * The getter returns null while the option is not set; then the library default applies.
+     * The library default depends on the view: {@code 7:00} in time grid views, {@code 7p} in day grid views and
+     * {@code 7pm} in list views. The getter returns null while the option is not set; then the library default applies.
      *
      * @see <a href="https://fullcalendar.io/docs/eventTimeFormat">eventTimeFormat</a>
      */
@@ -5642,13 +5692,16 @@ class ViewOptions implements Serializable {
     }
 
     /**
-     * Format of the text on the right side of the day headings in list views, or {@link ListDayFormatValue#NONE} to
-     * hide the text.
+     * Format of the text on the right side of the day headings in list views. The library docs also name {@code false}
+     * to hide the text, which the used library version ignores.
      * <p>
-     * A callback gets an {@code info} object with {@code date}, {@code start}, {@code end} and more, see the library
-     * docs, and returns the text.
+     * A callback gets an {@code info} object with {@code date}, {@code start}, {@code end} and more, and returns the
+     * text. The library docs speak of a date instead of the info object, but the used library version passes the info
+     * object.
      * <p>
-     * The getter returns null while the option is not set; then the library default applies.
+     * The library default depends on the view: no text in views of one day, the full date, such as "January 1, 2026" in
+     * English, in views of one week or of a number of days, and the long weekday name in longer views. The getter
+     * returns null while the option is not set; then the library default applies.
      *
      * @see <a href="https://fullcalendar.io/docs/listDayAltFormat">listDayAltFormat</a>
      */
@@ -5667,20 +5720,23 @@ class ViewOptions implements Serializable {
     /**
      * Sets the value in any form, see {@link #getListDayAltFormat()}.
      *
-     * @param value the format, callback or {@link ListDayFormatValue#NONE}, or null to remove the option
+     * @param value the format or callback, or null to remove the option
      */
     public void setListDayAltFormat(ListDayFormatValue value) {
         this.listDayAltFormat = value;
     }
 
     /**
-     * Format of the text on the left side of the day headings in list views, or {@link ListDayFormatValue#NONE} to hide
-     * the text.
+     * Format of the text on the left side of the day headings in list views. The library docs also name {@code false}
+     * to hide the text, which the used library version ignores.
      * <p>
-     * A callback gets an {@code info} object with {@code date}, {@code start}, {@code end} and more, see the library
-     * docs, and returns the text.
+     * A callback gets an {@code info} object with {@code date}, {@code start}, {@code end} and more, and returns the
+     * text. The library docs speak of a date instead of the info object, but the used library version passes the info
+     * object.
      * <p>
-     * The getter returns null while the option is not set; then the library default applies.
+     * The library default depends on the view: the long weekday name in views of one day, of one week or of a number of
+     * days, and the full date, such as "January 1, 2026" in English, in longer views. The getter returns null while the
+     * option is not set; then the library default applies.
      *
      * @see <a href="https://fullcalendar.io/docs/listDayFormat">listDayFormat</a>
      */
@@ -5699,7 +5755,7 @@ class ViewOptions implements Serializable {
     /**
      * Sets the value in any form, see {@link #getListDayFormat()}.
      *
-     * @param value the format, callback or {@link ListDayFormatValue#NONE}, or null to remove the option
+     * @param value the format or callback, or null to remove the option
      */
     public void setListDayFormat(ListDayFormatValue value) {
         this.listDayFormat = value;
@@ -5707,12 +5763,14 @@ class ViewOptions implements Serializable {
 
     /**
      * Format of the first cell of each month and of the first cell of the view, when a day grid view spans several
-     * months. Without a value, the format is the long month and the day, such as "January 1".
+     * months.
      * <p>
-     * A callback gets an {@code info} object with {@code date}, {@code start}, {@code end} and more, see the library
-     * docs, and returns the text.
+     * A callback gets an {@code info} object with {@code date}, {@code start}, {@code end} and more, and returns the
+     * text. The library docs speak of a date instead of the info object, but the used library version passes the info
+     * object.
      * <p>
-     * The getter returns null while the option is not set; then the library default applies.
+     * The library default is the long month and the day, such as "January 1" in English. The getter returns null while
+     * the option is not set; then the library default applies.
      *
      * @see <a href="https://fullcalendar.io/docs/monthStartFormat">monthStartFormat</a>
      */
@@ -5923,7 +5981,8 @@ class ViewOptions implements Serializable {
      * A callback gets an {@code info} object with {@code borderlessX}, {@code borderlessTop} and
      * {@code borderlessBottom}. It returns the class names as a string.
      * <p>
-     * The getter returns null while the option is not set; then the library default applies.
+     * The library has no default for this option. A theme may set classes for it, which the library joins with the
+     * classes set here. The getter returns null while the option is not set; then the library default applies.
      *
      * @see <a href="https://fullcalendar.io/docs/toolbar-render-hooks">headerToolbarClass</a>
      */
@@ -5955,7 +6014,8 @@ class ViewOptions implements Serializable {
      * A callback gets an {@code info} object with {@code borderlessX}, {@code borderlessTop} and
      * {@code borderlessBottom}. It returns the class names as a string.
      * <p>
-     * The getter returns null while the option is not set; then the library default applies.
+     * The library has no default for this option. A theme may set classes for it, which the library joins with the
+     * classes set here. The getter returns null while the option is not set; then the library default applies.
      *
      * @see <a href="https://fullcalendar.io/docs/toolbar-render-hooks">footerToolbarClass</a>
      */

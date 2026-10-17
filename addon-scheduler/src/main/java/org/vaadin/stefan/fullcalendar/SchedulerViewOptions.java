@@ -121,10 +121,10 @@ class SchedulerViewOptions extends ViewOptions {
     private Boolean datesAboveResources;
 
     /**
-     * Shows only resources that have entries assigned. The entries must be fetched before the resources can
-     * render.
+     * Shows only resources that have entries assigned. The entries must be fetched before the resources can render.
      * <p>
-     * The getter returns null while the option is not set; then the library default applies.
+     * The library default is {@code false}. The getter returns null while the option is not set; then the library
+     * default applies.
      *
      * @see <a href="https://fullcalendar.io/docs/filterResourcesWithEvents">filterResourcesWithEvents</a>
      */

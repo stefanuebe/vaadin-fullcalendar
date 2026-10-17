@@ -76,9 +76,10 @@ class CalendarOptions implements Serializable {
     //  option-names.txt lists the supported names as global or per view and says how to re-derive them.
 
     /**
-     * First day of the week. Without a value, the locale decides.
+     * First day of the week.
      * <p>
-     * The getter returns null while the option is not set; then the library default applies.
+     * The library default is the first day of the locale, Sunday in English, or Monday if {@code weekNumberCalculation}
+     * is {@code ISO}. The getter returns null while the option is not set; then the library default applies.
      *
      * @see <a href="https://fullcalendar.io/docs/firstDay">firstDay</a>
      */
@@ -108,7 +109,7 @@ class CalendarOptions implements Serializable {
     private ToolbarValue headerToolbar = ToolbarValue.NONE;
 
     /**
-     * The date the calendar shows when it is created. The default is the current date.
+     * The date the calendar shows when it is created.
      * <p>
      * A date and time is read as UTC, like the start and end of entries, and the calendar shows it in its time zone.
      * The time matters for views shorter than a day, such as a timeline of six hours, whose range starts at the given
@@ -116,7 +117,8 @@ class CalendarOptions implements Serializable {
      * <p>
      * It has no effect on a calendar the browser already shows. Use {@link FullCalendar#gotoDate(LocalDate)} instead.
      * <p>
-     * The getter returns null while the option is not set; then the library default applies.
+     * The library default is the current date. The getter returns null while the option is not set; then the library
+     * default applies.
      *
      * @see FullCalendar#gotoDate(LocalDate)
      * @see <a href="https://fullcalendar.io/docs/initialDate">initialDate</a>
@@ -160,8 +162,10 @@ class CalendarOptions implements Serializable {
      * calendar registers every locale of the library and {@link CalendarLocale} lists them, so the fallback can be
      * chosen on the server.
      * <p>
-     * The initial value is {@link CalendarLocale#getDefaultLocale()}. The calendar always has a locale, so it cannot be
-     * removed. This option is not the Vaadin locale of the component, which {@code calendar.getLocale()} still returns.
+     * The library default is the first locale it is given, or English without one. The add-on gives it every locale and
+     * always sets one, so that default does not apply. The initial value is {@link CalendarLocale#getDefaultLocale()}.
+     * The calendar always has a locale, so it cannot be removed. This option is not the Vaadin locale of the component,
+     * which {@code calendar.getLocale()} still returns.
      *
      * @see <a href="https://fullcalendar.io/docs/locale">locale</a>
      */
@@ -312,11 +316,12 @@ class CalendarOptions implements Serializable {
     private Direction direction;
 
     /**
-     * The view the calendar renders when it loads, a built-in or a custom one. The library reads it when the
-     * calendar is created. Use {@link FullCalendar#changeView(CalendarView)} to change the view of a calendar that
-     * is already shown.
+     * The view the calendar renders when it loads, a built-in or a custom one. The library reads it when the calendar
+     * is created. Use {@link FullCalendar#changeView(CalendarView)} to change the view of a calendar that is already
+     * shown.
      * <p>
-     * The getter returns null while the option is not set; then the library default applies.
+     * The library default is {@code dayGridMonth}, the initial view of the day grid plugin, which the add-on loads
+     * first. The getter returns null while the option is not set; then the library default applies.
      *
      * @see <a href="https://fullcalendar.io/docs/initialView">initialView</a>
      */
@@ -444,10 +449,12 @@ class CalendarOptions implements Serializable {
     private Boolean entryDurationEditable;
 
     /**
-     * Whether entries can be dragged to change their start. It decides dragging on its own and takes precedence
-     * over {@code editable}. A single entry can override it.
+     * Whether entries can be dragged to change their start. It decides dragging on its own and takes precedence over
+     * {@code editable}. A single entry can override it.
      * <p>
-     * The getter returns null while the option is not set; then the library default applies.
+     * The library has no default for this option. Without a value, {@code editable} decides, whose library default is
+     * {@code false}. The library docs name {@code true} as the default of this option, but the used library version
+     * sets none. The getter returns null while the option is not set; then the library default applies.
      *
      * @see <a href="https://fullcalendar.io/docs/eventStartEditable">eventStartEditable</a>
      */
@@ -667,9 +674,10 @@ class CalendarOptions implements Serializable {
 
     /**
      * Text of the list view button of the built-in toolbar, or {@link ListTextValue#NONE} to show buttons named by
-     * duration, such as "Week" or "Month", instead of a "List" button. Without a value, the locale's text shows.
+     * duration, such as "Week" or "Month", instead of a "List" button.
      * <p>
-     * The getter returns null while the option is not set; then the library default applies.
+     * The library default is the text of the locale, "List" in English. The getter returns null while the option is not
+     * set; then the library default applies.
      *
      * @see <a href="https://fullcalendar.io/docs/list-view">listText (List view: Toolbar Buttons)</a>
      */
@@ -695,9 +703,11 @@ class CalendarOptions implements Serializable {
     }
 
     /**
-     * Text of the month view button of the built-in toolbar. Each locale defines this text, see the locale page.
+     * Text of the month view button of the built-in toolbar. Each locale defines this text, see the locale page. The
+     * library docs mention this option only as part of the locale object.
      * <p>
-     * The getter returns null while the option is not set; then the library default applies.
+     * The library default is the text of the locale, "Month" in English. The getter returns null while the option is
+     * not set; then the library default applies.
      *
      * @see <a href="https://fullcalendar.io/docs/locale">monthText (locale object)</a>
      */
@@ -1044,7 +1054,9 @@ class CalendarOptions implements Serializable {
      * The Google Calendar API key for every {@link GoogleCalendarEntrySource} that has no key of its own, see
      * {@link GoogleCalendarEntrySource#withApiKey(String)}.
      * <p>
-     * The getter returns null while the option is not set; then the library default applies.
+     * The library has no default for this option. A Google Calendar source that has no key of its own fails to load
+     * without it, with the library error "Specify a googleCalendarApiKey". The getter returns null while the option is
+     * not set; then the library default applies.
      *
      * @see <a href="https://fullcalendar.io/docs/google-calendar">googleCalendarApiKey</a>
      */
@@ -1068,7 +1080,8 @@ class CalendarOptions implements Serializable {
      * It gets {@code isLoading} directly, there is no {@code info} object: {@code true} when fetching begins and
      * {@code false} when it is done.
      * <p>
-     * The getter returns null while the option is not set; then the library default applies.
+     * The library default is no callback. The getter returns null while the option is not set; then the library default
+     * applies.
      *
      * @see <a href="https://fullcalendar.io/docs/loading">loading</a>
      */
