@@ -134,7 +134,8 @@ class SchedulerViewOptions extends ViewOptions {
     /**
      * Allows the user to drag entries between resources. Without a value, it follows {@code editable}.
      * <p>
-     * The getter returns null while the option is not set; then the library default applies.
+     * The library default is the value of {@code editable}, which is {@code false} by default. The getter returns null
+     * while the option is not set; then the library default applies.
      *
      * @see <a href="https://fullcalendar.io/docs/eventResourceEditable">eventResourceEditable</a>
      */
@@ -197,7 +198,7 @@ class SchedulerViewOptions extends ViewOptions {
     /**
      * The minimum width of an entry in the timeline view, in pixels.
      * <p>
-     * The getter returns null while the option is not set; then the library default applies.
+     * The library default is 30. The getter returns null while the option is not set; then the library default applies.
      *
      * @see <a href="https://fullcalendar.io/docs/eventMinWidth">eventMinWidth</a>
      */
@@ -222,8 +223,8 @@ class SchedulerViewOptions extends ViewOptions {
      * absolutely positioned elements across pages, which affects time grid views most.
      * <p>
      * It applies while the calendar is in print mode, which the library's adaptive plugin switches on when the browser
-     * prints. {@link FullCalendarScheduler} loads that plugin. Without a value, the library stacks the entries in
-     * Firefox and keeps the grid in other browsers.
+     * prints. {@link FullCalendarScheduler} loads that plugin. The library default is {@link EntryPrintLayout#AUTO},
+     * which stacks the entries in Firefox and keeps the grid in other browsers.
      * <p>
      * The getter returns null while the option is not set; then the library default applies.
      *

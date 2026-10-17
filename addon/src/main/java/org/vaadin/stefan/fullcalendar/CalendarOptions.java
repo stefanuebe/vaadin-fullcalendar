@@ -225,7 +225,11 @@ class CalendarOptions implements Serializable {
      * A callback without one, such as {@code info => info.el.title = 'x'}, is sent as it is, without the native
      * listeners and the entry id.
      * <p>
-     * The getter returns null while the option is not set; then the library default applies.
+     * With a limit of entries per day ({@link ViewOptions#getDayMaxEntries() dayMaxEntries}), it runs only for the
+     * entries the library renders, not for the ones behind the "+N more" link, until the popover renders them.
+     * <p>
+     * The library has no default for this option. The getter returns null while the option is not set; then the library
+     * default applies.
      *
      * @see <a href="https://fullcalendar.io/docs/event-render-hooks">eventDidMount</a>
      */
@@ -305,7 +309,9 @@ class CalendarOptions implements Serializable {
      * The direction in which the calendar renders its elements, left-to-right or right-to-left. It is useful for
      * right-to-left languages such as Arabic and Hebrew.
      * <p>
-     * The getter returns null while the option is not set; then the library default applies.
+     * The library default comes from the locale. Most locales are left-to-right, some such as Arabic and Hebrew are
+     * right-to-left. The library docs name {@code ltr} as the default. The getter returns null while the option is not
+     * set; then the library default applies.
      *
      * @see <a href="https://fullcalendar.io/docs/direction">direction</a>
      */
@@ -373,7 +379,8 @@ class CalendarOptions implements Serializable {
      * {@code dropInfo} with {@code start}, {@code end}, {@code allDay} and more, and the dragged entry. See the library
      * docs.
      * <p>
-     * The getter returns null while the option is not set; then the library default applies.
+     * The library has no default for this option. Without a callback, no further check is made. The getter returns null
+     * while the option is not set; then the library default applies.
      *
      * @see <a href="https://fullcalendar.io/docs/eventAllow">eventAllow</a>
      */
@@ -381,11 +388,13 @@ class CalendarOptions implements Serializable {
     private JsCallback entryAllow;
 
     /**
-     * Limits entry dragging and resizing to certain windows of time: recurring business hours, windows defined by an
-     * {@link RRule} and fixed spans. With the scheduler, it also limits them to resources, see
-     * {@link ConstraintValue#ofResources(String...)} and {@link ConstraintValue.Windows#withResources(String...)}.
+     * Limits entry dragging and resizing to the entries of a group, to the business hours of the calendar, or to
+     * windows of time. A window is recurring business hours, a window defined by an {@link RRule} or a fixed span. With
+     * the scheduler, it also limits them to resources, see {@link ConstraintValue#ofResources(String...)} and
+     * {@link ConstraintValue.Windows#withResources(String...)}.
      * <p>
-     * The getter returns null while the option is not set; then the library default applies.
+     * The library has no default for this option. Without a value, dragging and resizing are not limited. The getter
+     * returns null while the option is not set; then the library default applies.
      *
      * @see <a href="https://fullcalendar.io/docs/eventConstraint">eventConstraint</a>
      */
@@ -435,6 +444,9 @@ class CalendarOptions implements Serializable {
     /**
      * Whether entries can be resized to change their duration. It decides resizing on its own and takes precedence
      * over {@code editable}. A single entry can override it.
+     * <p>
+     * Without a value, the option follows {@code editable}. The library docs name {@code true} as the default, but the
+     * used library version has no default for this option.
      * <p>
      * The getter returns null while the option is not set; then the library default applies.
      *
@@ -647,7 +659,8 @@ class CalendarOptions implements Serializable {
      * {@link DisplayMode#NONE} hides the entries in the browser only. They are still sent to the client with all their
      * data.
      * <p>
-     * The getter returns null while the option is not set; then the library default applies.
+     * The library default is {@link DisplayMode#AUTO}. The getter returns null while the option is not set; then the
+     * library default applies.
      *
      * @see <a href="https://fullcalendar.io/docs/eventDisplay">eventDisplay</a>
      */
@@ -657,9 +670,14 @@ class CalendarOptions implements Serializable {
     // Texts, hints and formats
 
     /**
-     * Text of the day view button of the built-in toolbar. Each locale defines this text, see the locale page.
+     * Text of the day view buttons of the built-in toolbar. The hints of the previous, next and today buttons use it as
+     * the name of the unit. The list day view uses {@code listText} instead.
      * <p>
-     * The getter returns null while the option is not set; then the library default applies.
+     * Each locale defines this text, see the locale page. The library docs describe this option only partly. They name
+     * it in an example of the locale page.
+     * <p>
+     * The library default is the text of the locale. The getter returns null while the option is not set; then the
+     * library default applies.
      *
      * @see <a href="https://fullcalendar.io/docs/locale">dayText (locale object)</a>
      */
@@ -979,12 +997,13 @@ class CalendarOptions implements Serializable {
      * runs once per received entry, but not for entries added through the client-side API.
      * <p>
      * It gets the received entry data directly, there is no {@code info} object. It returns an entry object, or
-     * {@code false} to discard the entry.
+     * {@code false} to discard the entry. A callback that returns nothing keeps the entry data as received.
      * <p>
      * When this option is changed for an attached calendar, the new setting only applies to entries received
      * afterwards, for example after navigating to another view or period. Existing entries are not updated.
      * <p>
-     * The getter returns null while the option is not set; then the library default applies.
+     * The library has no default for this option. The getter returns null while the option is not set; then the library
+     * default applies.
      *
      * @see <a href="https://fullcalendar.io/docs/eventDataTransform">eventDataTransform</a>
      */
@@ -999,7 +1018,11 @@ class CalendarOptions implements Serializable {
      * It gets the raw response content and, for a JSON feed, a {@code Response} object directly, there is no
      * {@code info} object. It returns a new array of entry objects, which is used instead of the response.
      * <p>
-     * The getter returns null while the option is not set; then the library default applies.
+     * It runs for every entry source, also for the entries the calendar fetches from its own entry provider. Then it
+     * gets the array of entries and no {@code Response}. A callback that returns nothing keeps the received data.
+     * <p>
+     * The library has no default for this option. The getter returns null while the option is not set; then the library
+     * default applies.
      *
      * @see <a href="https://fullcalendar.io/docs/eventSourceSuccess">eventSourceSuccess</a>
      */
