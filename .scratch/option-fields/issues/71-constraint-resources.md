@@ -4,7 +4,7 @@
 |---|---|
 | GitHub | #402 |
 | Labels | enhancement, ready-for-agent |
-| Status | done (2026-10-17) |
+| Status | done (2026-10-17, 43e98d03) |
 | Blocked by | `61-constraint-rrule-window` |
 | Spec | `../option-fields-spec.md`; shared rules in `README.md` |
 
@@ -16,7 +16,7 @@
 
 **Blocked by:** `61-constraint-rrule-window`
 
-**Status:** done (2026-10-17)
+**Status:** done (2026-10-17, 43e98d03)
 
 - [x] `ConstraintValue.ofResources(...)` and `withResources(...)` reach the client as `resourceIds`, alone or on every window.
 - [x] The setter table in `README.md` has the new form or setter; the converter tests include it.
