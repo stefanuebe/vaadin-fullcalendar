@@ -631,8 +631,11 @@ class CalendarOptions implements Serializable {
 
     /**
      * The milliseconds the calendar waits after an operation that may rerender it, such as changing the view or adding
-     * an entry, before it rerenders everything at once. This can reduce the number of rerenders. Without a value, the
-     * calendar rerenders at once.
+     * an entry, before it rerenders everything at once. This can reduce the number of rerenders.
+     * <p>
+     * The delay does not apply while the user drags or resizes an entry. The calendar rerenders at once then.
+     * <p>
+     * The library default is no delay, so the calendar rerenders at once.
      * <p>
      * The getter returns null while the option is not set; then the library default applies.
      *
@@ -704,12 +707,14 @@ class CalendarOptions implements Serializable {
     private String monthText;
 
     /**
-     * Accessible label ({@code aria-label}) of the "next" button in the built-in toolbar. Without a value, the locale's
-     * text is used.
+     * Accessible label ({@code aria-label}) of the "next" button in the built-in toolbar. It also labels the
+     * "next year" button. For that button, the placeholder stands for the year text and the unit id is {@code 'year'}.
      * <p>
      * A text may use {@code $0} as placeholder for the localized unit text, such as "week". A callback gets the
      * localized unit text and a canonical unit id such as {@code 'day'}, {@code 'week'} or {@code 'month'}. It returns
      * the text.
+     * <p>
+     * The library default is the hint of the locale, "Next $0" in English.
      * <p>
      * The getter returns null while the option is not set; then the library default applies.
      *
@@ -739,6 +744,8 @@ class CalendarOptions implements Serializable {
     /**
      * Text of the "next" button of the built-in toolbar. Each locale defines this text, see the locale page.
      * <p>
+     * The library default is the text of the locale, "Next" in English.
+     * <p>
      * The getter returns null while the option is not set; then the library default applies.
      *
      * @see <a href="https://fullcalendar.io/docs/locale">nextText (locale object)</a>
@@ -748,6 +755,9 @@ class CalendarOptions implements Serializable {
     /**
      * Text of the "next year" button of the built-in toolbar, see {@link NativeToolbarParts#NEXT_YEAR}.
      * <p>
+     * The library docs do not describe this option. The library default is the text of the locale, "Next year" in
+     * English.
+     * <p>
      * The getter returns null while the option is not set; then the library default applies.
      *
      * @see <a href="https://fullcalendar.io/docs/headerToolbar">headerToolbar</a>
@@ -755,12 +765,15 @@ class CalendarOptions implements Serializable {
     private String nextYearText;
 
     /**
-     * Accessible label ({@code aria-label}) of the "prev" button in the built-in toolbar. Without a value, the locale's
-     * text is used.
+     * Accessible label ({@code aria-label}) of the "prev" button in the built-in toolbar. It also labels the
+     * "previous year" button. For that button, the placeholder stands for the year text and the unit id is
+     * {@code 'year'}.
      * <p>
      * A text may use {@code $0} as placeholder for the localized unit text, such as "week". A callback gets the
      * localized unit text and a canonical unit id such as {@code 'day'}, {@code 'week'} or {@code 'month'}. It returns
      * the text.
+     * <p>
+     * The library default is the hint of the locale, "Previous $0" in English.
      * <p>
      * The getter returns null while the option is not set; then the library default applies.
      *
@@ -790,6 +803,8 @@ class CalendarOptions implements Serializable {
     /**
      * Text of the "previous" button of the built-in toolbar. Each locale defines this text, see the locale page.
      * <p>
+     * The library default is the text of the locale, "Prev" in English.
+     * <p>
      * The getter returns null while the option is not set; then the library default applies.
      *
      * @see <a href="https://fullcalendar.io/docs/locale">prevText (locale object)</a>
@@ -798,6 +813,9 @@ class CalendarOptions implements Serializable {
 
     /**
      * Text of the "previous year" button of the built-in toolbar, see {@link NativeToolbarParts#PREV_YEAR}.
+     * <p>
+     * The library docs do not describe this option. The library default is the text of the locale, "Prev year" in
+     * English.
      * <p>
      * The getter returns null while the option is not set; then the library default applies.
      *

@@ -801,6 +801,8 @@ class ViewOptions implements Serializable {
      * <p>
      * It takes class names only, because the library accepts no callback for this option.
      * <p>
+     * The library default is no additional class names.
+     * <p>
      * The getter returns null while the option is not set; then the library default applies.
      *
      * @see <a href="https://fullcalendar.io/docs/business-hours-render-hooks">nonBusinessHoursClass</a>
@@ -907,6 +909,8 @@ class ViewOptions implements Serializable {
      * <p>
      * It takes class names only, because the library accepts no callback for this option.
      * <p>
+     * The library default is no additional class names.
+     * <p>
      * The getter returns null while the option is not set; then the library default applies.
      *
      * @see <a href="https://fullcalendar.io/docs/now-indicator-dot-render-hooks">nowIndicatorDotClass</a>
@@ -916,8 +920,11 @@ class ViewOptions implements Serializable {
     /**
      * CSS classes for the arrow of the now indicator in the time axis (time grid and timeline views).
      * <p>
-     * A callback gets an {@code info} object with {@code date} and {@code view}. It returns the class names as a
+     * A callback gets an {@code info} object with {@code date} and {@code view}. The library docs list only
+     * {@code date}, but the used library version also passes {@code view}. It returns the class names as a
      * string.
+     * <p>
+     * The library default is no additional class names.
      * <p>
      * The getter returns null while the option is not set; then the library default applies.
      *
@@ -947,8 +954,11 @@ class ViewOptions implements Serializable {
     /**
      * Custom content for the arrow of the now indicator in the time axis (time grid and timeline views).
      * <p>
-     * A callback gets an {@code info} object with {@code date} and {@code view}. It returns a text, or
+     * A callback gets an {@code info} object with {@code date} and {@code view}. The library docs list only
+     * {@code date}, but the used library version also passes {@code view}. It returns a text, or
      * {@code {html: '...'}} or {@code {domNodes: [...]}}.
+     * <p>
+     * The library default is no generated content.
      * <p>
      * The getter returns null while the option is not set; then the library default applies.
      *
@@ -978,10 +988,13 @@ class ViewOptions implements Serializable {
     /**
      * A callback that runs right after the now indicator arrow has been added to the DOM.
      * <p>
-     * The callback gets an {@code info} object with {@code date}, {@code view} and {@code el}.
+     * The callback gets an {@code info} object with {@code date}, {@code view} and {@code el}. The library docs
+     * list only {@code date} and {@code el}, but the used library version also passes {@code view}.
      * <p>
      * When this option is changed for an attached calendar, the new setting only applies to newly rendered elements,
      * for example after navigating to another view or period. Existing elements are not updated.
+     * <p>
+     * The library default is no callback.
      * <p>
      * The getter returns null while the option is not set; then the library default applies.
      *
@@ -992,10 +1005,13 @@ class ViewOptions implements Serializable {
     /**
      * A callback that runs right before the now indicator arrow is removed from the DOM.
      * <p>
-     * The callback gets an {@code info} object with {@code date}, {@code view} and {@code el}.
+     * The callback gets an {@code info} object with {@code date}, {@code view} and {@code el}. The library docs
+     * list only {@code date} and {@code el}, but the used library version also passes {@code view}.
      * <p>
-     * When this option is changed for an attached calendar, the new setting only applies to newly rendered elements,
-     * for example after navigating to another view or period. Existing elements are not updated.
+     * When this option is changed for an attached calendar, the callback that is set at the time an element is removed
+     * runs for it. This includes elements that were rendered before the change.
+     * <p>
+     * The library default is no callback.
      * <p>
      * The getter returns null while the option is not set; then the library default applies.
      *
@@ -1006,8 +1022,11 @@ class ViewOptions implements Serializable {
     /**
      * CSS classes for the line of the now indicator over the day columns (time grid and timeline views).
      * <p>
-     * A callback gets an {@code info} object with {@code date} and {@code view}. It returns the class names as a
+     * A callback gets an {@code info} object with {@code date} and {@code view}. The library docs list only
+     * {@code date}, but the used library version also passes {@code view}. It returns the class names as a
      * string.
+     * <p>
+     * The library default is no additional class names.
      * <p>
      * The getter returns null while the option is not set; then the library default applies.
      *
@@ -1037,8 +1056,11 @@ class ViewOptions implements Serializable {
     /**
      * Custom content for the line of the now indicator over the day columns (time grid and timeline views).
      * <p>
-     * A callback gets an {@code info} object with {@code date} and {@code view}. It returns a text, or
+     * A callback gets an {@code info} object with {@code date} and {@code view}. The library docs list only
+     * {@code date}, but the used library version also passes {@code view}. It returns a text, or
      * {@code {html: '...'}} or {@code {domNodes: [...]}}.
+     * <p>
+     * The library default is no generated content.
      * <p>
      * The getter returns null while the option is not set; then the library default applies.
      *
@@ -1068,10 +1090,13 @@ class ViewOptions implements Serializable {
     /**
      * A callback that runs right after the now indicator line has been added to the DOM.
      * <p>
-     * The callback gets an {@code info} object with {@code date}, {@code view} and {@code el}.
+     * The callback gets an {@code info} object with {@code date}, {@code view} and {@code el}. The library docs
+     * list only {@code date} and {@code el}, but the used library version also passes {@code view}.
      * <p>
      * When this option is changed for an attached calendar, the new setting only applies to newly rendered elements,
      * for example after navigating to another view or period. Existing elements are not updated.
+     * <p>
+     * The library default is no callback.
      * <p>
      * The getter returns null while the option is not set; then the library default applies.
      *
@@ -1082,10 +1107,13 @@ class ViewOptions implements Serializable {
     /**
      * A callback that runs right before the now indicator line is removed from the DOM.
      * <p>
-     * The callback gets an {@code info} object with {@code date}, {@code view} and {@code el}.
+     * The callback gets an {@code info} object with {@code date}, {@code view} and {@code el}. The library docs
+     * list only {@code date} and {@code el}, but the used library version also passes {@code view}.
      * <p>
-     * When this option is changed for an attached calendar, the new setting only applies to newly rendered elements,
-     * for example after navigating to another view or period. Existing elements are not updated.
+     * When this option is changed for an attached calendar, the callback that is set at the time an element is removed
+     * runs for it. This includes elements that were rendered before the change.
+     * <p>
+     * The library default is no callback.
      * <p>
      * The getter returns null while the option is not set; then the library default applies.
      *
@@ -2892,6 +2920,8 @@ class ViewOptions implements Serializable {
      * <p>
      * It takes class names only, because the library accepts no callback for this option.
      * <p>
+     * The library default is no additional class names.
+     * <p>
      * The getter returns null while the option is not set; then the library default applies.
      *
      * @see <a href="https://fullcalendar.io/docs/navLinkClass">navLinkClass</a>
@@ -3474,8 +3504,10 @@ class ViewOptions implements Serializable {
      * CSS classes for the "No events to display" message of list views.
      * <p>
      * A callback gets an {@code info} object with {@code text} (the message text, from
-     * {@link #getNoEntriesText() noEntriesText}), {@code view} and more, see the library docs. It returns the class
+     * {@link #getNoEntriesText() noEntriesText}) and {@code view}. It returns the class
      * names as a string.
+     * <p>
+     * The library default is no additional class names.
      * <p>
      * The getter returns null while the option is not set; then the library default applies.
      *
@@ -3507,8 +3539,10 @@ class ViewOptions implements Serializable {
      * Content for the "No events to display" message of list views.
      * <p>
      * A callback gets an {@code info} object with {@code text} (the message text, from
-     * {@link #getNoEntriesText() noEntriesText}), {@code view} and more, see the library docs. It returns a text, or
+     * {@link #getNoEntriesText() noEntriesText}) and {@code view}. It returns a text, or
      * {@code {html: '...'}} or {@code {domNodes: [...]}}.
+     * <p>
+     * The library default is the message text, see {@link #getNoEntriesText() noEntriesText}.
      * <p>
      * The getter returns null while the option is not set; then the library default applies.
      *
@@ -3539,10 +3573,12 @@ class ViewOptions implements Serializable {
     /**
      * A callback that runs right after the "No events to display" message of list views has been added to the DOM. It
      * gets an {@code info} object with {@code el} (the element), {@code text} (the message text, from
-     * {@link #getNoEntriesText() noEntriesText}), {@code view} and more, see the library docs.
+     * {@link #getNoEntriesText() noEntriesText}) and {@code view}.
      * <p>
      * When this option is changed for an attached calendar, the new setting only applies to newly rendered elements,
      * for example after navigating to another view or period. Existing elements are not updated.
+     * <p>
+     * The library default is no callback.
      * <p>
      * The getter returns null while the option is not set; then the library default applies.
      *
@@ -3555,8 +3591,10 @@ class ViewOptions implements Serializable {
      * CSS classes for the inner padding element of the "No events to display" message of list views.
      * <p>
      * A callback gets an {@code info} object with {@code text} (the message text, from
-     * {@link #getNoEntriesText() noEntriesText}), {@code view} and more, see the library docs. It returns the class
+     * {@link #getNoEntriesText() noEntriesText}) and {@code view}. It returns the class
      * names as a string.
+     * <p>
+     * The library default is no additional class names.
      * <p>
      * The getter returns null while the option is not set; then the library default applies.
      *
@@ -3587,10 +3625,12 @@ class ViewOptions implements Serializable {
     /**
      * A callback that runs right before the "No events to display" message of list views is removed from the DOM. It
      * gets an {@code info} object with {@code el} (the element), {@code text} (the message text, from
-     * {@link #getNoEntriesText() noEntriesText}), {@code view} and more, see the library docs.
+     * {@link #getNoEntriesText() noEntriesText}) and {@code view}.
      * <p>
-     * When this option is changed for an attached calendar, the new setting only applies to newly rendered elements,
-     * for example after navigating to another view or period. Existing elements are not updated.
+     * When this option is changed for an attached calendar, the callback that is set at the time an element is removed
+     * runs for it. This includes elements that were rendered before the change.
+     * <p>
+     * The library default is no callback.
      * <p>
      * The getter returns null while the option is not set; then the library default applies.
      *
@@ -3604,6 +3644,8 @@ class ViewOptions implements Serializable {
      * <p>
      * It takes class names only, because the library accepts no callback for this option.
      * <p>
+     * The library default is no additional class names.
+     * <p>
      * The getter returns null while the option is not set; then the library default applies.
      *
      * @see <a href="https://fullcalendar.io/docs/popover-render-hooks">popoverClass</a>
@@ -3615,6 +3657,8 @@ class ViewOptions implements Serializable {
      * <p>
      * It takes class names only, because the library accepts no callback for this option.
      * <p>
+     * The library default is no additional class names.
+     * <p>
      * The getter returns null while the option is not set; then the library default applies.
      *
      * @see <a href="https://fullcalendar.io/docs/popover-render-hooks">popoverCloseClass</a>
@@ -3623,11 +3667,13 @@ class ViewOptions implements Serializable {
 
     /**
      * Content for the close button of the popover that opens when the user clicks a more-link. The generated content is
-     * inserted inside the button, typically an icon. There is no default content. The themes of the library supply
-     * their own icon. The accessible label of the button comes from {@link #getCloseHint() closeHint}.
+     * inserted inside the button, typically an icon. The accessible label of the button comes from
+     * {@link #getCloseHint() closeHint}.
      * <p>
      * A callback gets an {@code info} object without properties, because the library declares none. It returns a text,
      * or {@code {html: '...'}} or {@code {domNodes: [...]}}.
+     * <p>
+     * The library default is no content. The themes of the library supply their own icon.
      * <p>
      * The getter returns null while the option is not set; then the library default applies.
      *
@@ -4096,8 +4142,8 @@ class ViewOptions implements Serializable {
     }
 
     /**
-     * The current date of the calendar, the day it highlights as today. Without a value, the date of the
-     * browser is used. It is useful with a time zone other than the one of the browser.
+     * The current date of the calendar, the day it highlights as today. It is useful with a time zone other than the
+     * one of the browser.
      * <p>
      * A callback runs on the client and returns the date.
      * <p>
@@ -4106,6 +4152,8 @@ class ViewOptions implements Serializable {
      * with the current value, or without one if the option was removed. The same applies when the browser creates
      * the calendar again, for example on a refresh with {@code @PreserveOnRefresh}. A callback is read again when
      * the time zone or locale changes.
+     * <p>
+     * The library default is the current date of the browser.
      * <p>
      * The getter returns null while the option is not set; then the library default applies.
      *
@@ -4252,6 +4300,8 @@ class ViewOptions implements Serializable {
      * Show a marker for the current time. It repositions itself while the calendar is shown.
      * Applies to time grid and timeline views.
      * <p>
+     * The library default is {@code false}.
+     * <p>
      * The getter returns null while the option is not set; then the library default applies.
      *
      * @see <a href="https://fullcalendar.io/docs/nowIndicator">nowIndicator</a>
@@ -4265,9 +4315,13 @@ class ViewOptions implements Serializable {
      * value is 1. Otherwise it shows the exact current time. With {@link AutoBoolean#TRUE}, it always snaps to the
      * slot. With {@link AutoBoolean#FALSE}, it always shows the exact current time.
      * <p>
+     * The library default is {@link AutoBoolean#AUTO}.
+     * <p>
+     * The library docs do not describe this option on its own page, so the page of the now indicator is linked.
+     * <p>
      * The getter returns null while the option is not set; then the library default applies.
      *
-     * @see <a href="https://fullcalendar.io/docs/nowIndicatorSnap">nowIndicatorSnap</a>
+     * @see <a href="https://fullcalendar.io/docs/nowIndicator">nowIndicator</a>
      */
     @JsonConverter(AutoBooleanConverter.class)
     private AutoBoolean nowIndicatorSnap;
@@ -4825,6 +4879,8 @@ class ViewOptions implements Serializable {
      * itself and sends it to the server as a {@link DayNumberClickedEvent} or a {@link WeekNumberClickedEvent}.
      * The calendar does not change the view on its own.
      * <p>
+     * The library default is {@code false}.
+     * <p>
      * The getter returns null while the option is not set; then the library default applies.
      *
      * @see <a href="https://fullcalendar.io/docs/navLinks">navLinks</a>
@@ -5343,8 +5399,9 @@ class ViewOptions implements Serializable {
 
     /**
      * Whether the calendar renders each asynchronous entry source as soon as it has been received ({@code true}, more
-     * renders) or waits until all sources have been received and renders them at once ({@code false}, the library
-     * default).
+     * renders) or waits until all sources have been received and renders them at once ({@code false}).
+     * <p>
+     * The library default is {@code false}.
      * <p>
      * The getter returns null while the option is not set; then the library default applies.
      *
@@ -5478,10 +5535,12 @@ class ViewOptions implements Serializable {
 
     /**
      * Accessible hint ({@code aria-label}) for clickable day and week numbers (nav links). It describes what happens
-     * after the nav link is clicked. Without a value, the locale's text is used.
+     * after the nav link is clicked.
      * <p>
      * A text may use {@code $0} as placeholder for the localized date text, such as "Go to $0". A callback gets that
      * date text and the JavaScript {@code Date} of the link, and returns the text.
+     * <p>
+     * The library default is the hint of the locale, "Go to $0" in English.
      * <p>
      * The getter returns null while the option is not set; then the library default applies.
      *
@@ -5511,6 +5570,8 @@ class ViewOptions implements Serializable {
     /**
      * Message shown in list views when no entries are in the shown range. It is the {@code text} of the {@code info} of
      * the no-entries render hooks.
+     * <p>
+     * The library default is the text of the locale, "No events to display" in English.
      * <p>
      * The getter returns null while the option is not set; then the library default applies.
      *
@@ -5738,11 +5799,13 @@ class ViewOptions implements Serializable {
     }
 
     /**
-     * Format of the date in the title of the "+N more" popover. Without a value, the format is the long month, the day
-     * and the year.
+     * Format of the date in the title of the "+N more" popover.
      * <p>
      * A callback gets an {@code info} object with {@code date}, {@code start}, {@code end} and more, see the library
-     * docs, and returns the text.
+     * docs, and returns the text. The library docs speak of a date instead of the info object, but the used library
+     * version passes the info object.
+     * <p>
+     * The library default is the long month, the day and the year.
      * <p>
      * The getter returns null while the option is not set; then the library default applies.
      *
