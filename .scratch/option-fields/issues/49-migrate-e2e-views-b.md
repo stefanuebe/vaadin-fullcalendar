@@ -4,7 +4,7 @@
 |---|---|
 | GitHub | – (not created, GitHub account flagged) |
 | Labels | enhancement, ready-for-agent |
-| Status | ready-for-agent |
+| Status | done (2026-10-17, option-fields-migration) |
 | Blocked by | `42-coverage-check` |
 | Spec | `../option-fields-spec.md`; shared rules in `README.md` |
 
@@ -14,7 +14,7 @@
 
 **Blocked by:** `42-coverage-check`
 
-**Status:** ready-for-agent
+**Status:** done
 
-- [ ] No use of `setOption`, `getOption`, `removeOption`, `setViewSpecificOption`, `getOptionOrDefault`, `Option` or `SchedulerOption` is left in the listed files.
-- [ ] The migrated tests pass.
+- [x] No use of `setOption`, `getOption`, `removeOption`, `setViewSpecificOption`, `getOptionOrDefault`, `Option` or `SchedulerOption` is left in the listed files.
+- [x] The migrated tests pass.

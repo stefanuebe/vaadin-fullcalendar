@@ -18,3 +18,9 @@
 
 - [ ] Nothing in the repository references the removed API.
 - [ ] Full gate green: `mvn clean install`, then the E2E run in `e2e-test-app`.
+
+**Notes from the review of the migration (43–50, 2026-10-17):**
+
+- "The coverage test of 42" is the part of `OptionFieldsStaticTest` and `SchedulerOptionFieldsStaticTest` that reads `Option.values()`/`SchedulerOption.values()`. The other checks in those files (scope, JSON names, entry naming, `@see` tags, Object methods) stay. `OptionCompletenessTest` (scheduler module) compares the fields with the library's key list and stays too.
+- `SchedulerFeaturesTest` still tests the deprecated alias `setResourceAreaColumns`; that test goes with the alias.
+- The old method bodies of `FullCalendar`/`FullCalendarScheduler` (`updateOption` with its `Option.TIMEZONE` and `ENTRY_DID_MOUNT` branches, the `RESOURCE_COLUMNS` branches of the scheduler's `setOption`) and the `Scheduler.setResourceColumns` Javadoc example go with the API.
