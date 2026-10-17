@@ -48,7 +48,8 @@ import java.util.stream.Stream;
  * A calendar item shown by {@link FullCalendar}, called "event" in the FullCalendar client library.
  * <p>
  * An entry has a title, a start and an end, and can be all-day. Start and end are stored as UTC
- * ({@link #setStart(LocalDateTime)}). The calendar's {@link Option#TIMEZONE} only changes how they are shown.
+ * ({@link #setStart(LocalDateTime)}). The calendar's {@link FullCalendarOptions#getTimeZone() time zone} only
+ * changes how they are shown.
  * An entry can repeat, either with the simple recurrence properties ({@link #setRecurringDaysOfWeek(Set)},
  * {@link #setRecurringStartTime(LocalTime)}, ...) or with an {@link RRule} ({@link #setRRule(RRule)}).
  * <p>
@@ -1371,11 +1372,11 @@ public class Entry implements Serializable {
      * use them itself. Setting a key again overwrites the extended prop stored under that key.
      * <p>
      * Extended props are sent to the client as the entry's {@code extendedProps}, where your own JavaScript
-     * callbacks can read them, for instance in {@link Option#ENTRY_DID_MOUNT}:
+     * callbacks can read them, for instance in {@link FullCalendarOptions#getEntryDidMount() entryDidMount}:
      * <pre>{@code
      * entry.setExtendedProp("department", "Engineering");
      *
-     * calendar.setOption(Option.ENTRY_DID_MOUNT, JsCallback.of(
+     * calendar.options().setEntryDidMount(JsCallback.of(
      *         "info => info.el.title = info.event.extendedProps.department"));
      * }</pre>
      * Strings, numbers, booleans, maps, collections, arrays and {@link tools.jackson.databind.JsonNode}s are sent

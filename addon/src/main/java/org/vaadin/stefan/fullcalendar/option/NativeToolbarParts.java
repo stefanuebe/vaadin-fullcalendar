@@ -16,26 +16,27 @@
  */
 package org.vaadin.stefan.fullcalendar.option;
 
+import org.vaadin.stefan.fullcalendar.FullCalendarOptions;
 import org.vaadin.stefan.fullcalendar.CalendarView;
-import org.vaadin.stefan.fullcalendar.Option;
 
 /**
- * Names of the positions and items of FullCalendar's built-in toolbar, for the map passed to
- * {@link Option#HEADER_TOOLBAR} and {@link Option#FOOTER_TOOLBAR}.
+ * Names of the positions and items of FullCalendar's built-in toolbar, for the sections of a
+ * {@link ToolbarValue}, set with {@link FullCalendarOptions#getHeaderToolbar() headerToolbar} or
+ * {@link FullCalendarOptions#getFooterToolbar() footerToolbar}.
  * <p>
  * The constants only affect FullCalendar's built-in header and footer toolbar, not a Vaadin component. The add-on hides
  * the header toolbar by default, and FullCalendar shows no footer toolbar by default. Setting
- * {@link Option#HEADER_TOOLBAR} or {@link Option#FOOTER_TOOLBAR} shows the respective toolbar.
+ * {@link FullCalendarOptions#getHeaderToolbar() headerToolbar} or
+ * {@link FullCalendarOptions#getFooterToolbar() footerToolbar} shows the respective toolbar.
  * <p>
- * The map goes from a position to a string of items. Items separated by a comma are shown adjacent, items
+ * Each section of a toolbar is a string of items. Items separated by a comma are shown adjacent, items
  * separated by a space with a small gap. A view button is the view's name, see
  * {@link CalendarView#getClientSideValue()}.
  * <pre>{@code
- * calendar.setOption(Option.HEADER_TOOLBAR, Map.of(
- *         NativeToolbarParts.START,
- *                 NativeToolbarParts.PREV + "," + NativeToolbarParts.NEXT + " " + NativeToolbarParts.TODAY,
- *         NativeToolbarParts.CENTER, NativeToolbarParts.TITLE,
- *         NativeToolbarParts.END, CalendarViewImpl.DAY_GRID_MONTH.getClientSideValue() + ","
+ * calendar.options().setHeaderToolbar(ToolbarValue.ofStartEnd(
+ *         NativeToolbarParts.PREV + "," + NativeToolbarParts.NEXT + " " + NativeToolbarParts.TODAY,
+ *         NativeToolbarParts.TITLE,
+ *         CalendarViewImpl.DAY_GRID_MONTH.getClientSideValue() + ","
  *                 + CalendarViewImpl.TIME_GRID_WEEK.getClientSideValue()));
  * }</pre>
  *
