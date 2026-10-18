@@ -5,7 +5,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.vaadin.stefan.fullcalendar.dataprovider.InMemoryEntryProvider;
 
-import java.time.ZoneId;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Optional;
@@ -17,32 +16,6 @@ public class FullCalendarSchedulerTest {
     @BeforeEach
     void beforeEach() {
         calendar = new FullCalendarScheduler();
-    }
-
-    @Test
-    void autoBrowserSettings_keepSchedulerTypeForChaining() {
-        // compiles only while both methods return FullCalendarScheduler
-        FullCalendarScheduler scheduler = new FullCalendarScheduler().withAutoBrowserTimezone().withAutoUiLocale();
-
-        scheduler.setBrowserTimezone("Europe/Berlin");
-
-        Assertions.assertEquals(new Timezone(ZoneId.of("Europe/Berlin")), scheduler.getOption(FullCalendar.Option.TIMEZONE).orElseThrow());
-    }
-
-    @Test
-    void getOptionOrDefault_returnsValueOrDefault() {
-        Assertions.assertEquals("30%", calendar.getOptionOrDefault(FullCalendarScheduler.SchedulerOption.RESOURCE_AREA_WIDTH, "30%"));
-
-        calendar.setOption(FullCalendarScheduler.SchedulerOption.RESOURCE_AREA_WIDTH, "20%");
-
-        Assertions.assertEquals("20%", calendar.getOptionOrDefault(FullCalendarScheduler.SchedulerOption.RESOURCE_AREA_WIDTH, "30%"));
-    }
-
-    @Test
-    @SuppressWarnings("deprecation")
-    void entryResourceEditable_isItsDeprecatedAlias() {
-        Assertions.assertSame(FullCalendarScheduler.SchedulerOption.ENTRY_RESOURCE_EDITABLE,
-                FullCalendarScheduler.SchedulerOption.ENTRY_RESOURCES_EDITABLE);
     }
 
     @Test

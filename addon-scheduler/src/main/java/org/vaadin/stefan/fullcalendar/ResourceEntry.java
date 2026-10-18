@@ -90,6 +90,17 @@ public class ResourceEntry extends Entry {
         this.resourceEditable = resourceEditable;
     }
 
+    /**
+     * Sets whether this entry can be dragged between resources. The value overrides the calendar-level
+     * {@code eventResourceEditable} option. Kept beside {@link #setResourceEditable(Boolean)}, so that code compiled
+     * against 7.2 keeps working.
+     *
+     * @param resourceEditable whether this entry can be dragged between resources
+     */
+    public void setResourceEditable(boolean resourceEditable) {
+        setResourceEditable(Boolean.valueOf(resourceEditable));
+    }
+
     @Override
     @SuppressWarnings("unchecked")
     protected Stream<BeanProperties<Entry>> streamProperties() {

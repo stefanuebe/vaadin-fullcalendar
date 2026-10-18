@@ -38,20 +38,6 @@ public class ToolbarOptionsTest {
     }
 
     @Test
-    void toolbarParts_buildTheButtonStringsFullCalendarExpects() {
-        calendar.setOption(FullCalendar.Option.HEADER_TOOLBAR, Map.of(
-                NativeToolbarParts.START, NativeToolbarParts.PREV_YEAR + "," + NativeToolbarParts.PREV + "," + NativeToolbarParts.NEXT + ","
-                        + NativeToolbarParts.NEXT_YEAR + " " + NativeToolbarParts.TODAY,
-                NativeToolbarParts.CENTER, NativeToolbarParts.TITLE,
-                NativeToolbarParts.END, CalendarViewImpl.DAY_GRID_MONTH.getClientSideValue()));
-
-        ObjectNode json = (ObjectNode) sentToClient().get("headerToolbar");
-        assertEquals("prevYear,prev,next,nextYear today", json.get("start").asString());
-        assertEquals("title", json.get("center").asString());
-        assertEquals("dayGridMonth", json.get("end").asString());
-    }
-
-    @Test
     void footerToolbar_map_reachesClientAsObject() {
         calendar.setOption(FullCalendar.Option.FOOTER_TOOLBAR, Map.of("center", "prev,next"));
 

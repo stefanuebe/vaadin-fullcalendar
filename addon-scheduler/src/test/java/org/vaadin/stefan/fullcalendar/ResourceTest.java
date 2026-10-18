@@ -504,4 +504,16 @@ public class ResourceTest {
         entry.setResourceEditable(null);
         Assertions.assertFalse(entry.toJson().has("resourceEditable"));
     }
+
+    @Test
+    void resourceEditable_primitiveSetterOf72_stillExists() throws Exception {
+        ResourceEntry entry = new ResourceEntry();
+        java.lang.reflect.Method setter = ResourceEntry.class.getMethod("setResourceEditable", boolean.class);
+
+        setter.invoke(entry, false);
+        Assertions.assertFalse(entry.toJson().get("resourceEditable").asBoolean());
+
+        setter.invoke(entry, true);
+        Assertions.assertTrue(entry.toJson().get("resourceEditable").asBoolean());
+    }
 }

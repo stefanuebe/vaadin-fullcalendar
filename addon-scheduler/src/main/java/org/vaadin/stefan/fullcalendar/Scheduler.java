@@ -143,7 +143,7 @@ public interface Scheduler {
      * The default value is inherited from the master editable flag, which is false by default.
      * @param eventResourceEditable
      * @deprecated Use {@link FullCalendarScheduler#setOption(FullCalendarScheduler.SchedulerOption, Object)}
-     *             with {@link FullCalendarScheduler.SchedulerOption#ENTRY_RESOURCE_EDITABLE} instead.
+     *             with {@link FullCalendarScheduler.SchedulerOption#ENTRY_RESOURCES_EDITABLE} instead.
      */
     @Deprecated
     void setEntryResourceEditable(boolean eventResourceEditable);

@@ -46,7 +46,7 @@ import java.util.*;
  *   <tr><td>{@code .withInitialOptions(obj).build()}</td>
  *       <td>{@code new FullCalendar(obj)} / {@code new FullCalendarScheduler(obj)}</td></tr>
  *   <tr><td>{@code .withEntryLimit(n).build()}</td>
- *       <td>{@code new FullCalendar()} + {@code setOption(Option.DAY_MAX_ENTRIES, n)}</td></tr>
+ *       <td>{@code new FullCalendar()} + {@code setOption(Option.MAX_ENTRIES_PER_DAY, n)}</td></tr>
  *   <tr><td>{@code .withEntryProvider(p).build()}</td>
  *       <td>{@code new FullCalendar()} + {@code setEntryProvider(p)}</td></tr>
  *   <tr><td>{@code .withInitialEntries(entries).build()}</td>
@@ -64,10 +64,9 @@ import java.util.*;
  *   <tr><td>{@code .withEntryContent(js).build()}</td>
  *       <td>{@code setOption(Option.ENTRY_CONTENT, JsCallback.of(js))}</td></tr>
  *   <tr><td>{@code .withAutoBrowserTimezone().build()}</td>
- *       <td>{@code withAutoBrowserTimezone()} on the calendar</td></tr>
+ *       <td>{@code addBrowserTimezoneObtainedListener(e -> calendar.setTimezone(e.getTimezone()))}</td></tr>
  *   <tr><td>{@code .withAutoBrowserLocale().build()}</td>
- *       <td>{@code withAutoUiLocale()} on the calendar. It sets the UI locale on attach and follows
- *       {@code UI.setLocale}</td></tr>
+ *       <td>{@code setOption(Option.LOCALE, UI.getCurrent().getLocale())} (after UI is available)</td></tr>
  *   <tr><td>{@code .withCustomCalendarViews(views).build()}</td>
  *       <td>{@code setCustomCalendarViews(views)}</td></tr>
  *   <tr><td>{@code .withCustomType(Cls.class).build()}</td>
@@ -199,7 +198,7 @@ public class FullCalendarBuilder {
      * @param entryLimit limit
      * @return this instance
      * @deprecated Construct the calendar directly and call {@link FullCalendar#setOption(FullCalendar.Option,
-     * Object)} with {@link FullCalendar.Option#DAY_MAX_ENTRIES}.
+     * Object)} with {@link FullCalendar.Option#MAX_ENTRIES_PER_DAY}.
      */
     @Deprecated(since = "7.2.0")
     public FullCalendarBuilder withEntryLimit(int entryLimit) {
@@ -211,7 +210,8 @@ public class FullCalendarBuilder {
      * Sets automatically the browser timezone as timezone for this instance.
      *
      * @return this instance
-     * @deprecated Construct the calendar directly and call {@link FullCalendar#withAutoBrowserTimezone()}.
+     * @deprecated Construct the calendar directly and call {@code calendar.addBrowserTimezoneObtainedListener(e ->
+     * calendar.setTimezone(e.getTimezone()))}.
      */
     @Deprecated(since = "7.2.0")
     public FullCalendarBuilder withAutoBrowserTimezone() {
@@ -224,9 +224,8 @@ public class FullCalendarBuilder {
      * {@link UI#getLocale()} to obtain the value. This might change in future, if necessary.
      *
      * @return this instance
-     * @deprecated Construct the calendar directly and call {@link FullCalendar#withAutoUiLocale()}. Unlike this
-     * method, which takes the UI locale once when the calendar is built, it sets the UI locale on attach and follows
-     * later changes of the UI locale.
+     * @deprecated Construct the calendar directly and call {@link FullCalendar#setOption(FullCalendar.Option,
+     * Object)} with {@link FullCalendar.Option#LOCALE} and {@code UI.getCurrent().getLocale()}.
      */
     @Deprecated(since = "7.2.0")
     public FullCalendarBuilder withAutoBrowserLocale() {
