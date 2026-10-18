@@ -6,12 +6,7 @@ import tools.jackson.databind.JsonNode;
 /**
  * Converts a {@link AbstractHeaderFooter} (Header or Footer) to its JSON representation
  * for the FullCalendar client side.
- *
- * @deprecated goes together with the deprecated toolbar model ({@link org.vaadin.stefan.fullcalendar.model.Header},
- * {@link org.vaadin.stefan.fullcalendar.model.Footer}). Set the toolbar options with a {@code Map} instead, see
- * {@link org.vaadin.stefan.fullcalendar.NativeToolbarParts}.
  */
-@Deprecated(since = "7.3.0")
 public class ToolbarConverter implements JsonItemPropertyConverter<AbstractHeaderFooter, Object> {
 
     @Override
