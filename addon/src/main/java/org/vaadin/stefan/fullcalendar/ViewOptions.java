@@ -5690,8 +5690,8 @@ class ViewOptions implements Serializable {
      * the cell. {@link EntryLimitValue#NONE} shows all entries. The library combines this option with
      * {@link #getDayMaxEntryRows() dayMaxEntryRows}, see {@link EntryLimitValue}.
      * <p>
-     * The library default is {@link EntryLimitValue#NONE}. The add-on also sets {@link EntryLimitValue#NONE} when it
-     * creates a calendar. The getter returns null while the option is not set; then the library default applies.
+     * The library default is {@link EntryLimitValue#NONE}. The getter returns null while the option is not set; then
+     * the library default applies.
      *
      * @see <a href="https://fullcalendar.io/docs/dayMaxEvents">dayMaxEvents</a>
      */
