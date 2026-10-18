@@ -204,9 +204,12 @@ commit messages and issues.
   A version of the wrapped library always says library. Not "FullCalendar 7 renders
   different HTML", but "the FullCalendar library 7.1 renders different HTML". The
   terms are defined in `CONTEXT.md`.
-- **The README and the wiki are written for developers who know Vaadin and
-  FullCalendar.** They document what the add-on adds or changes, not how Vaadin
-  works. Where they state a rule or a failure case, a short example follows.
+- **The README and the wiki explain the add-on.** They are written for developers
+  who know Java and Vaadin and do not explain how Vaadin works. The FullCalendar
+  library may be new to the reader, so a library concept gets a sentence of
+  context where it first appears. Details of the library are left to its
+  documentation, with a link. Where the docs state a rule or a failure case, a
+  short example follows.
 - **A narrowly scoped feature gets a short example and a link to the page that
   covers it in detail**, wherever it is introduced, release notes included. Not
   only "See Features for an example", but two lines of code that set a custom
