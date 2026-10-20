@@ -269,7 +269,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
 
         // just to prevent, that those are null
         currentView = CalendarViewImpl.DAY_GRID_MONTH;
-        currentViewName = currentView.getName();
+        currentViewName = currentView.getClientSideValue();
 
         addDatesRenderedListener(event -> {
             currentIntervalStart = event.getIntervalStart();
@@ -540,7 +540,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
 
         lookupViewName(view.getClientSideValue()).orElseThrow(() -> new IllegalArgumentException("Unknown view: "
                 + view.getClientSideValue()
-                + ". If you want to use a custom view, please register it first by using addCustomView()."));
+                + ". If you want to use a custom view, please register it first by using setCustomCalendarViews()."));
 
         currentView = view;
         currentViewName = view.getClientSideValue();
@@ -557,8 +557,8 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
         return currentViewName;
     }
     /**
-     * The current view of this isntance. Empty, if the current view could not be matched with one of the predefined
-     * views (e.g. in case of a custom view).
+     * The current view of this instance. Empty, if the current view could not be matched with a built-in view or a
+     * registered custom view.
      * @return calendar view
      */
     public Optional<CalendarView> getCurrentView() {
