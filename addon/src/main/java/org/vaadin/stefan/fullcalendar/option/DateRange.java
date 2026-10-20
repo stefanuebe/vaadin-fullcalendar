@@ -18,13 +18,15 @@ package org.vaadin.stefan.fullcalendar.option;
 
 import org.vaadin.stefan.fullcalendar.FullCalendarViewOptions;
 import java.time.LocalDate;
+import java.util.Objects;
 
 /**
  * A range of dates, for example the value of {@link FullCalendarViewOptions#getValidRange() validRange}. Either bound
- * may be {@code null} for an open-ended range. The end is exclusive, as in FullCalendar.
+ * may be {@code null} for an open-ended range. {@link #withOpenEnd(LocalDate)} and
+ * {@link #withOpenStart(LocalDate)} create such a range without passing {@code null}. The end is exclusive, as in FullCalendar.
  * <pre>{@code
  * // nothing before March 2025
- * calendar.options().setValidRange(new DateRange(LocalDate.of(2025, 3, 1), null));
+ * calendar.options().setValidRange(DateRange.withOpenEnd(LocalDate.of(2025, 3, 1)));
  * }</pre>
  *
  * @param start first date of the range, or {@code null} for an open start
@@ -41,5 +43,27 @@ public record DateRange(LocalDate start, LocalDate end) implements DateRangeValu
         if (start != null && end != null && !start.isBefore(end)) {
             throw new IllegalArgumentException("Start must be before end");
         }
+    }
+
+    /**
+     * Creates a range from the given date on, with no end.
+     *
+     * @param start first date of the range
+     * @return the range
+     * @throws NullPointerException when null is passed
+     */
+    public static DateRange withOpenEnd(LocalDate start) {
+        return new DateRange(Objects.requireNonNull(start), null);
+    }
+
+    /**
+     * Creates a range of all dates before the given date, with no start.
+     *
+     * @param end date after the range, exclusive
+     * @return the range
+     * @throws NullPointerException when null is passed
+     */
+    public static DateRange withOpenStart(LocalDate end) {
+        return new DateRange(null, Objects.requireNonNull(end));
     }
 }
