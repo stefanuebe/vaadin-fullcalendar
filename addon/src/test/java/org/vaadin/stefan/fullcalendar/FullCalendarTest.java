@@ -107,6 +107,30 @@ public class FullCalendarTest {
     }
 
     @Test
+    void currentViewNameIsTheClientNameBeforeTheFirstRender() {
+        assertEquals("dayGridMonth", createTestCalendar().getCurrentViewName());
+    }
+
+    @Test
+    void changeViewToAnUnregisteredViewNamesTheRegistrationMethod() {
+        CustomCalendarView unregistered = new CustomCalendarView() {
+            @Override
+            public String getClientSideValue() {
+                return "unregistered";
+            }
+
+            @Override
+            public ObjectNode getViewSettings() {
+                return JsonFactory.createObject();
+            }
+        };
+
+        IllegalArgumentException e = assertThrows(IllegalArgumentException.class,
+                () -> createTestCalendar().changeView(unregistered));
+        assertTrue(e.getMessage().contains("setCustomCalendarViews"), e.getMessage());
+    }
+
+    @Test
     void testClientSideMethods() {
         FullCalendar calendar = createTestCalendar();
 

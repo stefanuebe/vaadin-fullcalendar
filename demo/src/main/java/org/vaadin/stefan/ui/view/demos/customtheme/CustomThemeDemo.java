@@ -14,6 +14,7 @@ import com.vaadin.flow.router.Route;
 import org.vaadin.stefan.fullcalendar.CalendarViewImpl;
 import org.vaadin.stefan.fullcalendar.Entry;
 import org.vaadin.stefan.fullcalendar.FullCalendar;
+import org.vaadin.stefan.fullcalendar.FullCalendarOptions;
 import org.vaadin.stefan.fullcalendar.option.NativeToolbarParts;
 import org.vaadin.stefan.fullcalendar.option.ToolbarValue;
 import org.vaadin.stefan.fullcalendar.dataprovider.InMemoryEntryProvider;
@@ -56,15 +57,16 @@ public class CustomThemeDemo extends VerticalLayout {
 
     public CustomThemeDemo() {
         FullCalendar calendar = new FullCalendar();
+        FullCalendarOptions options = calendar.options();
         ((InMemoryEntryProvider<Entry>) calendar.getEntryProvider())
                 .addEntries(EntryService.createSimpleInstance().getEntries());
-        calendar.options().setDayMaxEntries(3);
-        calendar.options().setEditable(true);
+        options.setDayMaxEntries(3);
+        options.setEditable(true);
         // without these listeners the calendar moves a dropped or resized entry back, see
         // FullCalendar#setAutoRevertUnappliedEntryChanges
         calendar.addEntryDroppedListener(event -> event.applyChangesOnEntry());
         calendar.addEntryResizedListener(event -> event.applyChangesOnEntry());
-        calendar.options().setHeaderToolbar(ToolbarValue.ofStartEnd(
+        options.setHeaderToolbar(ToolbarValue.ofStartEnd(
                 NativeToolbarParts.PREV + "," + NativeToolbarParts.NEXT + " " + NativeToolbarParts.TODAY,
                 NativeToolbarParts.TITLE,
                 CalendarViewImpl.DAY_GRID_MONTH.getClientSideValue() + ","
@@ -92,7 +94,7 @@ public class CustomThemeDemo extends VerticalLayout {
 
         Checkbox dark = new Checkbox("Dark color scheme");
         dark.addValueChangeListener(event ->
-                calendar.options().setColorScheme(event.getValue() ? "dark" : "light"));
+                options.setColorScheme(event.getValue() ? "dark" : "light"));
 
         HorizontalLayout controls = new HorizontalLayout(theme, palette, dark);
         controls.setAlignItems(Alignment.BASELINE);
