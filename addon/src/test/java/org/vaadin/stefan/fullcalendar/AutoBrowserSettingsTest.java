@@ -20,7 +20,8 @@ import java.util.Locale;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * The time zone field with {@link Timezone#LOCAL} (#273), and the UI locale, which the calendar does not follow.
+ * The time zone field with its initial value {@link Timezone#UTC} (#438) and {@link Timezone#LOCAL} (#273), and the
+ * UI locale, which the calendar does not follow.
  */
 public class AutoBrowserSettingsTest extends BrowserlessTest {
 
@@ -60,7 +61,22 @@ public class AutoBrowserSettingsTest extends BrowserlessTest {
     // -------------------------------------------------------------------------
 
     @Test
-    void timeZone_beforeTheReport_isLocalAndConvertsWithUtc() {
+    void timeZone_initial_isUtcAndIgnoresTheBrowser() {
+        assertEquals(Timezone.UTC, calendar.options().getTimeZone());
+        assertEquals("UTC", initialOptions().get("timeZone").asString());
+
+        attach();
+        calendar.setBrowserTimezone("Europe/Berlin");
+
+        assertEquals(Timezone.UTC, calendar.options().getTimeZone());
+        assertEquals(BERLIN, calendar.getBrowserTimezone().orElseThrow());
+        assertEquals(List.of(), respond());
+    }
+
+    @Test
+    void timeZone_localBeforeTheReport_isLocalAndConvertsWithUtc() {
+        calendar.options().setTimeZone(Timezone.LOCAL);
+
         assertEquals(Timezone.LOCAL, calendar.options().getTimeZone());
         assertEquals(LocalDateTime.of(2025, 3, 3, 10, 0),
                 calendar.getTimezoneForOffsets().applyTimezoneOffset(LocalDateTime.of(2025, 3, 3, 10, 0)));
@@ -74,6 +90,7 @@ public class AutoBrowserSettingsTest extends BrowserlessTest {
 
     @Test
     void report_whileLocal_setsTheZoneAndSendsNothing() {
+        calendar.options().setTimeZone(Timezone.LOCAL);
         attach();
 
         calendar.setBrowserTimezone("Europe/Berlin");
@@ -86,6 +103,7 @@ public class AutoBrowserSettingsTest extends BrowserlessTest {
 
     @Test
     void report_whileLocal_aSecondReportReplacesTheZone() {
+        calendar.options().setTimeZone(Timezone.LOCAL);
         calendar.setBrowserTimezone("Europe/Berlin");
         calendar.setBrowserTimezone("Asia/Tokyo");
 
@@ -125,6 +143,7 @@ public class AutoBrowserSettingsTest extends BrowserlessTest {
 
     @Test
     void timezoneClientSideValue_isWhatTheClientGets() {
+        calendar.options().setTimeZone(Timezone.LOCAL);
         calendar.setBrowserTimezone("Europe/Berlin");
         attach();
         assertEquals("local", initialOptions().get("timeZone").asString());
@@ -175,12 +194,23 @@ public class AutoBrowserSettingsTest extends BrowserlessTest {
     }
 
     @Test
+    void initialOptions_withoutTimezone_startWithUtc() {
+        ObjectNode initialOptions = JsonFactory.createObject();
+        initialOptions.put("weekNumbers", true);
+        calendar = new FullCalendar(initialOptions);
+
+        calendar.setBrowserTimezone("Europe/Berlin");
+
+        assertEquals(Timezone.UTC, calendar.options().getTimeZone());
+    }
+
+    @Test
     void nullTimezone_inInitialOptions_isDropped() {
         ObjectNode initialOptions = JsonFactory.createObject();
         initialOptions.putNull("timeZone");
         calendar = new FullCalendar(initialOptions);
 
-        assertEquals(Timezone.LOCAL, calendar.options().getTimeZone());
+        assertEquals(Timezone.UTC, calendar.options().getTimeZone());
         assertTrue(calendar.options().getRawOption("timeZone").isEmpty());
     }
 

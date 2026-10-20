@@ -31,7 +31,7 @@
 // Set locale
 calendar.options().setLocale(Locale.GERMAN);
 
-// Set timezone
+// Set timezone (the initial value is Timezone.UTC)
 calendar.options().setTimeZone(new Timezone(ZoneId.of("Europe/Berlin")));
 // or UTC
 calendar.options().setTimeZone(Timezone.UTC);
@@ -49,7 +49,7 @@ calendar.addBrowserTimezoneObtainedListener(event -> {
     Timezone browserTz = event.getTimezone();
 });
 
-// Follow the browser time zone again after a fixed zone was set (LOCAL is the default)
+// Follow the browser time zone
 calendar.options().setTimeZone(Timezone.LOCAL);
 
 // Follow the UI locale: the calendar does not observe it, the application does
@@ -68,7 +68,7 @@ calendar.options().setTimeZone(Timezone.LOCAL);
 | BR-04 | `BrowserTimezoneObtainedEvent` fires once on initial load |
 | BR-05 | `weekNumberCalculation` takes a `WeekNumberCalculationValue`: `WeekNumberCalculation.LOCAL` (`"local"`), `WeekNumberCalculation.ISO` (`"ISO"`) or a `JsCallback` |
 | BR-06 | A calendar created without a locale gets `CalendarLocale.getDefaultLocale()`, so `options().getLocale()` is never null. The locale cannot be removed |
-| BR-07 | `options().setTimeZone(Timezone)` takes a `Timezone` and `options().getTimeZone()` always returns one. A time zone cannot be set as a raw option. An initial option `"timeZone": "local"` gives `Timezone.LOCAL` |
+| BR-07 | `options().setTimeZone(Timezone)` takes a `Timezone` and `options().getTimeZone()` always returns one. A time zone cannot be set as a raw option. A new calendar starts with `Timezone.UTC`. An initial option `"timeZone": "local"` gives `Timezone.LOCAL` |
 | BR-08 | `Timezone.LOCAL` sets the time zone the browser reports, also when it is already known, and follows each later report until another zone is set. The calendar does not follow the UI locale; an application that wants that calls `options().setLocale(…)` from its own locale change observer |
 
 ---

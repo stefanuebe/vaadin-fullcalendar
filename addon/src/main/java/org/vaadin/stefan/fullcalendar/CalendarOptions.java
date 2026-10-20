@@ -195,9 +195,9 @@ class CalendarOptions implements Serializable {
     }
 
     /**
-     * The time zone the calendar shows the entries in. The server converts entry times with it. The default is
-     * {@link Timezone#LOCAL}, the browser's zone. While the calendar follows the browser, this returns the zone the
-     * browser reported, and {@code LOCAL}, which converts with UTC, before the first report.
+     * The time zone the calendar shows the entries in. The server converts entry times with it. The initial value is
+     * {@link Timezone#UTC}. With {@link Timezone#LOCAL}, the calendar follows the browser's zone. This then returns the
+     * zone the browser reported, or {@code LOCAL}, which converts with UTC, until the browser has reported.
      * <p>
      * The public setter is {@link FullCalendarOptions#setTimeZone(Timezone)}. Besides the field, it sets whether the
      * calendar follows the browser.
@@ -205,7 +205,7 @@ class CalendarOptions implements Serializable {
      * @see <a href="https://fullcalendar.io/docs/timeZone">timeZone</a>
      */
     @Setter(AccessLevel.NONE)
-    private Timezone timeZone = Timezone.LOCAL;
+    private Timezone timeZone = Timezone.UTC;
 
     /** Sets the field only. The rules for {@link Timezone#LOCAL} are in {@link FullCalendar}. */
     void setTimeZone(Timezone timeZone) {

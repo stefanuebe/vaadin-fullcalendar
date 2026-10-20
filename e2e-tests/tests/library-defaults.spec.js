@@ -4,8 +4,9 @@ const { waitForVaadin } = require('./fixtures');
 
 /**
  * A calendar with no options set gets the library defaults where the add-on used to set its own: no week
- * numbers, no draggable entries, no sticky headers or scrollbars, and the browser's time zone. The calendar keeps its
- * full height. View: /test/library-defaults, March 2025 with one timed entry, only the initial date set.
+ * numbers, no draggable entries, no sticky headers or scrollbars. The calendar keeps its full height. The time zone
+ * is not a library default but the add-on's initial value UTC. View: /test/library-defaults, March 2025 with one
+ * timed entry, only the initial date set.
  */
 
 const calendarOf = (page) => page.locator('#cal-library-defaults');
@@ -39,7 +40,7 @@ test.describe('A calendar with no options set', () => {
         expect(state.height).toBe('100%');
     });
 
-    test('shows the times in the browser\'s time zone', async ({ page }) => {
-        expect(await calendarOf(page).evaluate((el) => el.calendar.getOption('timeZone'))).toBe('local');
+    test('shows the times in UTC', async ({ page }) => {
+        expect(await calendarOf(page).evaluate((el) => el.calendar.getOption('timeZone'))).toBe('UTC');
     });
 });
