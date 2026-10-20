@@ -43,7 +43,7 @@ import java.util.Locale;
  *   <li>the entry text color, which the initial JSON options do not set,</li>
  *   <li>the all-day text,</li>
  *   <li>the display of the entry time, which has no default in FullCalendar,</li>
- *   <li>the time zone, also while the calendar is detached,</li>
+ *   <li>the time zone, also while the calendar is detached, and following the browser's zone,</li>
  *   <li>a viewDidMount callback,</li>
  *   <li>an eventDidMount callback, removed while the calendar is detached together with the add-on's own
  *   eventDidMount code for entry ids, so no callback remains.</li>
@@ -147,7 +147,7 @@ public class OptionResetTestView extends VerticalLayout {
                 new Button("Set entry add callback", e -> calendar.options().setRawOption("eventAdd", JsCallback.of(
                         "function() { window.optionResetEventAdds = (window.optionResetEventAdds || 0) + 1; }"))),
                 new Button("Set time zone", e -> calendar.options().setTimeZone(NEW_YORK)),
-                new Button("Remove time zone", e -> calendar.options().setTimeZone(Timezone.LOCAL)),
+                new Button("Follow browser time zone", e -> calendar.options().setTimeZone(Timezone.LOCAL)),
                 new Button("Set time zone while detached",
                         e -> attachAgain(calendar, () -> calendar.options().setTimeZone(NEW_YORK))),
                 new Button("Set week entry color", e -> calendar.options().view(CalendarViewImpl.TIME_GRID_WEEK).setEntryColor("blue")),

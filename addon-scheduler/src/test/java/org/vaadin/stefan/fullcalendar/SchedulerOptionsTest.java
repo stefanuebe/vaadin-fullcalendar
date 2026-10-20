@@ -26,12 +26,12 @@ class SchedulerOptionsTest extends BrowserlessTest {
     }
 
     @Test
-    void noArgConstructor_followsTheBrowserZone_andSetsNoDroppedDefaults() {
+    void noArgConstructor_startsWithUtc_andSetsNoDroppedDefaults() {
         FullCalendarScheduler calendar = new FullCalendarScheduler();
         UI.getCurrent().add(calendar);
         UI.getCurrent().getInternals().getStateTree().runExecutionsBeforeClientResponse();
 
-        assertEquals(Timezone.LOCAL, calendar.options().getTimeZone());
+        assertEquals(Timezone.UTC, calendar.options().getTimeZone());
         for (String name : List.of("editable", "dayMaxEvents", "weekNumbers", "tableHeaderSticky",
                 "footerScrollbarSticky")) {
             assertFalse(initialOptions(calendar).has(name), name);

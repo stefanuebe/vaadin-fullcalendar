@@ -139,7 +139,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
 
     private Timezone browserTimezone;
     /** Set while the time zone is {@link Timezone#LOCAL}, see {@link #applyTimeZone(Timezone)}. */
-    private boolean followBrowserTimezone = true;
+    private boolean followBrowserTimezone;
 
     private String currentViewName;
     private LocalDate currentIntervalStart;
@@ -205,7 +205,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
      * <p></p>
      * The time zone ({@code timeZone}) is not kept as an option of its own but goes into
      * {@link FullCalendarOptions#getTimeZone()}, because the server converts the entry times with it. {@code "local"}
-     * becomes {@link Timezone#LOCAL}.
+     * becomes {@link Timezone#LOCAL}. Without the key, the time zone is {@link Timezone#UTC}.
      * <p></p>
      * Uses {@link InMemoryEntryProvider} by default.
      *

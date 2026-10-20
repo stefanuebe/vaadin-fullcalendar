@@ -102,8 +102,8 @@ public class TypedOptionValuesTest extends BrowserlessTest {
     }
 
     @Test
-    void timezone_getter_returnsLocalBeforeTheBrowserReports() {
-        assertEquals(Timezone.LOCAL, calendar.options().getTimeZone());
+    void timezone_getter_returnsUtcInitially() {
+        assertEquals(Timezone.UTC, calendar.options().getTimeZone());
     }
 
     @Test
