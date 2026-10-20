@@ -60,19 +60,20 @@ public class FullDemo extends AbstractSchedulerView {
 //                "}");
 
         FullCalendarScheduler scheduler = new FullCalendarScheduler(initialOptions);
-        scheduler.options().setSchedulerLicenseKey(Scheduler.AGPL_V3_LICENSE_KEY);
-        scheduler.options().setDayMaxEntries(3);
-        scheduler.options().setTimeZone(Timezone.LOCAL);
-        scheduler.options().setLocale(UI.getCurrent().getLocale());
+        FullCalendarSchedulerOptions options = scheduler.options();
+        options.setSchedulerLicenseKey(Scheduler.AGPL_V3_LICENSE_KEY);
+        options.setDayMaxEntries(3);
+        options.setTimeZone(Timezone.LOCAL);
+        options.setLocale(UI.getCurrent().getLocale());
         FullCalendar calendar = scheduler;
-        scheduler.options().setResourceColumnsWidth(WidthValue.ofPercent(15));
-        scheduler.options().setSlotMinWidth(100);
-        scheduler.options().setResourcesInitiallyExpanded(false);
+        options.setResourceColumnsWidth(WidthValue.ofPercent(15));
+        options.setSlotMinWidth(100);
+        options.setResourcesInitiallyExpanded(false);
 
-        calendar.options().setNowIndicator(true);
-        calendar.options().setSelectable(true);
+        options.setNowIndicator(true);
+        options.setSelectable(true);
 
-        calendar.options().setNavLinks(true);
+        options.setNavLinks(true);
         calendar.addDayNumberClickedListener(event -> {
             calendar.changeView(CalendarViewImpl.TIME_GRID_DAY);
             calendar.gotoDate(event.getDate());
@@ -87,10 +88,10 @@ public class FullDemo extends AbstractSchedulerView {
 //        calendar.changeView(CalendarViewImpl.TIME_GRID_WEEK);
 //        calendar.gotoDate(LocalDate.of(2023, Month.JUNE, 1));
 
-        calendar.options().setSlotMinTime(Duration.ofHours(7));
-        calendar.options().setSlotMaxTime(Duration.ofHours(17));
+        options.setSlotMinTime(Duration.ofHours(7));
+        options.setSlotMaxTime(Duration.ofHours(17));
 
-        calendar.options().setBusinessHours(
+        options.setBusinessHours(
                 BusinessHours.businessWeek().start(9).end(17),
                 BusinessHours.of(DayOfWeek.SATURDAY).start(12).end(15),
                 BusinessHours.of(DayOfWeek.SUNDAY).start(12).end(13));
@@ -107,7 +108,7 @@ public class FullDemo extends AbstractSchedulerView {
         EntryManager.createDayEntry(calendar, "Test 3", now.withDayOfMonth(12), 2, "lightblue")
                 .setExtendedProp("count", "1");
 
-        scheduler.options().setEntryResourceEditable(false);
+        options.setEntryResourceEditable(false);
 
 //        calendar.addEntryNativeEventListener("mouseover", "e => info.el.style.opacity = '0.5'");
 //        calendar.addEntryNativeEventListener("mouseout", "e => info.el.style.opacity = ''");
