@@ -163,11 +163,22 @@ The order is fixed:
    and polish does not justify another round. Without a spec `/code-review` skips
    Spec, so add a second axis of that kind. The review loops. Fix every major and
    run the next round on the whole scope under review. The agents judge what is major. Pass each round the
-   findings already rejected, with the reason. Once a round finds no major, report
+   findings already rejected, with the reason. After the first round without a
+   major, run one more round on the whole scope. Once a round finds no major, report
    the minors and ask whether to fix them and review again. Minors in test code
    and obvious minor errors (a stale name, a wrong doc row) are fixed without
    asking. If round 5 still finds a major, stop and ask how to
    go on.
+
+   For a document, every reviewer prompt includes the sections *Writing*, *Wiki
+   topic pages* and, for those pages, *Release notes and migration guides* of
+   `STYLEGUIDE.md`. A sentence the maintainer wrote in a review goes in nearly
+   verbatim and is passed to the reviewers as fixed. A finding on it is at most a
+   minor to ask about. A long page, such as release notes or a migration guide,
+   is reviewed one `##` section at a time, each with its own loop, followed by
+   one pass of a strong model over the whole page for transitions and
+   duplicates. Content to be moved to another page goes where a ticket names its
+   target page. Check the open Docs tickets first.
 3. the full gate: `mvn clean install`, then the E2E run in `e2e-test-app/`
 4. commit
 
@@ -216,8 +227,9 @@ Features, Release notes, Migration guides, FAQ, Known Issues, Scheduler license.
   on a local branch of the wiki repo (e.g. `8.0`) and is merged at release, so the
   live wiki keeps describing the released version. No "work in progress" pages or
   markers.
-- One wiki for all major versions. Call out version-specific API differences inline
-  where relevant, don't maintain parallel page sets.
+- One wiki for all major versions, no parallel page sets. Topic pages describe the
+  current version. What was different before goes into the release notes and the
+  migration guide.
 - The former `mcp-server/` module was removed for its dependency churn. Don't
   reintroduce it. If tooling is missed, prefer something that reads the wiki directly.
 

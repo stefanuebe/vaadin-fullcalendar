@@ -214,6 +214,71 @@ commit messages and issues.
   covers it in detail**, wherever it is introduced, release notes included. Not
   only "See Features for an example", but two lines of code that set a custom
   toolbar button, followed by the link.
+- **No sentence starts with "Because".** Put the reason after the statement, or
+  in its own sentence that starts differently.
+- **No counts and no marketing.** Not "more than 100 new constants", but what the
+  reader can now do.
+- **Docs describe the final state.** No "still open", "planned" or "work in
+  progress" remarks. Open work lives in the tickets.
+- **Don't point readers at misuse.** Leave out ways an option could be abused.
+  Not "options that only exist inside a custom view, or to break the add-on",
+  but "options that only exist inside a custom view".
+- **A changed text is reread as a whole.** After an edit, read the whole block or
+  section it sits in, and the sections that refer to it. Every sentence has to
+  connect to the one before it, and a pronoun such as "it" has to point to the
+  right thing. Adding a piece without rereading the whole leaves a text that
+  reads puzzled together.
+- **Javadoc names no FullCalendar library version.** Not "since FullCalendar 7"
+  or "the FullCalendar version used by 8.0", but "the used FullCalendar library
+  version", "newer FullCalendar library versions" or "an older FullCalendar
+  library version". The add-on and library versions are not in sync. An add-on
+  version is fine where something starts at it ("since 7.2.5").
+
+### Wiki topic pages
+
+Applies to the wiki pages that explain a topic, such as Entries or Calendar
+configuration.
+
+- **A section opens with a sentence of context.** It says what the topic is and
+  why a reader cares before the code comes. Not only "Create an `Entry`, set its
+  title and add it:" followed by code.
+- **Explain the concept, then name the method.** A reader cannot be expected to
+  know what a method stands for. Not "Without one, the entry follows
+  `options().setEntryDisplay(…)`", but "follows the display mode the calendar sets
+  for all entries (`options().setEntryDisplay(…)`)". Not "`setBusinessHours`
+  sets …", but "Business hours mark the time span in which …".
+- **A section stays on its topic.** It does not explain the API of a neighbouring
+  topic. A section on updating entries says what the refresh methods do, not every
+  method of the in-memory entry provider. It points to the page or the Javadoc
+  that covers the rest.
+- **Where there are alternatives, say how they differ.** "After a change, call
+  `refreshItem`" reads as if only that method works. Say what each one does and
+  when to pick which.
+- **A topic page describes the current version only.** What was different in an
+  earlier version belongs to the release notes and the migration guide.
+- **Rare material goes last or into the Javadoc.** A topic page covers what most
+  readers need first. Material for few readers goes to the end of the page.
+  Whether it moves to one of the global Advanced pages instead is the
+  maintainer's call, case by case. Complete lists of properties are left to the
+  Javadoc, with a pointer. A feature that seems hardly used is not dropped on
+  the writer's own judgement. The writer lists such features for the maintainer
+  with a short summary each, and the maintainer decides.
+- **No sample for a single method call.** A sample shows how parts work together.
+  A single setter is explained in the text or in a table.
+- **Every sentence gives the reader something.** No technical reason the reader
+  does not need ("because the add-on listens to entry clicks"), no remark about
+  the page itself ("The other examples reuse `calendar`"), no statement of the
+  obvious ("A setter sets an option"). A sentence connects to the one before it.
+  One that seems puzzled in from elsewhere goes.
+- **A friendly, neutral tone.** Not "An entry is all-day only after
+  `setAllDay(true)`. A `LocalDate` is not enough", but "To create one, call
+  `setAllDay(true)`. Setting a `LocalDate` as start alone does not make an entry
+  all-day."
+- **Related sections stand together.** Order the sections by content. How the
+  user changes entries follows how the code updates them.
+- **A note on terms stands at the end of the introduction**, as a
+  `> **Note:**` quote, not in the first sentence. An example is that the library
+  calls entries "events".
 
 ### Release notes and migration guides
 
@@ -255,5 +320,12 @@ Applies to the wiki pages `Release-notes-<version>` and `Migration-guide-<from>-
   "the previous version" means, for example "it means 7.3". "Previously … now"
   works as a variant. A version line keeps its name where it is the subject ("The
   7.x line stays available"), and so do page names and specific versions.
+- **Sentences don't start with the version one after another.** Not "7.3 adds …
+  7.3 also … 7.3 deprecates …". Name the version once and vary the subject.
+- **Removed and deprecated API stays with its area.** Each area's section lists
+  what was removed or deprecated there. A global section only holds what belongs
+  to no area, such as the `FullCalendar` class itself.
+- **Say whether the reader has to act**, also when nothing is to be done ("Your
+  code needs no change").
 - **A note that stands apart from the text is a quote with a label**, as in
   `> **Note:** …`.
