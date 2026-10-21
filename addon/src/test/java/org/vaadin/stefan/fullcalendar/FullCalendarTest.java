@@ -464,4 +464,65 @@ public class FullCalendarTest {
         assertTrue(calendar.isAutoRevertUnappliedEntryChanges());
     }
 
+    // The browser reverts a gesture itself when auto-revert is on and no server-side listener exists for it (#440).
+
+    private static boolean dropRevertsOnClient(FullCalendar calendar) {
+        return calendar.getElement().getProperty("eventDropRevertsOnClient", false);
+    }
+
+    private static boolean resizeRevertsOnClient(FullCalendar calendar) {
+        return calendar.getElement().getProperty("eventResizeRevertsOnClient", false);
+    }
+
+    @Test
+    void withoutListenersBothGesturesRevertOnClient() {
+        FullCalendar calendar = createTestCalendar();
+        assertTrue(dropRevertsOnClient(calendar));
+        assertTrue(resizeRevertsOnClient(calendar));
+    }
+
+    @Test
+    void dropListenerStopsClientRevertOfDropsOnly() {
+        FullCalendar calendar = createTestCalendar();
+        calendar.addEntryDroppedListener(event -> {});
+        assertFalse(dropRevertsOnClient(calendar));
+        assertTrue(resizeRevertsOnClient(calendar));
+    }
+
+    @Test
+    void resizeListenerStopsClientRevertOfResizesOnly() {
+        FullCalendar calendar = createTestCalendar();
+        calendar.addEntryResizedListener(event -> {});
+        assertTrue(dropRevertsOnClient(calendar));
+        assertFalse(resizeRevertsOnClient(calendar));
+    }
+
+    @Test
+    void removingTheLastListenerOfAGestureRestoresClientRevert() {
+        FullCalendar calendar = createTestCalendar();
+        var first = calendar.addEntryDroppedListener(event -> {});
+        var second = calendar.addEntryDroppedListener(event -> {});
+
+        first.remove();
+        assertFalse(dropRevertsOnClient(calendar));
+
+        first.remove(); // a second remove of the same registration does not count again
+        assertFalse(dropRevertsOnClient(calendar));
+
+        second.remove();
+        assertTrue(dropRevertsOnClient(calendar));
+    }
+
+    @Test
+    void autoRevertOffStopsClientRevert() {
+        FullCalendar calendar = createTestCalendar();
+        calendar.setAutoRevertUnappliedEntryChanges(false);
+        assertFalse(dropRevertsOnClient(calendar));
+        assertFalse(resizeRevertsOnClient(calendar));
+
+        calendar.setAutoRevertUnappliedEntryChanges(true);
+        assertTrue(dropRevertsOnClient(calendar));
+        assertTrue(resizeRevertsOnClient(calendar));
+    }
+
 }
