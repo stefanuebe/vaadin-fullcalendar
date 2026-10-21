@@ -161,6 +161,16 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
     private final Map<String, ObjectNode> viewSpecificOptionsMap = new LinkedHashMap<>();
 
     /**
+     * The gestures auto-revert covers, by the name of their DOM event. For each, the element property
+     * {@code <name>RevertsOnClient} tells the client to revert the gesture itself, because auto-revert is on and no
+     * server-side listener would answer.
+     */
+    private static final List<String> AUTO_REVERT_GESTURES = List.of("eventDrop", "eventResize");
+
+    /** Number of auto-revert aware listeners, by the name of their DOM event. */
+    private final Map<String, Integer> autoRevertListenerCounts = new HashMap<>();
+
+    /**
      * Creates a new instance without any settings beside the default locale ({@link CalendarLocale#getDefaultLocale()}).
      * <p></p>
      * Uses {@link InMemoryEntryProvider} by default.
@@ -260,6 +270,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
         setEntryProvider(EntryProvider.emptyInMemory());
 
         setPrefetchEnabled(true);
+        AUTO_REVERT_GESTURES.forEach(this::updateRevertOnClient);
 
         // just to prevent, that those are null
         currentView = CalendarViewImpl.DAY_GRID_MONTH;
@@ -1704,7 +1715,8 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
      * <p>
      * When {@code true} (the default), if a developer's listener does not call
      * {@code event.applyChangesOnEntry()}, the client-side entry is reverted to its
-     * original position/size, keeping server and client in sync.
+     * original position/size, keeping server and client in sync. A drop or resize without a listener of its own is
+     * reverted in the browser right away.
      * <p>
      * When {@code false}, the old behavior is used: the client keeps the new position
      * regardless of whether changes were applied on the server.
@@ -1714,6 +1726,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
      */
     public void setAutoRevertUnappliedEntryChanges(boolean autoRevert) {
         this.autoRevertUnappliedEntryChanges = autoRevert;
+        AUTO_REVERT_GESTURES.forEach(this::updateRevertOnClient);
     }
 
     /**
@@ -1771,8 +1784,11 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
      * {@code beforeClientResponse} callback after each event dispatch to check if
      * {@link EntryDataEvent#applyChangesOnEntry()} was called. If not, the client-side
      * entry is reverted to its original position.
+     * <p>
+     * The listeners are counted per DOM event of the event class. While none exists for a DOM event, the client
+     * reverts that gesture itself. Only listeners added through this method count.
      *
-     * @param eventType the event class
+     * @param eventType the event class, annotated with {@link DomEvent}
      * @param listener the user's listener
      * @param <T> event type extending EntryDataEvent
      * @return registration to remove the listener
@@ -1781,7 +1797,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
     protected <T extends EntryDataEvent> Registration addAutoRevertAwareListener(
             Class<T> eventType, ComponentEventListener<T> listener) {
 
-        return addListener(eventType, event -> {
+        Registration registration = addListener(eventType, event -> {
             listener.onComponentEvent(event);
 
             if (autoRevertUnappliedEntryChanges && !event.isRevertCheckScheduled()) {
@@ -1798,6 +1814,26 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
                 );
             }
         });
+
+        String gesture = eventType.getAnnotation(DomEvent.class).value();
+        autoRevertListenerCounts.merge(gesture, 1, Integer::sum);
+        updateRevertOnClient(gesture);
+
+        return Registration.once(() -> {
+            registration.remove();
+            autoRevertListenerCounts.merge(gesture, -1, Integer::sum);
+            updateRevertOnClient(gesture);
+        });
+    }
+
+    /**
+     * Tells the client whether to revert the given gesture itself. It does so when auto-revert is on and no listener for
+     * the gesture exists. Without a listener, Flow does not send the gesture to the server, so the server cannot
+     * revert it.
+     */
+    private void updateRevertOnClient(String gesture) {
+        boolean revertOnClient = autoRevertUnappliedEntryChanges && autoRevertListenerCounts.getOrDefault(gesture, 0) == 0;
+        getElement().setProperty(gesture + "RevertsOnClient", revertOnClient);
     }
 
     /**

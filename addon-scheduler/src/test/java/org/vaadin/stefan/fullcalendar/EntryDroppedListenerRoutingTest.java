@@ -132,4 +132,25 @@ class EntryDroppedListenerRoutingTest extends BrowserlessTest {
 
         assertEquals(List.of("revertEntry"), drop());
     }
+
+    @Test
+    void schedulerDropListenerStopsClientRevertOfDrops() {
+        var registration = calendar.addEntryDroppedSchedulerListener(e -> { });
+        assertFalse(calendar.getElement().getProperty("eventDropRevertsOnClient", false));
+
+        registration.remove();
+        assertTrue(calendar.getElement().getProperty("eventDropRevertsOnClient", false));
+    }
+
+    @Test
+    void plainAndSchedulerDropListenersCountTogether() {
+        var plain = calendar.addEntryDroppedListener(e -> { });
+        var scheduler = calendar.addEntryDroppedSchedulerListener(e -> { });
+
+        plain.remove();
+        assertFalse(calendar.getElement().getProperty("eventDropRevertsOnClient", false));
+
+        scheduler.remove();
+        assertTrue(calendar.getElement().getProperty("eventDropRevertsOnClient", false));
+    }
 }
