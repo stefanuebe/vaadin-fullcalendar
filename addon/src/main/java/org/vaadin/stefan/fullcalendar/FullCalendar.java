@@ -1230,8 +1230,9 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
     }
 
     /**
-     * Tells the client whether to revert the given gesture itself: auto-revert is on and no listener for it exists.
-     * Without a listener, Flow does not send the gesture to the server, so the server cannot revert it.
+     * Tells the client whether to revert the given gesture itself. It does so when auto-revert is on and no listener for
+     * the gesture exists. Without a listener, Flow does not send the gesture to the server, so the server cannot
+     * revert it.
      */
     private void updateRevertOnClient(String gesture) {
         boolean revertOnClient = autoRevertUnappliedEntryChanges && autoRevertListenerCounts.getOrDefault(gesture, 0) == 0;
