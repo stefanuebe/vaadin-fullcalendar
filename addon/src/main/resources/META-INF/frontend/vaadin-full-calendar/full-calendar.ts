@@ -158,6 +158,12 @@ export class FullCalendar extends HTMLElement {
 
     /** Pending revert functions from eventDrop/eventResize, keyed by entry ID. */
     private _pendingReverts: Map<string, () => void> = new Map();
+    /**
+     * Set by the server: whether a drop or resize is reverted here right away, because auto-revert is on and no
+     * server-side listener exists for the gesture.
+     */
+    protected eventDropRevertsOnClient = false;
+    protected eventResizeRevertsOnClient = false;
 
     /** The options the server set, from which the calendar is created. Later changes come with setOptions. */
     protected initialOptions = {};
@@ -553,6 +559,14 @@ export class FullCalendar extends HTMLElement {
                         if (eventDetails) {
                             const entryId: string = eventInfo.event?.id;
                             const isExternal = entryId != null && !this.serverEntryIds.has(entryId);
+                            const revertsOnClient = eventName === "eventDrop"
+                                ? this.eventDropRevertsOnClient
+                                : this.eventResizeRevertsOnClient;
+                            // no server-side listener would answer, so nobody can apply the change
+                            if (!isExternal && revertsOnClient && typeof eventInfo.revert === 'function') {
+                                eventInfo.revert();
+                                return;
+                            }
                             // Only store the revert for internal entries — auto-revert semantics
                             // apply to drag/resize of existing entries, not to external-source drops.
                             // Storing them for external entries would leak into _pendingReverts.
