@@ -34,8 +34,7 @@ public class InMemoryEntryProvider<T extends Entry> extends AbstractEntryProvide
     private Map<String, T> entriesById;
 
     /**
-     * Creates an instance with an empty, modifiable list. Add entries with {@code getItems().add(entry)}
-     * or replace the collection with {@link #setItems(Collection)}.
+     * Creates an instance with an empty, modifiable list. You can access the list with {@code getItems()}.
      */
     public InMemoryEntryProvider() {
         this(new ArrayList<>());
