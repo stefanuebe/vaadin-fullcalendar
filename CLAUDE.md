@@ -10,6 +10,9 @@ tracker, see `docs/agents/issue-tracker.md`. Decisions with their reasons are in
 
 ## How I work here
 
+- Answer in the language the user writes in, and keep it for the whole session,
+  through tool output, skills and compacts written in another language. Code,
+  comments, agent docs and commit messages are always in English.
 - Code and document for humans. They have to understand and maintain this
   add-on after you are gone from the conversation.
 - Don't guess, confirm with docs / sources / research results / MCP. Being
@@ -19,9 +22,18 @@ tracker, see `docs/agents/issue-tracker.md`. Decisions with their reasons are in
 - Answer the question you were asked before you edit anything.
 - Never silently revert or tidy away something in the workspace you cannot
   explain. Ask, or leave it.
+- When a piece of work is finished and you no longer wait for an agent, a review
+  or a job, end the reply with everything the user has to act on: open decisions,
+  questions and things to check. Give each one enough context for the user to act
+  on it without scrolling back. Short status replies while you wait leave this
+  list out.
 - Never self-dispatch after a question. If you ask something, wait for the
   answer before acting.
 - Use plain and clear language, don't try to sound creative.
+- The only thing from the session that goes into a commit message is the
+  `Co-Authored-By:` trailer. A session link such as
+  `https://claude.ai/code/session_…` never does. `attribution.sessionUrl` is
+  `false` in `.claude/settings.json` for that reason.
 - Review before the gate and before the commit, see *Review before the gate,
   review before the commit*. That order is not yours to reorder.
 - Pick the cheapest model that fits a subagent. Always pass `model` explicitly,
@@ -50,6 +62,9 @@ tracker, see `docs/agents/issue-tracker.md`. Decisions with their reasons are in
 - **GitHub API:** `gh` runs under API time limits. No polling loops against the
   GitHub API (for example, do not query the CI status repeatedly). Create issues,
   comments and pull requests one at a time and only when needed, never in series.
+  Several `gh` calls that create or change something (issues, comments, labels,
+  pull requests, `gh api` POST/PATCH/DELETE) run one after another, never in
+  parallel, with `sleep 5` between them. A burst trips GitHub's spam detection.
 - **Branches and pull requests:** ticket work happens on a branch, one per ticket,
   or one integration branch for tickets that only turn green together. It is not
   merged into `master` locally. It reaches `master` through a GitHub pull request,
