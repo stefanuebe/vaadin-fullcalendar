@@ -247,6 +247,10 @@ configuration.
   `options().setEntryDisplay(…)`", but "follows the display mode the calendar sets
   for all entries (`options().setEntryDisplay(…)`)". Not "`setBusinessHours`
   sets …", but "Business hours mark the time span in which …".
+- **The what and the how stand in separate paragraphs.** A blank line separates
+  what a thing is from how to use it. Not "An all-day entry covers whole days.
+  To create one, call `setAllDay(true)`." in one paragraph, but a new paragraph
+  before "To create one …".
 - **A section stays on its topic.** It does not explain the API of a neighbouring
   topic. A section on updating entries says what the refresh methods do, not every
   method of the in-memory entry provider. It points to the page or the Javadoc
