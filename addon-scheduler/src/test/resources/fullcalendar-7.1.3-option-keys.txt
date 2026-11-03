@@ -1,4 +1,4 @@
-# Option keys of FullCalendar 7.1.0 and FullCalendar Scheduler 7.1.0, one per line.
+# Option keys of FullCalendar 7.1.3 and FullCalendar Scheduler 7.1.3, one per line.
 # Taken from the option and listener refiners in the type definitions (BASE_OPTION_REFINERS,
 # CALENDAR_LISTENER_REFINERS, CALENDAR_ONLY_OPTION_REFINERS, VIEW_ONLY_OPTION_REFINERS, scheduler OPTION_REFINERS
 # and LISTENER_REFINERS). Keys starting with an underscore are internal and left out.

@@ -80,7 +80,7 @@ tracker, see `docs/agents/issue-tracker.md`. Decisions with their reasons are in
 ## Stack
 
 - **Vaadin** 25.x (Core), **Java** 21, **Spring Boot** 4.x (demo and e2e test app only)
-- FullCalendar JS client version: `FullCalendar.FC_CLIENT_VERSION` (currently 7.1.0).
+- FullCalendar JS client version: `FullCalendar.FC_CLIENT_VERSION` (currently 7.1.3).
   When raising it, search the add-on for `FC-UPDATE:` comments and check each place. They name
   what a new FullCalendar version may change.
 - Lombok, Jackson 3 (since 7.0, replacing elemental.json), Vite, Maven multi-module

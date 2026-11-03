@@ -12,14 +12,18 @@ import org.vaadin.stefan.ui.menu.MenuItem;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.stream.Collectors;
 
 /**
  * Test view for drop listeners on the scheduler (#306).
  * <p>
- * One resource entry in resourceTimelineDay. A listener added with {@code addEntryDroppedListener} and one added with
+ * A resource entry in resourceTimelineDay. A listener added with {@code addEntryDroppedListener} and one added with
  * {@code addEntryDroppedSchedulerListener} are registered. Only the scheduler listener applies the changes. The
  * counters show how often each listener has been called for the drops, the type shows the event class the plain
  * listener received, and the server start shows the entry state on the server.
+ * <p>
+ * A second entry is not resource-editable (#449). The new resource shows what the last drop reported, and the server
+ * resources show the resources of the dropped entry on the server after the changes were applied.
  * <p>
  * Route: /test/scheduler-drop-listeners
  */
@@ -42,8 +46,13 @@ public class SchedulerDropListenersTestView extends VerticalLayout {
         plainType.setId("plain-type");
         Span serverStart = new Span("");
         serverStart.setId("server-start");
+        Span newResource = new Span("");
+        newResource.setId("new-resource");
+        Span serverResources = new Span("");
+        serverResources.setId("server-resources");
         add(new Div(new Span("plain: "), plain, new Span(" | scheduler: "), scheduler,
                 new Span(" | plain event type: "), plainType, new Span(" | serverStart: "), serverStart));
+        add(new Div(new Span("new resource: "), newResource, new Span(" | server resources: "), serverResources));
 
         FullCalendarScheduler calendar = new FullCalendarScheduler();
         calendar.options().setSchedulerLicenseKey(Scheduler.DEVELOPER_LICENSE_KEY);
@@ -61,8 +70,14 @@ public class SchedulerDropListenersTestView extends VerticalLayout {
         entry.addResources(roomA);
         serverStart.setText(entry.getStart().toString());
 
-        InMemoryEntryProvider<ResourceEntry> provider = new InMemoryEntryProvider<>();
-        provider.getItems().add(entry);
+        ResourceEntry locked = new ResourceEntry();
+        locked.setTitle("Locked");
+        locked.setStart(LocalDateTime.of(2025, 3, 3, 12, 0));
+        locked.setEnd(LocalDateTime.of(2025, 3, 3, 13, 0));
+        locked.addResources(roomA);
+        locked.setResourceEditable(false);
+
+        InMemoryEntryProvider<ResourceEntry> provider = InMemoryEntryProvider.from(entry, locked);
         calendar.setEntryProvider(provider);
 
         // does not apply the changes
@@ -77,6 +92,9 @@ public class SchedulerDropListenersTestView extends VerticalLayout {
             event.applyChangesOnEntry();
             provider.refreshItem((ResourceEntry) event.getEntry());
             serverStart.setText(event.getEntry().getStart().toString());
+            newResource.setText(event.getNewResource().map(Resource::getId).orElse("none"));
+            serverResources.setText(((ResourceEntry) event.getEntry()).getResourcesOrEmpty().stream()
+                    .map(Resource::getId).sorted().collect(Collectors.joining(",")));
         });
 
         addAndExpand(calendar);
