@@ -62,7 +62,7 @@ public class SchedulerDropListenersTestView extends VerticalLayout {
         serverStart.setText(entry.getStart().toString());
 
         InMemoryEntryProvider<ResourceEntry> provider = new InMemoryEntryProvider<>();
-        provider.addEntries(entry);
+        provider.getItems().add(entry);
         calendar.setEntryProvider(provider);
 
         // does not apply the changes

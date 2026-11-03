@@ -65,7 +65,7 @@ public class AutoRevertWithoutListenerTestView extends VerticalLayout {
         entry.setTitle("Drag Me");
         entry.setStart(LocalDateTime.of(2025, 3, 3, 9, 0));
         entry.setEnd(LocalDateTime.of(2025, 3, 3, 10, 0));
-        calendar.getEntryProvider().asInMemory().addEntry(entry);
+        calendar.getEntryProvider().asInMemory().getItems().add(entry);
 
         Runnable countApplied = () -> applied.setText(String.valueOf(Integer.parseInt(applied.getText()) + 1));
 

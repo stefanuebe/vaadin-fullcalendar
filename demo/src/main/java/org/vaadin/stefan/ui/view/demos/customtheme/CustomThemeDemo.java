@@ -59,7 +59,7 @@ public class CustomThemeDemo extends VerticalLayout {
         FullCalendar calendar = new FullCalendar();
         FullCalendarOptions options = calendar.options();
         ((InMemoryEntryProvider<Entry>) calendar.getEntryProvider())
-                .addEntries(EntryService.createSimpleInstance().getEntries());
+                .getItems().addAll(EntryService.createSimpleInstance().getEntries());
         options.setDayMaxEntries(3);
         options.setEditable(true);
         // without these listeners the calendar moves a dropped or resized entry back, see

@@ -200,10 +200,10 @@ public class ResourceTest {
 
         ResourceEntry assigned = new ResourceEntry();
         assigned.addResources(resource);
-        provider.addEntry(assigned);
+        provider.getItems().add(assigned);
 
         ResourceEntry other = new ResourceEntry(); // no resource assigned
-        provider.addEntry(other);
+        provider.getItems().add(other);
 
         Set<ResourceEntry> events = resource.getEntries();
         Assertions.assertEquals(1, events.size());
@@ -223,11 +223,11 @@ public class ResourceTest {
 
         ResourceEntry e1 = new ResourceEntry();
         e1.addResources(r1);
-        provider.addEntry(e1);
+        provider.getItems().add(e1);
 
         ResourceEntry e2 = new ResourceEntry();
         e2.addResources(r2);
-        provider.addEntry(e2);
+        provider.getItems().add(e2);
 
         Assertions.assertEquals(Set.of(e1), r1.getEntries());
         Assertions.assertEquals(Set.of(e2), r2.getEntries());

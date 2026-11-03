@@ -136,13 +136,13 @@ public class InteractionCallbacksTestView extends VerticalLayout {
         draggable.setTitle("Drag Me");
         draggable.setStart(LocalDateTime.of(2025, 3, 3, 9, 0));
         draggable.setEnd(LocalDateTime.of(2025, 3, 3, 10, 0));
-        provider.addEntry(draggable);
+        provider.getItems().add(draggable);
 
         Entry resizable = new Entry();
         resizable.setTitle("Resize Me");
         resizable.setStart(LocalDateTime.of(2025, 3, 4, 10, 0));
         resizable.setEnd(LocalDateTime.of(2025, 3, 4, 11, 0));
-        provider.addEntry(resizable);
+        provider.getItems().add(resizable);
 
         calendar.setEntryProvider(provider);
         provider.refreshAll();

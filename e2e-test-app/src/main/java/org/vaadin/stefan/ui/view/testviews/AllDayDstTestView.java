@@ -45,7 +45,7 @@ public class AllDayDstTestView extends VerticalLayout {
         entry.setStart(LocalDate.of(2025, 11, 2).atStartOfDay(newYork).toInstant());
         entry.setAllDay(true);
         InMemoryEntryProvider<Entry> provider = new InMemoryEntryProvider<>();
-        provider.addEntry(entry);
+        provider.getItems().add(entry);
         calendar.setEntryProvider(provider);
 
         calendar.addEntryClickedListener(e -> clickedEnd.setText(String.valueOf(e.getChangesAsEntry().getEndAsLocalDate())));

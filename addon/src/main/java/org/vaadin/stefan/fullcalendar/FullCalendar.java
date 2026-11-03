@@ -418,12 +418,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
             entryProviderDataListeners.forEach(Registration::remove);
             entryProviderDataListeners.clear();
 
-            if (this.entryProvider != null) {
-                this.entryProvider.setCalendar(null);
-            }
-
             this.entryProvider = entryProvider;
-            entryProvider.setCalendar(this);
 
             entryProviderDataListeners.add(entryProvider.addEntryRefreshListener(event -> requestRefresh(event.getItemToRefresh())));
             entryProviderDataListeners.add(entryProvider.addEntriesChangeListener(event -> requestRefreshAllEntries()));
@@ -485,9 +480,9 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
     }
 
     /**
-     * Indicates, if the entry provider is a in memory provider.
+     * Indicates, if the entry provider is an in memory provider.
      *
-     * @return is eager loading
+     * @return true if the entry provider is an in memory provider
      */
     public boolean isInMemoryEntryProvider() {
         return entryProvider instanceof InMemoryEntryProvider;
@@ -505,11 +500,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
 
         ArrayNode array = JsonFactory.createArray();
         entryProvider.fetch(new EntryQuery(start, end, EntryQuery.AllDay.BOTH))
-                .peek(entry -> {
-                    entry.setCalendar(this);
-                    entry.setKnownToTheClient(true); // mark entry as "has been sent to client"
-                    lastFetchedEntries.put(entry.getId(), entry);
-                })
+                .peek(entry -> lastFetchedEntries.put(entry.getId(), entry))
                 .map(Entry::toJson)
                 .forEach(array::add);
 
@@ -519,8 +510,6 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
     /**
      * Returns an entry with the given id from the last fetched set of entries. Returns an empty instance,
      * when there was no fetch yet or the id is unknown.
-     * <p></p>
-     * Uses {@link InMemoryEntryProvider#getEntryById(String)} when the eager in memory provider is used.
      * <p></p>
      * This method is an internal method, intended to be used by entry based events only. Do not use it for
      * any other purpose as the implementation or scope may change in future.
@@ -954,7 +943,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
     }
 
     /**
-     * Returns the time zone the offset helpers of entries and events convert with, the value of the time zone field.
+     * Returns the time zone the offset helpers of events convert with, the value of the time zone field.
      * {@link Timezone#LOCAL} converts with UTC.
      */
     Timezone getTimezoneForOffsets() {

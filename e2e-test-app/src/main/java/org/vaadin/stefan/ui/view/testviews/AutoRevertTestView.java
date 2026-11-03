@@ -90,7 +90,7 @@ public class AutoRevertTestView extends VerticalLayout {
         draggable.setTitle("Drag Me");
         draggable.setStart(LocalDateTime.of(2025, 3, 3, 9, 0));
         draggable.setEnd(LocalDateTime.of(2025, 3, 3, 10, 0));
-        provider.addEntry(draggable);
+        provider.getItems().add(draggable);
 
         calendar.setEntryProvider(provider);
         provider.refreshAll();

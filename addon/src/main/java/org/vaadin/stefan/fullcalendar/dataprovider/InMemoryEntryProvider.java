@@ -1,10 +1,7 @@
 package org.vaadin.stefan.fullcalendar.dataprovider;
 
-import lombok.AccessLevel;
-import lombok.Getter;
 import lombok.NonNull;
 import org.vaadin.stefan.fullcalendar.Entry;
-import org.vaadin.stefan.fullcalendar.FullCalendar;
 import org.vaadin.stefan.fullcalendar.option.Timezone;
 
 import java.time.Instant;
@@ -15,169 +12,135 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
- * Basic implementation of an in memory entry provider utilizing a hashmap.
+ * Entry provider that works on a collection in the server memory, like the {@code ListDataProvider} of
+ * Vaadin. The provider uses the given collection itself, not a copy. After changing the collection, call
+ * {@link #refreshAll()} so that the calendar shows the change. Before the calendar is shown for the first
+ * time, no refresh is needed.
+ * <p></p>
+ * {@link #refreshItem(Entry)} does not pick up added, removed or replaced entries.
+ * <p></p>
+ * Two entries with the same id in the collection make the next {@link #fetch(EntryQuery)} or
+ * {@link #fetchById(String)} throw an {@link IllegalStateException}.
  *
  * @author Stefan Uebe
  */
 public class InMemoryEntryProvider<T extends Entry> extends AbstractEntryProvider<T> implements EntryProvider<T> {
 
+    private Collection<T> items;
+
     /**
-     * Maps the entry ids to their respective entry instance. Any change to this map reflects directly
-     * to this instance.
+     * Maps the entry ids to the entries of {@link #items}. {@code null} when outdated, see {@link #getEntriesById()}.
      */
-    @Getter(AccessLevel.PROTECTED)
-    private final Map<String, T> entriesMap = new HashMap<>();
+    private Map<String, T> entriesById;
 
+    /**
+     * Creates an instance with an empty, modifiable list. You can access the list with {@code getItems()}.
+     */
     public InMemoryEntryProvider() {
-    }
-
-    public InMemoryEntryProvider(Iterable<T> entries) {
-        addEntries(entries);
+        this(new ArrayList<>());
     }
 
     /**
-     * Creates a lazy loading instance. The given entries are used as initial items. Leave empty, if there
-     * are no initial entries.
+     * Creates an instance that uses the given collection. The collection is not copied, see the class
+     * documentation.
+     *
+     * @param items entries
+     * @throws NullPointerException when null is passed
+     */
+    public InMemoryEntryProvider(@NonNull Collection<T> items) {
+        this.items = items;
+    }
+
+    /**
+     * Creates an instance with a new, modifiable list holding the given entries.
      * @param entries initial entries
      * @param <T> type
-     * @return lazy loading in memory provider
+     * @return in memory provider
      */
     @SafeVarargs
-    public static <T extends Entry> InMemoryEntryProvider<T> from(T... entries) {
-        return new InMemoryEntryProvider<>(Arrays.asList(entries));
+    public static <T extends Entry> InMemoryEntryProvider<T> from(@NonNull T... entries) {
+        return new InMemoryEntryProvider<>(new ArrayList<>(Arrays.asList(entries)));
     }
 
     /**
-     * Creates a lazy loading instance. The given entries are used as initial items, but the given iterable
-     * is not used as the backing collection or similar. It will never be modified by this provider.
-     * @param entries initial entries
+     * Creates an instance that uses the given collection, see {@link #InMemoryEntryProvider(Collection)}.
+     * @param entries entries
      * @param <T> type
-     * @return lazy loading in memory provider
+     * @return in memory provider
      */
-    public static <T extends Entry> InMemoryEntryProvider<T> from(Iterable<T> entries) {
+    public static <T extends Entry> InMemoryEntryProvider<T> from(@NonNull Collection<T> entries) {
         return new InMemoryEntryProvider<>(entries);
     }
 
     /**
-     * Connects this instance with the calendar. Not intended to be called manually, FullCalendar will take care of
-     * this. NOOP when called for the same calendar instance multiple times.
+     * Returns the collection this provider works on. It is the collection that was passed to the constructor
+     * or to {@link #setItems(Collection)}, not a copy. Call {@link #refreshAll()} after changing it.
      *
-     * @param calendar calendar to "connect" to.
+     * @return the entries
+     */
+    public Collection<T> getItems() {
+        return items;
+    }
+
+    /**
+     * Replaces the collection this provider works on and refreshes the calendar. The collection is not copied,
+     * see the class documentation.
+     *
+     * @param items entries
+     * @throws NullPointerException when null is passed
+     */
+    public void setItems(@NonNull Collection<T> items) {
+        this.items = items;
+        refreshAll();
+    }
+
+    /**
+     * Replaces the entries of this provider with a new, modifiable list holding the given entries and
+     * refreshes the calendar.
+     *
+     * @param items entries
+     * @throws NullPointerException when null is passed
+     */
+    @SafeVarargs
+    public final void setItems(@NonNull T... items) {
+        setItems(new ArrayList<>(Arrays.asList(items)));
+    }
+
+    /**
+     * Tells the calendar to fetch its entries again. Picks up all changes to the collection.
      */
     @Override
-    public void setCalendar(FullCalendar calendar) {
-        FullCalendar oldCalendar = getCalendar();
-        super.setCalendar(calendar);
-
-        if (oldCalendar != calendar) {
-            entriesMap.values().forEach(e -> e.setCalendar(calendar));
-        }
+    public void refreshAll() {
+        entriesById = null;
+        super.refreshAll();
     }
 
     @Override
     public Stream<T> fetch(@NonNull EntryQuery query) {
-        return query.applyFilter(entriesMap.values().stream());
+        return query.applyFilter(getEntriesById().values().stream());
     }
 
     @Override
     public Optional<T> fetchById(@NonNull String id) {
-        return Optional.ofNullable(entriesMap.get(id));
+        return Optional.ofNullable(getEntriesById().get(id));
     }
 
     /**
-     * Adds a list of entries to the calendar. Noop for already registered entries.
-     *
-     * @param iterableEntries list of entries
-     * @throws NullPointerException when null is passed
+     * Returns the id map, built from {@link #items} when it is outdated.
      */
-    public void addEntries(Iterable<T> iterableEntries) {
-        Objects.requireNonNull(iterableEntries);
-
-        iterableEntries.forEach(entry -> {
-            String id = entry.getId();
-
-            if (!entriesMap.containsKey(id)) {
-                entriesMap.put(id, entry);
-                entry.setCalendar(getCalendar());
-                onEntryAdd(entry);
+    private Map<String, T> getEntriesById() {
+        if (entriesById == null) {
+            Map<String, T> map = new LinkedHashMap<>();
+            for (T entry : items) {
+                if (map.putIfAbsent(entry.getId(), entry) != null) {
+                    throw new IllegalStateException("The entries of this provider contain the id '"
+                            + entry.getId() + "' more than once. Entry ids must be unique.");
+                }
             }
-        });
-    }
-
-    /**
-     * Called for each entry that {@link #addEntries(Iterable)} registers, after it has been added to this
-     * provider. Does nothing by default. Override it to react to added entries.
-     *
-     * @param entry added entry
-     */
-    protected void onEntryAdd(T entry) {
-
-    }
-
-    /**
-     * Removes the given entries. Noop for not registered entries.
-     *
-     * @param iterableEntries entries to remove
-     * @throws NullPointerException when null is passed
-     */
-    public void removeEntries(Iterable<T> iterableEntries) {
-        Objects.requireNonNull(iterableEntries);
-
-        iterableEntries.forEach(entry -> {
-            String id = entry.getId();
-            if (entriesMap.remove(id) != null) {
-                entry.setCalendar(null);
-
-                onEntryRemove(entry);
-            }
-        });
-    }
-
-    /**
-     * Called for each entry that {@link #removeEntries(Iterable)} removes, after it has been removed from this
-     * provider. Does nothing by default. Override it to react to removed entries.
-     *
-     * @param entry removed entry
-     */
-    protected void onEntryRemove(T entry) {
-
-    }
-
-    /**
-     * Updates the given entries on the client side, the same way as {@link #refreshItem(Entry)} does for a
-     * single entry. Ignores entries that are not registered in this provider or have not been sent to the
-     * client yet.
-     *
-     * @param iterableEntries entries to update
-     * @throws NullPointerException when null is passed
-     */
-    public void updateEntries(Iterable<T> iterableEntries) {
-        Objects.requireNonNull(iterableEntries);
-        for (T entry : iterableEntries) {
-            if (entriesMap.containsKey(entry.getId()) && entry.isKnownToTheClient()) {
-                refreshItem(entry);
-                onEntryUpdate(entry);
-            }
+            entriesById = map;
         }
-    }
 
-    /**
-     * Called for each entry that {@link #updateEntries(Iterable)} refreshes on the client side. Does nothing
-     * by default. Override it to react to updated entries.
-     *
-     * @param entry updated entry
-     */
-    protected void onEntryUpdate(T entry) {
-
-    }
-
-    /**
-     * Returns a single entry identified by the given id or an empty optional.
-     * @param id id
-     * @return optional entry or empty
-     */
-    public Optional<T> getEntryById(String id) {
-        return fetchById(id);
+        return entriesById;
     }
 
     /**
@@ -209,7 +172,7 @@ public class InMemoryEntryProvider<T extends Entry> extends AbstractEntryProvide
     }
 
     /**
-     * Returns all entries registered in this instance which timespan crosses the given date as a new list.
+     * Returns all entries of this instance whose timespan crosses the given date as a new list.
      * @param dateTime point of time to check
      * @return crossing entries
      */
@@ -218,7 +181,7 @@ public class InMemoryEntryProvider<T extends Entry> extends AbstractEntryProvide
     }
 
     /**
-     * Returns all entries registered in this instance which timespan crosses the given date as a new list.
+     * Returns all entries of this instance whose timespan crosses the given date as a new list.
      * @param date date to check
      * @return crossing entries
      */
@@ -228,7 +191,7 @@ public class InMemoryEntryProvider<T extends Entry> extends AbstractEntryProvide
     }
 
     /**
-     * Returns all entries registered in this instance which timespan crosses the given date as a new list.
+     * Returns all entries of this instance whose timespan crosses the given date as a new list.
      * @param dateTime point of time to check
      * @return crossing entries
      */
@@ -237,53 +200,4 @@ public class InMemoryEntryProvider<T extends Entry> extends AbstractEntryProvide
         return getEntries(dateTime, dateTime.plusDays(1));
     }
 
-    /**
-     * Adds an entry to this calendar. Noop if the entry id is already registered.
-     *
-     * @param entry entry
-     * @throws NullPointerException when null is passed
-     */
-    public void addEntry(T entry) {
-        Objects.requireNonNull(entry);
-        addEntries(Collections.singletonList(entry));
-    }
-
-    /**
-     * Adds an array of entries to the calendar. Noop for the entry id is already registered.
-     *
-     * @param arrayOfEntries array of entries
-     * @throws NullPointerException when null is passed
-     */
-    @SuppressWarnings("unchecked")
-    public void addEntries(T... arrayOfEntries) {
-        addEntries(Arrays.asList(arrayOfEntries));
-    }
-
-    /**
-     * Removes the given entry. Noop if the id is not registered.
-     *
-     * @param entry entry
-     * @throws NullPointerException when null is passed
-     */
-    public void removeEntry(T entry) {
-        Objects.requireNonNull(entry);
-        removeEntries(Collections.singletonList(entry));
-    }
-
-    /**
-     * Removes the given entries. Noop for not registered entries.
-     *
-     * @param arrayOfEntries entries to remove
-     * @throws NullPointerException when null is passed
-     */
-    public void removeEntries(T... arrayOfEntries) {
-        removeEntries(Arrays.asList(arrayOfEntries));
-    }
-
-    /**
-     * Remove all entries.
-     */
-    public void removeAllEntries() {
-        removeEntries(fetchAll().collect(Collectors.toList())); // prevent concurrent mod exception
-    }
 }

@@ -68,7 +68,7 @@ public class InlineCalendarDemo extends VerticalLayout {
             int days = Period.between(start.toLocalDate(), end.toLocalDate()).getDays();
             if (days == map.size()) {
                 // unmark all days that are covered by the event period
-                entryProvider.removeEntries(map.values());
+                entryProvider.getItems().removeAll(map.values());
                 entryProvider.refreshAll();
             } else {
                 // iterate over the event period and create an entry for each day, that is not in the map
@@ -83,7 +83,7 @@ public class InlineCalendarDemo extends VerticalLayout {
                         entry.setEnd(date.plusDays(1).atStartOfDay());
                         entry.setAllDay(true);
                         entry.setDisplayMode(DisplayMode.BACKGROUND);
-                        entryProvider.addEntry(entry);
+                        entryProvider.getItems().add(entry);
                     }
 
                     date = date.plusDays(1);

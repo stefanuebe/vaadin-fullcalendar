@@ -67,7 +67,7 @@ import java.util.stream.Stream;
  * entry.setEnd(LocalDateTime.of(2025, 3, 3, 10, 0));
  *
  * InMemoryEntryProvider<Entry> provider = new InMemoryEntryProvider<>();
- * provider.addEntry(entry);
+ * provider.getItems().add(entry);
  * calendar.setEntryProvider(provider);
  *
  * entry.setTitle("Team meeting");
@@ -267,15 +267,6 @@ public class Entry implements Serializable {
     @JsonConverter(ExtendedPropsConverter.class)
     private Map<String, Object> extendedProps;
 
-    @JsonIgnore
-    private boolean knownToTheClient; // not sure if still needed?
-
-    /**
-     * The referenced calendar instance. Can be null.
-     */
-    @JsonIgnore
-    private FullCalendar calendar;
-
     /**
      * Creates a new editable instance with a generated id.
      */
@@ -293,22 +284,6 @@ public class Entry implements Serializable {
      */
     public Entry(String id) {
         this.id = id == null ? UUID.randomUUID().toString() : id;
-    }
-
-    /**
-     * Returns the calendar instance of this entry. Is empty when not yet added to a calendar.
-     *
-     * @return calendar instance
-     */
-    public Optional<FullCalendar> getCalendar() {
-        return Optional.ofNullable(calendar);
-    }
-
-    public void setCalendar(FullCalendar calendar) {
-        if (this.calendar != null && calendar != null && this.calendar != calendar) {
-            throw new UnsupportedOperationException("This entry is already attached to a calendar instance. Please remove it first from the old one.");
-        }
-        this.calendar = calendar;
     }
 
     /**
@@ -608,38 +583,25 @@ public class Entry implements Serializable {
     }
 
     /**
-     * Returns the start time as a zoned date time using this entry's start time zone. By default this is
-     * the calendar's timezone or, if no calendar is set yet, UTC.
+     * Returns the start time as a zoned date time in the given time zone, for example the calendar's
+     * ({@code calendar.options().getTimeZone()}).
      * <p></p>
      * Calling {@link ZonedDateTime#toLocalDateTime()} returns the time including the offset as LocalDateTime.
-     * @return start at current timezone or null
+     * @param timezone time zone
+     * @return start in the given time zone or null
      */
-    public ZonedDateTime getStartWithTimezone() {
-        return getStartTimezone().applyTimezone(getStart());
+    public ZonedDateTime getStartWithTimezone(Timezone timezone) {
+        return timezone.applyTimezone(getStart());
     }
 
     /**
      * Returns the start time as a local date time after applying the timezone's offset to
-     * the utc based start date ({@link #getStart()}). By default the timezone is
-     * the calendar's timezone or, if no calendar is set yet, UTC.
+     * the utc based start date ({@link #getStart()}). Pass the calendar's time zone
+     * ({@code calendar.options().getTimeZone()}) to get the start as the calendar shows it.
      * <p></p>
-     * To get a {@link OffsetDateTime} please use {@link #getStartWithTimezone()} and call
+     * To get a {@link OffsetDateTime} please use {@link #getStartWithTimezone(Timezone)} and call
      * {@link ZonedDateTime#toOffsetDateTime()}
-     * @return start with offset or null
-     */
-    public LocalDateTime getStartWithOffset() {
-        return getStartWithOffset(getStartTimezone());
-    }
-
-    /**
-     * Returns the start time as a local date time after applying the timezone's offset to
-     * the utc based start date ({@link #getStart()}).
-     * <p></p>
-     * This method is intended to be used for new entries that have not yet been added to the
-     * calendar and thus have no reference to its timezone.
-     * <p></p>
-     * To get a {@link OffsetDateTime} please use {@link #getStartWithTimezone()} and call
-     * {@link ZonedDateTime#toOffsetDateTime()}
+     * @param timezone time zone
      * @return start with offset or null
      */
     public LocalDateTime getStartWithOffset(Timezone timezone) {
@@ -687,30 +649,13 @@ public class Entry implements Serializable {
 
     /**
      * Sets the entry's start. The given date time will be interpreted as having the offset of the
-     * start time zone applied. The time will be converted to UTC.
-     * <p></p>
-     * For instance, when passing an instance with ...T01:00 and the timezone is Europe/Berlin in winter,
-     * the resulting start time will be ...T00:00.
-     * <p></p>
-     * This method is intended to be used in cases where the start time is edited in relation to
-     * the current time zone (like a calendar entry editor).
-     * <p></p>
-     *
-     * @param startWithTimezone start with time zone
-     */
-    public void setStartWithOffset(LocalDateTime startWithTimezone) {
-        setStartWithOffset(startWithTimezone, getStartTimezone());
-    }
-
-    /**
-     * Sets the entry's start. The given date time will be interpreted as having the offset of the
      * given time zone applied. The time will be converted to UTC.
      * <p></p>
      * For instance, when passing an instance with ...T01:00 and the timezone is Europe/Berlin in winter,
      * the resulting start time will be ...T00:00.
      * <p></p>
-     * This method is intended to be used in cases where entry is not yet added to the calendar and thus
-     * cannot use its timezone to interpret the offset.
+     * This method is intended for a time edited in the calendar's time zone, for example in an entry editor.
+     * Pass the calendar's time zone ({@code calendar.options().getTimeZone()}).
      * <p></p>
      *
      * @param startWithTimezone start with time zone
@@ -747,38 +692,25 @@ public class Entry implements Serializable {
     }
 
     /**
-     * Returns the end time as a zoned date time using this entry's end time zone. By default this is
-     * the calendar's timezone or, if no calendar is set yet, UTC.
+     * Returns the end time as a zoned date time in the given time zone, for example the calendar's
+     * ({@code calendar.options().getTimeZone()}).
      * <p></p>
      * Calling {@link ZonedDateTime#toLocalDateTime()} returns the time including the offset as LocalDateTime.
-     * @return end at current timezone or null
+     * @param timezone time zone
+     * @return end in the given time zone or null
      */
-    public ZonedDateTime getEndWithTimezone() {
-        return getEndTimezone().applyTimezone(getEnd());
+    public ZonedDateTime getEndWithTimezone(Timezone timezone) {
+        return timezone.applyTimezone(getEnd());
     }
 
     /**
      * Returns the end time as a local date time after applying the timezone's offset to
-     * the utc based end date ({@link #getEnd()}). By default the timezone is
-     * the calendar's timezone or, if no calendar is set yet, UTC.
+     * the utc based end date ({@link #getEnd()}). Pass the calendar's time zone
+     * ({@code calendar.options().getTimeZone()}) to get the end as the calendar shows it.
      * <p></p>
-     * To get a {@link OffsetDateTime} please use {@link #getEndWithTimezone()} and call
+     * To get a {@link OffsetDateTime} please use {@link #getEndWithTimezone(Timezone)} and call
      * {@link ZonedDateTime#toOffsetDateTime()}
-     * @return end with offset or null
-     */
-    public LocalDateTime getEndWithOffset() {
-        return getEndTimezone().applyTimezoneOffset(getEnd());
-    }
-
-    /**
-     * Returns the end time as a local date time after applying the timezone's offset to
-     * the utc based end date ({@link #getEnd()}).
-     * <p></p>
-     * This method is intended to be used for new entries that have not yet been added to the
-     * calendar and thus have no reference to its timezone.
-     * <p></p>
-     * To get a {@link OffsetDateTime} please use {@link #getEndWithTimezone()} and call
-     * {@link ZonedDateTime#toOffsetDateTime()}
+     * @param timezone time zone
      * @return end with offset or null
      */
     public LocalDateTime getEndWithOffset(Timezone timezone) {
@@ -826,30 +758,13 @@ public class Entry implements Serializable {
 
     /**
      * Sets the entry's end. The given date time will be interpreted as having the offset of the
-     * end time zone applied. The time will be converted to UTC.
-     * <p></p>
-     * For instance, when passing an instance with ...T01:00 and the timezone is Europe/Berlin in winter,
-     * the resulting end time will be ...T00:00.
-     * <p></p>
-     * This method is intended to be used in cases where the end time is edited in relation to
-     * the current time zone (like a calendar entry editor).
-     * <p></p>
-     *
-     * @param endWithTimezone end with time zone
-     */
-    public void setEndWithOffset(LocalDateTime endWithTimezone) {
-        setEnd(getEndTimezone().removeTimezoneOffset(endWithTimezone));
-    }
-
-    /**
-     * Sets the entry's end. The given date time will be interpreted as having the offset of the
      * given time zone applied. The time will be converted to UTC.
      * <p></p>
      * For instance, when passing an instance with ...T01:00 and the timezone is Europe/Berlin in winter,
      * the resulting end time will be ...T00:00.
      * <p></p>
-     * This method is intended to be used in cases where entry is not yet added to the calendar and thus
-     * cannot use its timezone to interpret the offset.
+     * This method is intended for a time edited in the calendar's time zone, for example in an entry editor.
+     * Pass the calendar's time zone ({@code calendar.options().getTimeZone()}).
      * <p></p>
      *
      * @param endWithTimezone end with time zone
@@ -892,26 +807,6 @@ public class Entry implements Serializable {
      */
     public void moveEnd(Delta delta) {
         setEnd(delta.applyOn(getEnd()));
-    }
-
-    /**
-     * Returns the time zone the offset helpers convert the internal UTC timestamp with: the calendar's time zone, see
-     * {@link FullCalendarOptions#getTimeZone()}. UTC while the entry belongs to no calendar.
-     *
-     * @return timezone
-     */
-    public Timezone getStartTimezone() {
-        return calendar != null ? calendar.getTimezoneForOffsets() : Timezone.UTC;
-    }
-
-    /**
-     * Returns the time zone the offset helpers convert the internal UTC timestamp with: the calendar's time zone, see
-     * {@link FullCalendarOptions#getTimeZone()}. UTC while the entry belongs to no calendar.
-     *
-     * @return timezone
-     */
-    public Timezone getEndTimezone() {
-        return calendar != null ? calendar.getTimezoneForOffsets() : Timezone.UTC;
     }
 
     /**

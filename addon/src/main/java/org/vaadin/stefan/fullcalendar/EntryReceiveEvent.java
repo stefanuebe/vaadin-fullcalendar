@@ -32,7 +32,8 @@ import java.util.Optional;
  * The {@link #getEntry()} method returns a freshly constructed {@link Entry} populated from the data
  * passed by the client. This entry is <em>not</em> added to the calendar's entry provider automatically;
  * the application must do this explicitly if it wants to persist the received entry
- * (e.g. via {@link org.vaadin.stefan.fullcalendar.dataprovider.InMemoryEntryProvider#addEntry(Entry)}).
+ * (e.g. via {@link org.vaadin.stefan.fullcalendar.dataprovider.InMemoryEntryProvider#getItems()} and
+ * {@link org.vaadin.stefan.fullcalendar.dataprovider.EntryProvider#refreshAll()}).
  * <br><br>
  * If the dropped element was registered via {@link FullCalendar#addDraggable(Draggable)},
  * {@link #getDraggable()} provides access to the original Draggable (component + entry template).

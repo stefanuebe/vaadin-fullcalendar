@@ -66,7 +66,7 @@ public class ConstraintOverlapTestView extends VerticalLayout {
         normalEntry.setTitle("Normal Entry");
         normalEntry.setStart(LocalDateTime.of(2025, 3, 4, 9, 0));
         normalEntry.setEnd(LocalDateTime.of(2025, 3, 4, 10, 0));
-        provider.addEntry(normalEntry);
+        provider.getItems().add(normalEntry);
 
         // 2. Per-entry editable=false (should NOT be draggable despite calendar editable=true)
         Entry notEditable = new Entry();
@@ -74,7 +74,7 @@ public class ConstraintOverlapTestView extends VerticalLayout {
         notEditable.setStart(LocalDateTime.of(2025, 3, 5, 9, 0));
         notEditable.setEnd(LocalDateTime.of(2025, 3, 5, 10, 0));
         notEditable.setEditable(false);
-        provider.addEntry(notEditable);
+        provider.getItems().add(notEditable);
 
         // 3. Per-entry startEditable=false (should NOT be draggable but CAN be resized)
         Entry noStartEdit = new Entry();
@@ -82,7 +82,7 @@ public class ConstraintOverlapTestView extends VerticalLayout {
         noStartEdit.setStart(LocalDateTime.of(2025, 3, 6, 9, 0));
         noStartEdit.setEnd(LocalDateTime.of(2025, 3, 6, 10, 0));
         noStartEdit.setStartEditable(false);
-        provider.addEntry(noStartEdit);
+        provider.getItems().add(noStartEdit);
 
         // 4. Entry with overlap=false
         Entry noOverlap = new Entry();
@@ -90,14 +90,14 @@ public class ConstraintOverlapTestView extends VerticalLayout {
         noOverlap.setStart(LocalDateTime.of(2025, 3, 3, 11, 0));
         noOverlap.setEnd(LocalDateTime.of(2025, 3, 3, 12, 0));
         noOverlap.setOverlap(false);
-        provider.addEntry(noOverlap);
+        provider.getItems().add(noOverlap);
 
         // 5. Blocking entry on same day as noOverlap — occupies 12:00-13:00
         Entry blocker = new Entry();
         blocker.setTitle("Blocker");
         blocker.setStart(LocalDateTime.of(2025, 3, 3, 12, 0));
         blocker.setEnd(LocalDateTime.of(2025, 3, 3, 13, 0));
-        provider.addEntry(blocker);
+        provider.getItems().add(blocker);
 
         // 6. Entry with constraint=businessHours
         Entry constrained = new Entry();
@@ -105,7 +105,7 @@ public class ConstraintOverlapTestView extends VerticalLayout {
         constrained.setStart(LocalDateTime.of(2025, 3, 7, 10, 0));
         constrained.setEnd(LocalDateTime.of(2025, 3, 7, 11, 0));
         constrained.setConstraint("businessHours");
-        provider.addEntry(constrained);
+        provider.getItems().add(constrained);
 
         calendar.setEntryProvider(provider);
 

@@ -1,5 +1,7 @@
 package org.vaadin.stefan.ui.view.testviews;
 
+import java.util.List;
+
 import org.vaadin.stefan.fullcalendar.option.JsCallback;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.html.H2;
@@ -72,7 +74,7 @@ public class SchedulerViewsTestView extends VerticalLayout {
         review.addResources(roomB);
 
         InMemoryEntryProvider<ResourceEntry> provider = new InMemoryEntryProvider<>();
-        provider.addEntries(meeting, review);
+        provider.getItems().addAll(List.of(meeting, review));
         calendar.setEntryProvider(provider);
 
         Button restyle = new Button("Restyle Room B", e -> {

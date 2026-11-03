@@ -1,5 +1,7 @@
 package org.vaadin.stefan.ui.view.samples;
 
+import java.util.List;
+
 import org.vaadin.stefan.fullcalendar.Entry;
 import org.vaadin.stefan.fullcalendar.FullCalendar;
 
@@ -38,6 +40,6 @@ public class EntryUrlInteractiveSample extends AbstractSample {
         calendar.addEntryClickedListener(e ->
                 System.out.println("Entry clicked: " + e.getEntry().getTitle()));
 
-        calendar.getEntryProvider().asInMemory().addEntries(link, keyboardEntry);
+        calendar.getEntryProvider().asInMemory().getItems().addAll(List.of(link, keyboardEntry));
     }
 }

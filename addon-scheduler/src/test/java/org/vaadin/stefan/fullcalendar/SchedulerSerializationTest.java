@@ -53,7 +53,7 @@ public class SchedulerSerializationTest {
         entry.setStart(LocalDateTime.now());
         entry.setEnd(LocalDateTime.now().plusHours(2));
         entry.addResources(child);
-        calendar.getEntryProvider().asInMemory().addEntry(entry);
+        calendar.getEntryProvider().asInMemory().getItems().add(entry);
 
         FullCalendarScheduler restored = roundtrip(calendar);
         assertNotNull(restored);

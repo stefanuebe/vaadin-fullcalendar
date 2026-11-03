@@ -4,6 +4,7 @@ import org.junit.jupiter.api.Test;
 import tools.jackson.databind.node.ObjectNode;
 
 import java.time.LocalDate;
+import java.util.Set;
 import java.time.LocalDateTime;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -137,6 +138,22 @@ public class ResourceEntryCopyTest {
         json.put("allDay", false);
 
         assertDoesNotThrow(() -> entry.updateFromJson(json));
+    }
+
+    // #444: the entry holds no calendar to resolve resource ids, and the client never sends them
+    @Test
+    void updateFromJson_leavesResourcesUnchanged() {
+        Resource room = new Resource("a", "Room A", null);
+        ResourceEntry entry = new ResourceEntry("e3");
+        entry.addResources(room);
+
+        ObjectNode json = JsonFactory.createObject();
+        json.put("id", "e3");
+        json.putArray("resourceIds").add("b");
+
+        entry.updateFromJson(json);
+
+        assertEquals(Set.of(room), entry.getResources());
     }
 
     // --- copy + updateFromJson (same code path as EntryDataEvent.getChangesAsEntry) ---

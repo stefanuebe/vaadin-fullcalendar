@@ -21,7 +21,7 @@ public class InMemoryEntryProviderView extends AbstractEntryProviderView {
     @Override
     protected void onEntriesCreated(Collection<Entry> entries) {
         InMemoryEntryProvider<Entry> provider = (InMemoryEntryProvider<Entry>) getEntryProvider();
-        provider.addEntries(entries);
+        provider.getItems().addAll(entries);
         provider.refreshAll();
     }
 
@@ -30,9 +30,9 @@ public class InMemoryEntryProviderView extends AbstractEntryProviderView {
         InMemoryEntryProvider<Entry> provider = (InMemoryEntryProvider<Entry>) getEntryProvider();
         if (entries.isEmpty()) {
             // "Remove all entries" — clear everything
-            provider.removeAllEntries();
+            provider.getItems().clear();
         } else {
-            provider.removeEntries(entries);
+            provider.getItems().removeAll(entries);
         }
         provider.refreshAll();
     }

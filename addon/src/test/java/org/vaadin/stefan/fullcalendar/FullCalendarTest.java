@@ -179,7 +179,7 @@ public class FullCalendarTest {
     void testEmptyOptionalOnFetchingNonExistingEntryById() {
         FullCalendar calendar = createTestCalendar();
 
-        Optional<Entry> optional = getEntryProvider(calendar).getEntryById("");
+        Optional<Entry> optional = getEntryProvider(calendar).fetchById("");
         assertNotNull(optional);
         assertFalse(optional.isPresent());
     }
@@ -193,9 +193,9 @@ public class FullCalendarTest {
         FullCalendar calendar = createTestCalendar();
 
         Entry entry = new Entry();
-        calendar.getEntryProvider().asInMemory().addEntry(entry);
+        calendar.getEntryProvider().asInMemory().getItems().add(entry);
 
-        Optional<Entry> optional = getEntryProvider(calendar).getEntryById(entry.getId());
+        Optional<Entry> optional = getEntryProvider(calendar).fetchById(entry.getId());
         assertNotNull(optional);
         assertOptionalEquals(entry, optional);
     }
@@ -209,9 +209,9 @@ public class FullCalendarTest {
         Entry entry3 = new Entry();
 
         InMemoryEntryProvider<Entry> entryProvider = calendar.getEntryProvider().asInMemory();
-        entryProvider.addEntry(entry1);
-        entryProvider.addEntry(entry2);
-        entryProvider.addEntry(entry3);
+        entryProvider.getItems().add(entry1);
+        entryProvider.getItems().add(entry2);
+        entryProvider.getItems().add(entry3);
 
         Collection<Entry> entries = entryProvider.getEntries();
         assertEquals(3, entries.size());
@@ -220,9 +220,9 @@ public class FullCalendarTest {
         assertTrue(entries.contains(entry2));
         assertTrue(entries.contains(entry3));
 
-        assertOptionalEquals(entry1, getEntryProvider(calendar).getEntryById(entry1.getId()));
-        assertOptionalEquals(entry2, getEntryProvider(calendar).getEntryById(entry2.getId()));
-        assertOptionalEquals(entry3, getEntryProvider(calendar).getEntryById(entry3.getId()));
+        assertOptionalEquals(entry1, getEntryProvider(calendar).fetchById(entry1.getId()));
+        assertOptionalEquals(entry2, getEntryProvider(calendar).fetchById(entry2.getId()));
+        assertOptionalEquals(entry3, getEntryProvider(calendar).fetchById(entry3.getId()));
     }
 
     @Test
@@ -235,11 +235,13 @@ public class FullCalendarTest {
 
         InMemoryEntryProvider<Entry> entryProvider = calendar.getEntryProvider().asInMemory();
 
-        entryProvider.addEntry(entry1);
-        entryProvider.addEntry(entry2);
-        entryProvider.addEntry(entry3);
+        entryProvider.getItems().add(entry1);
+        entryProvider.getItems().add(entry2);
+        entryProvider.getItems().add(entry3);
 
-        entryProvider.removeEntry(entry2);
+        entryProvider.getEntries(); // builds the id map, so the removal needs a refresh
+        entryProvider.getItems().remove(entry2);
+        entryProvider.refreshAll();
 
         Collection<Entry> entries = entryProvider.getEntries();
         assertEquals(2, entries.size());
@@ -248,10 +250,78 @@ public class FullCalendarTest {
         assertFalse(entries.contains(entry2));
         assertTrue(entries.contains(entry3));
 
-        assertOptionalEquals(entry1, getEntryProvider(calendar).getEntryById(entry1.getId()));
-        assertOptionalEquals(entry3, getEntryProvider(calendar).getEntryById(entry3.getId()));
+        assertOptionalEquals(entry1, getEntryProvider(calendar).fetchById(entry1.getId()));
+        assertOptionalEquals(entry3, getEntryProvider(calendar).fetchById(entry3.getId()));
 
-        assertFalse(getEntryProvider(calendar).getEntryById(entry2.getId()).isPresent());
+        assertFalse(getEntryProvider(calendar).fetchById(entry2.getId()).isPresent());
+    }
+
+    // #444: an entry holds no calendar, so two calendars can fetch the same instance
+    @Test
+    void testOneEntryFetchedByTwoCalendars() {
+        Entry shared = new Entry();
+        shared.setStart(LocalDateTime.of(2025, 3, 3, 9, 0));
+        FullCalendar first = createTestCalendar();
+        FullCalendar second = createTestCalendar();
+        first.getEntryProvider().asInMemory().getItems().add(shared);
+        second.getEntryProvider().asInMemory().getItems().add(shared);
+
+        assertEquals(1, first.fetchEntriesFromServer(JsonFactory.createObject()).size());
+        assertEquals(1, second.fetchEntriesFromServer(JsonFactory.createObject()).size());
+    }
+
+    /** Counts the refresh requests an entry provider sends to its calendar. */
+    private static class RefreshCountingCalendar extends FullCalendar {
+        int refreshAllRequests;
+        int refreshItemRequests;
+        Entry lastRefreshedItem;
+
+        @Override
+        protected void requestRefreshAllEntries() {
+            refreshAllRequests++;
+        }
+
+        @Override
+        protected void requestRefresh(Entry item) {
+            refreshItemRequests++;
+            lastRefreshedItem = item;
+        }
+    }
+
+    @Test
+    void testOneEntryProviderSharedByTwoCalendars() {
+        InMemoryEntryProvider<Entry> provider = new InMemoryEntryProvider<>();
+        Entry entry = new Entry();
+        provider.getItems().add(entry);
+
+        RefreshCountingCalendar first = new RefreshCountingCalendar();
+        RefreshCountingCalendar second = new RefreshCountingCalendar();
+        first.setEntryProvider(provider);
+        second.setEntryProvider(provider);
+
+        provider.refreshAll();
+        provider.refreshItem(entry);
+
+        assertEquals(1, first.refreshAllRequests);
+        assertEquals(1, second.refreshAllRequests);
+        assertEquals(1, first.refreshItemRequests);
+        assertEquals(1, second.refreshItemRequests);
+        assertSame(entry, first.lastRefreshedItem);
+        assertSame(entry, second.lastRefreshedItem);
+    }
+
+    @Test
+    void testOldEntryProviderNoLongerRefreshesTheCalendar() {
+        InMemoryEntryProvider<Entry> oldProvider = new InMemoryEntryProvider<>();
+        RefreshCountingCalendar calendar = new RefreshCountingCalendar();
+        calendar.setEntryProvider(oldProvider);
+        calendar.setEntryProvider(new InMemoryEntryProvider<>());
+
+        oldProvider.refreshAll();
+        oldProvider.refreshItem(new Entry());
+
+        assertEquals(0, calendar.refreshAllRequests);
+        assertEquals(0, calendar.refreshItemRequests);
     }
 
     @Test
@@ -272,9 +342,9 @@ public class FullCalendarTest {
 //        Entry entry3 = new Entry();
 //
 //        var entryProvider = calendar.getEntryProvider().asInMemory();
-//        entryProvider.addEntry(entry1);
-//        entryProvider.addEntry(entry2);
-//        entryProvider.addEntry(entry3);
+//        entryProvider.getItems().add(entry1);
+//        entryProvider.getItems().add(entry2);
+//        entryProvider.getItems().add(entry3);
 //
 //        entry1.setTitle("1");
 //        entry2.setTitle("2");
@@ -291,9 +361,9 @@ public class FullCalendarTest {
 //        assertTrue(entries.contains(entry2));
 //        assertTrue(entries.contains(entry3));
 //
-//        assertOptionalEquals(entry1, getEntryProvider(calendar).getEntryById(entry1.getId()));
-//        assertOptionalEquals(entry2, getEntryProvider(calendar).getEntryById(entry2.getId()));
-//        assertOptionalEquals(entry3, getEntryProvider(calendar).getEntryById(entry3.getId()));
+//        assertOptionalEquals(entry1, getEntryProvider(calendar).fetchById(entry1.getId()));
+//        assertOptionalEquals(entry2, getEntryProvider(calendar).fetchById(entry2.getId()));
+//        assertOptionalEquals(entry3, getEntryProvider(calendar).fetchById(entry3.getId()));
 //    }
 
     private Entry createEntry(String id, String title, LocalDateTime start, LocalDateTime end, boolean allDay, boolean editable, String color, String description) {
@@ -315,13 +385,14 @@ public class FullCalendarTest {
         FullCalendar calendar = createTestCalendar();
 
         InMemoryEntryProvider entryProvider = calendar.getEntryProvider().asInMemory();
-        entryProvider.addEntry(new Entry());
-        entryProvider.addEntry(new Entry());
-        entryProvider.addEntry(new Entry());
+        entryProvider.getItems().add(new Entry());
+        entryProvider.getItems().add(new Entry());
+        entryProvider.getItems().add(new Entry());
 
         assertEquals(3, entryProvider.getEntries().size());
 
-        entryProvider.removeAllEntries();
+        entryProvider.getItems().clear();
+        entryProvider.refreshAll();
         assertEquals(0, entryProvider.getEntries().size());
     }
 
@@ -330,14 +401,15 @@ public class FullCalendarTest {
         FullCalendar calendar = createTestCalendar();
 
         InMemoryEntryProvider<Entry> entryProvider = calendar.getEntryProvider().asInMemory();
-        entryProvider.addEntry(new Entry());
-        entryProvider.addEntry(new Entry());
-        entryProvider.addEntry(new Entry());
+        entryProvider.getItems().add(new Entry());
+        entryProvider.getItems().add(new Entry());
+        entryProvider.getItems().add(new Entry());
 
         Collection<Entry> entries = entryProvider.getEntries();
         assertEquals(3, entries.size());
 
-        entryProvider.removeAllEntries();
+        entryProvider.getItems().clear();
+        entryProvider.refreshAll();
         assertEquals(3, entries.size());
     }
 

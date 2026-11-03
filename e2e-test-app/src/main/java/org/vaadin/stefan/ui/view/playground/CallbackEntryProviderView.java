@@ -20,9 +20,12 @@ public class CallbackEntryProviderView extends AbstractEntryProviderView {
         );
     }
 
+
     @Override
     protected void onEntriesCreated(Collection<Entry> entries) {
         getEntryService().addEntries(entries);
+
+
         getEntryProvider().refreshAll();
     }
 

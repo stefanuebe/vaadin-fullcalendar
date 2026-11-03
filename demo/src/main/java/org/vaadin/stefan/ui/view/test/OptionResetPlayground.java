@@ -1,5 +1,7 @@
 package org.vaadin.stefan.ui.view.test;
 
+import java.util.List;
+
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
@@ -118,7 +120,7 @@ public class OptionResetPlayground extends VerticalLayout {
 
         FullCalendar calendar = new FullCalendar();
         calendar.options().setInitialDate(LocalDate.of(2025, 3, 3));
-        calendar.getEntryProvider().asInMemory().addEntries(createEntries());
+        calendar.getEntryProvider().asInMemory().getItems().addAll(List.of(createEntries()));
 
         Select<CalendarViewImpl> view = new Select<>("View", e -> calendar.changeView(e.getValue()),
                 CalendarViewImpl.DAY_GRID_MONTH, CalendarViewImpl.TIME_GRID_WEEK, CalendarViewImpl.LIST_WEEK);

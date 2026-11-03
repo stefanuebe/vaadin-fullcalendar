@@ -18,9 +18,9 @@
 ## User-Facing Behavior
 
 - Entries appear on the calendar based on the configured `EntryProvider`
-- With `InMemoryEntryProvider`: all entries are sent to the client; the client filters by visible date range
+- With `InMemoryEntryProvider`: the entries are a collection in server memory, like Vaadin's `ListDataProvider`. The provider sends the entries of the visible range
 - With `CallbackEntryProvider`: only entries for the current visible range are fetched from the server
-- Adding/removing/updating entries through the provider automatically refreshes the calendar display
+- After changing entries, `refreshAll()` or `refreshItem(entry)` updates the calendar display
 - **Loading state**: While a `CallbackEntryProvider` is fetching, FullCalendar renders the view grid with no entries (no built-in loading indicator). Developers who need a loading spinner should listen for `DatesRenderedEvent` and toggle their own indicator.
 - **Empty state**: When no entries exist in the visible range, the calendar shows empty grid cells (no built-in "no events" message). List views show a `noEventsText` message (configurable).
 
@@ -31,10 +31,10 @@
 ```java
 // In-memory (small datasets)
 InMemoryEntryProvider<Entry> provider = calendar.getEntryProvider().asInMemory();
-provider.addEntry(entry1);
-provider.addEntry(entry2);
-provider.removeEntry(entry1);
-provider.refreshAll(); // force full refresh
+provider.getItems().add(entry1);
+provider.getItems().add(entry2);
+provider.getItems().remove(entry1);
+provider.refreshAll(); // required once the calendar is shown, the changes reach the client only then
 
 // Callback (large/database-backed datasets)
 // Requires two lambdas: fetch-by-range and fetch-by-id
@@ -65,6 +65,7 @@ provider.refreshAll();
 | BR-06 | Entry cache is bounded to 10,000 entries (LRU eviction) |
 | BR-07 | `asInMemory()` is a cast helper — it throws `ClassCastException` if the provider is not `InMemoryEntryProvider`. Only use when the default provider is active or after explicitly setting an in-memory provider. |
 | BR-08 | **Thread safety:** Calling `refreshAll()` or `refreshItem()` from a background thread (e.g., async service, scheduled task) requires `ui.access(() -> provider.refreshAll())` with server push enabled (`@Push` on the view/UI). Without `UI.access()`, the update will not reach the client. |
+| BR-09 | One entry provider instance can be set on several calendars. Each calendar registers its own refresh listeners, so `refreshAll()` and `refreshItem()` reach every calendar that uses the provider. An entry provider does not know its calendars. |
 
 ---
 
@@ -82,7 +83,7 @@ provider.refreshAll();
 ## Tests
 
 ### Unit Tests
-- [ ] `InMemoryEntryProviderTest` — CRUD operations
+- [ ] `InMemoryEntryProviderTest` — collection semantics, lazy id map, duplicate ids, range filter
 
 ### E2E Tests
 - [ ] `entry-provider.spec.js` — provider behavior

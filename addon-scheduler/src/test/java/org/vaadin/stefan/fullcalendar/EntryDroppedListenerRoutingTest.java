@@ -10,6 +10,7 @@ import org.junit.jupiter.api.Test;
 import tools.jackson.databind.node.ObjectNode;
 
 import java.time.LocalDateTime;
+import java.util.Set;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -25,6 +26,8 @@ import static org.junit.jupiter.api.Assertions.*;
 class EntryDroppedListenerRoutingTest extends BrowserlessTest {
 
     private FullCalendarScheduler calendar;
+    private final Resource roomA = new Resource("a", "Room A", null);
+    private final Resource roomB = new Resource("b", "Room B", null);
 
     @BeforeEach
     void setUp() {
@@ -32,7 +35,9 @@ class EntryDroppedListenerRoutingTest extends BrowserlessTest {
         ResourceEntry entry = new ResourceEntry("e1");
         entry.setStart(LocalDateTime.of(2025, 3, 3, 9, 0));
         entry.setEnd(LocalDateTime.of(2025, 3, 3, 10, 0));
-        calendar.getEntryProvider().asInMemory().addEntry(entry);
+        calendar.getEntryProvider().asInMemory().getItems().add(entry);
+        calendar.addResources(roomA, roomB);
+        entry.addResources(roomA);
         UI.getCurrent().add(calendar);
         calendar.fetchEntriesFromServer(JsonFactory.createObject()); // fills the fetch cache the events read
         flush();
@@ -76,6 +81,31 @@ class EntryDroppedListenerRoutingTest extends BrowserlessTest {
             }
         }
         return calls;
+    }
+
+    // #444: the event resolves the resources through its source, the entry holds no calendar
+    @Test
+    void applyChangesOnEntry_movesEntryToTheNewResource() {
+        ObjectNode json = droppedEntryJson();
+        json.put("oldResource", "a");
+        json.put("newResource", "b");
+        EntryDroppedSchedulerEvent event = new EntryDroppedSchedulerEvent(calendar, true, json, oneDayDelta());
+
+        ResourceEntry entry = (ResourceEntry) event.applyChangesOnEntry();
+
+        assertEquals(Set.of(roomB), entry.getResources());
+    }
+
+    @Test
+    void oneEntryCanBeFetchedByTwoCalendars() {
+        ResourceEntry shared = new ResourceEntry("shared");
+        shared.setStart(LocalDateTime.of(2025, 3, 3, 9, 0));
+        calendar.getEntryProvider().asInMemory().getItems().add(shared);
+        FullCalendarScheduler other = new FullCalendarScheduler();
+        other.getEntryProvider().asInMemory().getItems().add(shared);
+
+        assertDoesNotThrow(() -> calendar.fetchEntriesFromServer(JsonFactory.createObject()));
+        assertDoesNotThrow(() -> other.fetchEntriesFromServer(JsonFactory.createObject()));
     }
 
     @Test

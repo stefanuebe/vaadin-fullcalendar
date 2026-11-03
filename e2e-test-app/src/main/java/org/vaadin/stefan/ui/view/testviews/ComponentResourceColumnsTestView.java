@@ -105,7 +105,7 @@ public class ComponentResourceColumnsTestView extends VerticalLayout {
         entry.setStart(LocalDateTime.of(2025, 3, 3, 10, 0));
         entry.setEnd(LocalDateTime.of(2025, 3, 3, 12, 0));
         entry.addResources(resA);
-        calendar.getEntryProvider().asInMemory().addEntry(entry);
+        calendar.getEntryProvider().asInMemory().getItems().add(entry);
 
         calendar.setSizeFull();
         add(calendar);

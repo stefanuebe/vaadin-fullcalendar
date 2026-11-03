@@ -19,9 +19,11 @@ import com.vaadin.flow.function.SerializableConsumer;
 import lombok.Setter;
 import org.vaadin.stefan.fullcalendar.Delta;
 import org.vaadin.stefan.fullcalendar.Entry;
+import org.vaadin.stefan.fullcalendar.FullCalendar;
 import org.vaadin.stefan.fullcalendar.Resource;
 import org.vaadin.stefan.fullcalendar.ResourceEntry;
 import org.vaadin.stefan.fullcalendar.Scheduler;
+import org.vaadin.stefan.fullcalendar.option.Timezone;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
@@ -51,11 +53,13 @@ public class DemoDialog extends Dialog {
     private final Binder<Entry> binder;
     private boolean recurring;
     private final Entry entry;
+    private final Timezone timezone;
     private boolean resetPeriodOnAllDayChange;
     private boolean anyTimeHasChangedByUser;
 
-    public DemoDialog(Entry entry, boolean newInstance) {
+    public DemoDialog(FullCalendar calendar, Entry entry, boolean newInstance) {
         this.entry = entry;
+        this.timezone = calendar.options().getTimeZone();
         this.resetPeriodOnAllDayChange = entry.isAllDay();
 
         // tmp entry is a copy. we will use its start and end to represent either the start/end or the recurring start/end
@@ -64,10 +68,10 @@ public class DemoDialog extends Dialog {
         this.recurring = entry.isRecurring();
         tmpEntry.setStart(recurring
                 ? combine(entry.getRecurringStartDate(), entry.getRecurringStartTimeAsLocalTime())
-                : entry.getStartWithOffset());
+                : entry.getStartWithOffset(timezone));
         tmpEntry.setEnd(recurring
                 ? combine(entry.getRecurringEndDate(), entry.getRecurringEndTimeAsLocalTime())
-                : entry.getEndWithOffset());
+                : entry.getEndWithOffset(timezone));
 
         setCloseOnEsc(true);
         setCloseOnOutsideClick(true);
@@ -104,10 +108,7 @@ public class DemoDialog extends Dialog {
 
         // Resource field — only populated and shown for ResourceEntry on a Scheduler calendar (#164)
         MultiSelectComboBox<Resource> fieldResources = null;
-        Scheduler scheduler = entry.getCalendar()
-                .filter(c -> c instanceof Scheduler)
-                .map(c -> (Scheduler) c)
-                .orElse(null);
+        Scheduler scheduler = calendar instanceof Scheduler s ? s : null;
         if (entry instanceof ResourceEntry && scheduler != null) {
             fieldResources = new MultiSelectComboBox<>("Resources");
             fieldResources.setItems(scheduler.getResources());
@@ -287,8 +288,8 @@ public class DemoDialog extends Dialog {
                 entry.setRecurringEndDate(end != null ? end.toLocalDate() : null);
                 entry.setRecurringEndTime(end != null ? end.toLocalTime() : null);
             } else {
-                entry.setStartWithOffset(tmpEntry.getStart());
-                entry.setEndWithOffset(tmpEntry.getEnd());
+                entry.setStartWithOffset(tmpEntry.getStart(), timezone);
+                entry.setEndWithOffset(tmpEntry.getEnd(), timezone);
                 entry.setRecurringDaysOfWeek(); // remove the DoW
                 entry.setRecurringStartDate(null);
                 entry.setRecurringStartTime((LocalTime) null);

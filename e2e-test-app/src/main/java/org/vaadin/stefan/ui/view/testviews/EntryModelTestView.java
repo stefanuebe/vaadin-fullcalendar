@@ -85,7 +85,7 @@ public class EntryModelTestView extends VerticalLayout {
         urlEntry.setStart(LocalDate.of(2025, 3, 5).atStartOfDay());
         urlEntry.setAllDay(true);
         urlEntry.setUrl("https://example.com");
-        provider.addEntry(urlEntry);
+        provider.getItems().add(urlEntry);
 
         // 2. Interactive entry — keyboard-focusable
         Entry interactiveEntry = new Entry();
@@ -93,7 +93,7 @@ public class EntryModelTestView extends VerticalLayout {
         interactiveEntry.setStart(LocalDate.of(2025, 3, 10).atStartOfDay());
         interactiveEntry.setAllDay(true);
         interactiveEntry.setInteractive(true);
-        provider.addEntry(interactiveEntry);
+        provider.getItems().add(interactiveEntry);
 
         // 3. Recurring entry on Mondays in March 2025, each occurrence lasting 48 hours (Monday + Tuesday)
         Entry recurringDuration = new Entry();
@@ -103,7 +103,7 @@ public class EntryModelTestView extends VerticalLayout {
         recurringDuration.setRecurringDuration(Duration.ofHours(48));
         recurringDuration.setRecurringStartDate(LocalDate.of(2025, 3, 1));
         recurringDuration.setRecurringEndDate(LocalDate.of(2025, 3, 31));
-        provider.addEntry(recurringDuration);
+        provider.getItems().add(recurringDuration);
 
         // 4. RRule entry — weekly on Monday and Friday throughout March 2025
         Entry rruleEntry = new Entry();
@@ -115,7 +115,7 @@ public class EntryModelTestView extends VerticalLayout {
                         .until(LocalDate.of(2025, 3, 31))
                         .byWeekday(DayOfWeek.MONDAY, DayOfWeek.FRIDAY)
         );
-        provider.addEntry(rruleEntry);
+        provider.getItems().add(rruleEntry);
 
         // 5. Exdate entry — weekly Monday in March 2025, but March 10 is excluded
         //    Mondays: 3, 10, 17, 24, 31 → after exdate: 3, 17, 24, 31 (4 occurrences)
@@ -129,7 +129,7 @@ public class EntryModelTestView extends VerticalLayout {
                         .byWeekday(DayOfWeek.MONDAY)
                         .excludeDates(LocalDate.of(2025, 3, 10))
         );
-        provider.addEntry(exdateEntry);
+        provider.getItems().add(exdateEntry);
 
         // 6. Monthly last-Friday entry — last Friday of each month Jan–Mar 2025
         //    Last Friday of March 2025 = March 28
@@ -142,14 +142,14 @@ public class EntryModelTestView extends VerticalLayout {
                         .until(LocalDate.of(2025, 3, 31))
                         .byWeekday("-1fr")
         );
-        provider.addEntry(lastFridayEntry);
+        provider.getItems().add(lastFridayEntry);
 
         // 7. Raw RRULE — Wednesdays in March 2025: 5, 12, 19, 26 (4 occurrences)
         Entry rawEntry = new Entry();
         rawEntry.setTitle("Raw RRule");
         rawEntry.setAllDay(true);
         rawEntry.setRRule(RRule.ofRaw("FREQ=WEEKLY;BYDAY=WE;DTSTART=20250305;UNTIL=20250331"));
-        provider.addEntry(rawEntry);
+        provider.getItems().add(rawEntry);
 
         // 8. Exdate WITHOUT DTSTART — byWeekday only, relying on entry.start as reference.
         //    Hypothesis: exdate silently fails because rrule-lib receives no dtstart and
@@ -166,7 +166,7 @@ public class EntryModelTestView extends VerticalLayout {
                         .byWeekday(DayOfWeek.MONDAY)
                         .excludeDates(LocalDate.of(2025, 3, 10))
         );
-        provider.addEntry(exdateNoDtstart);
+        provider.getItems().add(exdateNoDtstart);
 
         // 9. Exdate WITHOUT byWeekday — DTSTART on a Monday implies weekly-on-Monday.
         //    Mondays: 3, 10, 17, 24, 31 → expected after exdate: 4 occurrences.
@@ -179,7 +179,7 @@ public class EntryModelTestView extends VerticalLayout {
                         .until(LocalDate.of(2025, 3, 31))
                         .excludeDates(LocalDate.of(2025, 3, 10))
         );
-        provider.addEntry(exdateNoByWeekday);
+        provider.getItems().add(exdateNoByWeekday);
 
         // 10. Exrule — main: weekly Mondays in March 2025 (5 occurrences),
         //     exrule: weekly, single Monday 2025-03-17 (count=1) → exclude that one.
@@ -199,7 +199,7 @@ public class EntryModelTestView extends VerticalLayout {
                                         .byWeekday(DayOfWeek.MONDAY)
                         )
         );
-        provider.addEntry(exruleEntry);
+        provider.getItems().add(exruleEntry);
 
         // 11. Exrule with a positional weekday — weekly Fridays in March 2025 (7, 14, 21, 28),
         //     exrule: the last Friday of the month (28). Expected: 3 occurrences (7, 14, 21).
@@ -218,7 +218,7 @@ public class EntryModelTestView extends VerticalLayout {
                                         .byWeekday("-1fr")
                         )
         );
-        provider.addEntry(exruleLastFriday);
+        provider.getItems().add(exruleLastFriday);
 
         calendar.setEntryProvider(provider);
 

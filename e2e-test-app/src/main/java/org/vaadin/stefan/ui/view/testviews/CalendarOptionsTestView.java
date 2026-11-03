@@ -61,7 +61,7 @@ public class CalendarOptionsTestView extends VerticalLayout {
         sample1.setTitle("Test Event");
         sample1.setStart(LocalDate.of(2025, 3, 5).atStartOfDay());
         sample1.setAllDay(true);
-        provider1.addEntry(sample1);
+        provider1.getItems().add(sample1);
         cal1.setEntryProvider(provider1);
 
         // Set fixed height so both calendars fit
@@ -89,7 +89,7 @@ public class CalendarOptionsTestView extends VerticalLayout {
         sample2.setTitle("Morning Meeting");
         sample2.setStart(LocalDateTime.of(2025, 3, 5, 9, 0));
         sample2.setEnd(LocalDateTime.of(2025, 3, 5, 10, 0));
-        provider2.addEntry(sample2);
+        provider2.getItems().add(sample2);
         cal2.setEntryProvider(provider2);
 
         cal2.setHeight("400px");

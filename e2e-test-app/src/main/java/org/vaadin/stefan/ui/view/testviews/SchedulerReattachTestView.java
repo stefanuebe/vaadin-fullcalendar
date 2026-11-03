@@ -67,7 +67,7 @@ public class SchedulerReattachTestView extends VerticalLayout {
         bobTask.setEnd(LocalDateTime.of(2025, 3, 4, 15, 0));
         bobTask.addResources(r2);
 
-        provider.addEntries(aliceTask, bobTask);
+        provider.getItems().addAll(List.of(aliceTask, bobTask));
         calendar.setEntryProvider(provider);
 
         // Detach/reattach button

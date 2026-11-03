@@ -43,7 +43,7 @@ org.vaadin.stefan.fullcalendar/
   CalendarOptions.java, ViewOptions.java — Package-private data classes that hold the typed option fields
   dataprovider/
     EntryProvider.java        — Interface for providing entries to the calendar
-    InMemoryEntryProvider.java — Client-side entry storage (all entries sent to browser)
+    InMemoryEntryProvider.java — Entries in a server-side collection, like ListDataProvider
     CallbackEntryProvider.java — Lazy loading (entries fetched per visible date range)
   converters/                 — Java ↔ JS type converters (Duration, DayOfWeek, RRule, etc.)
   json/                       — Custom annotations (@JsonName, @JsonConverter, @JsonIgnore)

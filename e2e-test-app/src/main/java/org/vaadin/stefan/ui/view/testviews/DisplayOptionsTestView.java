@@ -80,7 +80,7 @@ public class DisplayOptionsTestView extends VerticalLayout {
         entries.add(withEnd);
 
         InMemoryEntryProvider<Entry> provider = new InMemoryEntryProvider<>();
-        provider.addEntries(entries);
+        provider.getItems().addAll(entries);
         calendar.setEntryProvider(provider);
 
         add(calendar);

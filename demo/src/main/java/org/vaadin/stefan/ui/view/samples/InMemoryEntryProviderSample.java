@@ -30,14 +30,14 @@ public class InMemoryEntryProviderSample extends AbstractSample {
         // CRUD operations
         // to add
         Entry entry = new Entry();       // ... plus some init
-        entryProvider.addEntries(entry); // register in data provider
+        entryProvider.getItems().add(entry); // register in data provider
         entryProvider.refreshAll();         // call refresh to inform the client about the data change and trigger a refetch
 
         // after some change
         entryProvider.refreshItem(entry); // call refresh to inform the client about the data change and trigger a refetch
 
         // to remove
-        entryProvider.removeEntry(entry);
+        entryProvider.getItems().remove(entry);
         entryProvider.refreshAll(); // call refresh to inform the client about the data change and trigger a refetch
     }
 }

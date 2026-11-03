@@ -17,6 +17,6 @@ public class BackgroundEntrySample extends AbstractSample {
         entry.setDisplayMode(DisplayMode.BACKGROUND);
 
         // add the entry to the calendar, e.g. for an in-memory provider:
-        calendar.getEntryProvider().asInMemory().addEntry(entry);
+        calendar.getEntryProvider().asInMemory().getItems().add(entry);
     }
 }

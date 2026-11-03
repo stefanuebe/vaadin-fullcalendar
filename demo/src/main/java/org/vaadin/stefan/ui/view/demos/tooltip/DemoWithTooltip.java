@@ -40,7 +40,7 @@ public class DemoWithTooltip extends AbstractCalendarView {
 
         FullCalendarWithTooltip calendar = new FullCalendarWithTooltip(defaultInitialOptions);
         calendar.options().setDayMaxEntries(3);
-        ((InMemoryEntryProvider<Entry>) calendar.getEntryProvider()).addEntries(entryService.getEntries());
+        ((InMemoryEntryProvider<Entry>) calendar.getEntryProvider()).getItems().addAll(entryService.getEntries());
 
         return calendar;
     }

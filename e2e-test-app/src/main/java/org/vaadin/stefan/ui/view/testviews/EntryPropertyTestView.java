@@ -63,7 +63,7 @@ public class EntryPropertyTestView extends VerticalLayout {
         redEntry.setStart(LocalDate.of(2025, 3, 3).atStartOfDay());
         redEntry.setAllDay(true);
         redEntry.setColor("red");
-        provider.addEntry(redEntry);
+        provider.getItems().add(redEntry);
 
         // 2. Custom color + contrast color
         Entry customColor = new Entry();
@@ -72,7 +72,7 @@ public class EntryPropertyTestView extends VerticalLayout {
         customColor.setAllDay(true);
         customColor.setColor("#00ff00");
         customColor.setContrastColor("#ffffff");
-        provider.addEntry(customColor);
+        provider.getItems().add(customColor);
 
         // 3. DisplayMode BACKGROUND
         Entry bgMode = new Entry();
@@ -81,7 +81,7 @@ public class EntryPropertyTestView extends VerticalLayout {
         bgMode.setAllDay(true);
         bgMode.setDisplayMode(DisplayMode.BACKGROUND);
         bgMode.setColor("orange");
-        provider.addEntry(bgMode);
+        provider.getItems().add(bgMode);
 
         // 4. DisplayMode INVERSE_BACKGROUND
         Entry inverseBg = new Entry();
@@ -90,7 +90,7 @@ public class EntryPropertyTestView extends VerticalLayout {
         inverseBg.setAllDay(true);
         inverseBg.setDisplayMode(DisplayMode.INVERSE_BACKGROUND);
         inverseBg.setColor("purple");
-        provider.addEntry(inverseBg);
+        provider.getItems().add(inverseBg);
 
         // 5. DisplayMode NONE — hidden
         Entry hiddenEntry = new Entry();
@@ -98,7 +98,7 @@ public class EntryPropertyTestView extends VerticalLayout {
         hiddenEntry.setStart(LocalDate.of(2025, 3, 8).atStartOfDay());
         hiddenEntry.setAllDay(true);
         hiddenEntry.setDisplayMode(DisplayMode.NONE);
-        provider.addEntry(hiddenEntry);
+        provider.getItems().add(hiddenEntry);
 
         // 6. Custom classNames
         Entry classEntry = new Entry();
@@ -106,14 +106,14 @@ public class EntryPropertyTestView extends VerticalLayout {
         classEntry.setStart(LocalDate.of(2025, 3, 10).atStartOfDay());
         classEntry.setAllDay(true);
         classEntry.setClassNames(Set.of("my-custom-class"));
-        provider.addEntry(classEntry);
+        provider.getItems().add(classEntry);
 
         // 7. All-day entry
         Entry allDayEntry = new Entry();
         allDayEntry.setTitle("All-Day Entry");
         allDayEntry.setStart(LocalDate.of(2025, 3, 12).atStartOfDay());
         allDayEntry.setAllDay(true);
-        provider.addEntry(allDayEntry);
+        provider.getItems().add(allDayEntry);
 
         // 8. Timed entry (not all-day)
         Entry timedEntry = new Entry();
@@ -121,7 +121,7 @@ public class EntryPropertyTestView extends VerticalLayout {
         timedEntry.setStart(LocalDateTime.of(2025, 3, 12, 9, 0));
         timedEntry.setEnd(LocalDateTime.of(2025, 3, 12, 10, 0));
         timedEntry.setAllDay(false);
-        provider.addEntry(timedEntry);
+        provider.getItems().add(timedEntry);
 
         // 9. Non-editable entry (per-entry override)
         Entry notEditable = new Entry();
@@ -129,7 +129,7 @@ public class EntryPropertyTestView extends VerticalLayout {
         notEditable.setStart(LocalDate.of(2025, 3, 14).atStartOfDay());
         notEditable.setAllDay(true);
         notEditable.setEditable(false);
-        provider.addEntry(notEditable);
+        provider.getItems().add(notEditable);
 
         // 10. Non-resizable entry (durationEditable=false)
         Entry noResize = new Entry();
@@ -138,7 +138,7 @@ public class EntryPropertyTestView extends VerticalLayout {
         noResize.setEnd(LocalDateTime.of(2025, 3, 14, 11, 0));
         noResize.setAllDay(false);
         noResize.setDurationEditable(false);
-        provider.addEntry(noResize);
+        provider.getItems().add(noResize);
 
         // 11. Entry with extended props, read by the render hooks below
         Entry propsEntry = new Entry();
@@ -147,7 +147,7 @@ public class EntryPropertyTestView extends VerticalLayout {
         propsEntry.setAllDay(true);
         propsEntry.setExtendedProp("department", "Engineering");
         propsEntry.setExtendedProp("priority", "high");
-        provider.addEntry(propsEntry);
+        provider.getItems().add(propsEntry);
 
         // 12. Entry with most fields set besides its extended props. None of these fields may end up in
         // extendedProps, where it would overwrite an extended prop of the same name.
@@ -169,7 +169,7 @@ public class EntryPropertyTestView extends VerticalLayout {
         allFields.setUrl("#all-fields");
         allFields.setDisplayMode(DisplayMode.BLOCK);
         allFields.setExtendedProp("department", "Engineering");
-        provider.addEntry(allFields);
+        provider.getItems().add(allFields);
 
         calendar.setEntryProvider(provider);
 
