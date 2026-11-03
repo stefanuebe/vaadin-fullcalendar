@@ -233,6 +233,14 @@ commit messages and issues.
   version", "newer FullCalendar library versions" or "an older FullCalendar
   library version". The add-on and library versions are not in sync. An add-on
   version is fine where something starts at it ("since 7.2.5").
+- **A claim about behaviour is checked in the code before it is written down.**
+  Copying a Javadoc sentence is not a check. Where the code does not do what the
+  text says, decide whether the code or the text is wrong, and fix that one. The
+  Javadoc of `setEntryProvider` said it refreshes the client. It did not, which
+  was a bug.
+- **A limitation is questioned before it is documented.** Check why it exists and
+  whether the reason still holds. "One entry provider per calendar" rested on a
+  field nothing read any more. Removing the field removed the limitation.
 
 ### Wiki topic pages
 
@@ -269,6 +277,17 @@ configuration.
   with a short summary each, and the maintainer decides.
 - **No sample for a single method call.** A sample shows how parts work together.
   A single setter is explained in the text or in a table.
+- **A sample shows one case.** When a variant adds steps, the plain case comes
+  first and the variant follows as a second sample. Not one drop listener that
+  applies the change, limits the date and refreshes the entry, but one that only
+  applies the change, then one that also limits the date.
+- **How to set something up comes before how to work with it.** A section on
+  refreshing the entry provider needs a section before it on how a calendar gets
+  its entry provider.
+- **Where Vaadin has a counterpart, follow its pattern.** A reader who knows the
+  Vaadin API recognizes the add-on's API in it. The in-memory entry provider is
+  documented like `ListDataProvider`: `setItems` first, "list" rather than
+  "collection".
 - **Every sentence gives the reader something.** No technical reason the reader
   does not need ("because the add-on listens to entry clicks"), no remark about
   the page itself ("The other examples reuse `calendar`"), no statement of the
