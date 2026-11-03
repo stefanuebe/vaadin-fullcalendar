@@ -276,6 +276,15 @@ configuration.
   all-day."
 - **Related sections stand together.** Order the sections by content. How the
   user changes entries follows how the code updates them.
+- **A page is one line of thought.** Read top to bottom, each section follows
+  from the one before, and each goes from the simple, common case to the detail
+  and the special case. A fact stands where the reader first needs it: a
+  requirement before the sample that depends on it (allowing drag before the
+  drop listener), a term before the table that uses it, an id rule before the
+  sample that looks entries up by id. Facts on one topic stay in one place
+  instead of spread over the page, and none is said twice. A forward link
+  ("see X below") that stands in for an explanation the reader needs here means
+  the fact is in the wrong place. Move it, don't link to it.
 - **A note on terms stands at the end of the introduction**, as a
   `> **Note:**` quote, not in the first sentence. An example is that the library
   calls entries "events".

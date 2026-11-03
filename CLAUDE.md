@@ -190,10 +190,17 @@ The order is fixed:
    `STYLEGUIDE.md`. A sentence the maintainer wrote in a review goes in nearly
    verbatim and is passed to the reviewers as fixed. A finding on it is at most a
    minor to ask about. A long page, such as release notes or a migration guide,
-   is reviewed one `##` section at a time, each with its own loop, followed by
-   one pass of a strong model over the whole page for transitions and
-   duplicates. Content to be moved to another page goes where a ticket names its
-   target page. Check the open Docs tickets first.
+   is reviewed one `##` section at a time, each with its own loop.
+
+   Every document review, short page or long, ends with a whole-page pass: a
+   strong model reads the page top to bottom as a newcomer and judges only the
+   line of thought, against *A page is one line of thought* in `STYLEGUIDE.md`.
+   This pass is the main check of a page, not a formality. Section reviews do
+   not catch a page that reads randomly thrown together. A major from it is a
+   major of the loop. After a restructure, the loop and the pass run again. Then
+   read the whole page yourself before reporting it done. Content to be moved to
+   another page goes where a ticket names its target page. Check the open Docs
+   tickets first.
 3. the full gate: `mvn clean install`, then the E2E run in `e2e-test-app/`
 4. commit
 
