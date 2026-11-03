@@ -38,4 +38,30 @@ test.describe('Scheduler drop listeners (#306)', () => {
         if (!after) throw new Error('Could not get bounding box for the entry after the drop');
         expect(after.x).toBeGreaterThan(before.x + 50);
     });
+
+    // before version 7.1.3, the library reported the new resource also for an entry that is not resource-editable
+    test('an entry that is not resource-editable keeps its resource when dropped over another one (#449)', async ({ page }) => {
+        await page.goto('/test/scheduler-drop-listeners');
+        const entry = page.locator('.fc-event:has-text("Locked")').first();
+        await expect(entry).toBeVisible({ timeout: 10000 });
+        await waitForVaadin(page);
+
+        const box = await entry.boundingBox();
+        // the view adds Room A first, so the second resource lane is Room B
+        const roomB = await page.locator('.fc-timeline-lane.fc-resource').nth(1).boundingBox();
+        if (!box || !roomB) throw new Error('Could not get bounding boxes for the entry and the lane of Room B');
+        const startX = box.x + box.width / 2;
+        const startY = box.y + box.height / 2;
+
+        // over the lane of Room B and later in the day, so that the drop is not a no-op
+        await page.mouse.move(startX, startY);
+        await page.mouse.down();
+        await page.mouse.move(startX + 150, roomB.y + roomB.height / 2, { steps: 10 });
+        await page.mouse.up();
+
+        await expect(page.locator('#scheduler-count')).toHaveText('1', { timeout: 5000 });
+        await expect(page.locator('#server-start')).not.toHaveText('2025-03-03T12:00');
+        await expect(page.locator('#new-resource')).toHaveText('none');
+        await expect(page.locator('#server-resources')).toHaveText('a');
+    });
 });

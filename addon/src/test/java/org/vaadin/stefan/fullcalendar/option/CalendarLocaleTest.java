@@ -32,6 +32,19 @@ public class CalendarLocaleTest {
     }
 
     @Test
+    void everyCalendarLocaleIsFoundByItsOwnLocale() {
+        for (CalendarLocale calendarLocale : CalendarLocale.values()) {
+            Assertions.assertEquals(calendarLocale, CalendarLocale.findDefaultFor(calendarLocale.getLocale()));
+        }
+    }
+
+    @Test
+    void defaultLocaleFindsLocalesNewInTheEnum() {
+        Assertions.assertEquals(CalendarLocale.WELSH, CalendarLocale.findDefaultFor(Locale.forLanguageTag("cy")));
+        Assertions.assertEquals(CalendarLocale.BELARUSIAN, CalendarLocale.findDefaultFor(Locale.forLanguageTag("be")));
+    }
+
+    @Test
     void defaultLocaleFallsBackToLanguageOfUnsupportedRegion() {
         Assertions.assertEquals(CalendarLocale.FRENCH, CalendarLocale.findDefaultFor(Locale.FRANCE));
         Assertions.assertEquals(CalendarLocale.ITALIAN, CalendarLocale.findDefaultFor(Locale.ITALY));

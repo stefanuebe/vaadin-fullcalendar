@@ -44,7 +44,7 @@ import java.util.*;
  * component, API, functionality, etc.
  */
 @NpmPackage(value = "fullcalendar", version = FullCalendar.FC_CLIENT_VERSION)
-@NpmPackage(value = "temporal-polyfill", version = "1.0.5") // peer dependency of fullcalendar 7.1.0 (^1.0.1)
+@NpmPackage(value = "temporal-polyfill", version = "1.0.5") // peer dependency of fullcalendar 7.1.3 (^1.0.1)
 @NpmPackage(value = "@fullcalendar/rrule", version = FullCalendar.FC_CLIENT_VERSION)
 @NpmPackage(value = "@fullcalendar/google-calendar", version = FullCalendar.FC_CLIENT_VERSION)
 @NpmPackage(value = "@fullcalendar/icalendar", version = FullCalendar.FC_CLIENT_VERSION)
@@ -63,7 +63,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
      * The FullCalendar version used in this addon, for the core package and its plugins. Third-party libraries such as
      * ical.js and temporal-polyfill have their own version numbers.
      */
-    public static final String FC_CLIENT_VERSION = "7.1.0";
+    public static final String FC_CLIENT_VERSION = "7.1.3";
 
     /**
      * This is the default duration of a timed entry in hours. Will be dynamically settable in a later version.

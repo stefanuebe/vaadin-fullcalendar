@@ -21,7 +21,7 @@
 - JS callbacks execute client-side for render customization, constraint validation, and formatting
 - Entry extended props (`setExtendedProp`) are accessible in JS callbacks under `event.extendedProps`
 - Scheduler render hooks customize resource label/lane rendering
-- Every render hook FullCalendar 7.1.0 documents has a field, grouped in families (see BR-08)
+- Every render hook FullCalendar 7.1.3 documents has a field, grouped in families (see BR-08)
 - A `JsCallback` can sit inside a `Map` or `Collection` option value, e.g. a button's `click` in `buttons`
 
 ---

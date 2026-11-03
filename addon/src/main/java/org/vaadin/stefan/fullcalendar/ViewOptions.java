@@ -1875,8 +1875,8 @@ class ViewOptions implements Serializable {
      * CSS classes for the time element within the "inner" wrapper of block entries, the rectangular, color-filled
      * entries (essentially all entries except list entries).
      * <p>
-     * A callback gets an {@code info} object with {@code event}, {@code isNarrow} and {@code isShort}, see the library
-     * docs. It returns the class names as a string.
+     * A callback gets an {@code info} object with {@code event}, {@code timeText}, {@code isNarrow} and
+     * {@code isShort}, see the library docs. It returns the class names as a string.
      * <p>
      * It applies in addition to the general entry class option of the same part.
      * <p>
@@ -1915,8 +1915,8 @@ class ViewOptions implements Serializable {
      * CSS classes for the title element within the "inner" wrapper of block entries, the rectangular, color-filled
      * entries (essentially all entries except list entries).
      * <p>
-     * A callback gets an {@code info} object with {@code event}, {@code isNarrow} and {@code isShort}, see the library
-     * docs. It returns the class names as a string.
+     * A callback gets an {@code info} object with {@code event}, {@code timeText}, {@code isNarrow} and
+     * {@code isShort}, see the library docs. It returns the class names as a string.
      * <p>
      * It applies in addition to the general entry class option of the same part.
      * <p>
@@ -2113,8 +2113,8 @@ class ViewOptions implements Serializable {
      * CSS classes for the time element within the "inner" wrapper of column entries, the color-filled entries that
      * render vertically (timed entries in time grid views).
      * <p>
-     * A callback gets an {@code info} object with {@code event}, {@code isNarrow} and {@code isShort}, see the library
-     * docs. It returns the class names as a string.
+     * A callback gets an {@code info} object with {@code event}, {@code timeText}, {@code isNarrow} and
+     * {@code isShort}, see the library docs. It returns the class names as a string.
      * <p>
      * It applies in addition to the general and the block entry class option of the same part.
      * <p>
@@ -2153,8 +2153,8 @@ class ViewOptions implements Serializable {
      * CSS classes for the title element within the "inner" wrapper of column entries, the color-filled entries that
      * render vertically (timed entries in time grid views).
      * <p>
-     * A callback gets an {@code info} object with {@code event}, {@code isNarrow} and {@code isShort}, see the library
-     * docs. It returns the class names as a string.
+     * A callback gets an {@code info} object with {@code event}, {@code timeText}, {@code isNarrow} and
+     * {@code isShort}, see the library docs. It returns the class names as a string.
      * <p>
      * It applies in addition to the general and the block entry class option of the same part.
      * <p>
@@ -2436,8 +2436,8 @@ class ViewOptions implements Serializable {
      * grid views, all-day entries in time grid views, and entries in timeline views. This hook applies in addition to
      * the general entry hook.
      * <p>
-     * A callback gets an {@code info} object with {@code event}, {@code isNarrow} and {@code isShort}, see the library
-     * docs. It returns the class names as a string.
+     * A callback gets an {@code info} object with {@code event}, {@code timeText}, {@code isNarrow} and
+     * {@code isShort}, see the library docs. It returns the class names as a string.
      * <p>
      * The library default is no classes. A theme can set classes of its own, and the classes set here are added to
      * them.
@@ -2477,8 +2477,8 @@ class ViewOptions implements Serializable {
      * grid views, all-day entries in time grid views, and entries in timeline views. This hook applies in addition to
      * the general entry hook.
      * <p>
-     * A callback gets an {@code info} object with {@code event}, {@code isNarrow} and {@code isShort}, see the library
-     * docs. It returns the class names as a string.
+     * A callback gets an {@code info} object with {@code event}, {@code timeText}, {@code isNarrow} and
+     * {@code isShort}, see the library docs. It returns the class names as a string.
      * <p>
      * The library default is no classes. A theme can set classes of its own, and the classes set here are added to
      * them.
@@ -2639,8 +2639,8 @@ class ViewOptions implements Serializable {
     /**
      * CSS classes for the title element inside the inner wrapper of a background entry.
      * <p>
-     * A callback gets an {@code info} object with {@code event}, {@code isNarrow} and {@code isShort}, see the
-     * library docs. It returns the class names as a string.
+     * A callback gets an {@code info} object with {@code event}, {@code timeText}, {@code isNarrow} and
+     * {@code isShort}, see the library docs. It returns the class names as a string.
      * <p>
      * The general entry class options do not apply to background entries. The library default is no classes. A theme
      * can set classes of its own, and the classes set here are added to them.
