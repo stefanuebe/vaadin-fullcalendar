@@ -66,6 +66,7 @@ provider.refreshAll();
 | BR-07 | `asInMemory()` is a cast helper — it throws `ClassCastException` if the provider is not `InMemoryEntryProvider`. Only use when the default provider is active or after explicitly setting an in-memory provider. |
 | BR-08 | **Thread safety:** Calling `refreshAll()` or `refreshItem()` from a background thread (e.g., async service, scheduled task) requires `ui.access(() -> provider.refreshAll())` with server push enabled (`@Push` on the view/UI). Without `UI.access()`, the update will not reach the client. |
 | BR-09 | One entry provider instance can be set on several calendars. Each calendar registers its own refresh listeners, so `refreshAll()` and `refreshItem()` reach every calendar that uses the provider. An entry provider does not know its calendars. |
+| BR-10 | `setEntryProvider` on a calendar that is already shown makes the client fetch from the new entry provider, also when the calendar is detached and attached again in the same round trip. While the client element does not exist yet, `setEntryProvider` sends no refresh, because the first fetch already uses the new entry provider. |
 
 ---
 
