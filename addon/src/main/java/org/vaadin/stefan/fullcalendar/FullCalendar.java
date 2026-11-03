@@ -404,8 +404,8 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
     }
 
     /**
-     * Sets the entry provider for this instance. The previous entry provider will be removed and the
-     * client side will be updated.
+     * Sets the entry provider for this instance and replaces the previous one. When the calendar is already shown,
+     * the client fetches its entries from the new entry provider. Otherwise the first fetch of the client uses it.
      * <p></p>
      * By default a new full calendar is initialized with an {@link InMemoryEntryProvider}.
      *
@@ -422,6 +422,13 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
 
             entryProviderDataListeners.add(entryProvider.addEntryRefreshListener(event -> requestRefresh(event.getItemToRefresh())));
             entryProviderDataListeners.add(entryProvider.addEntriesChangeListener(event -> requestRefreshAllEntries()));
+
+            // Before the client element exists, its first fetch already reads the new entry provider, so a refresh
+            // would fetch twice.
+            // A calendar detached and attached again in one round trip keeps its element and gets the refresh.
+            if (initialStateSent) {
+                requestRefreshAllEntries();
+            }
         }
     }
 
