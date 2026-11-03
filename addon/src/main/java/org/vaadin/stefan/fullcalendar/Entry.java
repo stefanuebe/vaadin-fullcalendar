@@ -125,7 +125,12 @@ public class Entry implements Serializable {
     private String contrastColor;
     private Boolean overlap;
 
-    /** Whether the entry is keyboard-focusable (tabbable) independently of drag/drop. Null inherits the calendar-level {@code eventInteractive} option. */
+    /**
+     * Whether the user can reach the entry with the Tab key, independently of drag and drop. Applies only while the
+     * calendar option {@code entryInteractive} is not set. Once that option is set, to {@code true} or {@code false},
+     * it overrides this value for every entry without a URL. Null makes the entry interactive. An entry with a URL
+     * is always interactive.
+     */
     private Boolean interactive;
 
     /**
