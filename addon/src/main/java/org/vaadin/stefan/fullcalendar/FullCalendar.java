@@ -505,10 +505,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
 
         ArrayNode array = JsonFactory.createArray();
         entryProvider.fetch(new EntryQuery(start, end, EntryQuery.AllDay.BOTH))
-                .peek(entry -> {
-                    entry.setKnownToTheClient(true); // mark entry as "has been sent to client"
-                    lastFetchedEntries.put(entry.getId(), entry);
-                })
+                .peek(entry -> lastFetchedEntries.put(entry.getId(), entry))
                 .map(Entry::toJson)
                 .forEach(array::add);
 

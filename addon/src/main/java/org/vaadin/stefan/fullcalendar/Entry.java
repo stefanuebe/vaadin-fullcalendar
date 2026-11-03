@@ -267,9 +267,6 @@ public class Entry implements Serializable {
     @JsonConverter(ExtendedPropsConverter.class)
     private Map<String, Object> extendedProps;
 
-    @JsonIgnore
-    private boolean knownToTheClient; // not sure if still needed?
-
     /**
      * Creates a new editable instance with a generated id.
      */
