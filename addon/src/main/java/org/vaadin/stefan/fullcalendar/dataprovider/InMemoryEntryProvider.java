@@ -17,12 +17,10 @@ import java.util.stream.Stream;
  * {@link #refreshAll()} so that the calendar shows the change. Before the calendar is shown for the first
  * time, no refresh is needed.
  * <p></p>
- * The provider looks up entries by their id in a map built from the collection. The constructor,
- * {@link #setItems(Collection)} and {@link #refreshAll()} mark this map as outdated, and the next
- * {@link #fetch(EntryQuery)} or {@link #fetchById(String)} builds it again. Two entries with the same id in
- * the collection make that call throw an {@link IllegalStateException}. {@link #refreshItem(Entry)} does not
- * rebuild the map, so an entry added to the collection after the last rebuild is not refreshed until
- * {@link #refreshAll()}. After adding, removing or replacing entries, call {@link #refreshAll()}.
+ * {@link #refreshItem(Entry)} does not pick up added, removed or replaced entries.
+ * <p></p>
+ * Two entries with the same id in the collection make the next {@link #fetch(EntryQuery)} or
+ * {@link #fetchById(String)} throw an {@link IllegalStateException}.
  *
  * @author Stefan Uebe
  */
@@ -36,7 +34,7 @@ public class InMemoryEntryProvider<T extends Entry> extends AbstractEntryProvide
     private Map<String, T> entriesById;
 
     /**
-     * Creates an instance with an empty, modifiable collection. Add entries with {@code getItems().add(entry)}
+     * Creates an instance with an empty, modifiable list. Add entries with {@code getItems().add(entry)}
      * or replace the collection with {@link #setItems(Collection)}.
      */
     public InMemoryEntryProvider() {
@@ -55,7 +53,7 @@ public class InMemoryEntryProvider<T extends Entry> extends AbstractEntryProvide
     }
 
     /**
-     * Creates an instance with a new, modifiable collection holding the given entries.
+     * Creates an instance with a new, modifiable list holding the given entries.
      * @param entries initial entries
      * @param <T> type
      * @return in memory provider
@@ -98,7 +96,7 @@ public class InMemoryEntryProvider<T extends Entry> extends AbstractEntryProvide
     }
 
     /**
-     * Replaces the entries of this provider with a new, modifiable collection holding the given entries and
+     * Replaces the entries of this provider with a new, modifiable list holding the given entries and
      * refreshes the calendar.
      *
      * @param items entries
@@ -110,7 +108,7 @@ public class InMemoryEntryProvider<T extends Entry> extends AbstractEntryProvide
     }
 
     /**
-     * Marks the id map as outdated and tells the calendar to fetch its entries again.
+     * Tells the calendar to fetch its entries again. Picks up all changes to the collection.
      */
     @Override
     public void refreshAll() {
