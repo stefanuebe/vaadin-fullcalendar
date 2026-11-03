@@ -270,6 +270,60 @@ public class FullCalendarTest {
         assertEquals(1, second.fetchEntriesFromServer(JsonFactory.createObject()).size());
     }
 
+    /** Counts the refresh requests an entry provider sends to its calendar. */
+    private static class RefreshCountingCalendar extends FullCalendar {
+        int refreshAllRequests;
+        int refreshItemRequests;
+        Entry lastRefreshedItem;
+
+        @Override
+        protected void requestRefreshAllEntries() {
+            refreshAllRequests++;
+        }
+
+        @Override
+        protected void requestRefresh(Entry item) {
+            refreshItemRequests++;
+            lastRefreshedItem = item;
+        }
+    }
+
+    @Test
+    void testOneEntryProviderSharedByTwoCalendars() {
+        InMemoryEntryProvider<Entry> provider = new InMemoryEntryProvider<>();
+        Entry entry = new Entry();
+        provider.getItems().add(entry);
+
+        RefreshCountingCalendar first = new RefreshCountingCalendar();
+        RefreshCountingCalendar second = new RefreshCountingCalendar();
+        first.setEntryProvider(provider);
+        second.setEntryProvider(provider);
+
+        provider.refreshAll();
+        provider.refreshItem(entry);
+
+        assertEquals(1, first.refreshAllRequests);
+        assertEquals(1, second.refreshAllRequests);
+        assertEquals(1, first.refreshItemRequests);
+        assertEquals(1, second.refreshItemRequests);
+        assertSame(entry, first.lastRefreshedItem);
+        assertSame(entry, second.lastRefreshedItem);
+    }
+
+    @Test
+    void testOldEntryProviderNoLongerRefreshesTheCalendar() {
+        InMemoryEntryProvider<Entry> oldProvider = new InMemoryEntryProvider<>();
+        RefreshCountingCalendar calendar = new RefreshCountingCalendar();
+        calendar.setEntryProvider(oldProvider);
+        calendar.setEntryProvider(new InMemoryEntryProvider<>());
+
+        oldProvider.refreshAll();
+        oldProvider.refreshItem(new Entry());
+
+        assertEquals(0, calendar.refreshAllRequests);
+        assertEquals(0, calendar.refreshItemRequests);
+    }
+
     @Test
     void testInitialEmptyCollection() {
         FullCalendar calendar = createTestCalendar();

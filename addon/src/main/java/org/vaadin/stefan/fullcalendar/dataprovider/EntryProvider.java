@@ -4,7 +4,6 @@ import com.vaadin.flow.function.SerializableFunction;
 import com.vaadin.flow.shared.Registration;
 import lombok.NonNull;
 import org.vaadin.stefan.fullcalendar.Entry;
-import org.vaadin.stefan.fullcalendar.FullCalendar;
 
 import java.io.Serializable;
 import java.time.Instant;
@@ -125,14 +124,6 @@ public interface EntryProvider<T extends Entry> extends Serializable {
      * based on the current shown timespan or all data.
      */
     void refreshAll();
-
-    /**
-     * Registers the used calendar. This method will be called once automatically, when setting
-     * this entry provider to the calendar. The given parameter might be stored internally, but that
-     * is optionally. It is more a support method, if the calendar is necessary for internal usage.
-     * @param calendar calendar
-     */
-    void setCalendar(FullCalendar calendar);
 
     /**
      * Indicates, if this instance is an in memory instance or not. By default checks, if this instance

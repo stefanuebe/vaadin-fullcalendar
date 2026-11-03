@@ -418,12 +418,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
             entryProviderDataListeners.forEach(Registration::remove);
             entryProviderDataListeners.clear();
 
-            if (this.entryProvider != null) {
-                this.entryProvider.setCalendar(null);
-            }
-
             this.entryProvider = entryProvider;
-            entryProvider.setCalendar(this);
 
             entryProviderDataListeners.add(entryProvider.addEntryRefreshListener(event -> requestRefresh(event.getItemToRefresh())));
             entryProviderDataListeners.add(entryProvider.addEntriesChangeListener(event -> requestRefreshAllEntries()));
