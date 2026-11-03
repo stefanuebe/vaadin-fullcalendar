@@ -34,7 +34,7 @@ public class CustomViewDemo extends AbstractSchedulerView {
         calendar.options().setLocale(UI.getCurrent().getLocale());
 
         List<Entry> entries = EntryService.createRandomInstance().getEntries();
-        calendar.getEntryProvider().asInMemory().addEntries(entries);
+        calendar.getEntryProvider().asInMemory().getItems().addAll(entries);
 
         return calendar;
     }

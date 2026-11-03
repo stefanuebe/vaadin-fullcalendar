@@ -37,19 +37,19 @@ public class InMemoryEntryProviderDemo extends AbstractEntryProviderDemo {
 
     @Override
     protected void onEntriesCreated(Collection<Entry> entries) {
-        // The lazy in memory provider provides API to modify its internal cache. To inform the client about
-        // the change a refresh call is necessary.
+        // The in memory provider works on its collection. To inform the client about the change a refresh
+        // call is necessary.
         InMemoryEntryProvider<Entry> provider = getEntryProvider();
-        provider.addEntries(entries);
+        provider.getItems().addAll(entries);
         provider.refreshAll();
     }
 
     @Override
     protected void onEntriesRemoved(Collection<Entry> entries) {
-        // The lazy in memory provider provides API to modify its internal cache. To inform the client about
-        // the change a refresh call is necessary.
+        // The in memory provider works on its collection. To inform the client about the change a refresh
+        // call is necessary.
         InMemoryEntryProvider<Entry> provider = getEntryProvider();
-        provider.removeEntries(entries);
+        provider.getItems().removeAll(entries);
         provider.refreshAll();
     }
 

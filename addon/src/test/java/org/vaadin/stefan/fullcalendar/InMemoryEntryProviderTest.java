@@ -1,15 +1,11 @@
 package org.vaadin.stefan.fullcalendar;
 
-import lombok.Getter;
-import org.apache.commons.lang3.reflect.FieldUtils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.vaadin.stefan.fullcalendar.dataprovider.EntryProvider;
 import org.vaadin.stefan.fullcalendar.dataprovider.EntryQuery;
 import org.vaadin.stefan.fullcalendar.dataprovider.InMemoryEntryProvider;
-import tools.jackson.databind.node.ArrayNode;
 
 import java.time.Instant;
 import java.time.LocalDate;
@@ -61,8 +57,7 @@ public class InMemoryEntryProviderTest {
         LocalDateTime filterStart = LocalDate.of(2000, 1, 1).atStartOfDay();
         LocalDateTime filterEnd = LocalDate.of(2000, 1, 1).atStartOfDay().plusDays(1);
 
-        InMemoryEntryProvider<Entry> provider = EntryProvider.emptyInMemory();
-        provider.addEntries(entries);
+        InMemoryEntryProvider<Entry> provider = EntryProvider.inMemoryFrom(entries);
 
         Set<Entry> expected = entries;
 
@@ -82,106 +77,119 @@ public class InMemoryEntryProviderTest {
         assertEqualAsSet(expected, provider.getEntries());
     }
 
+    // Issue #443. The provider works like a ListDataProvider on the given collection.
+
     @Test
-    void test_AddEntriesArray() {
-        InMemoryEntryProvider<Entry> provider = EntryProvider.emptyInMemory();
+    void test_ConstructorUsesGivenCollection() {
+        List<Entry> items = new ArrayList<>(List.of(entry1, entry2));
+        InMemoryEntryProvider<Entry> provider = new InMemoryEntryProvider<>(items);
 
-        assertNPE(provider, c -> c.addEntries((Entry[]) null));
-
-        provider.addEntries(entries);
-        provider.addEntries(entry3);
-
-        Collection<Entry> entries = provider.getEntries();
-        assertEquals(3, entries.size());
-
-        assertTrue(entries.contains(entry1));
-        assertTrue(entries.contains(entry2));
-        assertTrue(entries.contains(entry3));
-
-        assertOptionalEquals(entry1, provider.getEntryById(entry1.getId()));
-        assertOptionalEquals(entry2, provider.getEntryById(entry2.getId()));
-        assertOptionalEquals(entry3, provider.getEntryById(entry3.getId()));
+        assertSame(items, provider.getItems());
+        assertEqualAsSet(Set.of(entry1, entry2), provider.fetchAll());
+        assertOptionalEquals(entry2, provider.fetchById("2"));
     }
 
     @Test
-    void test_AddEntriesIterable() {
-        InMemoryEntryProvider<Entry> provider = EntryProvider.emptyInMemory();
-        assertNPE(provider, c -> c.addEntries((Iterable<Entry>) null));
+    void test_SetItems() {
+        InMemoryEntryProvider<Entry> provider = new InMemoryEntryProvider<>();
+        assertEquals(0, provider.fetchAll().count());
 
-        provider.addEntries(entries);
-        provider.addEntries(entry3);
+        List<Entry> items = new ArrayList<>(List.of(entry1));
+        provider.setItems(items);
+        assertSame(items, provider.getItems());
+        assertEqualAsSet(Set.of(entry1), provider.fetchAll());
 
-        Collection<Entry> entries = provider.getEntries();
-        assertEquals(3, entries.size());
+        provider.setItems(entry2, entry3);
+        assertEqualAsSet(Set.of(entry2, entry3), provider.fetchAll());
+        assertTrue(provider.fetchById("1").isEmpty());
 
-        assertTrue(entries.contains(entry1));
-        assertTrue(entries.contains(entry2));
-        assertTrue(entries.contains(entry3));
-
-        assertOptionalEquals(entry1, provider.getEntryById(entry1.getId()));
-        assertOptionalEquals(entry2, provider.getEntryById(entry2.getId()));
-        assertOptionalEquals(entry3, provider.getEntryById(entry3.getId()));
+        // the varargs variant gives a modifiable collection, like the no-arg constructor
+        provider.getItems().add(entry1);
+        assertEquals(3, provider.getItems().size());
     }
 
-    // Issue #270. updateEntries refreshes the entries on the client and then calls the update hook
+    @Test
+    void test_SetItemsRefreshesTheClient() {
+        InMemoryEntryProvider<Entry> provider = new InMemoryEntryProvider<>();
+        List<Object> events = new ArrayList<>();
+        provider.addEntriesChangeListener(events::add);
+
+        provider.setItems(entry1);
+
+        assertEquals(1, events.size());
+    }
 
     @Test
-    void test_UpdateEntries_refreshesRegisteredEntriesKnownToTheClient() {
-        List<String> calls = new ArrayList<>();
-        InMemoryEntryProvider<Entry> provider = new InMemoryEntryProvider<>() {
+    void test_CollectionChangeShowsOnlyAfterRefreshAll() {
+        List<Entry> items = new ArrayList<>(List.of(entry1));
+        InMemoryEntryProvider<Entry> provider = new InMemoryEntryProvider<>(items);
+        assertEqualAsSet(Set.of(entry1), provider.fetchAll());
+
+        items.add(entry2);
+        items.remove(entry1);
+        assertEqualAsSet(Set.of(entry1), provider.fetchAll());
+        assertOptionalEquals(entry1, provider.fetchById("1"));
+        assertTrue(provider.fetchById("2").isEmpty());
+
+        provider.refreshAll();
+        assertEqualAsSet(Set.of(entry2), provider.fetchAll());
+        assertOptionalEquals(entry2, provider.fetchById("2"));
+        assertTrue(provider.fetchById("1").isEmpty());
+    }
+
+    @Test
+    void test_FirstFetchAfterConstructionNeedsNoRefresh() {
+        List<Entry> items = new ArrayList<>();
+        InMemoryEntryProvider<Entry> provider = new InMemoryEntryProvider<>(items);
+
+        // nothing fetched yet, so the first fetchById builds the map from the current collection
+        items.add(entry1);
+        assertOptionalEquals(entry1, provider.fetchById("1"));
+    }
+
+    @Test
+    void test_DuplicateIdThrowsOnFetch() {
+        Entry duplicate = new Entry("1");
+        InMemoryEntryProvider<Entry> provider = new InMemoryEntryProvider<>(List.of(entry1, duplicate));
+
+        IllegalStateException ex = assertThrows(IllegalStateException.class, provider::fetchAll);
+        assertTrue(ex.getMessage().contains("'1'"), ex.getMessage());
+        assertThrows(IllegalStateException.class, () -> provider.fetchById("1"));
+    }
+
+    @Test
+    void test_SeveralRefreshAllCallsCostOneRebuild() {
+        int[] iterations = {0};
+        List<Entry> backing = new ArrayList<>(List.of(entry1, entry2));
+        Collection<Entry> items = new AbstractCollection<>() {
             @Override
-            protected void onEntryUpdate(Entry entry) {
-                calls.add("hook:" + entry.getId());
+            public Iterator<Entry> iterator() {
+                iterations[0]++;
+                return backing.iterator();
+            }
+
+            @Override
+            public int size() {
+                return backing.size();
             }
         };
-        provider.addEntryRefreshListener(event -> calls.add("refresh:" + event.getItemToRefresh().getId()));
-        assertNPE(provider, c -> c.updateEntries(null));
+        InMemoryEntryProvider<Entry> provider = new InMemoryEntryProvider<>(items);
 
-        Entry entry4 = new Entry("4");
-        provider.addEntries(entry1, entry2, entry4);
-        entry1.setKnownToTheClient(true);
-        entry4.setKnownToTheClient(true);
-        entry3.setKnownToTheClient(true); // not registered in the provider
-        // entry2 is registered, but has not been sent to the client
+        provider.refreshAll();
+        provider.refreshAll();
+        assertEquals(0, iterations[0]);
 
-        provider.updateEntries(List.of(entry1, entry2, entry3, entry4));
-
-        // The order proves refresh before hook. It is only a weak guard against a parallel stream.
-        assertEquals(List.of("refresh:1", "hook:1", "refresh:4", "hook:4"), calls);
+        provider.fetchAll().count();
+        provider.fetchById("1");
+        assertEquals(1, iterations[0]);
     }
 
     @Test
-    void test_RemoveEntriesArray() {
-        InMemoryEntryProvider<Entry> provider = EntryProvider.emptyInMemory();
-
-        assertNPE(provider, c -> c.removeEntries((Entry[]) null));
-
-        provider.addEntries(entries);
-        provider.removeEntries(entry1, entry2);
-
-        Collection<Entry> entries = provider.getEntries();
-        assertEquals(1, entries.size());
-
-        assertFalse(entries.contains(entry1));
-        assertFalse(entries.contains(entry2));
-        assertTrue(entries.contains(entry3));
-    }
-
-    @Test
-    void test_RemoveEntriesIterable() {
-        InMemoryEntryProvider<Entry> provider = EntryProvider.emptyInMemory();
-
-        assertNPE(provider, c -> c.removeEntries((Iterable<Entry>) null));
-
-        provider.addEntries(entries);
-        provider.removeEntries(Arrays.asList(entry1, entry2));
-
-        Collection<Entry> entries = provider.getEntries();
-        assertEquals(1, entries.size());
-
-        assertFalse(entries.contains(entry1));
-        assertFalse(entries.contains(entry2));
-        assertTrue(entries.contains(entry3));
+    void test_NullCollectionThrows() {
+        assertThrows(NullPointerException.class, () -> new InMemoryEntryProvider<>((Collection<Entry>) null));
+        InMemoryEntryProvider<Entry> provider = new InMemoryEntryProvider<>();
+        assertThrows(NullPointerException.class, () -> provider.setItems((Collection<Entry>) null));
+        assertThrows(NullPointerException.class, () -> provider.setItems((Entry[]) null));
     }
 
     @Test
@@ -226,8 +234,8 @@ public class InMemoryEntryProviderTest {
         entriesMatching.add(createEntry(null, "M: Filter start to filter end - 1ns", filterStart, filterEnd.minusNanos(1), false, true, null, null));
         entriesMatching.add(createEntry(null, "M: Inside of filter timespan", filterStart.plus(29, ChronoUnit.MINUTES), filterStart.plus(31, ChronoUnit.MINUTES), false, true, null, null));
 
-        provider.addEntries(entriesNotMatching);
-        provider.addEntries(entriesMatching);
+        provider.getItems().addAll(entriesNotMatching);
+        provider.getItems().addAll(entriesMatching);
 
         List<Entry> entriesFound = provider.fetch(filterStart, filterEnd).collect(Collectors.toList());
 
@@ -279,8 +287,8 @@ public class InMemoryEntryProviderTest {
         entriesMatching.add(createEntry(null, "M: Filter start to filter end - 1ns", filterStart, filterEnd.minusNanos(1), false, true, null, null));
         entriesMatching.add(createEntry(null, "M: Inside of filter timespan", filterStart.plus(29, ChronoUnit.MINUTES), filterStart.plus(31, ChronoUnit.MINUTES), false, true, null, null));
 
-        provider.addEntries(entriesNotMatching);
-        provider.addEntries(entriesMatching);
+        provider.getItems().addAll(entriesNotMatching);
+        provider.getItems().addAll(entriesMatching);
 
         List<Entry> entriesFound = provider.fetch(null, filterEnd).collect(Collectors.toList());
 
@@ -332,8 +340,8 @@ public class InMemoryEntryProviderTest {
         entriesMatching.add(createEntry(null, "M: Filter start to filter end - 1ns", filterStart, filterEnd.minusNanos(1), false, true, null, null));
         entriesMatching.add(createEntry(null, "M: Inside of filter timespan", filterStart.plus(29, ChronoUnit.MINUTES), filterStart.plus(31, ChronoUnit.MINUTES), false, true, null, null));
 
-        provider.addEntries(entriesNotMatching);
-        provider.addEntries(entriesMatching);
+        provider.getItems().addAll(entriesNotMatching);
+        provider.getItems().addAll(entriesMatching);
 
         List<Entry> entriesFound = provider.fetch(filterStart, null).collect(Collectors.toList());
 
@@ -387,8 +395,8 @@ public class InMemoryEntryProviderTest {
         entriesMatching.add(createEntry(null, "M: Filter start to filter end - 1ns", filterStart, filterEnd.minusNanos(1), false, true, null, null));
         entriesMatching.add(createEntry(null, "M: Inside of filter timespan", filterStart.plus(29, ChronoUnit.MINUTES), filterStart.plus(31, ChronoUnit.MINUTES), false, true, null, null));
 
-        provider.addEntries(entriesNotMatching);
-        provider.addEntries(entriesMatching);
+        provider.getItems().addAll(entriesNotMatching);
+        provider.getItems().addAll(entriesMatching);
 
         List<Entry> entriesFound = provider.fetch((LocalDateTime) null, null).collect(Collectors.toList());
         List<Entry> allEntries = provider.fetchAll().collect(Collectors.toList());
@@ -443,8 +451,8 @@ public class InMemoryEntryProviderTest {
         entriesMatching.add(createEntry(null, "M: Filter start to filter end - 1ns", ref, filterEnd.minusNanos(1), false, true, null, null));
         entriesMatching.add(createEntry(null, "M: Inside of filter timespan", ref.plus(29, ChronoUnit.MINUTES), filterEnd.plus(31, ChronoUnit.MINUTES), false, true, null, null));
 
-        provider.addEntries(entriesNotMatching);
-        provider.addEntries(entriesMatching);
+        provider.getItems().addAll(entriesNotMatching);
+        provider.getItems().addAll(entriesMatching);
 
         List<Entry> entriesFound = provider.getEntries(ref);
 
@@ -455,141 +463,4 @@ public class InMemoryEntryProviderTest {
         Assertions.assertEquals(entriesMatching.size(), entriesFound.size(), () -> buildListBasedErrorString(entriesMatching, entriesFound));
         Assertions.assertEquals(entriesMatching, new ArrayList<>(entriesFound), () -> buildListBasedErrorString(entriesMatching, entriesFound));
     }
-
-    // TODO deprecated?
-//    @Test
-//    void test_removeAndAddDifferentEntriesWithSameIdInOneCycle() throws IllegalAccessException {
-//        FullCalendar calendar = new FullCalendar();
-//        FieldUtils.writeField(calendar, "attached", true, true);
-//
-//        TestProvider provider = new TestProvider();
-//        calendar.setEntryProvider(provider);
-//
-//        Entry oldEntry1 = createEntry("1", "Entry 1");
-//        Entry oldEntry2 = createEntry("2", "Entry 2");
-//        Entry oldEntry3 = createEntry("3", "Entry 3");
-//
-//        List<Entry> oldEntries = Arrays.asList(oldEntry1, oldEntry2, oldEntry3);
-//        provider.addEntries(oldEntries);
-//        provider.refreshAll(); // simulate client side update
-//
-//        provider.startRecord();
-//        provider.removeAllEntries();
-//        Entry newEntry1 = createEntry("1", "Entry A");
-//        Entry newEntry2 = createEntry("2", "Entry B");
-//        Entry newEntry3 = createEntry("3", "Entry C");
-//        List<Entry> newEntries = Arrays.asList(newEntry1, newEntry2, newEntry3);
-//        provider.addEntries(newEntries);
-//        provider.refreshAll(); // simulate client side update
-//
-//        Map<String, Set<String>> tmpItemSnapshots = provider.getTmpItemSnapshots();
-//        // in both cases they need to have the same entries, since hashCode bases only on the id
-//        assertEqualAsSet(tmpItemSnapshots.get("removeEvents"), oldEntries.stream().map(JsonItem::toString), "remove events snapshots");
-//        assertEqualAsSet(tmpItemSnapshots.get("addEvents"), newEntries.stream().map(JsonItem::toString), "add events snapshots");
-//
-//        Map<String, JsonArray> jsonArrays = provider.getCreatedJsonArrays();
-//
-//        // check, if the json array "sent" to the client contains the same values as it would to be expected
-//        Set<?> manuallyConverted = JsonUtils.ofJsonValue(provider.convertItemsToJson(oldEntries, JsonItem::toJsonWithIdOnly), HashSet.class);
-//        Set<?> triggerConverted = JsonUtils.ofJsonValue(jsonArrays.get("removeEvents"), HashSet.class);
-//        assertEquals(manuallyConverted, triggerConverted, "remove events json array");
-//
-//        // check, if the json array "sent" to the client contains the same values as it would to be expected
-//        manuallyConverted = JsonUtils.ofJsonValue(provider.convertItemsToJson(newEntries, JsonItem::toJson), HashSet.class);
-//        triggerConverted = JsonUtils.ofJsonValue(jsonArrays.get("addEvents"), HashSet.class);
-//        assertEquals(manuallyConverted, triggerConverted, "add events json array");
-//    }
-
-    // TODO deprecated?
-//    @Test
-//    void test_removeAndAddSameEntriesInOneCycle() throws IllegalAccessException {
-//        FullCalendar calendar = new FullCalendar();
-//        FieldUtils.writeField(calendar, "attached", true, true);
-//
-//        TestProvider provider = new TestProvider();
-//        calendar.setEntryProvider(provider);
-//
-//        Entry entry1 = createEntry("1", "Entry 1");
-//        Entry entry2 = createEntry("2", "Entry 2");
-//        Entry entry = createEntry("3", "Entry 3");
-//
-//        List<Entry> entries = Arrays.asList(entry1, entry2, entry);
-//        provider.addEntries(entries);
-//        provider.refreshAll(); // simulate client side update
-//
-//        provider.startRecord();
-//        provider.removeAllEntries();
-//        entry1.setTitle("Entry A");
-//        entry2.setTitle("Entry B");
-//        entry3.setTitle("Entry C");
-//
-//        provider.addEntries(entries);
-//        provider.refreshAll(); // simulate client side update
-//
-//        Map<String, Set<String>> tmpItemSnapshots = provider.getTmpItemSnapshots();
-//        // in both cases they need to have the same entries, since hashCode bases only on the id
-//        assertEqualAsSet(tmpItemSnapshots.get("removeEvents"), entries.stream().map(JsonItem::toString), "remove events snapshots");
-//        assertEqualAsSet(tmpItemSnapshots.get("addEvents"), entries.stream().map(JsonItem::toString), "add events snapshots");
-//
-//        Map<String, JsonArray> jsonArrays = provider.getCreatedJsonArrays();
-//
-//        // check, if the json array "sent" to the client contains the same values as it would to be expected
-//        Set<?> manuallyConverted = JsonUtils.ofJsonValue(provider.convertItemsToJson(entries, JsonItem::toJsonWithIdOnly), HashSet.class);
-//        Set<?> triggerConverted = JsonUtils.ofJsonValue(jsonArrays.get("removeEvents"), HashSet.class);
-//        assertEquals(manuallyConverted, triggerConverted, "remove events json array");
-//
-//        // check, if the json array "sent" to the client contains the same values as it would to be expected
-//        manuallyConverted = JsonUtils.ofJsonValue(provider.convertItemsToJson(entries, JsonItem::toJson), HashSet.class);
-//        triggerConverted = JsonUtils.ofJsonValue(jsonArrays.get("addEvents"), HashSet.class);
-//        assertEquals(manuallyConverted, triggerConverted, "add events json array");
-//    }
-
-    // TODO deprecated?
-//    @Test
-//    @Disabled
-//    void test_addAndRemoveSameEntriesInOneCycle() throws IllegalAccessException {
-//        FullCalendar calendar = new FullCalendar();
-//        FieldUtils.writeField(calendar, "attached", true, true);
-//
-//        TestProvider provider = new TestProvider();
-//        calendar.setEntryProvider(provider);
-//
-//        Entry entry1 = createEntry("1", "Entry 1");
-//        Entry entry2 = createEntry("2", "Entry 2");
-//        Entry entry = createEntry("3", "Entry 3");
-//
-//        provider.startRecord();
-//        List<Entry> entries = Arrays.asList(entry1, entry2, entry);
-//        provider.addEntries(entries);
-//        provider.removeAllEntries();
-//
-//        provider.refreshAll(); // simulate client side update
-//
-//        Map<String, Set<String>> tmpItemSnapshots = provider.getTmpItemSnapshots();
-//        // the registered items should be still the full items list
-//        assertEqualAsSet(tmpItemSnapshots.get("removeEvents"), entries.stream().map(JsonItem::toString), "remove events snapshots");
-//        assertEqualAsSet(tmpItemSnapshots.get("addEvents"), entries.stream().map(JsonItem::toString), "add events snapshots");
-//
-//        // ... but the resulting json array should be empty
-//        Map<String, JsonArray> jsonArrays = provider.getCreatedJsonArrays();
-//
-//        // check, if the json array "sent" to the client contains the same values as it would to be expected
-//        assertEquals(0, jsonArrays.get("removeEvents").length(), "remove events json array");
-//
-//        // check, if the json array "sent" to the client contains the same values as it would to be expected
-//        assertEquals(0, jsonArrays.get("addEvents").length(), "add events json array");
-//    }
-
-    @Getter
-    private static class TestProvider extends InMemoryEntryProvider<Entry> {
-
-        private final Map<String, ArrayNode> createdJsonArrays = new HashMap<>();
-        private final Map<String, Set<String>> tmpItemSnapshots = new HashMap<>();
-        private boolean record;
-
-        protected void startRecord() {
-            this.record = true;
-        }
-    }
-
 }

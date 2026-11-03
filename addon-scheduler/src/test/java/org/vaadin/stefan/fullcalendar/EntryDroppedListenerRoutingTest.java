@@ -35,7 +35,7 @@ class EntryDroppedListenerRoutingTest extends BrowserlessTest {
         ResourceEntry entry = new ResourceEntry("e1");
         entry.setStart(LocalDateTime.of(2025, 3, 3, 9, 0));
         entry.setEnd(LocalDateTime.of(2025, 3, 3, 10, 0));
-        calendar.getEntryProvider().asInMemory().addEntry(entry);
+        calendar.getEntryProvider().asInMemory().getItems().add(entry);
         calendar.addResources(roomA, roomB);
         entry.addResources(roomA);
         UI.getCurrent().add(calendar);
@@ -100,9 +100,9 @@ class EntryDroppedListenerRoutingTest extends BrowserlessTest {
     void oneEntryCanBeFetchedByTwoCalendars() {
         ResourceEntry shared = new ResourceEntry("shared");
         shared.setStart(LocalDateTime.of(2025, 3, 3, 9, 0));
-        calendar.getEntryProvider().asInMemory().addEntry(shared);
+        calendar.getEntryProvider().asInMemory().getItems().add(shared);
         FullCalendarScheduler other = new FullCalendarScheduler();
-        other.getEntryProvider().asInMemory().addEntry(shared);
+        other.getEntryProvider().asInMemory().getItems().add(shared);
 
         assertDoesNotThrow(() -> calendar.fetchEntriesFromServer(JsonFactory.createObject()));
         assertDoesNotThrow(() -> other.fetchEntriesFromServer(JsonFactory.createObject()));

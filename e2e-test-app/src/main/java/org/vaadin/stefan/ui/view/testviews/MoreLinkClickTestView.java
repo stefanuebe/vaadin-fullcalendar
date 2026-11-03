@@ -55,7 +55,7 @@ public class MoreLinkClickTestView extends VerticalLayout implements HasUrlParam
             entry.setTitle("Entry " + i);
             entry.setStart(LocalDate.of(2025, 3, 5));
             entry.setAllDay(true);
-            provider.addEntry(entry);
+            provider.getItems().add(entry);
         }
         calendar.setEntryProvider(provider);
 

@@ -67,7 +67,7 @@ import java.util.stream.Stream;
  * entry.setEnd(LocalDateTime.of(2025, 3, 3, 10, 0));
  *
  * InMemoryEntryProvider<Entry> provider = new InMemoryEntryProvider<>();
- * provider.addEntry(entry);
+ * provider.getItems().add(entry);
  * calendar.setEntryProvider(provider);
  *
  * entry.setTitle("Team meeting");

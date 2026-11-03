@@ -53,7 +53,7 @@ public class ExternalDragDemo extends AbstractCalendarView {
 
         // --- Entry receive listener: persist the client-created entry ---
         calendar.addEntryReceiveListener(e -> {
-            provider.addEntry(e.getEntry());
+            provider.getItems().add(e.getEntry());
             provider.refreshAll();
         });
 

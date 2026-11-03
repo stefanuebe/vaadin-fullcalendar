@@ -113,13 +113,14 @@ public class SerializationTest {
         entry.setStart(LocalDateTime.now());
         entry.setEnd(LocalDateTime.now().plusHours(1));
         entry.setColor("#ff0000");
-        provider.addEntry(entry);
+        provider.getItems().add(entry);
 
         Entry recurring = new Entry();
         recurring.setRecurringDaysOfWeek(java.time.DayOfWeek.MONDAY, java.time.DayOfWeek.FRIDAY);
         recurring.setRecurringStartDate(LocalDate.now());
-        provider.addEntry(recurring);
+        provider.getItems().add(recurring);
 
+        provider.fetchAll().count(); // builds the id map, so the roundtrip also covers it
         FullCalendar restored = roundtrip(calendar);
         assertNotNull(restored);
         assertTrue(restored.getEntryProvider().asInMemory().fetchAll().count() >= 2);

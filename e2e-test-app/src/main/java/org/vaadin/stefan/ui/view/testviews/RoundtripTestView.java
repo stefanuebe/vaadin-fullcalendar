@@ -50,27 +50,27 @@ public class RoundtripTestView extends VerticalLayout {
         renameEntry.setTitle("Click to Rename");
         renameEntry.setStart(LocalDate.of(2025, 3, 5).atStartOfDay());
         renameEntry.setAllDay(true);
-        provider.addEntry(renameEntry);
+        provider.getItems().add(renameEntry);
 
         Entry recolorEntry = new Entry();
         recolorEntry.setTitle("Click to Recolor");
         recolorEntry.setStart(LocalDate.of(2025, 3, 7).atStartOfDay());
         recolorEntry.setAllDay(true);
         recolorEntry.setColor("blue");
-        provider.addEntry(recolorEntry);
+        provider.getItems().add(recolorEntry);
 
         Entry dropEntry = new Entry();
         dropEntry.setTitle("Drop Target");
         dropEntry.setStart(LocalDate.of(2025, 3, 10).atStartOfDay());
         dropEntry.setAllDay(true);
-        provider.addEntry(dropEntry);
+        provider.getItems().add(dropEntry);
 
         // Entry that will be removed on click
         Entry removeMe = new Entry();
         removeMe.setTitle("Click to Remove");
         removeMe.setStart(LocalDate.of(2025, 3, 14).atStartOfDay());
         removeMe.setAllDay(true);
-        provider.addEntry(removeMe);
+        provider.getItems().add(removeMe);
 
         calendar.setEntryProvider(provider);
         calendar.options().setSelectable(true);
@@ -87,7 +87,7 @@ public class RoundtripTestView extends VerticalLayout {
                 entry.setColor("red");
                 provider.refreshItem(entry);
             } else if ("Click to Remove".equals(entry.getTitle())) {
-                provider.removeEntry(entry);
+                provider.getItems().remove(entry);
                 provider.refreshAll();
             }
         });
@@ -98,7 +98,7 @@ public class RoundtripTestView extends VerticalLayout {
             newEntry.setTitle("Server Created");
             newEntry.setStart(e.getDateTime());
             newEntry.setAllDay(e.isAllDay());
-            provider.addEntry(newEntry);
+            provider.getItems().add(newEntry);
             provider.refreshAll();
         });
 

@@ -9,6 +9,7 @@ import org.vaadin.stefan.fullcalendar.FullCalendar;
 import java.io.Serializable;
 import java.time.Instant;
 import java.time.LocalDateTime;
+import java.util.Collection;
 import java.util.Optional;
 import java.util.stream.Stream;
 
@@ -33,20 +34,19 @@ public interface EntryProvider<T extends Entry> extends Serializable {
     }
 
     /**
-     * Creates a lazy loading instance with no initial entries.
+     * Creates an in memory instance with an empty, modifiable collection.
      * @param <T> type
-     * @return lazy loading in memory provider
+     * @return in memory provider
      */
     static <T extends Entry> InMemoryEntryProvider<T> emptyInMemory() {
-        return InMemoryEntryProvider.from();
+        return new InMemoryEntryProvider<>();
     }
 
     /**
-     * Creates a lazy loading instance. The given entries are used as initial items. Leave empty, if there
-     * are no initial entries.
+     * Creates an in memory instance with a new, modifiable collection holding the given entries.
      * @param entries initial entries
      * @param <T> type
-     * @return lazy loading in memory provider
+     * @return in memory provider
      */
     @SafeVarargs
     static <T extends Entry> InMemoryEntryProvider<T> inMemoryFrom(T... entries) {
@@ -54,13 +54,13 @@ public interface EntryProvider<T extends Entry> extends Serializable {
     }
 
     /**
-     * Creates a lazy loading instance. The given entries are used as initial items, but the given iterable
-     * is not used as the backing collection or similar. It will never be modified by this provider.
-     * @param entries initial entries
+     * Creates an in memory instance that uses the given collection itself, not a copy. Call
+     * {@link #refreshAll()} after changing the collection, see {@link InMemoryEntryProvider}.
+     * @param entries entries
      * @param <T> type
-     * @return lazy loading in memory provider
+     * @return in memory provider
      */
-    static <T extends Entry> InMemoryEntryProvider<T> inMemoryFrom(Iterable<T> entries) {
+    static <T extends Entry> InMemoryEntryProvider<T> inMemoryFrom(Collection<T> entries) {
         return InMemoryEntryProvider.from(entries);
     }
 

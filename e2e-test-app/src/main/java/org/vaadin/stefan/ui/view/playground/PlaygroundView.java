@@ -119,7 +119,7 @@ public class PlaygroundView extends VerticalLayout implements AfterNavigationObs
         meeting.setTitle("Meeting");
         meeting.setStart(LocalDate.now().atTime(10, 0));
         meeting.setEnd(LocalDate.now().atTime(11, 0));
-        entryProvider.addEntry(meeting);
+        entryProvider.getItems().add(meeting);
 
         // "Short trip" — all-day, multi-day
         Entry shortTrip = new Entry();
@@ -128,7 +128,7 @@ public class PlaygroundView extends VerticalLayout implements AfterNavigationObs
         shortTrip.setEnd(LocalDate.now().plusDays(5));
         shortTrip.setAllDay(true);
         shortTrip.setColor("green");
-        entryProvider.addEntry(shortTrip);
+        entryProvider.getItems().add(shortTrip);
 
         // "This special holiday" — all-day, 1 day
         Entry holiday = new Entry();
@@ -136,7 +136,7 @@ public class PlaygroundView extends VerticalLayout implements AfterNavigationObs
         holiday.setStart(LocalDate.now().plusDays(4));
         holiday.setAllDay(true);
         holiday.setColor("gray");
-        entryProvider.addEntry(holiday);
+        entryProvider.getItems().add(holiday);
 
         // "sunday event" — recurring weekly on Sundays (exact title, no year prefix!)
         Entry sundayEvent = new Entry();
@@ -146,7 +146,7 @@ public class PlaygroundView extends VerticalLayout implements AfterNavigationObs
         sundayEvent.setRecurringEndDate(LocalDate.now().withDayOfYear(1).plusYears(1));
         sundayEvent.setRecurringStartTime(LocalTime.of(9, 0));
         sundayEvent.setRecurringEndTime(LocalTime.of(10, 0));
-        entryProvider.addEntry(sundayEvent);
+        entryProvider.getItems().add(sundayEvent);
 
         // "Multi 1" through "Multi 5" — ALL on day 12 for "+more" link
         for (int i = 1; i <= 5; i++) {
@@ -155,7 +155,7 @@ public class PlaygroundView extends VerticalLayout implements AfterNavigationObs
             multi.setStart(LocalDate.now().withDayOfMonth(12));
             multi.setEnd(LocalDate.now().withDayOfMonth(12).plusDays(3));
             multi.setAllDay(true);
-            entryProvider.addEntry(multi);
+            entryProvider.getItems().add(multi);
         }
     }
 
@@ -188,16 +188,16 @@ public class PlaygroundView extends VerticalLayout implements AfterNavigationObs
     }
 
     private void onEntriesCreated(Collection<Entry> entries) {
-        entryProvider.addEntries(entries);
+        entryProvider.getItems().addAll(entries);
         entryProvider.refreshAll();
     }
 
     private void onEntriesRemoved(Collection<Entry> entries) {
         if (entries.isEmpty()) {
             // "Remove all entries" — clear everything
-            entryProvider.removeAllEntries();
+            entryProvider.getItems().clear();
         } else {
-            entryProvider.removeEntries(entries);
+            entryProvider.getItems().removeAll(entries);
         }
         entryProvider.refreshAll();
     }

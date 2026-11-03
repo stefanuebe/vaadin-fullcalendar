@@ -22,7 +22,7 @@ public class BasicDemo extends AbstractCalendarView {
         EntryService<Entry> simpleInstance = EntryService.createSimpleInstance();
 
         FullCalendar calendar = new FullCalendar(defaultInitialOptions);
-        ((InMemoryEntryProvider<Entry>) calendar.getEntryProvider()).addEntries(simpleInstance.getEntries());
+        ((InMemoryEntryProvider<Entry>) calendar.getEntryProvider()).getItems().addAll(simpleInstance.getEntries());
         calendar.options().setDayMaxEntries(3);
         return calendar;
     }

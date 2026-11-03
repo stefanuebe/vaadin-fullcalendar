@@ -47,7 +47,7 @@ public class OptionResetPreserveTestView extends VerticalLayout {
                     window.preserveEvaluations = (window.preserveEvaluations || 0) + 1;
                     return function(data) { return data; };
                 })()"""));
-        calendar.getEntryProvider().asInMemory().addEntry(timed);
+        calendar.getEntryProvider().asInMemory().getItems().add(timed);
 
         add(new Button("Set entry color", e -> calendar.options().setEntryColor("blue")),
                 new Button("Remove entry color", e -> calendar.options().setEntryColor(null)), calendar);

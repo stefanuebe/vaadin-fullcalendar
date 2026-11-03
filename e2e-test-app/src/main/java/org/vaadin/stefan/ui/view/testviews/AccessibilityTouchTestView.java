@@ -82,31 +82,31 @@ public class AccessibilityTouchTestView extends VerticalLayout {
         entryA.setTitle("Interactive Event A");
         entryA.setStart(LocalDate.of(2025, 3, 5));
         entryA.setAllDay(true);
-        provider.addEntry(entryA);
+        provider.getItems().add(entryA);
 
         Entry entryB = new Entry();
         entryB.setTitle("Interactive Event B");
         entryB.setStart(LocalDate.of(2025, 3, 5));
         entryB.setAllDay(true);
-        provider.addEntry(entryB);
+        provider.getItems().add(entryB);
 
         Entry entryC = new Entry();
         entryC.setTitle("Interactive Event C");
         entryC.setStart(LocalDate.of(2025, 3, 5));
         entryC.setAllDay(true);
-        provider.addEntry(entryC);
+        provider.getItems().add(entryC);
 
         Entry entryD = new Entry();
         entryD.setTitle("Interactive Event D");
         entryD.setStart(LocalDate.of(2025, 3, 5));
         entryD.setAllDay(true);
-        provider.addEntry(entryD);
+        provider.getItems().add(entryD);
 
         Entry entryE = new Entry();
         entryE.setTitle("Interactive Event E");
         entryE.setStart(LocalDate.of(2025, 3, 5));
         entryE.setAllDay(true);
-        provider.addEntry(entryE);
+        provider.getItems().add(entryE);
 
         calendar.setEntryProvider(provider);
 

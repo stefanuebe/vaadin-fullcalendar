@@ -73,7 +73,7 @@ public class AdvancedOptionsTestView extends VerticalLayout {
             e.setTitle("Event " + i);
             e.setStart(LocalDate.of(2025, 3, 5));
             e.setAllDay(true);
-            provider.addEntry(e);
+            provider.getItems().add(e);
         }
 
         calendar.setEntryProvider(provider);

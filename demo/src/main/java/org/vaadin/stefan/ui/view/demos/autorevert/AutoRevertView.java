@@ -40,7 +40,7 @@ public class AutoRevertView extends AbstractCalendarView {
     protected FullCalendar createCalendar(ObjectNode defaultInitialOptions) {
         FullCalendar calendar = new FullCalendar(defaultInitialOptions);
         ((InMemoryEntryProvider<Entry>) calendar.getEntryProvider())
-                .addEntries(EntryService.createSimpleInstance().getEntries());
+                .getItems().addAll(EntryService.createSimpleInstance().getEntries());
         calendar.options().setDayMaxEntries(3);
         return calendar;
     }

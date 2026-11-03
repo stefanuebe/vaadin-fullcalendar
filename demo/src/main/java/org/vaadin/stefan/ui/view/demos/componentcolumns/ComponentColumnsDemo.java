@@ -123,7 +123,7 @@ public class ComponentColumnsDemo extends VerticalLayout {
         entry.setAllDay(true);
         entry.setColor(color);
         entry.addResources(resource);
-        entryProvider.addEntry(entry);
+        entryProvider.getItems().add(entry);
 
         // Set initial DatePicker values
         startColumn.getComponent(resource).ifPresent(p -> p.setValue(start));

@@ -98,13 +98,13 @@ public class DetachReattachTestView extends VerticalLayout {
         entry1.setStart(LocalDate.of(2025, 3, 5).atStartOfDay());
         entry1.setAllDay(true);
         entry1.setColor("green");
-        provider.addEntry(entry1);
+        provider.getItems().add(entry1);
 
         Entry entry2 = new Entry();
         entry2.setTitle("Timed Entry");
         entry2.setStart(LocalDateTime.of(2025, 3, 5, 9, 0));
         entry2.setEnd(LocalDateTime.of(2025, 3, 5, 10, 0));
-        provider.addEntry(entry2);
+        provider.getItems().add(entry2);
 
         calendar.setEntryProvider(provider);
 

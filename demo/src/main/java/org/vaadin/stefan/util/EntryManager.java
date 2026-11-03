@@ -31,7 +31,7 @@ public class EntryManager {
         recurring.setResourceEditable(true);
 
         if (calendar != null && calendar.getEntryProvider().isInMemory()) {
-            calendar.<ResourceEntry, EntryProvider<ResourceEntry>>getEntryProvider().asInMemory().addEntry(recurring);
+            calendar.<ResourceEntry, EntryProvider<ResourceEntry>>getEntryProvider().asInMemory().getItems().add(recurring);
         }
         return recurring;
     }
@@ -42,7 +42,7 @@ public class EntryManager {
         entry.setResourceEditable(true);
 
         if (calendar != null && calendar.getEntryProvider().isInMemory()) {
-            calendar.<ResourceEntry, EntryProvider<ResourceEntry>>getEntryProvider().asInMemory().addEntry(entry);
+            calendar.<ResourceEntry, EntryProvider<ResourceEntry>>getEntryProvider().asInMemory().getItems().add(entry);
         }
         return entry;
     }
@@ -55,7 +55,7 @@ public class EntryManager {
         entry.setResourceEditable(true);
 
         if (calendar != null && calendar.getEntryProvider().isInMemory()) {
-            calendar.<ResourceEntry, EntryProvider<ResourceEntry>>getEntryProvider().asInMemory().addEntry(entry);
+            calendar.<ResourceEntry, EntryProvider<ResourceEntry>>getEntryProvider().asInMemory().getItems().add(entry);
         }
         return entry;
     }
@@ -67,7 +67,7 @@ public class EntryManager {
         entry.setResourceEditable(true);
 
         if (calendar != null && calendar.getEntryProvider().isInMemory()) {
-            calendar.<ResourceEntry, EntryProvider<ResourceEntry>>getEntryProvider().asInMemory().addEntry(entry);
+            calendar.<ResourceEntry, EntryProvider<ResourceEntry>>getEntryProvider().asInMemory().getItems().add(entry);
         }
         return entry;
     }
@@ -82,7 +82,7 @@ public class EntryManager {
         entry.setResourceEditable(true);
 
         if (calendar != null && calendar.getEntryProvider().isInMemory()) {
-            calendar.<ResourceEntry, EntryProvider<ResourceEntry>>getEntryProvider().asInMemory().addEntry(entry);
+            calendar.<ResourceEntry, EntryProvider<ResourceEntry>>getEntryProvider().asInMemory().getItems().add(entry);
         }
         return entry;
     }
@@ -93,7 +93,7 @@ public class EntryManager {
         entry.setResourceEditable(true);
 
         if (calendar != null && calendar.getEntryProvider().isInMemory()) {
-            calendar.<ResourceEntry, EntryProvider<ResourceEntry>>getEntryProvider().asInMemory().addEntry(entry);
+            calendar.<ResourceEntry, EntryProvider<ResourceEntry>>getEntryProvider().asInMemory().getItems().add(entry);
         }
         return entry;
     }
@@ -106,7 +106,7 @@ public class EntryManager {
         }
         entry.setResourceEditable(true);
         if (calendar != null && calendar.getEntryProvider().isInMemory()) {
-            calendar.<ResourceEntry, EntryProvider<ResourceEntry>>getEntryProvider().asInMemory().addEntry(entry);
+            calendar.<ResourceEntry, EntryProvider<ResourceEntry>>getEntryProvider().asInMemory().getItems().add(entry);
         }
         return entry;
     }
@@ -119,7 +119,7 @@ public class EntryManager {
         entry.setResourceEditable(true);
         entry.setEditable(false);
         if (calendar != null && calendar.getEntryProvider().isInMemory()) {
-            calendar.<ResourceEntry, EntryProvider<ResourceEntry>>getEntryProvider().asInMemory().addEntry(entry);
+            calendar.<ResourceEntry, EntryProvider<ResourceEntry>>getEntryProvider().asInMemory().getItems().add(entry);
         }
         return entry;
     }
