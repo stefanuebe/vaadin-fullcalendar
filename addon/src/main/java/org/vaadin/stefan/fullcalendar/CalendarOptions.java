@@ -165,8 +165,9 @@ class CalendarOptions implements Serializable {
      * <p>
      * The library default is the first locale it is given, or English without one. The add-on gives it every locale and
      * always sets one, so that default does not apply. The initial value is {@link CalendarLocale#getDefaultLocale()}.
-     * The calendar always has a locale, so it cannot be removed. This option is not the Vaadin locale of the component,
-     * which {@code calendar.getLocale()} still returns.
+     * The calendar always has a locale, so it cannot be removed. This option is independent of the Vaadin locale of the
+     * UI. To follow the UI locale, set this option in a view that implements
+     * {@link com.vaadin.flow.i18n.LocaleChangeObserver}.
      *
      * @see <a href="https://fullcalendar.io/docs/locale">locale</a>
      */

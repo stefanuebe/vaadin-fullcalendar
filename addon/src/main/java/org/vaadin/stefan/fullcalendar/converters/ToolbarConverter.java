@@ -11,7 +11,7 @@ import tools.jackson.databind.JsonNode;
  * {@link org.vaadin.stefan.fullcalendar.model.Footer}). Set the toolbar options with a
  * {@link org.vaadin.stefan.fullcalendar.option.ToolbarValue} instead, see {@link ToolbarValueConverter}.
  */
-@Deprecated(since = "7.3.0", forRemoval = true)
+@Deprecated(since = "8.0.0", forRemoval = true)
 public class ToolbarConverter implements JsonItemPropertyConverter<AbstractHeaderFooter, Object> {
 
     @Override
