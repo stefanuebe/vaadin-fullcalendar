@@ -31,8 +31,8 @@ import tools.jackson.databind.node.ObjectNode;
 public class EntryTimeChangedEvent extends EntryChangedEvent {
 
     /**
-     * The delta information. Please note, that the entry itself already is up-to-date, so there is no need
-     * to apply the delta on it.
+     * The delta information. The entry itself is not changed yet. Call {@link #applyChangesOnEntry()} to apply
+     * the change to it.
      */
     private final Delta delta;
 
