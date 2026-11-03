@@ -91,7 +91,7 @@ class ViewOptions implements Serializable {
 
     /**
      * Master switch for dragging and resizing entries. Enables or disables both at the same time. Background entries
-     * can not be dragged or resized. Individual entries can override it with {@link Entry#setEditable(boolean)}. To
+     * can not be dragged or resized. Individual entries can override it with {@link Entry#setEditable(Boolean)}. To
      * allow only one of them use {@link CalendarOptions#getEntryStartEditable() entryStartEditable} or
      * {@link CalendarOptions#getEntryDurationEditable() entryDurationEditable}.
      * <p>
