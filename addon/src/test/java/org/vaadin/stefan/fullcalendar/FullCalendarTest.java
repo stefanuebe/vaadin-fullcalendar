@@ -254,6 +254,20 @@ public class FullCalendarTest {
         assertFalse(getEntryProvider(calendar).getEntryById(entry2.getId()).isPresent());
     }
 
+    // #444: an entry holds no calendar, so two calendars can fetch the same instance
+    @Test
+    void testOneEntryFetchedByTwoCalendars() {
+        Entry shared = new Entry();
+        shared.setStart(LocalDateTime.of(2025, 3, 3, 9, 0));
+        FullCalendar first = createTestCalendar();
+        FullCalendar second = createTestCalendar();
+        first.getEntryProvider().asInMemory().addEntry(shared);
+        second.getEntryProvider().asInMemory().addEntry(shared);
+
+        assertEquals(1, first.fetchEntriesFromServer(JsonFactory.createObject()).size());
+        assertEquals(1, second.fetchEntriesFromServer(JsonFactory.createObject()).size());
+    }
+
     @Test
     void testInitialEmptyCollection() {
         FullCalendar calendar = createTestCalendar();

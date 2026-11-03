@@ -122,7 +122,7 @@ public class PlaygroundToolbar extends HorizontalLayout {
                         entry.setAllDay(true);
                     } else {
                         entry.setStart(base.withDayOfMonth(day).atTime(9 + random.nextInt(8), 0));
-                        entry.setEnd(entry.getStartWithOffset().plusHours(1));
+                        entry.setEnd(entry.getStart().plusHours(1));
                     }
                     entries.add(entry);
                 }

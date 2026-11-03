@@ -4,7 +4,6 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NonNull;
 import org.vaadin.stefan.fullcalendar.Entry;
-import org.vaadin.stefan.fullcalendar.FullCalendar;
 import org.vaadin.stefan.fullcalendar.option.Timezone;
 
 import java.time.Instant;
@@ -58,22 +57,6 @@ public class InMemoryEntryProvider<T extends Entry> extends AbstractEntryProvide
         return new InMemoryEntryProvider<>(entries);
     }
 
-    /**
-     * Connects this instance with the calendar. Not intended to be called manually, FullCalendar will take care of
-     * this. NOOP when called for the same calendar instance multiple times.
-     *
-     * @param calendar calendar to "connect" to.
-     */
-    @Override
-    public void setCalendar(FullCalendar calendar) {
-        FullCalendar oldCalendar = getCalendar();
-        super.setCalendar(calendar);
-
-        if (oldCalendar != calendar) {
-            entriesMap.values().forEach(e -> e.setCalendar(calendar));
-        }
-    }
-
     @Override
     public Stream<T> fetch(@NonNull EntryQuery query) {
         return query.applyFilter(entriesMap.values().stream());
@@ -98,7 +81,6 @@ public class InMemoryEntryProvider<T extends Entry> extends AbstractEntryProvide
 
             if (!entriesMap.containsKey(id)) {
                 entriesMap.put(id, entry);
-                entry.setCalendar(getCalendar());
                 onEntryAdd(entry);
             }
         });
@@ -126,8 +108,6 @@ public class InMemoryEntryProvider<T extends Entry> extends AbstractEntryProvide
         iterableEntries.forEach(entry -> {
             String id = entry.getId();
             if (entriesMap.remove(id) != null) {
-                entry.setCalendar(null);
-
                 onEntryRemove(entry);
             }
         });

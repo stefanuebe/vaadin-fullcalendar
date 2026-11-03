@@ -24,7 +24,6 @@ import org.vaadin.stefan.fullcalendar.converter.ResourceConverter;
 import org.vaadin.stefan.fullcalendar.json.JsonConverter;
 import org.vaadin.stefan.fullcalendar.json.JsonName;
 import org.vaadin.stefan.fullcalendar.json.JsonReadField;
-import org.vaadin.stefan.fullcalendar.json.JsonUpdateAllowed;
 import tools.jackson.databind.node.ObjectNode;
 
 import java.util.*;
@@ -53,7 +52,7 @@ public class ResourceEntry extends Entry {
     @JsonReadField
     private Boolean resourceEditable;
 
-    @JsonUpdateAllowed
+    // The client never sends resourceIds. A drop reports oldResource and newResource, see EntryDroppedSchedulerEvent.
     @JsonName("resourceIds")
     @JsonConverter(ResourceConverter.class)
     private Set<Resource> resources;
@@ -94,20 +93,6 @@ public class ResourceEntry extends Entry {
     @SuppressWarnings("unchecked")
     protected Stream<BeanProperties<Entry>> streamProperties() {
         return Stream.concat(super.streamProperties(), PROPERTIES.stream());
-    }
-
-    /**
-     * Sets the calendar for this instance. The given calendar must be implementing Scheduler.
-     *
-     * @param calendar calendar instance
-     * @throws IllegalArgumentException instance is not implementing {@link Scheduler}
-     */
-    @Override
-    public void setCalendar(FullCalendar calendar) {
-        if (calendar != null && !(calendar instanceof Scheduler)) {
-            throw new IllegalArgumentException("ResourceEntries must be added to a FullCalendar that implements Scheduler");
-        }
-        super.setCalendar(calendar);
     }
 
     /**

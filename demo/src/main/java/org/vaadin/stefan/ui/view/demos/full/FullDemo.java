@@ -294,7 +294,7 @@ public class FullDemo extends AbstractSchedulerView {
         System.out.println(event.getClass().getSimpleName() + ": " + event);
 
         if (event.getEntry().getDisplayMode() != DisplayMode.BACKGROUND && event.getEntry().getDisplayMode() != DisplayMode.INVERSE_BACKGROUND) {
-            DemoDialog dialog = new DemoDialog(event.getEntry(), false);
+            DemoDialog dialog = new DemoDialog(event.getSource(), event.getEntry(), false);
             dialog.setSaveConsumer(this::onEntryChanged);
             dialog.setDeleteConsumer(e -> onEntriesRemoved(Collections.singletonList(e)));
             dialog.open();
@@ -353,12 +353,11 @@ public class FullDemo extends AbstractSchedulerView {
         entry.setEnd(event.getEnd());
         entry.setAllDay(event.isAllDay());
 
-        entry.setCalendar(event.getSource());
 
         // Pre-assign the resource the user clicked on, if any (#164).
         event.getResource().ifPresent(entry::addResources);
 
-        DemoDialog dialog = new DemoDialog(entry, true);
+        DemoDialog dialog = new DemoDialog(event.getSource(), entry, true);
         dialog.setSaveConsumer(e -> onEntriesCreated(Collections.singletonList(e)));
         dialog.setDeleteConsumer(e -> onEntriesRemoved(Collections.singletonList(e)));
         dialog.open();

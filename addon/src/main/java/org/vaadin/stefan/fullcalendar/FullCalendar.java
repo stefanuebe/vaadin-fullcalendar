@@ -506,7 +506,6 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
         ArrayNode array = JsonFactory.createArray();
         entryProvider.fetch(new EntryQuery(start, end, EntryQuery.AllDay.BOTH))
                 .peek(entry -> {
-                    entry.setCalendar(this);
                     entry.setKnownToTheClient(true); // mark entry as "has been sent to client"
                     lastFetchedEntries.put(entry.getId(), entry);
                 })
@@ -954,7 +953,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
     }
 
     /**
-     * Returns the time zone the offset helpers of entries and events convert with, the value of the time zone field.
+     * Returns the time zone the offset helpers of events convert with, the value of the time zone field.
      * {@link Timezone#LOCAL} converts with UTC.
      */
     Timezone getTimezoneForOffsets() {

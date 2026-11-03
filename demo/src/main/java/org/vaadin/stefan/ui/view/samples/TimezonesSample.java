@@ -38,20 +38,20 @@ public class TimezonesSample extends AbstractSample {
         entry.setStart(Instant.now()); // UTC
         entry.setEnd(LocalDateTime.now()); // UTC
 
-        // Entry provides some additional convenience methods to handle the current calendar's timezone's offset, e.g. to allow easy
-        // integration into edit forms.
+        // Entry provides some additional convenience methods to handle a timezone's offset, e.g. to allow easy
+        // integration into edit forms. Pass the calendar's time zone to work with the times as the calendar shows them.
         calendar.options().setTimeZone(tzBerlinGermany); // times are now 1-2 hours "ahead" (depending on daylight saving)
         entry.setStart(LocalDate.of(2000, 1, 1).atStartOfDay());
 
         LocalDateTime utcStart = entry.getStart(); // will be 2000-01-01, 00:00
-        LocalDateTime offsetStart = entry.getStartWithOffset(); // will be 2000-01-01, 01:00
+        LocalDateTime offsetStart = entry.getStartWithOffset(calendar.options().getTimeZone()); // will be 2000-01-01, 01:00
 
         // ... modify the offset start, for instance in a date picker
         // e.g. modifiedOffsetStart = offsetStart.plusHours(5);
         LocalDateTime modifiedOffsetStart = offsetStart.plusHours(5);
 
-        entry.setStartWithOffset(modifiedOffsetStart); // automatically takes care of conversion back to utc
+        entry.setStartWithOffset(modifiedOffsetStart, calendar.options().getTimeZone()); // takes care of the conversion back to utc
         utcStart = entry.getStart(); // will be 2000-01-01, 04:00
-        offsetStart = entry.getStartWithOffset(); // will be 2000-01-01, 05:00
+        offsetStart = entry.getStartWithOffset(calendar.options().getTimeZone()); // will be 2000-01-01, 05:00
     }
 }

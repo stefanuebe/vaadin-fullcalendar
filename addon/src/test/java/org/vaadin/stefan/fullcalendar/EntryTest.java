@@ -186,8 +186,7 @@ public class EntryTest {
         assertNull(entry.getStart());
         assertNull(entry.getStartAsInstant());
         assertNull(entry.getStartAsLocalDate());
-        assertNull(entry.getStartWithTimezone());
-        assertNull(entry.getStartWithOffset());
+        assertNull(entry.getStartWithTimezone(Timezone.UTC));
         assertNull(entry.getStartWithOffset(Timezone.UTC));
 
         entry.clearStart();
@@ -195,7 +194,6 @@ public class EntryTest {
         entry.setStart((Instant) null);
         entry.setStart((LocalDate) null);
         entry.setStartWithTimezone(null);
-        entry.setStartWithOffset(null);
         entry.setStartWithOffset(null, Timezone.UTC);
     }
 
@@ -211,9 +209,8 @@ public class EntryTest {
 
         assertEquals(now, entry.getStart());
         assertEquals(nowInstant, entry.getStartAsInstant());
-        assertEquals(nowZoned, entry.getStartWithTimezone());
-        assertEquals(nowPlusOffset, entry.getStartWithTimezone().toLocalDateTime());
-        assertEquals(nowPlusOffset, entry.getStartWithOffset());
+        assertEquals(nowZoned, entry.getStartWithTimezone(Timezone.UTC));
+        assertEquals(nowPlusOffset, entry.getStartWithTimezone(Timezone.UTC).toLocalDateTime());
         assertEquals(nowPlusOffset, entry.getStartWithOffset(Timezone.UTC));
         ObjectNode json = entry.toJson();
         assertEquals(JSON_UTC_TIMESTAMP, json.get(Fields.START).asString());
@@ -221,9 +218,8 @@ public class EntryTest {
         entry.setStart(nowInstant);
         assertEquals(now, entry.getStart());
         assertEquals(nowInstant, entry.getStartAsInstant());
-        assertEquals(nowZoned, entry.getStartWithTimezone());
-        assertEquals(nowPlusOffset, entry.getStartWithTimezone().toLocalDateTime());
-        assertEquals(nowPlusOffset, entry.getStartWithOffset());
+        assertEquals(nowZoned, entry.getStartWithTimezone(Timezone.UTC));
+        assertEquals(nowPlusOffset, entry.getStartWithTimezone(Timezone.UTC).toLocalDateTime());
         assertEquals(nowPlusOffset, entry.getStartWithOffset(Timezone.UTC));
         json = entry.toJson();
         assertEquals(JSON_UTC_TIMESTAMP, json.get(Fields.START).asString());
@@ -231,19 +227,8 @@ public class EntryTest {
         entry.setStartWithTimezone(nowZoned);
         assertEquals(now, entry.getStart());
         assertEquals(nowInstant, entry.getStartAsInstant());
-        assertEquals(nowZoned, entry.getStartWithTimezone());
-        assertEquals(nowPlusOffset, entry.getStartWithTimezone().toLocalDateTime());
-        assertEquals(nowPlusOffset, entry.getStartWithOffset());
-        assertEquals(nowPlusOffset, entry.getStartWithOffset(Timezone.UTC));
-        json = entry.toJson();
-        assertEquals(JSON_UTC_TIMESTAMP, json.get(Fields.START).asString());
-
-        entry.setStartWithOffset(nowZoned.toLocalDateTime());
-        assertEquals(now, entry.getStart());
-        assertEquals(nowInstant, entry.getStartAsInstant());
-        assertEquals(nowZoned, entry.getStartWithTimezone());
-        assertEquals(nowPlusOffset, entry.getStartWithTimezone().toLocalDateTime());
-        assertEquals(nowPlusOffset, entry.getStartWithOffset());
+        assertEquals(nowZoned, entry.getStartWithTimezone(Timezone.UTC));
+        assertEquals(nowPlusOffset, entry.getStartWithTimezone(Timezone.UTC).toLocalDateTime());
         assertEquals(nowPlusOffset, entry.getStartWithOffset(Timezone.UTC));
         json = entry.toJson();
         assertEquals(JSON_UTC_TIMESTAMP, json.get(Fields.START).asString());
@@ -251,9 +236,17 @@ public class EntryTest {
         entry.setStartWithOffset(nowZoned.toLocalDateTime(), Timezone.UTC);
         assertEquals(now, entry.getStart());
         assertEquals(nowInstant, entry.getStartAsInstant());
-        assertEquals(nowZoned, entry.getStartWithTimezone());
-        assertEquals(nowPlusOffset, entry.getStartWithTimezone().toLocalDateTime());
-        assertEquals(nowPlusOffset, entry.getStartWithOffset());
+        assertEquals(nowZoned, entry.getStartWithTimezone(Timezone.UTC));
+        assertEquals(nowPlusOffset, entry.getStartWithTimezone(Timezone.UTC).toLocalDateTime());
+        assertEquals(nowPlusOffset, entry.getStartWithOffset(Timezone.UTC));
+        json = entry.toJson();
+        assertEquals(JSON_UTC_TIMESTAMP, json.get(Fields.START).asString());
+
+        entry.setStartWithOffset(nowZoned.toLocalDateTime(), Timezone.UTC);
+        assertEquals(now, entry.getStart());
+        assertEquals(nowInstant, entry.getStartAsInstant());
+        assertEquals(nowZoned, entry.getStartWithTimezone(Timezone.UTC));
+        assertEquals(nowPlusOffset, entry.getStartWithTimezone(Timezone.UTC).toLocalDateTime());
         assertEquals(nowPlusOffset, entry.getStartWithOffset(Timezone.UTC));
         json = entry.toJson();
         assertEquals(JSON_UTC_TIMESTAMP, json.get(Fields.START).asString());
@@ -271,25 +264,21 @@ public class EntryTest {
      */
     @Test
     void test_startMethods_timezone() {
-        Timezone timezone = Timezone.getSystem();
+        Timezone timezone = new Timezone(ZoneId.of("Europe/Berlin")); // fixed non-UTC zone, so the test proves an offset on any machine
 
         LocalDateTime now = DEFAULT_START;
         Instant nowInstant = now.toInstant(ZoneOffset.UTC);
         ZonedDateTime nowZoned = nowInstant.atZone(timezone.getZoneId());
         LocalDateTime nowPlusOffset = timezone.applyTimezoneOffset(now);
+        assertEquals(now.plusHours(1), nowPlusOffset); // Berlin is UTC+1 in January, independent of the code under test
 
         Entry entry = new Entry();
         entry.setStart(now);
 
-        FullCalendar calendar = new FullCalendar();
-        calendar.options().setTimeZone(timezone);
-        calendar.getEntryProvider().asInMemory().addEntry(entry);
-
         assertEquals(now, entry.getStart());
         assertEquals(nowInstant, entry.getStartAsInstant());
-        assertEquals(nowZoned, entry.getStartWithTimezone());
-        assertEquals(nowPlusOffset, entry.getStartWithTimezone().toLocalDateTime());
-        assertEquals(nowPlusOffset, entry.getStartWithOffset());
+        assertEquals(nowZoned, entry.getStartWithTimezone(timezone));
+        assertEquals(nowPlusOffset, entry.getStartWithTimezone(timezone).toLocalDateTime());
         assertEquals(nowPlusOffset, entry.getStartWithOffset(timezone));
         ObjectNode json = entry.toJson();
         assertEquals(JSON_UTC_TIMESTAMP, json.get(Fields.START).asString());
@@ -297,9 +286,8 @@ public class EntryTest {
         entry.setStart(nowInstant);
         assertEquals(now, entry.getStart());
         assertEquals(nowInstant, entry.getStartAsInstant());
-        assertEquals(nowZoned, entry.getStartWithTimezone());
-        assertEquals(nowPlusOffset, entry.getStartWithTimezone().toLocalDateTime());
-        assertEquals(nowPlusOffset, entry.getStartWithOffset());
+        assertEquals(nowZoned, entry.getStartWithTimezone(timezone));
+        assertEquals(nowPlusOffset, entry.getStartWithTimezone(timezone).toLocalDateTime());
         assertEquals(nowPlusOffset, entry.getStartWithOffset(timezone));
         json = entry.toJson();
         assertEquals(JSON_UTC_TIMESTAMP, json.get(Fields.START).asString());
@@ -307,19 +295,8 @@ public class EntryTest {
         entry.setStartWithTimezone(nowZoned);
         assertEquals(now, entry.getStart());
         assertEquals(nowInstant, entry.getStartAsInstant());
-        assertEquals(nowZoned, entry.getStartWithTimezone());
-        assertEquals(nowPlusOffset, entry.getStartWithTimezone().toLocalDateTime());
-        assertEquals(nowPlusOffset, entry.getStartWithOffset());
-        assertEquals(nowPlusOffset, entry.getStartWithOffset(timezone));
-        json = entry.toJson();
-        assertEquals(JSON_UTC_TIMESTAMP, json.get(Fields.START).asString());
-
-        entry.setStartWithOffset(nowZoned.toLocalDateTime());
-        assertEquals(now, entry.getStart());
-        assertEquals(nowInstant, entry.getStartAsInstant());
-        assertEquals(nowZoned, entry.getStartWithTimezone());
-        assertEquals(nowPlusOffset, entry.getStartWithTimezone().toLocalDateTime());
-        assertEquals(nowPlusOffset, entry.getStartWithOffset());
+        assertEquals(nowZoned, entry.getStartWithTimezone(timezone));
+        assertEquals(nowPlusOffset, entry.getStartWithTimezone(timezone).toLocalDateTime());
         assertEquals(nowPlusOffset, entry.getStartWithOffset(timezone));
         json = entry.toJson();
         assertEquals(JSON_UTC_TIMESTAMP, json.get(Fields.START).asString());
@@ -327,9 +304,17 @@ public class EntryTest {
         entry.setStartWithOffset(nowZoned.toLocalDateTime(), timezone);
         assertEquals(now, entry.getStart());
         assertEquals(nowInstant, entry.getStartAsInstant());
-        assertEquals(nowZoned, entry.getStartWithTimezone());
-        assertEquals(nowPlusOffset, entry.getStartWithTimezone().toLocalDateTime());
-        assertEquals(nowPlusOffset, entry.getStartWithOffset());
+        assertEquals(nowZoned, entry.getStartWithTimezone(timezone));
+        assertEquals(nowPlusOffset, entry.getStartWithTimezone(timezone).toLocalDateTime());
+        assertEquals(nowPlusOffset, entry.getStartWithOffset(timezone));
+        json = entry.toJson();
+        assertEquals(JSON_UTC_TIMESTAMP, json.get(Fields.START).asString());
+
+        entry.setStartWithOffset(nowZoned.toLocalDateTime(), timezone);
+        assertEquals(now, entry.getStart());
+        assertEquals(nowInstant, entry.getStartAsInstant());
+        assertEquals(nowZoned, entry.getStartWithTimezone(timezone));
+        assertEquals(nowPlusOffset, entry.getStartWithTimezone(timezone).toLocalDateTime());
         assertEquals(nowPlusOffset, entry.getStartWithOffset(timezone));
         json = entry.toJson();
         assertEquals(JSON_UTC_TIMESTAMP, json.get(Fields.START).asString());
@@ -350,8 +335,7 @@ public class EntryTest {
         assertNull(entry.getEnd());
         assertNull(entry.getEndAsInstant());
         assertNull(entry.getEndAsLocalDate());
-        assertNull(entry.getEndWithTimezone());
-        assertNull(entry.getEndWithOffset());
+        assertNull(entry.getEndWithTimezone(Timezone.UTC));
         assertNull(entry.getEndWithOffset(Timezone.UTC));
 
         entry.clearEnd();
@@ -359,7 +343,6 @@ public class EntryTest {
         entry.setEnd((Instant) null);
         entry.setEnd((LocalDate) null);
         entry.setEndWithTimezone(null);
-        entry.setEndWithOffset(null);
         entry.setEndWithOffset(null, Timezone.UTC);
     }
 
@@ -375,9 +358,8 @@ public class EntryTest {
 
         assertEquals(now, entry.getEnd());
         assertEquals(nowInstant, entry.getEndAsInstant());
-        assertEquals(nowZoned, entry.getEndWithTimezone());
-        assertEquals(nowPlusOffset, entry.getEndWithTimezone().toLocalDateTime());
-        assertEquals(nowPlusOffset, entry.getEndWithOffset());
+        assertEquals(nowZoned, entry.getEndWithTimezone(Timezone.UTC));
+        assertEquals(nowPlusOffset, entry.getEndWithTimezone(Timezone.UTC).toLocalDateTime());
         assertEquals(nowPlusOffset, entry.getEndWithOffset(Timezone.UTC));
 
         ObjectNode json = entry.toJson();
@@ -386,9 +368,8 @@ public class EntryTest {
         entry.setEnd(nowInstant);
         assertEquals(now, entry.getEnd());
         assertEquals(nowInstant, entry.getEndAsInstant());
-        assertEquals(nowZoned, entry.getEndWithTimezone());
-        assertEquals(nowPlusOffset, entry.getEndWithTimezone().toLocalDateTime());
-        assertEquals(nowPlusOffset, entry.getEndWithOffset());
+        assertEquals(nowZoned, entry.getEndWithTimezone(Timezone.UTC));
+        assertEquals(nowPlusOffset, entry.getEndWithTimezone(Timezone.UTC).toLocalDateTime());
         assertEquals(nowPlusOffset, entry.getEndWithOffset(Timezone.UTC));
 
         json = entry.toJson();
@@ -397,20 +378,8 @@ public class EntryTest {
         entry.setEndWithTimezone(nowZoned);
         assertEquals(now, entry.getEnd());
         assertEquals(nowInstant, entry.getEndAsInstant());
-        assertEquals(nowZoned, entry.getEndWithTimezone());
-        assertEquals(nowPlusOffset, entry.getEndWithTimezone().toLocalDateTime());
-        assertEquals(nowPlusOffset, entry.getEndWithOffset());
-        assertEquals(nowPlusOffset, entry.getEndWithOffset(Timezone.UTC));
-
-        json = entry.toJson();
-        assertEquals(JSON_UTC_TIMESTAMP, json.get(Fields.END).asString());
-
-        entry.setEndWithOffset(nowZoned.toLocalDateTime());
-        assertEquals(now, entry.getEnd());
-        assertEquals(nowInstant, entry.getEndAsInstant());
-        assertEquals(nowZoned, entry.getEndWithTimezone());
-        assertEquals(nowPlusOffset, entry.getEndWithTimezone().toLocalDateTime());
-        assertEquals(nowPlusOffset, entry.getEndWithOffset());
+        assertEquals(nowZoned, entry.getEndWithTimezone(Timezone.UTC));
+        assertEquals(nowPlusOffset, entry.getEndWithTimezone(Timezone.UTC).toLocalDateTime());
         assertEquals(nowPlusOffset, entry.getEndWithOffset(Timezone.UTC));
 
         json = entry.toJson();
@@ -419,9 +388,18 @@ public class EntryTest {
         entry.setEndWithOffset(nowZoned.toLocalDateTime(), Timezone.UTC);
         assertEquals(now, entry.getEnd());
         assertEquals(nowInstant, entry.getEndAsInstant());
-        assertEquals(nowZoned, entry.getEndWithTimezone());
-        assertEquals(nowPlusOffset, entry.getEndWithTimezone().toLocalDateTime());
-        assertEquals(nowPlusOffset, entry.getEndWithOffset());
+        assertEquals(nowZoned, entry.getEndWithTimezone(Timezone.UTC));
+        assertEquals(nowPlusOffset, entry.getEndWithTimezone(Timezone.UTC).toLocalDateTime());
+        assertEquals(nowPlusOffset, entry.getEndWithOffset(Timezone.UTC));
+
+        json = entry.toJson();
+        assertEquals(JSON_UTC_TIMESTAMP, json.get(Fields.END).asString());
+
+        entry.setEndWithOffset(nowZoned.toLocalDateTime(), Timezone.UTC);
+        assertEquals(now, entry.getEnd());
+        assertEquals(nowInstant, entry.getEndAsInstant());
+        assertEquals(nowZoned, entry.getEndWithTimezone(Timezone.UTC));
+        assertEquals(nowPlusOffset, entry.getEndWithTimezone(Timezone.UTC).toLocalDateTime());
         assertEquals(nowPlusOffset, entry.getEndWithOffset(Timezone.UTC));
 
         json = entry.toJson();
@@ -440,25 +418,21 @@ public class EntryTest {
      */
     @Test
     void test_endMethods_timezone() {
-        Timezone timezone = Timezone.getSystem();
+        Timezone timezone = new Timezone(ZoneId.of("Europe/Berlin")); // fixed non-UTC zone, so the test proves an offset on any machine
 
         LocalDateTime now = DEFAULT_START;
         Instant nowInstant = now.toInstant(ZoneOffset.UTC);
         ZonedDateTime nowZoned = nowInstant.atZone(timezone.getZoneId());
         LocalDateTime nowPlusOffset = timezone.applyTimezoneOffset(now);
+        assertEquals(now.plusHours(1), nowPlusOffset); // Berlin is UTC+1 in January, independent of the code under test
 
         Entry entry = new Entry();
         entry.setEnd(now);
 
-        FullCalendar calendar = new FullCalendar();
-        calendar.options().setTimeZone(timezone);
-        calendar.getEntryProvider().asInMemory().addEntry(entry);
-
         assertEquals(now, entry.getEnd());
         assertEquals(nowInstant, entry.getEndAsInstant());
-        assertEquals(nowZoned, entry.getEndWithTimezone());
-        assertEquals(nowPlusOffset, entry.getEndWithTimezone().toLocalDateTime());
-        assertEquals(nowPlusOffset, entry.getEndWithOffset());
+        assertEquals(nowZoned, entry.getEndWithTimezone(timezone));
+        assertEquals(nowPlusOffset, entry.getEndWithTimezone(timezone).toLocalDateTime());
         assertEquals(nowPlusOffset, entry.getEndWithOffset(timezone));
 
         ObjectNode json = entry.toJson();
@@ -467,9 +441,8 @@ public class EntryTest {
         entry.setEnd(nowInstant);
         assertEquals(now, entry.getEnd());
         assertEquals(nowInstant, entry.getEndAsInstant());
-        assertEquals(nowZoned, entry.getEndWithTimezone());
-        assertEquals(nowPlusOffset, entry.getEndWithTimezone().toLocalDateTime());
-        assertEquals(nowPlusOffset, entry.getEndWithOffset());
+        assertEquals(nowZoned, entry.getEndWithTimezone(timezone));
+        assertEquals(nowPlusOffset, entry.getEndWithTimezone(timezone).toLocalDateTime());
         assertEquals(nowPlusOffset, entry.getEndWithOffset(timezone));
 
         json = entry.toJson();
@@ -478,20 +451,8 @@ public class EntryTest {
         entry.setEndWithTimezone(nowZoned);
         assertEquals(now, entry.getEnd());
         assertEquals(nowInstant, entry.getEndAsInstant());
-        assertEquals(nowZoned, entry.getEndWithTimezone());
-        assertEquals(nowPlusOffset, entry.getEndWithTimezone().toLocalDateTime());
-        assertEquals(nowPlusOffset, entry.getEndWithOffset());
-        assertEquals(nowPlusOffset, entry.getEndWithOffset(timezone));
-
-        json = entry.toJson();
-        assertEquals(JSON_UTC_TIMESTAMP, json.get(Fields.END).asString());
-
-        entry.setEndWithOffset(nowZoned.toLocalDateTime());
-        assertEquals(now, entry.getEnd());
-        assertEquals(nowInstant, entry.getEndAsInstant());
-        assertEquals(nowZoned, entry.getEndWithTimezone());
-        assertEquals(nowPlusOffset, entry.getEndWithTimezone().toLocalDateTime());
-        assertEquals(nowPlusOffset, entry.getEndWithOffset());
+        assertEquals(nowZoned, entry.getEndWithTimezone(timezone));
+        assertEquals(nowPlusOffset, entry.getEndWithTimezone(timezone).toLocalDateTime());
         assertEquals(nowPlusOffset, entry.getEndWithOffset(timezone));
 
         json = entry.toJson();
@@ -500,9 +461,18 @@ public class EntryTest {
         entry.setEndWithOffset(nowZoned.toLocalDateTime(), timezone);
         assertEquals(now, entry.getEnd());
         assertEquals(nowInstant, entry.getEndAsInstant());
-        assertEquals(nowZoned, entry.getEndWithTimezone());
-        assertEquals(nowPlusOffset, entry.getEndWithTimezone().toLocalDateTime());
-        assertEquals(nowPlusOffset, entry.getEndWithOffset());
+        assertEquals(nowZoned, entry.getEndWithTimezone(timezone));
+        assertEquals(nowPlusOffset, entry.getEndWithTimezone(timezone).toLocalDateTime());
+        assertEquals(nowPlusOffset, entry.getEndWithOffset(timezone));
+
+        json = entry.toJson();
+        assertEquals(JSON_UTC_TIMESTAMP, json.get(Fields.END).asString());
+
+        entry.setEndWithOffset(nowZoned.toLocalDateTime(), timezone);
+        assertEquals(now, entry.getEnd());
+        assertEquals(nowInstant, entry.getEndAsInstant());
+        assertEquals(nowZoned, entry.getEndWithTimezone(timezone));
+        assertEquals(nowPlusOffset, entry.getEndWithTimezone(timezone).toLocalDateTime());
         assertEquals(nowPlusOffset, entry.getEndWithOffset(timezone));
 
         json = entry.toJson();

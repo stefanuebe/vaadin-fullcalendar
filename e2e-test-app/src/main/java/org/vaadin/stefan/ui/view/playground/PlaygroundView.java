@@ -171,7 +171,6 @@ public class PlaygroundView extends VerticalLayout implements AfterNavigationObs
         entry.setStart(event.getStart());
         entry.setEnd(event.getEnd());
         entry.setAllDay(event.isAllDay());
-        entry.setCalendar(event.getSource());
 
         PlaygroundDialog dialog = new PlaygroundDialog(entry, true);
         dialog.setSaveConsumer(e -> onEntriesCreated(Collections.singletonList(e)));

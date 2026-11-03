@@ -70,8 +70,8 @@ public class PlaygroundDialog extends Dialog {
             fieldEnd.setValue(red != null ? red.atTime(ret != null ? ret : LocalTime.MIN) : null);
             fieldRDays.setValue(tmpEntry.getRecurringDaysOfWeek());
         } else {
-            fieldStart.setValue(tmpEntry.getStartWithOffset());
-            fieldEnd.setValue(tmpEntry.getEndWithOffset());
+            fieldStart.setValue(tmpEntry.getStart());
+            fieldEnd.setValue(tmpEntry.getEnd());
         }
 
         // --- Listeners ---
