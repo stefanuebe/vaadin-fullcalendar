@@ -288,6 +288,10 @@ configuration.
   Vaadin API recognizes the add-on's API in it. The in-memory entry provider is
   documented like `ListDataProvider`: `setItems` first, "list" rather than
   "collection".
+- **No package names in the text.** The IDE resolves a class name, and the import
+  of a sample shows the package where it matters. Not "`EntryProvider.fromCallbacks`
+  (package `org.vaadin.stefan.fullcalendar.dataprovider`) creates", but
+  "`EntryProvider.fromCallbacks` creates".
 - **Every sentence gives the reader something.** No technical reason the reader
   does not need ("because the add-on listens to entry clicks"), no remark about
   the page itself ("The other examples reuse `calendar`"), no statement of the
