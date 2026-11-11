@@ -26,6 +26,7 @@ import com.vaadin.flow.component.dependency.NpmPackage;
 import com.vaadin.flow.shared.Registration;
 import org.apache.commons.lang3.StringUtils;
 import org.vaadin.stefan.fullcalendar.CustomCalendarView.AnonymousCustomCalendarView;
+import org.vaadin.stefan.fullcalendar.converters.RRuleConverter;
 import org.vaadin.stefan.fullcalendar.dataprovider.EntryProvider;
 import org.vaadin.stefan.fullcalendar.dataprovider.EntryQuery;
 import org.vaadin.stefan.fullcalendar.dataprovider.InMemoryEntryProvider;
@@ -508,10 +509,22 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
         ArrayNode array = JsonFactory.createArray();
         entryProvider.fetch(new EntryQuery(start, end, EntryQuery.AllDay.BOTH))
                 .peek(entry -> lastFetchedEntries.put(entry.getId(), entry))
-                .map(Entry::toJson)
+                .map(this::toClientJson)
                 .forEach(array::add);
 
         return array;
+    }
+
+    /**
+     * Converts an entry for this calendar. A rule without {@code dtstart} starts at the entry start, which the
+     * library reads in the time zone of the calendar, so it is converted to that zone (see {@link RRuleConverter}).
+     */
+    private ObjectNode toClientJson(Entry entry) {
+        ObjectNode json = entry.toJson();
+        if (entry.getRRule() != null) {
+            json.set("rrule", RRuleConverter.toClientModelInZone(entry.getRRule(), entry, getTimezoneForOffsets()));
+        }
+        return json;
     }
 
     /**

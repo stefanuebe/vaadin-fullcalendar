@@ -531,9 +531,7 @@ public class RRule implements Serializable {
      *       {@code rrule.RRule[day.toUpperCase()]}, which only knows plain {@code MO..SU} — a
      *       positional token would resolve to {@code undefined} and crash the plugin. The string
      *       (iCal) parser handles positional BYDAY tokens natively.</li>
-     *   <li>Otherwise, returns an ObjectNode with the structured properties. FullCalendar's rrule plugin
-     *       requires the object form when the enclosing entry also carries {@code exdate} or
-     *       {@code exrule} — sending the rrule as a string in those cases crashes the plugin.</li>
+     *   <li>Otherwise, returns an ObjectNode with the structured properties.</li>
      * </ul>
      *
      * @return JsonNode representing this RRule

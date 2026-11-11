@@ -70,6 +70,7 @@ custom.setRRule(RRule.ofRaw("FREQ=WEEKLY;BYDAY=MO,WE;INTERVAL=2"));
 | BR-04 | `recurringDuration` (`java.time.Duration`) sets the length of each occurrence, sent as `hh:mm:ss` (e.g. `Duration.ofHours(48)` → `"48:00:00"`). FullCalendar does not parse ISO 8601 strings |
 | BR-05 | Recurring entries expand client-side — the server sends the rule, not individual instances |
 | BR-06 | Dragging individual occurrences of a recurring entry is not supported — the entire rule would need to be changed |
+| BR-07 | An RRule without `dtstart` starts at the start of its entry: the date for an all-day entry, otherwise the start converted to the time zone of the calendar, because the library reads a `dtstart` without zone in that zone. This holds for the object and the text form. An explicit `dtstart` and a rule created with `ofRaw` are sent as they are (#451, #452) |
 
 ---
 
@@ -90,9 +91,11 @@ custom.setRRule(RRule.ofRaw("FREQ=WEEKLY;BYDAY=MO,WE;INTERVAL=2"));
 ### Unit Tests
 - [ ] `ExtendedLocalTimeTest` — ExtendedLocalTime conversion
 - [ ] `EntryTest` — RRule serialization
+- [x] `RRuleEntryStartTest` — the entry start as `dtstart`, in the calendar time zone (BR-07)
 
 ### E2E Tests
 - [ ] `entry-model.spec.js` — recurring entry display
+- [x] `rrule-entry-start.spec.js` — rules without `dtstart` in a calendar in `Europe/Berlin` (BR-07)
 
 ---
 
