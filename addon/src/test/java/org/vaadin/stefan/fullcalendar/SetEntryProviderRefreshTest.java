@@ -20,8 +20,7 @@ public class SetEntryProviderRefreshTest extends BrowserlessTest {
         UI ui = UI.getCurrent();
         ui.getInternals().getStateTree().runExecutionsBeforeClientResponse();
         return ui.getInternals().dumpPendingJavaScriptInvocations().stream()
-                .map(PendingJavaScriptInvocation::getInvocation)
-                .filter(invocation -> invocation.getExpression().contains("refreshAllEvents"))
+                .filter(invocation -> ClientCalls.calls(invocation, "refreshAllEvents"))
                 .count();
     }
 

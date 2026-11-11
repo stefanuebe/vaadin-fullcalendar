@@ -63,9 +63,8 @@ class SchedulerTypedOptionsSyncTest extends BrowserlessTest {
     private List<JsonNode> respond() {
         ui.getInternals().getStateTree().runExecutionsBeforeClientResponse();
         return ui.getInternals().dumpPendingJavaScriptInvocations().stream()
-                .map(PendingJavaScriptInvocation::getInvocation)
-                .filter(invocation -> invocation.getExpression().contains("setOptions"))
-                .map(invocation -> (JsonNode) invocation.getParameters().getLast())
+                .filter(invocation -> ClientCalls.calls(invocation, "setOptions"))
+                .map(invocation -> (JsonNode) ClientCalls.lastArgument(invocation))
                 .toList();
     }
 

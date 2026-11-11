@@ -71,9 +71,8 @@ public class TypedOptionValuesTest extends BrowserlessTest {
         ui.getInternals().getStateTree().runExecutionsBeforeClientResponse();
         List<PendingJavaScriptInvocation> invocations = ui.getInternals().dumpPendingJavaScriptInvocations();
         for (PendingJavaScriptInvocation invocation : invocations) {
-            List<Object> parameters = invocation.getInvocation().getParameters();
-            if (invocation.getInvocation().getExpression().contains("setOptions")
-                    && parameters.getLast() instanceof JsonNode changes && changes.has(key)) {
+            if (ClientCalls.calls(invocation, "setOptions")
+                    && ClientCalls.lastArgument(invocation) instanceof JsonNode changes && changes.has(key)) {
                 return changes.get(key);
             }
         }
@@ -295,9 +294,8 @@ public class TypedOptionValuesTest extends BrowserlessTest {
         ui.getInternals().getStateTree().runExecutionsBeforeClientResponse();
 
         JsonNode restored = ui.getInternals().dumpPendingJavaScriptInvocations().stream()
-                .map(PendingJavaScriptInvocation::getInvocation)
-                .filter(invocation -> invocation.getExpression().contains("setOptions"))
-                .map(invocation -> (JsonNode) invocation.getParameters().getLast())
+                .filter(invocation -> ClientCalls.calls(invocation, "setOptions"))
+                .map(invocation -> (JsonNode) ClientCalls.lastArgument(invocation))
                 .findFirst().orElseGet(() -> fail("no setOptions call"));
         assertEquals("new", restored.get("buttons").get("inbox").get("badge").get("label").asString());
     }
