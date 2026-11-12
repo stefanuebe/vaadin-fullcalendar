@@ -236,7 +236,8 @@ and snapshot bump matters for the demo deployment.
 
 User-facing documentation lives in the **GitHub wiki**, the single source of truth.
 There is no user doc folder in this repo. The wiki is its own git repo, checked out
-at `wiki/` (remote `origin-wiki`). Key pages: Home, Getting Started, Samples,
+at `wiki/` (remote `origin-wiki`). Key pages: Home, Getting Started, Documentation
+(overview of the topic pages), Samples,
 Features, Release notes, Migration guides, FAQ, Known Issues, Scheduler license.
 
 - Wiki-internal links use full GitHub URLs
