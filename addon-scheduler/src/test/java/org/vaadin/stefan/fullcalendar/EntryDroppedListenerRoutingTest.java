@@ -73,10 +73,9 @@ class EntryDroppedListenerRoutingTest extends BrowserlessTest {
 
         List<String> calls = new ArrayList<>();
         for (PendingJavaScriptInvocation invocation : flush()) {
-            String expression = invocation.getInvocation().getExpression();
-            if (expression.contains("revertEntry")) {
+            if (ClientCalls.calls(invocation, "revertEntry")) {
                 calls.add("revertEntry");
-            } else if (expression.contains("clearPendingRevert")) {
+            } else if (ClientCalls.calls(invocation, "clearPendingRevert")) {
                 calls.add("clearPendingRevert");
             }
         }

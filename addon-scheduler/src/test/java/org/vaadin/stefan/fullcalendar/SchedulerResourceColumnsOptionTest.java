@@ -15,8 +15,6 @@ import tools.jackson.databind.node.ObjectNode;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -26,7 +24,6 @@ import static org.junit.jupiter.api.Assertions.*;
  */
 class SchedulerResourceColumnsOptionTest extends BrowserlessTest {
 
-    private static final Pattern CALLED_FUNCTION = Pattern.compile("\\$0\\.(\\w+)\\(");
 
     private FullCalendarScheduler calendar;
     private UI ui;
@@ -47,9 +44,9 @@ class SchedulerResourceColumnsOptionTest extends BrowserlessTest {
         ui.getInternals().getStateTree().runExecutionsBeforeClientResponse();
         List<String> calls = new ArrayList<>();
         for (PendingJavaScriptInvocation invocation : ui.getInternals().dumpPendingJavaScriptInvocations()) {
-            Matcher function = CALLED_FUNCTION.matcher(invocation.getInvocation().getExpression());
-            if (function.find()) {
-                calls.add(function.group(1));
+            String function = ClientCalls.functionName(invocation);
+            if (function != null) {
+                calls.add(function);
             }
         }
         return calls;
@@ -154,9 +151,8 @@ class SchedulerResourceColumnsOptionTest extends BrowserlessTest {
     private JsonNode sentOptions() {
         ui.getInternals().getStateTree().runExecutionsBeforeClientResponse();
         List<JsonNode> sent = ui.getInternals().dumpPendingJavaScriptInvocations().stream()
-                .map(PendingJavaScriptInvocation::getInvocation)
-                .filter(invocation -> invocation.getExpression().contains("setOptions"))
-                .map(invocation -> (JsonNode) invocation.getParameters().getLast())
+                .filter(invocation -> ClientCalls.calls(invocation, "setOptions"))
+                .map(invocation -> (JsonNode) ClientCalls.lastArgument(invocation))
                 .toList();
         assertEquals(1, sent.size());
         return sent.getFirst();
