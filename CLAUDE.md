@@ -238,7 +238,7 @@ User-facing documentation lives in the **GitHub wiki**, the single source of tru
 There is no user doc folder in this repo. The wiki is its own git repo, checked out
 at `wiki/` (remote `origin-wiki`). Key pages: Home, Getting Started, Documentation
 (overview of the topic pages), Samples,
-Features, Release notes, Migration guides, FAQ, Known Issues, Scheduler license.
+Features, Release notes, Migration guides, FAQ, Known Issues.
 
 - Wiki-internal links use full GitHub URLs
   (`https://github.com/stefanuebe/vaadin-fullcalendar/wiki/Page-Name`), because the
