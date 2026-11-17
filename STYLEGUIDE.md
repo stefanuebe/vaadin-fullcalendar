@@ -250,6 +250,38 @@ configuration.
 - **A section opens with a sentence of context.** It says what the topic is and
   why a reader cares before the code comes. Not only "Create an `Entry`, set its
   title and add it:" followed by code.
+- **The sample comes before the details.** A section goes: one or two sentences
+  of context, the sample, then the details. Return values, side effects and
+  special cases follow the sample instead of piling up before it. Not "fires an
+  `EntryDroppedEvent`. It carries the new times, but the entry still has the old
+  values. A listener applies them …" before the drop listener, but "When the user
+  drops an entry on another timeslot, the calendar fires an `EntryDroppedEvent`:"
+  and the sample, then what `applyChangesOnEntry()` does.
+- **Each feature the reader uses gets its own subsection and sample.** On a page
+  that presents several events or features, each gets a `###` with a small
+  sample. Not a bullet list of events that each end in "[X] shows an example",
+  and not "as shown in [Adding a listener]" in place of a sample of its own.
+- **Requirements from another topic are a line in the sample.** The option that
+  allows dragging is `options().setEditable(true)` in the drop listener sample,
+  not a paragraph on options at the start of a section about listeners.
+- **Name the Vaadin pattern instead of explaining Vaadin.** Not "Each event is a
+  `ComponentEvent` of the calendar. The calendar has a listener method for each",
+  but "Like most other Vaadin components, the calendar allows listening to
+  events. Adding event listeners follows the same Vaadin scheme."
+- **Say what a method gives the reader**, not only what it returns. Not
+  "`getChangesAsEntry()` returns a copy of the entry with the new times", but
+  that it lets the reader check the change with the `Entry` API instead of
+  parsing raw JSON.
+- **Say when something happens.** Make clear whether a sentence is about the
+  setup or about a calendar that is already shown. Not "An option change that
+  moves the shown dates fires no event", which reads like initial setup, but "An
+  option change on a calendar that is already shown …". Avoid words with two
+  readings: "drops an entry on another timeslot", not "at another time".
+- **Write as a person explains it.** Not "`addViewSkeletonRenderedListener` is
+  the same method under the name of the event", but "`addViewSkeletonRenderedListener`
+  does the same and is named after the event."
+- **Bullets list items of one kind**, such as getters, options or steps.
+  Sentences that explain and build on each other stay a paragraph.
 - **Explain the concept, then name the method.** A reader cannot be expected to
   know what a method stands for. Not "Without one, the entry follows
   `options().setEntryDisplay(…)`", but "follows the display mode the calendar sets
@@ -306,15 +338,21 @@ configuration.
 - **A page is one line of thought.** Read top to bottom, each section follows
   from the one before, and each goes from the simple, common case to the detail
   and the special case. A fact stands where the reader first needs it: a
-  requirement before the sample that depends on it (allowing drag before the
-  drop listener), a term before the table that uses it, an id rule before the
+  requirement before or in the sample that depends on it (`setEditable(true)` in
+  the drop listener sample), a term before the table that uses it, an id rule before the
   sample that looks entries up by id. Facts on one topic stay in one place
   instead of spread over the page, and none is said twice. A forward link
   ("see X below") that stands in for an explanation the reader needs here means
   the fact is in the wrong place. Move it, don't link to it.
 - **A note on terms stands at the end of the introduction**, as a
-  `> **Note:**` quote, not in the first sentence. An example is that the library
-  calls entries "events".
+  `> **Note:**` quote, not in the first sentence. A term is noted once, on the
+  page that introduces it, and not repeated on every page that uses it. That the
+  library calls entries "events" is noted on Entries only. What follows from
+  the term on another page stays where the reader needs it, such as `info.event`
+  in a JavaScript callback or `fc-event` in a class name.
+- **What only the scheduler has goes to the Scheduler page.** A topic page has
+  no scheduler section. The Scheduler page explains the scheduler variants of
+  events, options and class names, and the topic page may link there.
 
 ### Release notes and migration guides
 
