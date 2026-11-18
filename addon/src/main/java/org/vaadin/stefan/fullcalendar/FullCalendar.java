@@ -1482,14 +1482,12 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
      * Registers a {@link Draggable} on this calendar. The wrapped component becomes draggable
      * onto any calendar that has {@link FullCalendarViewOptions#getDroppable() droppable} set to {@code true}.
      * <p>
-     * When the component is dropped onto <em>this</em> calendar, the resulting {@link DropEvent}
-     * provides typed access to the component and entry via {@link DropEvent#getDraggedComponent()}
-     * and {@link DropEvent#getDraggedEntry()}.
+     * When the component is dropped onto <em>this</em> calendar, {@link DropEvent#getDraggable()} returns the
+     * draggable, with its component and entry data.
      * <p>
      * <strong>Important:</strong> The draggable registry is per-calendar. If the component is dropped
-     * onto a <em>different</em> calendar, that calendar's {@link DropEvent} will not resolve the
-     * draggable — {@code getDraggedComponent()} and {@code getDraggedEntry()} will return empty.
-     * The raw {@link DropEvent#getEntryJson()} is still available in all cases.
+     * onto a <em>different</em> calendar, that calendar's {@link DropEvent#getDraggable()} is empty.
+     * {@link DropEvent#getCreatedEntry()} is still available in all cases.
      *
      * @param draggable the draggable to register
      * @return registration to remove the draggable
