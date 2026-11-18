@@ -18,7 +18,7 @@
 ## User-Facing Behavior
 
 - Recurring entries appear on every matching date within the visible range
-- Simple recurrence: entries repeat on specified days of the week
+- Basic recurrence: entries repeat on specified days of the week
 - RRule recurrence: complex patterns (bi-weekly, monthly-by-weekday, yearly, etc.)
 - Individual occurrences cannot be edited separately (FullCalendar renders them as repeating instances)
 
@@ -64,7 +64,7 @@ custom.setRRule(RRule.ofRaw("FREQ=WEEKLY;BYDAY=MO,WE;INTERVAL=2"));
 
 | ID | Rule |
 |----|------|
-| BR-01 | Simple recurrence and RRule are mutually exclusive per entry. Setting one (non-null) removes the other. `recurringDuration` is kept for both |
+| BR-01 | Basic recurrence and RRule are mutually exclusive per entry. Setting one (non-null) removes the other. `recurringDuration` is kept for both |
 | BR-02 | Setting an RRule clears `recurringDaysOfWeek`, `recurringStartDate`, `recurringEndDate`, `recurringStartTime` and `recurringEndTime`. Setting one of them clears the RRule with its excluded dates and rules |
 | BR-03 | `excludeDates` removes specific occurrences from the recurrence pattern |
 | BR-04 | `recurringDuration` (`java.time.Duration`) sets the length of each occurrence, sent as `hh:mm:ss` (e.g. `Duration.ofHours(48)` → `"48:00:00"`). FullCalendar does not parse ISO 8601 strings |

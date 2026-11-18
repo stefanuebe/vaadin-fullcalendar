@@ -30,8 +30,7 @@ import tools.jackson.databind.node.ObjectNode;
  * Use {@link EntryDragStopEvent} to re-enable such feedback when dragging ends.
  * <br><br>
  * Note: {@link #getEntry()} returns the server-side entry at its <em>original</em> position.
- * Do not call {@link #applyChangesOnEntry()} on this event — drag start does not represent
- * a committed position change. Use it for UI feedback only.
+ * The event carries no change. Use it for UI feedback only.
  * <br><br>
  * Client side name: eventDragStart
  */

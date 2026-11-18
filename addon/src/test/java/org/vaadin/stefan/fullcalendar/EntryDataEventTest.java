@@ -19,7 +19,7 @@ import static org.mockito.Mockito.when;
 class EntryDataEventTest {
 
     @Test
-    void getChangesAsEntry_appliesChangesOnACopy() {
+    void getDetailsAsEntry_appliesTheClientValuesOnACopy() {
         // EntryClickedEvent resolves the entry from the calendar's fetch cache
         FullCalendar calendar = mock(FullCalendar.class);
         Entry original = new Entry("test-1");
@@ -33,7 +33,7 @@ class EntryDataEventTest {
         changes.put("allDay", true);
 
         EntryClickedEvent event = new EntryClickedEvent(calendar, false, changes);
-        Entry changed = event.getChangesAsEntry();
+        Entry changed = event.getDetailsAsEntry();
 
         assertEquals("test-1", changed.getId());
         assertTrue(changed.isAllDay());
@@ -42,8 +42,8 @@ class EntryDataEventTest {
     }
 
     @Test
-    void getChangesAsEntry_keepsTheRRule() {
-        // getChangesAsEntry is shared by all entry data events, drop and resize included
+    void getDetailsAsEntry_keepsTheRRule() {
+        // getDetailsAsEntry is shared by all entry data events, drop and resize included
         FullCalendar calendar = mock(FullCalendar.class);
         Entry original = new Entry("test-1");
         original.setRRule(RRule.weekly());
@@ -53,7 +53,7 @@ class EntryDataEventTest {
         changes.put("id", "test-1");
         changes.put("allDay", true);
 
-        Entry changed = new EntryClickedEvent(calendar, false, changes).getChangesAsEntry();
+        Entry changed = new EntryClickedEvent(calendar, false, changes).getDetailsAsEntry();
 
         assertSame(original.getRRule(), changed.getRRule());
     }

@@ -144,10 +144,10 @@ public class EntryModelTest {
     }
 
     // -------------------------------------------------------------------------
-    // built-in recurrence and RRule exclude each other
+    // basic recurrence and RRule exclude each other
     // -------------------------------------------------------------------------
 
-    private static Entry builtInRecurringEntry() {
+    private static Entry basicRecurringEntry() {
         Entry entry = new Entry();
         entry.setRecurringDaysOfWeek(DayOfWeek.MONDAY);
         entry.setRecurringStartDate(LocalDate.of(2025, 3, 1));
@@ -168,8 +168,8 @@ public class EntryModelTest {
     }
 
     @Test
-    void setRRule_clearsBuiltInRecurrence_keepsDuration() {
-        Entry entry = builtInRecurringEntry();
+    void setRRule_clearsBasicRecurrence_keepsDuration() {
+        Entry entry = basicRecurringEntry();
         entry.setRRule(RRule.weekly());
 
         assertNull(entry.getRecurringDaysOfWeek());
@@ -188,8 +188,8 @@ public class EntryModelTest {
     }
 
     @Test
-    void setRRule_null_keepsBuiltInRecurrence() {
-        Entry entry = builtInRecurringEntry();
+    void setRRule_null_keepsBasicRecurrence() {
+        Entry entry = basicRecurringEntry();
         entry.setRRule(null);
 
         assertEquals(Set.of(DayOfWeek.MONDAY), entry.getRecurringDaysOfWeek());
@@ -768,10 +768,10 @@ public class EntryModelTest {
     }
 
     @Test
-    void entry_isRecurring_true_withBuiltinRecurrence() {
+    void entry_isRecurring_true_withBasicRecurrence() {
         Entry entry = new Entry();
         entry.setRecurringDaysOfWeek(java.util.Set.of(java.time.DayOfWeek.MONDAY));
-        assertTrue(entry.isRecurring(), "isRecurring should be true for built-in recurrence");
+        assertTrue(entry.isRecurring(), "isRecurring should be true for basic recurrence");
     }
 
     // -------------------------------------------------------------------------

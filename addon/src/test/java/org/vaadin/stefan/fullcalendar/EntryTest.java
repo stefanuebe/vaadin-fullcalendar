@@ -913,7 +913,7 @@ public class EntryTest {
     }
 
     @Test
-    void copy_keepsTheBuiltInRecurrence() {
+    void copy_keepsTheBasicRecurrence() {
         Entry source = new Entry();
         source.setRecurringDaysOfWeek(DayOfWeek.MONDAY);
         source.setRecurringStartDate(LocalDate.of(2025, 3, 1));
@@ -951,7 +951,7 @@ public class EntryTest {
     }
 
     @Test
-    void copyFrom_anRRuleReplacesTheTargetsBuiltInRecurrence() {
+    void copyFrom_anRRuleReplacesTheTargetsBasicRecurrence() {
         Entry source = new Entry();
         source.setRRule(RRule.weekly());
 

@@ -177,7 +177,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
 
     /**
      * Whether to automatically revert client-side entry changes when
-     * {@link EntryDataEvent#applyChangesOnEntry()} is not called. Default is {@code true}.
+     * {@link EntryChangedEvent#applyChangesOnEntry()} is not called. Default is {@code true}.
      */
     private boolean autoRevertUnappliedEntryChanges = true;
 
@@ -1154,7 +1154,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
 
     /**
      * Returns whether the calendar automatically reverts client-side entry changes
-     * when {@link EntryDataEvent#applyChangesOnEntry()} is not called in a drop/resize listener.
+     * when {@link EntryChangedEvent#applyChangesOnEntry()} is not called in a drop/resize listener.
      * Default is {@code true}.
      *
      * @return true if auto-revert is enabled
@@ -1166,7 +1166,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
 
     /**
      * Sets whether the calendar should automatically revert client-side entry changes
-     * when {@link EntryDataEvent#applyChangesOnEntry()} is not called during event listener
+     * when {@link EntryChangedEvent#applyChangesOnEntry()} is not called during event listener
      * processing of drop or resize events.
      * <p>
      * When {@code true} (the default), if a developer's listener does not call
@@ -1235,10 +1235,10 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
     }
 
     /**
-     * Wraps a listener for {@link EntryDataEvent} subclasses with auto-revert support.
+     * Wraps a listener for {@link EntryChangedEvent} subclasses with auto-revert support.
      * When {@link #isAutoRevertUnappliedEntryChanges()} is true, schedules a
      * {@code beforeClientResponse} callback after each event dispatch to check if
-     * {@link EntryDataEvent#applyChangesOnEntry()} was called. If not, the client-side
+     * {@link EntryChangedEvent#applyChangesOnEntry()} was called. If not, the client-side
      * entry is reverted to its original position.
      * <p>
      * The listeners are counted per DOM event of the event class. While none exists for a DOM event, the client
@@ -1246,11 +1246,11 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
      *
      * @param eventType the event class, annotated with {@link DomEvent}
      * @param listener the user's listener
-     * @param <T> event type extending EntryDataEvent
+     * @param <T> event type extending EntryChangedEvent
      * @return registration to remove the listener
      * @since 7.2.0
      */
-    protected <T extends EntryDataEvent> Registration addAutoRevertAwareListener(
+    protected <T extends EntryChangedEvent> Registration addAutoRevertAwareListener(
             Class<T> eventType, ComponentEventListener<T> listener) {
 
         Registration registration = addListener(eventType, event -> {
