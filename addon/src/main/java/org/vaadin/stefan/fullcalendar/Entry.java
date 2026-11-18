@@ -50,7 +50,7 @@ import java.util.stream.Stream;
  * An entry has a title, a start and an end, and can be all-day. Start and end are stored as UTC
  * ({@link #setStart(LocalDateTime)}). The calendar's {@link FullCalendarOptions#getTimeZone() time zone} only
  * changes how they are shown.
- * An entry can repeat, either with the simple recurrence properties ({@link #setRecurringDaysOfWeek(Set)},
+ * An entry can repeat, either with the basic recurrence ({@link #setRecurringDaysOfWeek(Set)},
  * {@link #setRecurringStartTime(LocalTime)}, ...) or with an {@link RRule} ({@link #setRRule(RRule)}).
  * <p>
  * Color, class names, editability and display mode can be set per entry and override the calendar's options.
@@ -172,7 +172,7 @@ public class Entry implements Serializable {
 
     /**
      * The duration of each occurrence of a recurring entry, e.g. {@code Duration.ofHours(48)} for an occurrence
-     * spanning two days. Applies to both the built-in recurrence and an {@link RRule}, so neither of them clears it.
+     * spanning two days. Applies to both the basic recurrence and an {@link RRule}, so neither of them clears it.
      * Without it, an all-day occurrence spans one day and a timed occurrence uses the recurring start and end time.
      * <p>
      * Sent to the client as {@code hh:mm:ss}, where the hours may exceed 24. The client adds it in wall-clock time, so an
@@ -185,9 +185,9 @@ public class Entry implements Serializable {
     private Duration recurringDuration;
 
     /**
-     * RRule-based recurrence definition. Requires the {@code @fullcalendar/rrule} plugin.
+     * RRule-based recurrence definition, through the {@code @fullcalendar/rrule} plugin that the add-on loads.
      * <p>
-     * <b>Mutually exclusive</b> with the built-in recurrence ({@code recurringDaysOfWeek}, etc.), so setting one
+     * <b>Mutually exclusive</b> with the basic recurrence ({@code recurringDaysOfWeek}, etc.), so setting one
      * removes the other. See {@link #setRRule(RRule)}.
      * <p>
      * Use {@link #setRRule(RRule)} and {@link #getRRule()} instead of the Lombok-generated accessors.
@@ -239,7 +239,7 @@ public class Entry implements Serializable {
      * <p>
      * Pass {@code null} to remove the recurrence rule and any associated excluded dates and rules.
      * <p>
-     * A non-null RRule removes the built-in recurrence (days of week, recurring start and end date, recurring
+     * A non-null RRule removes the basic recurrence (days of week, recurring start and end date, recurring
      * start and end time), because the two must not be combined. The {@link #getRecurringDuration() recurring
      * duration} is kept, as it applies to both.
      *
@@ -247,7 +247,7 @@ public class Entry implements Serializable {
      */
     public void setRRule(RRule rrule) {
         if (rrule != null) {
-            // fields, not setters: the built-in setters call setRRule(null)
+            // fields, not setters: the setters of the basic recurrence call setRRule(null)
             recurringDaysOfWeek = null;
             recurringStartDate = null;
             recurringEndDate = null;

@@ -40,7 +40,7 @@ import java.util.stream.Stream;
 
 /**
  * Represents a recurrence rule (RRULE) for a calendar entry, compatible with the {@code @fullcalendar/rrule}
- * plugin. Used to define rich recurrence patterns beyond the simple built-in recurrence fields
+ * plugin. Used to define rich recurrence patterns beyond the basic recurrence of an entry
  * ({@code recurringDaysOfWeek}, {@code recurringStartDate}, etc.).
  * <p>
  * Two modes of use:
@@ -53,10 +53,10 @@ import java.util.stream.Stream;
  * <p>
  * The two modes are mutually exclusive. If a raw RRULE string is set, it takes precedence.
  * <p>
- * <b>Important:</b> RRule-based recurrence and FullCalendar's built-in recurrence ({@code daysOfWeek} etc.) are
- * <em>mutually exclusive</em> on a per-entry basis. Do not set both on the same entry.
+ * <b>Important:</b> an RRule and the basic recurrence of an entry are <em>mutually exclusive</em>. Setting one
+ * removes the other. See {@link Entry#setRRule(RRule)}.
  * <p>
- * Requires the {@code @fullcalendar/rrule} npm package and plugin to be loaded.
+ * The add-on loads the {@code @fullcalendar/rrule} plugin, so no extra dependency is needed.
  *
  * @see <a href="https://fullcalendar.io/docs/rrule-plugin">FullCalendar rrule plugin documentation</a>
  */
