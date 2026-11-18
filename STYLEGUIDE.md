@@ -282,6 +282,27 @@ configuration.
   does the same and is named after the event."
 - **Bullets list items of one kind**, such as getters, options or steps.
   Sentences that explain and build on each other stay a paragraph.
+- **A mechanism is described in one place.** Other pages show a sample at most
+  and point there. Two pages that each explain part of it and point to each
+  other leave the reader without the whole. Applying a change and auto-revert
+  are described on Event listeners. Entries shows the listener samples and
+  links there.
+- **A section keeps one thread.** Every sentence serves what the section
+  explains. Facts picked up along the way, such as how several listeners
+  interact or that drops and resizes are counted apart, do not get sprinkled
+  in. They go to the Javadoc.
+- **A sample is realistic and simple.** It shows something a user can actually
+  do at that moment. Not a delete button disabled during a drag, when nobody
+  can click during a drag. The simpler variant wins over a more exact but
+  nested one, such as comparing with today in UTC rather than in the
+  calendar's time zone.
+- **Where the add-on differs from the library, name the library's default.**
+  Not "The calendar does not move to the clicked day on its own", but "By
+  default, the FullCalendar library moves to a day view. The add-on disables
+  this default behavior and fires events instead."
+- **A rarely needed topic stands next to the topic it belongs to**, after the
+  common parts, not in a catch-all section such as "Advanced entry events".
+  A topic that does not belong to any section on the page goes to its end.
 - **Explain the concept, then name the method.** A reader cannot be expected to
   know what a method stands for. Not "Without one, the entry follows
   `options().setEntryDisplay(…)`", but "follows the display mode the calendar sets
