@@ -14,8 +14,8 @@ import static org.junit.jupiter.api.Assertions.*;
  * especially that no NPE occurs due to type mismatches between
  * Entry (Boolean) and ResourceEntry (boolean) fields during reflection-based copy.
  * <p>
- * These tests cover the same code paths as {@code EntryDataEvent.applyChangesOnEntry()}
- * and {@code EntryDataEvent.getChangesAsEntry()} (formerly {@code createCopyBasedOnChanges}).
+ * These tests cover the same code paths as {@code EntryChangedEvent.applyChangesOnEntry()}
+ * and {@code EntryDataEvent.getDetailsAsEntry()}.
  */
 public class ResourceEntryCopyTest {
 
@@ -103,7 +103,7 @@ public class ResourceEntryCopyTest {
         assertNotSame(entry.getResources(), copy.getResources());
     }
 
-    // --- updateFromJson tests (same code path as EntryDataEvent.applyChangesOnEntry) ---
+    // --- updateFromJson tests (same code path as EntryChangedEvent.applyChangesOnEntry) ---
 
     @Test
     void updateFromJson_shouldApplyChangesToResourceEntry() {
@@ -156,7 +156,7 @@ public class ResourceEntryCopyTest {
         assertEquals(Set.of(room), entry.getResources());
     }
 
-    // --- copy + updateFromJson (same code path as EntryDataEvent.getChangesAsEntry) ---
+    // --- copy + updateFromJson (same code path as EntryDataEvent.getDetailsAsEntry) ---
 
     @Test
     void copyThenUpdateFromJson_shouldNotThrow() {
@@ -170,7 +170,7 @@ public class ResourceEntryCopyTest {
         Resource room = new Resource("r1", "Room A", null);
         entry.addResources(room);
 
-        // simulate getChangesAsEntry
+        // simulate getDetailsAsEntry
         ResourceEntry copy = entry.copy();
 
         ObjectNode json = JsonFactory.createObject();

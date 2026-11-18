@@ -21,39 +21,23 @@ import lombok.ToString;
 import tools.jackson.databind.node.ObjectNode;
 
 /**
- * Extended entry event type, that provides also additional client side entry data, that can be interpreted on the
- * server side.
+ * Entry event that also carries the entry data the client sent, for example the start and end of the clicked
+ * occurrence. Events that carry a change of the entry extend {@link EntryChangedEvent}.
  */
 @Getter
 @ToString(callSuper = true)
 public abstract class EntryDataEvent extends EntryEvent {
 
     /**
-     * The json object that contains the changes from client side.
+     * The json object with the entry data from the client side.
      */
     private final ObjectNode jsonObject;
 
     /**
-     * Whether {@link #applyChangesOnEntry()} has been called on this event.
-     * Used by the auto-revert mechanism to determine if the client-side change
-     * should be reverted.
-     */
-    @Getter
-    private boolean changesApplied;
-
-    /**
-     * Whether a revert check has been scheduled via {@code beforeClientResponse}
-     * for this event instance. Prevents duplicate scheduling when multiple
-     * listeners are registered for the same event type.
-     */
-    @Getter(lombok.AccessLevel.NONE)
-    private boolean revertCheckScheduled;
-
-    /**
-     * New instance. Awaits the changed data object.
+     * New instance. Awaits the entry data object.
      * @param source source component
      * @param fromClient is from client
-     * @param jsonObject json object with changed data
+     * @param jsonObject json object with the entry data
      */
     public EntryDataEvent(FullCalendar source, boolean fromClient, ObjectNode jsonObject) {
         super(source, fromClient, jsonObject.get(Entry.Fields.ID).asString());
@@ -61,58 +45,33 @@ public abstract class EntryDataEvent extends EntryEvent {
     }
 
     /**
-     * Applies the contained changes on the referring entry and returns this instance.
-     * @see Entry#updateFromJson(tools.jackson.databind.node.ObjectNode)
-     * @return entry
-     */
-    public Entry applyChangesOnEntry() {
-        Entry entry = getEntry();
-        entry.updateFromJson(getJsonObject());
-        this.changesApplied = true;
-        return entry;
-    }
-
-    /**
-     * Returns whether a revert check has already been scheduled for this event.
-     * Package-private — used by {@link FullCalendar} auto-revert logic.
-     */
-    boolean isRevertCheckScheduled() {
-        return revertCheckScheduled;
-    }
-
-    /**
-     * Marks that a revert check has been scheduled for this event.
-     * Package-private — used by {@link FullCalendar} auto-revert logic.
-     */
-    void markRevertCheckScheduled() {
-        this.revertCheckScheduled = true;
-    }
-
-    /**
-     * Returns a new {@link Entry} instance with the changes from this event applied on top of the
-     * original entry. The original entry stored in {@link #getEntry()} is not modified.
-     * <p>
-     * This is the standard way to inspect "the entry as it would look after applying the change"
-     * without touching server-side state — useful for validation before calling
-     * {@link #applyChangesOnEntry()} or for rendering a dialog preview.
+     * Returns a new {@link Entry} instance with the data of this event applied on top of the original entry, for
+     * example the start and end of the clicked occurrence of a recurring entry. The original entry stored in
+     * {@link #getEntry()} is not modified.
      *
      * @param <R> return type
-     * @return a new entry reflecting the pending change
-     * @since 7.2.0
+     * @return a new entry with the data of this event
+     * @since 8.0.0
      */
     @SuppressWarnings("unchecked")
+    public <R extends Entry> R getDetailsAsEntry() {
+        Entry copy = getEntry().copy();
+        copy.updateFromJson(getJsonObject());
+        return (R) copy; // we use R here, since in most cases event listeners do not specify a generic type
+    }
+
+    /**
+     * Returns a new {@link Entry} instance with the data of this event applied on top of the original entry.
+     *
+     * @param <R> return type
+     * @return a new entry with the data of this event
+     * @since 7.2.0
+     * @deprecated events without a change carry no changes, use {@link #getDetailsAsEntry()}. On an
+     * {@link EntryChangedEvent}, this method stays available.
+     */
+    @Deprecated(since = "8.0.0", forRemoval = true)
     public <R extends Entry> R getChangesAsEntry() {
-        try {
-            Entry copy = getEntry().copy();
-
-            ObjectNode jsonObject = getJsonObject();
-            copy.updateFromJson(jsonObject);
-
-            return (R) copy; // we use R here, since in most cases event listeners do not specify a generic type
-
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+        return getDetailsAsEntry();
     }
 
 }

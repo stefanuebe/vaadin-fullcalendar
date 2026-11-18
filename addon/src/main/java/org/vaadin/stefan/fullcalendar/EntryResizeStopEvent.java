@@ -29,8 +29,7 @@ import tools.jackson.databind.node.ObjectNode;
  * (e.g. re-enabling controls after any resize, regardless of outcome).
  * <br><br>
  * Note: {@link #getEntry()} returns the server-side entry at its <em>original</em> duration.
- * Do not call {@link #applyChangesOnEntry()} on this event — resize stop does not represent
- * a committed duration change. Use it for UI feedback only.
+ * The event carries no change. Use it for UI feedback only.
  * <br><br>
  * Client side name: eventResizeStop
  */

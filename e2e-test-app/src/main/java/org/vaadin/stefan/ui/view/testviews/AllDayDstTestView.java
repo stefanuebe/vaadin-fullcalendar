@@ -48,7 +48,7 @@ public class AllDayDstTestView extends VerticalLayout {
         provider.getItems().add(entry);
         calendar.setEntryProvider(provider);
 
-        calendar.addEntryClickedListener(e -> clickedEnd.setText(String.valueOf(e.getChangesAsEntry().getEndAsLocalDate())));
+        calendar.addEntryClickedListener(e -> clickedEnd.setText(String.valueOf(e.getDetailsAsEntry().getEndAsLocalDate())));
 
         add(clickedEnd, calendar);
     }
