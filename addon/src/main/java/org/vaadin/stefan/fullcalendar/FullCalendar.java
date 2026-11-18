@@ -37,6 +37,8 @@ import tools.jackson.databind.node.ObjectNode;
 import java.time.*;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Flow implementation for the FullCalendar.
@@ -78,6 +80,15 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
 
     private static final String INITIAL_OPTIONS = "initialOptions";
     private static final String THEME_PROPERTY = "fcTheme";
+    /**
+     * The time of a {@code dtstart}, in the extended or the basic form, after {@code T} or a space, seconds and zone
+     * optional: {@code T10:00:00}, {@code T10:00}, {@code T100000Z}, {@code T10:00:00.500Z}, {@code T10:00+01}. In a
+     * rule as text, the time of {@code DTSTART:20260109T100000Z}, {@code DTSTART=20260109T100000} or
+     * {@code DTSTART;TZID=Europe/Berlin:20260109T100000}. The last one is sent as wall time without zone. Only the JSON
+     * sent for it is tested, no browser test checks that the occurrence is removed.
+     */
+    private static final Pattern DTSTART_TIME = Pattern.compile("\\d[T ](\\d{2}):?(\\d{2})(?::?(\\d{2})([.,]\\d+)?)?(Z|[+-]\\d{2}(?::?\\d{2})?)?");
+    private static final Pattern TEXT_DTSTART = Pattern.compile("DTSTART(?:;[^:\\n]*)?[:=]([^;\\s]+)");
     /**
      * The options the client has its own handler for and the typed fields of which run after it, see
      * {@link #contributeOptions(Map)}. The client registers the handlers in {@code createEventHandlers}.
@@ -518,13 +529,46 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
     /**
      * Converts an entry for this calendar. A rule without {@code dtstart} starts at the entry start, which the
      * library reads in the time zone of the calendar, so it is converted to that zone (see {@link RRuleConverter}).
+     * <p>
+     * The library compares an excluded date with the start of each occurrence, so a plain date only matches an
+     * all-day occurrence. For a timed rule, each excluded date gets the time of the rule's {@code dtstart}.
      */
     private ObjectNode toClientJson(Entry entry) {
         ObjectNode json = entry.toJson();
         if (entry.getRRule() != null) {
-            json.set("rrule", RRuleConverter.toClientModelInZone(entry.getRRule(), entry, getTimezoneForOffsets()));
+            JsonNode rrule = RRuleConverter.toClientModelInZone(entry.getRRule(), entry, getTimezoneForOffsets());
+            json.set("rrule", rrule);
+            String startTime = startTimeOf(rrule);
+            if (startTime != null && json.get("exdate") instanceof ArrayNode exdate) {
+                ArrayNode timed = JsonFactory.createArray();
+                exdate.valueStream().forEach(date -> timed.add(date.asString() + startTime));
+                json.set("exdate", timed);
+            }
         }
         return json;
+    }
+
+    /**
+     * Returns the time of the {@code dtstart} of a rule in its client form, in the extended form and starting with
+     * {@code T}, such as {@code T10:00:00} or {@code T10:00:00Z}. Null for a rule that starts on a date only or has no
+     * start.
+     */
+    private static String startTimeOf(JsonNode rrule) {
+        String dtstart = null;
+        if (rrule.isObject()) {
+            dtstart = rrule.path("dtstart").asString(null);
+        } else if (rrule.isString()) {
+            Matcher text = TEXT_DTSTART.matcher(rrule.asString());
+            dtstart = text.find() ? text.group(1) : null;
+        }
+        Matcher time = dtstart != null ? DTSTART_TIME.matcher(dtstart) : null;
+        if (time == null || !time.find()) {
+            return null;
+        }
+        String seconds = time.group(3) == null ? "00" : time.group(3);
+        String fraction = time.group(4) == null ? "" : "." + time.group(4).substring(1);
+        String zone = time.group(5) == null ? "" : time.group(5);
+        return "T" + time.group(1) + ":" + time.group(2) + ":" + seconds + fraction + zone;
     }
 
     /**
