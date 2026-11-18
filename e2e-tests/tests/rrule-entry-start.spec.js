@@ -32,6 +32,17 @@ test.describe('RRule entry start', () => {
         await expect(occurrence).toHaveText(/(^|\D)9:00/); // German format, no leading zero
         await expect(page.locator('[data-date="2025-01-09"] .positional-entry')).toHaveCount(1);
     });
+
+    // #461: the excluded date reaches the client with the time of the occurrence, a plain date matches only all-day
+    test('excluded date removes the timed occurrence', async ({ page }) => {
+        await expect(page.locator('.excluded-entry')).toHaveCount(4);
+        await expect(page.locator('[data-date="2025-01-08"] .excluded-entry')).toHaveCount(0);
+    });
+
+    test('excluded date removes the occurrence of a rule sent as text', async ({ page }) => {
+        await expect(page.locator('.positional-entry')).toHaveCount(1);
+        await expect(page.locator('.excluded-positional-entry')).toHaveCount(0);
+    });
 });
 
 // With Timezone.LOCAL the server knows the zone only once the browser has reported it. The first fetch must already use it.

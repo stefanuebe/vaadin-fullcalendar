@@ -23,6 +23,9 @@ import java.util.Locale;
  *   <li>{@code rule-entry}: daily rule with one occurrence, starts 2025-01-07 14:00 UTC, expected at 15:00</li>
  *   <li>{@code positional-entry}: monthly rule on the second Thursday, starts 2025-01-01 08:00 UTC, expected on
  *       2025-01-09 at 09:00</li>
+ *   <li>{@code excluded-entry}: daily rule with five occurrences from 2025-01-06 14:00 UTC, 2025-01-08 excluded
+ *       (#461), expected on the other four days</li>
+ *   <li>{@code excluded-positional-entry}: like {@code positional-entry}, with 2025-01-09 excluded, expected nowhere</li>
  * </ul>
  * <p>
  * With the query parameter {@code local}, the calendar follows the browser ({@code Timezone.LOCAL}) instead. The
@@ -61,7 +64,17 @@ public class RRuleEntryStartTestView extends VerticalLayout implements BeforeEnt
         positional.setStart(LocalDateTime.of(2025, 1, 1, 8, 0));
         positional.setRRule(RRule.monthly().byWeekday("2th"));
 
-        calendar.getEntryProvider().asInMemory().setItems(plain, rule, positional);
+        Entry excluded = new Entry("Excluded");
+        excluded.addClassNames("excluded-entry");
+        excluded.setStart(LocalDateTime.of(2025, 1, 6, 14, 0));
+        excluded.setRRule(RRule.daily().count(5).excludeDates(LocalDate.of(2025, 1, 8)));
+
+        Entry excludedPositional = new Entry("Excluded positional");
+        excludedPositional.addClassNames("excluded-positional-entry");
+        excludedPositional.setStart(LocalDateTime.of(2025, 1, 1, 8, 0));
+        excludedPositional.setRRule(RRule.monthly().byWeekday("2th").excludeDates(LocalDate.of(2025, 1, 9)));
+
+        calendar.getEntryProvider().asInMemory().setItems(plain, rule, positional, excluded, excludedPositional);
         add(calendar);
         setFlexGrow(1, calendar);
     }
