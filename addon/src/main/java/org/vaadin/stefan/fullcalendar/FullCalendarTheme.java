@@ -25,7 +25,7 @@ package org.vaadin.stefan.fullcalendar;
  * (Lumo / Aura), so that the calendar matches the other Vaadin components. It follows the application's color scheme
  * and needs no separate loading. To change its colors, set its {@code --vaadin-fc-*} variables, such as
  * {@code --vaadin-fc-accent-color}. See
- * <a href="https://github.com/stefanuebe/vaadin-fullcalendar/wiki/Themes#theme-variables">Theme variables</a> in the
+ * <a href="https://github.com/stefanuebe/vaadin-fullcalendar/wiki/Themes-and-Styling#theme-variables">Theme variables</a> in the
  * wiki.
  * <p>
  * Besides the Vaadin theme, the add-on ships the five FullCalendar stock themes: classic, monarch, breezy, forma and
@@ -37,8 +37,8 @@ package org.vaadin.stefan.fullcalendar;
  * <b>Note:</b> Because a palette applies to the whole page, all calendars with the same stock theme share its colors.
  * <p>
  * To change the colors of a stock theme, override its color variables or load another palette in a stylesheet of
- * your application. See <a href="https://github.com/stefanuebe/vaadin-fullcalendar/wiki/Themes#colors-and-palettes">
- * Colors and palettes</a> in the wiki for details and an example.
+ * your application. See <a href="https://github.com/stefanuebe/vaadin-fullcalendar/wiki/Themes-and-Styling#stock-theme-colors-and-palettes">
+ * Stock theme colors and palettes</a> in the wiki for details and an example.
  * <p>
  * You can register your own custom theme using JavaScript:
  * <pre>{@code

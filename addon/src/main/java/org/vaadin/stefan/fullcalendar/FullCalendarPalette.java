@@ -27,8 +27,8 @@ import java.util.Objects;
  * A palette is a stylesheet that sets the color variables of a stock theme for the whole page. The add-on loads the
  * default palette of the theme a calendar uses. To use another one, import it in your application, e.g.
  * {@code @CssImport("fullcalendar/themes/monarch/palettes/green.css")}. See
- * <a href="https://github.com/stefanuebe/vaadin-fullcalendar/wiki/Themes#colors-and-palettes">Colors and
- * palettes</a> in the wiki.
+ * <a href="https://github.com/stefanuebe/vaadin-fullcalendar/wiki/Themes-and-Styling#stock-theme-colors-and-palettes">Stock
+ * theme colors and palettes</a> in the wiki.
  *
  * @see FullCalendarTheme
  * @see <a href="https://fullcalendar.io/docs/color-palettes">Color palettes</a>

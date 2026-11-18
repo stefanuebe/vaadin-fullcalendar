@@ -5614,7 +5614,7 @@ class ViewOptions implements Serializable {
      * <p>
      * The getter returns null while the option is not set; then the library default applies.
      *
-     * @see <a href="https://github.com/stefanuebe/vaadin-fullcalendar/wiki/Themes#color-scheme">
+     * @see <a href="https://github.com/stefanuebe/vaadin-fullcalendar/wiki/Themes-and-Styling#color-scheme">
      *     Themes: Color scheme</a>
      * @see <a href="https://fullcalendar.io/docs/color-palettes">colorScheme</a>
      */
