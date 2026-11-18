@@ -101,3 +101,29 @@ test.describe('Stable class names in the time grid', () => {
         }
     });
 });
+
+// #460: the months of the multi-month view are day grids, their entries and more-links get the daygrid classes
+test.describe('Stable class names in the multi-month view', () => {
+
+    test.beforeEach(async ({ page }) => {
+        await page.goto('/test/listener-data');
+        await page.waitForSelector('.fc-view', { timeout: 10000 });
+        await waitForVaadin(page);
+        await page.evaluate(() => document.querySelector('vaadin-full-calendar').calendar.changeView('multiMonthYear'));
+        await page.waitForSelector('.fc-multimonth-month', { timeout: 5000 });
+    });
+
+    // every entry and more-link of the months carries the class, not only some
+    test('entries carry the daygrid classes', async ({ page }) => {
+        const entries = page.locator('.fc-multimonth-month .fc-event');
+        await expect(entries.first()).toBeAttached();
+        await expect(page.locator('.fc-multimonth-month .fc-event:not(.fc-daygrid-event)')).toHaveCount(0);
+    });
+
+    // ListenerDataTestView limits the rows of a day, so the crowded day shows a more-link in the month too
+    test('more-links carry the daygrid class', async ({ page }) => {
+        const moreLinks = page.locator('.fc-multimonth-month .fc-more-link');
+        await expect(moreLinks.first()).toBeAttached();
+        await expect(page.locator('.fc-multimonth-month .fc-more-link:not(.fc-daygrid-more-link)')).toHaveCount(0);
+    });
+});
