@@ -40,8 +40,8 @@ import java.time.LocalDateTime;
  * {@link #getOldStart()} and {@link #getOldEnd()} return the position before the drag (computed from the
  * delta applied in reverse).
  * <br><br>
- * Drag/drop of entry source entries is opt-in. Set {@code withEditable(true)} on the
- * {@link RemoteEntrySource} to enable it.
+ * By default, entries of a source can be dragged when the calendar is editable ({@code options().setEditable(true)}).
+ * {@code withEditable(…)} or {@code withStartEditable(…)} on a {@link RemoteEntrySource} override it.
  * <br><br>
  * Client side name: externalEntryDrop
  */

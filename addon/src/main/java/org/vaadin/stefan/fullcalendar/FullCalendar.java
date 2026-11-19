@@ -1461,12 +1461,13 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
     }
 
     /**
-     * Registers a listener for when any external HTML element is dropped onto the calendar.
+     * Registers a listener for when a registered {@link Draggable} or an entry from another calendar is dropped
+     * onto the calendar.
      * Requires {@link FullCalendarViewOptions#getDroppable() droppable} to be set to {@code true}.
      * <p>
-     *     This listener is considered low-level. If you external html element uses the Draggable feature
-     *     of the FullCalendar and also provides valid entry data, we strongly recommend to use
-     *     the {@link #addEntryReceiveListener(ComponentEventListener)} instead.
+     *     This listener is considered low-level. Every drop of a registered {@link Draggable} or of an entry from
+     *     another calendar also fires an {@link EntryReceiveEvent}. Add the dropped entry in only one of the two
+     *     listeners, preferably in {@link #addEntryReceiveListener(ComponentEventListener)}.
      * </p>
      *
      * @param listener listener
@@ -1560,8 +1561,9 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
     }
 
     /**
-     * Registers a listener for when an external element with a {@code data-event} attribute has been dropped
-     * and FullCalendar has created a new entry from it. The entry is not added to the provider automatically.
+     * Registers a listener for when FullCalendar has created a new entry from a drop of a registered {@link Draggable}
+     * or of an entry from another calendar. The event also fires for a registered {@link Draggable} without entry data.
+     * The entry is not added to the provider automatically.
      * Requires {@link FullCalendarViewOptions#getDroppable() droppable} to be set to {@code true}.
      *
      * @param listener listener
@@ -1710,7 +1712,9 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
      * Registers a listener for when an entry from an entry source ({@link RemoteEntrySource}) is dragged to a new
      * time slot. Fires instead of {@link EntryDroppedEvent} when the dropped entry's id is not in the server-side cache.
      * <br><br>
-     * Requires that drag/drop is enabled on the source via {@link RemoteEntrySource#withEditable(boolean) withEditable(true)}.
+     * Whether entries of a source can be dragged follows the calendar's {@code editable} option.
+     * {@link RemoteEntrySource#withEditable(boolean)} or {@link RemoteEntrySource#withStartEditable(boolean)}
+     * on the source override it.
      *
      * @param listener listener
      * @return registration to remove the listener
@@ -1725,7 +1729,9 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
      * Registers a listener for when an entry from an entry source ({@link RemoteEntrySource}) is resized.
      * Fires instead of {@link EntryResizedEvent} when the resized entry's id is not in the server-side cache.
      * <br><br>
-     * Requires that resize is enabled on the source via {@link RemoteEntrySource#withEditable(boolean) withEditable(true)}.
+     * Whether entries of a source can be resized follows the calendar's {@code editable} option.
+     * {@link RemoteEntrySource#withEditable(boolean)} or {@link RemoteEntrySource#withDurationEditable(boolean)}
+     * on the source override it.
      *
      * @param listener listener
      * @return registration to remove the listener

@@ -29,16 +29,16 @@ import java.time.LocalDateTime;
 import java.util.Optional;
 
 /**
- * Fires when any external HTML element is dropped onto the calendar (requires {@code droppable} to be {@code true}).
- * This fires for <em>all</em> external drops, including non-event elements.
+ * Fires when a registered {@link Draggable} or an entry from another calendar is dropped onto the calendar.
+ * Requires {@code droppable} to be {@code true}. For entries from another calendar, both calendars also need
+ * {@code editable}.
  * <br><br>
  * The created entry can be obtained via {@link #getCreatedEntry()}.
  * <br><br>
  * If the dropped element was registered via {@link FullCalendar#addDraggable(Draggable)},
  * use {@link #getDraggable()} for typed access.
  * <br><br>
- * For drops of external elements that carry event data ({@code data-event} attribute) and are successfully
- * added to the calendar as entries, {@link EntryReceiveEvent} fires in addition to this event.
+ * {@link EntryReceiveEvent} also fires for every such drop.
  * <br><br>
  * Client side name: drop
  */
