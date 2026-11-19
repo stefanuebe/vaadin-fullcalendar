@@ -6,7 +6,7 @@ based on the FullCalendar library 7.1. Versions 6 and 7 are based on the 6.x lib
 There are several versions of the add-on:
 * Version 8, based on Vaadin 25.3 / Java 21
 * Version 7, based on Vaadin 25 / Java 21
-* Version 6.4 and 6.5, based on Vaadin 24.9 / Java 17
+* Versions 6.4 and 6.5, based on Vaadin 24.9 / Java 17
 * Version 6.3 and before, based on Vaadin 14 / Java 11 (works up to Vaadin 24, no longer supported)
 
 Version 8 is the current version. Version 7 gets bug fixes from version 8 where they apply. Version 6.5 gets
