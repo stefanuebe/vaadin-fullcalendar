@@ -1666,31 +1666,32 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
     }
 
     /**
-     * Forces all entry sources to re-fetch their data immediately. This includes both the server-side
+     * Refreshes the entries of all entry sources. This includes both the server-side
      * {@link EntryProvider} and any remote entry sources added via {@link #addRemoteEntrySource}.
      * <br><br>
-     * To refresh only a single remote entry source, use {@link #refetchRemoteEntrySource(String)}.
+     * To refresh only a single remote entry source, use {@link #refreshRemoteEntrySource(String)}. To refresh only
+     * the entry provider, use its {@link EntryProvider#refreshAll()}.
      */
-    public void refetchEvents() {
+    public void refreshAllEntries() {
         flushOptions();
         getElement().callJsFunction("refetchEvents");
     }
 
     /**
-     * Forces a single <em>remote</em> entry source to re-fetch its data. Only the source with the given id is
+     * Refreshes the entries of a single <em>remote</em> entry source. Only the source with the given id is
      * refreshed; all other sources remain untouched.
      * <br><br>
      * <strong>Important:</strong> This method only works for remote entry sources added via
      * {@link #addRemoteEntrySource} (e.g. {@link JsonFeedEntrySource}, {@link GoogleCalendarEntrySource},
      * {@link ICalendarEntrySource}). It cannot be used to refresh the server-side {@link EntryProvider} — use
-     * {@link #refetchEvents()} or the entry provider's own {@code refresh} methods for that.
+     * {@link #refreshAllEntries()} or the entry provider's own {@code refresh} methods for that.
      *
-     * @param sourceId the id of the remote entry source to refetch; must not be null
+     * @param sourceId the id of the remote entry source to refresh; must not be null
      * @throws NullPointerException when null is passed
-     * @see #refetchEvents()
+     * @see #refreshAllEntries()
      * @see <a href="https://fullcalendar.io/docs/EventSource-refetch">EventSource::refetch</a>
      */
-    public void refetchRemoteEntrySource(String sourceId) {
+    public void refreshRemoteEntrySource(String sourceId) {
         Objects.requireNonNull(sourceId);
         flushOptions();
         getElement().executeJs("var s = this.calendar.getEventSourceById($0); if (s) s.refetch();", sourceId);
