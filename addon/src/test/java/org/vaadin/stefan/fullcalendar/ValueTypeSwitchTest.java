@@ -25,6 +25,7 @@ import org.vaadin.stefan.fullcalendar.option.HeaderAlign;
 import org.vaadin.stefan.fullcalendar.option.HeaderAlignValue;
 import org.vaadin.stefan.fullcalendar.option.HeightValue;
 import org.vaadin.stefan.fullcalendar.option.JsCallback;
+import org.vaadin.stefan.fullcalendar.option.ListDayFormatValue;
 import org.vaadin.stefan.fullcalendar.option.ListTextValue;
 import org.vaadin.stefan.fullcalendar.option.ToolbarValue;
 import org.vaadin.stefan.fullcalendar.option.NoneValue;
@@ -146,6 +147,14 @@ class ValueTypeSwitchTest {
             case HeightValue.Auto ignored -> "auto";
             case HeightValue.Pixels pixels -> String.valueOf(pixels.pixels());
             case HeightValue.Css css -> css.length();
+        };
+    }
+
+    private static String form(ListDayFormatValue value) {
+        return switch (value) {
+            case DateFormat format -> "format";
+            case JsCallback callback -> "callback";
+            case NoneValue.None ignored -> "none";
         };
     }
 

@@ -261,8 +261,8 @@ public class EventSourcesTest {
     }
 
     @Test
-    void refetchEvents_doesNotThrow() {
-        assertDoesNotThrow(() -> calendar.refetchEvents());
+    void refreshAllEntries_doesNotThrow() {
+        assertDoesNotThrow(() -> calendar.refreshAllEntries());
     }
 
     // -------------------------------------------------------------------------
