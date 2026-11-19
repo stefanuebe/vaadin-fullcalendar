@@ -28,9 +28,10 @@ import java.util.List;
 import java.util.Objects;
 
 /**
- * The value of an option that limits where entries can be dragged, resized or selected: the entries of a group, the
- * business hours of the calendar, windows of time (recurring business hours, windows defined by an {@link RRule}
- * and fixed spans), or resources. A {@code switch} over it needs no {@code default} branch.
+ * The value of an option, an entry or a remote entry source that limits where entries can be dragged, resized or
+ * selected: the entries of a group, the business hours of the calendar, windows of time (recurring business hours,
+ * windows defined by an {@link RRule} and fixed spans), or resources. A {@code switch} over it needs no {@code default}
+ * branch.
  * <p>
  * A sealed type rather than one Java type, because the library takes a string, which is a group id or the keyword
  * {@code "businessHours"}, as well as objects.

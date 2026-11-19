@@ -1,16 +1,22 @@
 package org.vaadin.stefan.fullcalendar;
 
+import com.vaadin.flow.component.ComponentEventListener;
 import com.vaadin.flow.dom.DomEvent;
 import com.vaadin.flow.internal.nodefeature.ElementListenerMap;
 import com.vaadin.flow.shared.Registration;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.vaadin.stefan.fullcalendar.converters.ConstraintValueConverter;
+import org.vaadin.stefan.fullcalendar.option.ConstraintValue;
+import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.node.ObjectNode;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -65,6 +71,31 @@ public class EventSourcesTest {
         JsonFeedEntrySource source = new JsonFeedEntrySource("/api/events");
         ObjectNode json = source.toJson();
         assertEquals("/api/events", json.get("url").asString());
+    }
+
+    @Test
+    void remoteEntrySource_constraintValue_sendsTheJsonOfTheCalendarOption() {
+        ConstraintValue constraint = ConstraintValue.ofWindows(ConstraintValue.Window.span(
+                LocalDateTime.of(2025, 3, 10, 9, 0), LocalDateTime.of(2025, 3, 10, 17, 0))).withResources("room-a");
+        // the converter of the calendar option is the reference, the library reads both the same way
+        JsonNode expected = new ConstraintValueConverter().toClientModel(constraint, null);
+
+        JsonFeedEntrySource source = new JsonFeedEntrySource("/api/events").withConstraint(constraint);
+
+        assertEquals(constraint, source.getConstraint());
+        assertEquals(expected, source.toJson().get("constraint"));
+    }
+
+    @Test
+    @SuppressWarnings("removal")
+    void remoteEntrySource_deprecatedStringConstraint_setsTheMatchingConstraintValue() {
+        assertEquals(ConstraintValue.BUSINESS_HOURS,
+                new JsonFeedEntrySource("/api/events").withConstraint("businessHours").getConstraint());
+        assertEquals(ConstraintValue.ofGroupId("myGroup"),
+                new JsonFeedEntrySource("/api/events").withConstraint("myGroup").getConstraint());
+        assertEquals("myGroup",
+                new JsonFeedEntrySource("/api/events").withConstraint("myGroup").toJson().get("constraint").asString());
+        assertNull(new JsonFeedEntrySource("/api/events").withConstraint("myGroup").withConstraint("  ").getConstraint());
     }
 
     @Test
@@ -328,6 +359,31 @@ public class EventSourcesTest {
         assertEquals("my-feed", received.get(0).getSourceId());
         // the delta of one day is applied in reverse for the old end
         assertEquals(received.get(0).getEntry().getEnd().minusDays(1), received.get(0).getOldEnd());
+    }
+
+    @Test
+    void remoteEntryEvents_reachTheirListeners() {
+        // the client side names are the ones full-calendar.ts dispatches for an entry the server does not know
+        assertRemoteEventReachesListener("externalEntryClick", calendar::addRemoteEntryClickedListener);
+        assertRemoteEventReachesListener("externalEntryMouseEnter", calendar::addRemoteEntryMouseEnterListener);
+        assertRemoteEventReachesListener("externalEntryMouseLeave", calendar::addRemoteEntryMouseLeaveListener);
+        assertRemoteEventReachesListener("externalEntryDragStart", calendar::addRemoteEntryDragStartListener);
+        assertRemoteEventReachesListener("externalEntryDragStop", calendar::addRemoteEntryDragStopListener);
+        assertRemoteEventReachesListener("externalEntryResizeStart", calendar::addRemoteEntryResizeStartListener);
+        assertRemoteEventReachesListener("externalEntryResizeStop", calendar::addRemoteEntryResizeStopListener);
+        assertRemoteEventReachesListener("externalEntryLeave", calendar::addRemoteEntryLeaveListener);
+    }
+
+    private <T extends RemoteEntryEvent> void assertRemoteEventReachesListener(
+            String eventName, Function<ComponentEventListener<T>, Registration> addListener) {
+        List<T> received = new ArrayList<>();
+        addListener.apply(received::add);
+
+        fireEntrySourceDomEvent(eventName);
+
+        assertEquals(1, received.size(), eventName);
+        assertEquals("ext-1", received.get(0).getEntry().getId(), eventName);
+        assertEquals("my-feed", received.get(0).getSourceId(), eventName);
     }
 
     /**

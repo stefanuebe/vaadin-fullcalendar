@@ -16,8 +16,11 @@
  */
 package org.vaadin.stefan.fullcalendar;
 
+import org.vaadin.stefan.fullcalendar.converters.ConstraintValueConverter;
+import org.vaadin.stefan.fullcalendar.option.ConstraintValue;
 import org.vaadin.stefan.fullcalendar.option.JsCallback;
 import lombok.Getter;
+import org.apache.commons.lang3.StringUtils;
 import tools.jackson.databind.node.ObjectNode;
 
 import java.io.Serializable;
@@ -41,6 +44,8 @@ import java.util.UUID;
  */
 @Getter
 public abstract class RemoteEntrySource<S extends RemoteEntrySource<S>> implements Serializable {
+
+    private static final ConstraintValueConverter CONSTRAINT_CONVERTER = new ConstraintValueConverter();
 
     /**
      * Developer-assigned ID. Auto-generated UUID if not set.
@@ -76,10 +81,9 @@ public abstract class RemoteEntrySource<S extends RemoteEntrySource<S>> implemen
     private Boolean durationEditable;
 
     /**
-     * Constraint: either the string {@code "businessHours"} or an event group id that restricts
-     * when entries from this source can be dropped.
+     * Where the entries of this source may be dragged or resized, or {@code null} for no constraint of the source.
      */
-    private String constraint;
+    private ConstraintValue constraint;
 
     /** Whether entries from this source can overlap with other entries. */
     private Boolean overlap;
@@ -219,15 +223,35 @@ public abstract class RemoteEntrySource<S extends RemoteEntrySource<S>> implemen
     }
 
     /**
-     * Sets the constraint for drag/drop of entries from this source.
-     * @param constraint constraint string — either {@code "businessHours"} or an event group id that
-     *                   restricts when entries can be dropped
+     * Limits where the user can drag or resize the entries of this source, for example to the entries of a group,
+     * the business hours of the calendar, windows of time or resources. It applies in addition to the constraint of
+     * the calendar ({@code options().setEntryConstraint(…)}). The value takes the same forms as the constraint of the
+     * calendar.
+     *
+     * @param constraint the constraint, or {@code null} to remove it
      * @return this
      * @see <a href="https://fullcalendar.io/docs/eventConstraint">eventConstraint</a>
      */
-    public S withConstraint(String constraint) {
+    public S withConstraint(ConstraintValue constraint) {
         this.constraint = constraint;
         return self();
+    }
+
+    /**
+     * Sets the constraint for drag/drop of entries from this source.
+     *
+     * @param constraint either {@code "businessHours"} or a group id. Null or a blank string removes the constraint.
+     * @return this
+     * @deprecated use {@link #withConstraint(ConstraintValue)} with {@link ConstraintValue#ofGroupId(String)} or
+     * {@link ConstraintValue#BUSINESS_HOURS}.
+     */
+    @Deprecated(since = "8.0.0", forRemoval = true)
+    public S withConstraint(String constraint) {
+        String trimmed = StringUtils.trimToNull(constraint);
+        if (trimmed == null) {
+            return withConstraint((ConstraintValue) null);
+        }
+        return withConstraint(trimmed.equals("businessHours") ? ConstraintValue.BUSINESS_HOURS : ConstraintValue.ofGroupId(trimmed));
     }
 
     /**
@@ -366,7 +390,7 @@ public abstract class RemoteEntrySource<S extends RemoteEntrySource<S>> implemen
         if (editable != null) json.put("editable", editable);
         if (startEditable != null) json.put("startEditable", startEditable);
         if (durationEditable != null) json.put("durationEditable", durationEditable);
-        if (constraint != null) json.put("constraint", constraint);
+        if (constraint != null) json.set("constraint", CONSTRAINT_CONVERTER.toClientModel(constraint, null));
         if (overlap != null) json.put("overlap", overlap);
         if (display != null) json.put("display", display);
         if (resourceEditable != null) json.put("resourceEditable", resourceEditable);

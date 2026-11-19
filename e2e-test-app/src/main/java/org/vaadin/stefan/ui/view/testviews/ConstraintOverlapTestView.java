@@ -1,5 +1,6 @@
 package org.vaadin.stefan.ui.view.testviews;
 
+import org.vaadin.stefan.fullcalendar.option.ConstraintValue;
 import org.vaadin.stefan.fullcalendar.option.Overlap;
 import org.vaadin.stefan.fullcalendar.option.DateRange;
 import org.vaadin.stefan.fullcalendar.option.BusinessHoursValue;
@@ -104,7 +105,7 @@ public class ConstraintOverlapTestView extends VerticalLayout {
         constrained.setTitle("BH Constrained");
         constrained.setStart(LocalDateTime.of(2025, 3, 7, 10, 0));
         constrained.setEnd(LocalDateTime.of(2025, 3, 7, 11, 0));
-        constrained.setConstraint("businessHours");
+        constrained.setConstraint(ConstraintValue.BUSINESS_HOURS);
         provider.getItems().add(constrained);
 
         calendar.setEntryProvider(provider);

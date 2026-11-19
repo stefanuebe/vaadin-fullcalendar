@@ -1,5 +1,6 @@
 package org.vaadin.stefan.ui.view.testviews;
 
+import org.vaadin.stefan.fullcalendar.option.ConstraintValue;
 import org.vaadin.stefan.fullcalendar.option.DisplayMode;
 import org.vaadin.stefan.fullcalendar.option.JsCallback;
 import com.vaadin.flow.component.button.Button;
@@ -164,7 +165,7 @@ public class EntryPropertyTestView extends VerticalLayout {
         allFields.setStartEditable(true);
         allFields.setDurationEditable(true);
         allFields.setOverlap(false);
-        allFields.setConstraint("businessHours");
+        allFields.setConstraint(ConstraintValue.BUSINESS_HOURS);
         allFields.setInteractive(true);
         allFields.setUrl("#all-fields");
         allFields.setDisplayMode(DisplayMode.BLOCK);

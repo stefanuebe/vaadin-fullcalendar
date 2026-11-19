@@ -21,8 +21,9 @@ import lombok.Getter;
 import tools.jackson.databind.node.ObjectNode;
 
 /**
- * Base class for events fired when an entry from an entry source (a {@link RemoteEntrySource} such as a JSON feed,
- * Google Calendar or iCal) is dropped or resized.
+ * Base class for the events of an entry from an entry source (a {@link RemoteEntrySource} such as a JSON feed,
+ * Google Calendar or iCal), for example when it is clicked, dropped or resized. The entry is not known on the server,
+ * so these events take the place of the entry events, such as {@link EntryClickedEvent}.
  * <br><br>
  * The {@link #getEntry()} method returns a <em>transient</em> data carrier constructed from the entry's
  * JS data. This entry is NOT part of any {@link org.vaadin.stefan.fullcalendar.dataprovider.EntryProvider}.

@@ -2,7 +2,9 @@ package org.vaadin.stefan.fullcalendar;
 
 import org.vaadin.stefan.fullcalendar.option.DisplayMode;
 import org.vaadin.stefan.fullcalendar.option.BusinessHours;
+import org.vaadin.stefan.fullcalendar.option.ConstraintValue;
 import org.vaadin.stefan.fullcalendar.option.ExtendedLocalTime;
+import org.vaadin.stefan.fullcalendar.converters.ConstraintValueConverter;
 import org.vaadin.stefan.fullcalendar.converters.DisplayModeConverter;
 import org.junit.jupiter.api.DynamicTest;
 import org.junit.jupiter.api.Test;
@@ -784,7 +786,113 @@ public class EntryModelTest {
         assertFalse(entry.toJson().has("constraint"), "constraint should not be in JSON when not set");
     }
 
+    @TestFactory
+    Stream<DynamicTest> constraint_everyForm_sendsTheJsonOfTheCalendarOption() {
+        Map<String, ConstraintValue> forms = new LinkedHashMap<>();
+        forms.put("group id", ConstraintValue.ofGroupId("myGroup"));
+        forms.put("business hours of the calendar", ConstraintValue.BUSINESS_HOURS);
+        forms.put("recurring business hours", ConstraintValue.ofWindows(BusinessHours.businessWeek().start(9).end(17)));
+        forms.put("RRule window", ConstraintValue.ofWindows(ConstraintValue.Window.ofRRule(
+                RRule.weekly().byWeekday(DayOfWeek.MONDAY).dtstart(LocalDate.of(2025, 3, 3)), Duration.ofHours(2))));
+        forms.put("date span", ConstraintValue.ofWindows(
+                ConstraintValue.Window.span(LocalDate.of(2025, 3, 10), LocalDate.of(2025, 3, 12))));
+        forms.put("date time span with resources", ConstraintValue.ofWindows(ConstraintValue.Window.span(
+                LocalDateTime.of(2025, 3, 10, 9, 0), LocalDateTime.of(2025, 3, 10, 17, 0))).withResources("room-a"));
+        forms.put("resources", ConstraintValue.ofResources("room-a", "room-b"));
+
+        return forms.entrySet().stream().map(form -> DynamicTest.dynamicTest(form.getKey(), () -> {
+            // the converter of the calendar option is the reference, the library reads both the same way
+            JsonNode expected = new ConstraintValueConverter().toClientModel(form.getValue(), null);
+
+            Entry entry = new Entry();
+            entry.setConstraint(form.getValue());
+
+            assertEquals(form.getValue(), entry.getConstraint());
+            assertEquals(expected, entry.toJson().get("constraint"));
+        }));
+    }
+
     @Test
+    void constraint_dateTimeSpanWithResources_sentAsWindowWithResourceIds() {
+        Entry entry = new Entry();
+        entry.setConstraint(ConstraintValue.ofWindows(ConstraintValue.Window.span(
+                LocalDateTime.of(2025, 3, 10, 9, 0), LocalDateTime.of(2025, 3, 10, 17, 0))).withResources("room-a"));
+
+        assertEquals("[{\"start\":\"2025-03-10T09:00Z\",\"end\":\"2025-03-10T17:00Z\",\"resourceIds\":[\"room-a\"]}]",
+                entry.toJson().get("constraint").toString());
+    }
+
+    @Test
+    void constraint_rruleWindowAndResources_sentInTheFormOfTheLibrary() {
+        Entry entry = new Entry();
+        entry.setConstraint(ConstraintValue.ofWindows(ConstraintValue.Window.ofRRule(
+                RRule.weekly().byWeekday(DayOfWeek.MONDAY).dtstart(LocalDate.of(2025, 3, 3)), Duration.ofHours(2))));
+        assertEquals("[{\"rrule\":{\"freq\":\"weekly\",\"dtstart\":\"2025-03-03\",\"byweekday\":[\"mo\"]},\"duration\":\"02:00:00\"}]",
+                entry.toJson().get("constraint").toString());
+
+        entry.setConstraint(ConstraintValue.ofResources("room-a", "room-b"));
+        assertEquals("{\"resourceIds\":[\"room-a\",\"room-b\"]}", entry.toJson().get("constraint").toString());
+    }
+
+    @Test
+    void constraint_readBackFromJson() {
+        Entry entry = new Entry();
+
+        entry.updateAllFromJson((ObjectNode) JsonFactory.createObject().put("constraint", "team-a"), false);
+        assertEquals(ConstraintValue.ofGroupId("team-a"), entry.getConstraint());
+
+        entry.updateAllFromJson((ObjectNode) JsonFactory.createObject().put("constraint", "businessHours"), false);
+        assertEquals(ConstraintValue.BUSINESS_HOURS, entry.getConstraint());
+
+        ConstraintValue windows = ConstraintValue.ofWindows(ConstraintValue.Window.span(
+                LocalDate.of(2025, 3, 10), LocalDate.of(2025, 3, 12))).withResources("room-a");
+        Entry source = new Entry();
+        source.setConstraint(windows);
+        entry.updateAllFromJson(source.toJson(), false);
+        assertEquals(windows, entry.getConstraint());
+    }
+
+    @Test
+    void constraint_null_removesIt() {
+        Entry entry = new Entry();
+        entry.setConstraint(ConstraintValue.BUSINESS_HOURS);
+        entry.setConstraint((ConstraintValue) null);
+        assertNull(entry.getConstraint());
+        assertFalse(entry.toJson().has("constraint"));
+    }
+
+    @Test
+    void constraint_keptByCopy() {
+        Entry entry = new Entry();
+        entry.setConstraint(ConstraintValue.ofResources("room-a"));
+
+        assertEquals(ConstraintValue.ofResources("room-a"), entry.copy().getConstraint());
+    }
+
+    @Test
+    @SuppressWarnings("removal")
+    void constraint_deprecatedSetters_setTheMatchingConstraintValue() {
+        Entry entry = new Entry();
+
+        entry.setConstraint("myGroup");
+        assertEquals(ConstraintValue.ofGroupId("myGroup"), entry.getConstraint());
+
+        entry.setConstraint("businessHours");
+        assertEquals(ConstraintValue.BUSINESS_HOURS, entry.getConstraint());
+
+        entry.setConstraintToBusinessHours();
+        assertEquals(ConstraintValue.BUSINESS_HOURS, entry.getConstraint());
+
+        BusinessHours hours = BusinessHours.businessWeek().start(9).end(17);
+        entry.setConstraint(hours);
+        assertEquals(ConstraintValue.ofWindows(hours), entry.getConstraint());
+
+        entry.setConstraint("  ");
+        assertNull(entry.getConstraint());
+    }
+
+    @Test
+    @SuppressWarnings("removal")
     void constraint_string_serializedToJson() {
         Entry entry = new Entry();
         entry.setConstraint("myGroupId");
@@ -794,15 +902,18 @@ public class EntryModelTest {
     }
 
     @Test
+    @SuppressWarnings("removal")
     void constraint_businessHours_serializedToJson() {
         Entry entry = new Entry();
         entry.setConstraint(BusinessHours.businessWeek().start(9).end(17));
         ObjectNode json = entry.toJson();
         assertTrue(json.has("constraint"), "constraint should be in JSON");
-        assertTrue(json.get("constraint").isObject(), "BusinessHours constraint should be an object");
+        assertEquals(JsonFactory.createArray().add(BusinessHours.businessWeek().start(9).end(17).toJson()),
+                json.get("constraint"), "BusinessHours constraint should be the hours as a window");
     }
 
     @Test
+    @SuppressWarnings("removal")
     void constraint_setToBusinessHours_serializedAsString() {
         Entry entry = new Entry();
         entry.setConstraintToBusinessHours();
@@ -812,6 +923,7 @@ public class EntryModelTest {
     }
 
     @Test
+    @SuppressWarnings("removal")
     void constraint_null_notInJson() {
         Entry entry = new Entry();
         entry.setConstraint("myGroup");

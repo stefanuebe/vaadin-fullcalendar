@@ -13,6 +13,7 @@ import org.vaadin.stefan.fullcalendar.option.WidthValue;
 
 import java.util.Collection;
 import java.util.Optional;
+import java.util.Set;
 
 public class FullCalendarSchedulerTest {
     public static final String[] COMPONENT_HTMLS = {"fullcalendar/full-calendar.html", "fullcalendar/full-calendar-scheduler.html"};
@@ -175,6 +176,41 @@ public class FullCalendarSchedulerTest {
 
         calendar.removeAllResources();
         Assertions.assertEquals(3, resources.size());
+    }
+
+    @Test
+    void removeResource_unlinksChildrenAndGrandchildrenFromEntries() {
+        Resource parent = new Resource();
+        Resource child = new Resource();
+        Resource grandchild = new Resource();
+        Resource other = new Resource();
+        child.addChild(grandchild);
+        parent.addChild(child);
+        calendar.addResources(parent, other);
+
+        ResourceEntry entry = new ResourceEntry();
+        entry.addResources(parent, child, grandchild, other);
+        calendar.getEntryProvider().asInMemory().getItems().add(entry);
+
+        calendar.removeResource(parent);
+
+        Assertions.assertEquals(Set.of(other), entry.getResources());
+    }
+
+    @Test
+    void removeAllResources_unlinksAllResourcesFromEntries() {
+        Resource parent = new Resource();
+        Resource child = new Resource();
+        parent.addChild(child);
+        calendar.addResources(parent);
+
+        ResourceEntry entry = new ResourceEntry();
+        entry.addResources(parent, child);
+        calendar.getEntryProvider().asInMemory().getItems().add(entry);
+
+        calendar.removeAllResources();
+
+        Assertions.assertTrue(entry.getResources().isEmpty());
     }
 
     @SuppressWarnings("OptionalUsedAsFieldOrParameterType") // we want that here explicitely

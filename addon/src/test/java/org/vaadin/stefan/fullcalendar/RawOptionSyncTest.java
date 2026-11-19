@@ -3,7 +3,6 @@ package org.vaadin.stefan.fullcalendar;
 import org.vaadin.stefan.fullcalendar.option.JsCallback;
 import com.vaadin.browserless.BrowserlessTest;
 import com.vaadin.flow.component.UI;
-import com.vaadin.flow.component.internal.PendingJavaScriptInvocation;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import tools.jackson.databind.JsonNode;
@@ -11,6 +10,7 @@ import tools.jackson.databind.node.ObjectNode;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Objects;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -42,9 +42,8 @@ public class RawOptionSyncTest extends BrowserlessTest {
     private List<JsonNode> respond() {
         ui.getInternals().getStateTree().runExecutionsBeforeClientResponse();
         return ui.getInternals().dumpPendingJavaScriptInvocations().stream()
-                .map(PendingJavaScriptInvocation::getInvocation)
-                .filter(invocation -> invocation.getExpression().contains("setOptions"))
-                .map(invocation -> (JsonNode) invocation.getParameters().getLast())
+                .filter(invocation -> ClientCalls.calls(invocation, "setOptions"))
+                .map(invocation -> (JsonNode) ClientCalls.lastArgument(invocation))
                 .toList();
     }
 
@@ -213,7 +212,7 @@ public class RawOptionSyncTest extends BrowserlessTest {
 
         assertFalse(initialOptions().has("eventColor"));
         assertTrue(newUi.getInternals().dumpPendingJavaScriptInvocations().stream()
-                .noneMatch(call -> call.getInvocation().getExpression().contains("setOptions")));
+                .noneMatch(call -> ClientCalls.calls(call, "setOptions")));
     }
 
     @Test
@@ -328,14 +327,14 @@ public class RawOptionSyncTest extends BrowserlessTest {
     }
 
     /**
-     * Runs what the server does before its response and returns the client functions called, in order. Flow writes a
-     * function call as {@code return $0.name(...)}; other scripts are returned as they are.
+     * Runs what the server does before its response and returns the client functions called, in order. Other scripts
+     * are returned as they are.
      */
     private List<String> respondWithCalledFunctions() {
         ui.getInternals().getStateTree().runExecutionsBeforeClientResponse();
         return ui.getInternals().dumpPendingJavaScriptInvocations().stream()
-                .map(invocation -> invocation.getInvocation().getExpression())
-                .map(expression -> expression.replaceFirst("(?s)^.*?\\$0\\.(\\w+)\\(.*$", "$1"))
+                .map(invocation -> Objects.requireNonNullElse(ClientCalls.functionName(invocation),
+                        invocation.getInvocation().getExpression()))
                 .toList();
     }
 

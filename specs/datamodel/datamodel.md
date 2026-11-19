@@ -149,7 +149,7 @@ Load entries directly in the browser (bypassing Java backend):
 | Google Calendar | `GoogleCalendarEntrySource` | Requires API key |
 | iCalendar | `ICalendarEntrySource` | Loads `.ics` feeds |
 
-Entries of remote entry sources fire `RemoteEntryDroppedEvent` / `RemoteEntryResizedEvent` (not the server-managed counterparts).
+Entries of remote entry sources fire `RemoteEntry…Event`s, such as `RemoteEntryClickedEvent`, `RemoteEntryDroppedEvent` and `RemoteEntryResizedEvent`, instead of the entry events of the entry provider.
 
 ---
 
