@@ -106,7 +106,8 @@ public interface Scheduler {
     void addResources(Iterable<Resource> resources);
 
     /**
-     * Removes the given resource. Also removes it from its related entries.
+     * Removes the given resource and its child resources.
+     * With an in-memory entry provider, also removes them from their related entries.
      * Does not send an extra update for the entries.
      *
      * @param resource resource
@@ -118,7 +119,8 @@ public interface Scheduler {
     }
 
     /**
-     * Removes the given resources. Also removes them from their related entries.
+     * Removes the given resources and their child resources.
+     * With an in-memory entry provider, also removes them from their related entries.
      * Does not send an extra update for the entries.
      * <br><br>
      * Does nothing for unregistered resources.
@@ -129,8 +131,10 @@ public interface Scheduler {
     default void removeResources(Resource... resources) {
         removeResources(Arrays.asList(resources));
     }
- /**
-     * Removes the given resources.  Also removes them from their related entries.
+
+    /**
+     * Removes the given resources and their child resources.
+     * With an in-memory entry provider, also removes them from their related entries.
      * Does not send an extra update for the entries.
      * <br><br>
      * Does nothing for unregistered resources.
@@ -180,7 +184,8 @@ public interface Scheduler {
     }
 
     /**
-     * Removes all registered resources from this instance. Also removes them from their related entries.
+     * Removes all registered resources from this instance.
+     * With an in-memory entry provider, also removes them from their related entries.
      * Does not send an extra update for the entries.
      */
     void removeAllResources();

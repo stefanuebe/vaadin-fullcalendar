@@ -33,8 +33,6 @@ import tools.jackson.databind.node.ArrayNode;
 import tools.jackson.databind.node.ObjectNode;
 
 import java.util.*;
-import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
 
 /**
  * Flow implementation for the FullCalendar.
@@ -294,7 +292,9 @@ public class FullCalendarScheduler extends FullCalendar implements Scheduler {
      * @param iterableResources resources
      */
     private void removeFromEntries(Iterable<Resource> iterableResources) {
-        List<Resource> resources = StreamSupport.stream(iterableResources.spliterator(), false).collect(Collectors.toList());
+        // the children are removed from the calendar together with their parent, so unlink them as well
+        Set<Resource> resources = new HashSet<>();
+        iterableResources.forEach(resource -> collectWithDescendants(resource, resources));
         // TODO integrate in memory resource provider
         EntryProvider<Entry> entryProvider = getEntryProvider();
         if (entryProvider.isInMemory()) {
@@ -303,6 +303,12 @@ public class FullCalendarScheduler extends FullCalendar implements Scheduler {
                     .stream()
                     .filter(e -> e instanceof ResourceEntry)
                     .forEach(e -> ((ResourceEntry) e).removeResources(resources));
+        }
+    }
+
+    private static void collectWithDescendants(Resource resource, Set<Resource> target) {
+        if (target.add(resource)) {
+            resource.getChildren().forEach(child -> collectWithDescendants(child, target));
         }
     }
 
