@@ -154,6 +154,12 @@ const plugin: PluginInput = {
         },
         multiMonth: {
             className: 'fc-multimonth',
+            // the months are day grids, their entries and more-links get the daygrid classes (#460)
+            eventClass: 'fc-daygrid-event',
+            rowEventClass: 'fc-daygrid-block-event',
+            listItemEventClass: 'fc-daygrid-dot-event',
+            listItemEventBeforeClass: 'fc-daygrid-event-dot',
+            rowMoreLinkClass: 'fc-daygrid-more-link',
         },
     },
 };

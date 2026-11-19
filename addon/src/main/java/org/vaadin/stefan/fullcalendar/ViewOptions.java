@@ -5609,13 +5609,17 @@ class ViewOptions implements Serializable {
      * {@code data-color-scheme="dark"} attribute on {@code <html>}, the body or another ancestor of the calendar, not
      * {@code Page#setColorScheme}.
      * <p>
+     * With the attribute on an ancestor inside the body, the "+N more" popover and a dragged entry keep their light
+     * colors, because the library renders them directly into the body. This option also sets the color scheme of the
+     * popover and a dragged entry.
+     * <p>
      * With Lumo, the option cannot make a calendar light while the application is dark. Lumo's dark mode sets fixed
      * dark colors on the page, and the calendar inherits them. A dark calendar in a light Lumo application works.
      * <p>
      * The getter returns null while the option is not set; then the library default applies.
      *
-     * @see <a href="https://github.com/stefanuebe/vaadin-fullcalendar/wiki/Themes#color-scheme">
-     *     Themes: Color scheme</a>
+     * @see <a href="https://github.com/stefanuebe/vaadin-fullcalendar/wiki/Themes-and-Styling#color-scheme">
+     *     Themes and Styling: Color scheme</a>
      * @see <a href="https://fullcalendar.io/docs/color-palettes">colorScheme</a>
      */
     private String colorScheme;

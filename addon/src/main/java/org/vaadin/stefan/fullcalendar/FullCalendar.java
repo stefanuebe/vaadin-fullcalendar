@@ -37,6 +37,8 @@ import tools.jackson.databind.node.ObjectNode;
 import java.time.*;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Flow implementation for the FullCalendar.
@@ -78,6 +80,15 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
 
     private static final String INITIAL_OPTIONS = "initialOptions";
     private static final String THEME_PROPERTY = "fcTheme";
+    /**
+     * The time of a {@code dtstart}, in the extended or the basic form, after {@code T} or a space, seconds and zone
+     * optional: {@code T10:00:00}, {@code T10:00}, {@code T100000Z}, {@code T10:00:00.500Z}, {@code T10:00+01}. In a
+     * rule as text, the time of {@code DTSTART:20260109T100000Z}, {@code DTSTART=20260109T100000} or
+     * {@code DTSTART;TZID=Europe/Berlin:20260109T100000}. The last one is sent as wall time without zone. Only the JSON
+     * sent for it is tested, no browser test checks that the occurrence is removed.
+     */
+    private static final Pattern DTSTART_TIME = Pattern.compile("\\d[T ](\\d{2}):?(\\d{2})(?::?(\\d{2})([.,]\\d+)?)?(Z|[+-]\\d{2}(?::?\\d{2})?)?");
+    private static final Pattern TEXT_DTSTART = Pattern.compile("DTSTART(?:;[^:\\n]*)?[:=]([^;\\s]+)");
     /**
      * The options the client has its own handler for and the typed fields of which run after it, see
      * {@link #contributeOptions(Map)}. The client registers the handlers in {@code createEventHandlers}.
@@ -166,7 +177,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
 
     /**
      * Whether to automatically revert client-side entry changes when
-     * {@link EntryDataEvent#applyChangesOnEntry()} is not called. Default is {@code true}.
+     * {@link EntryChangedEvent#applyChangesOnEntry()} is not called. Default is {@code true}.
      */
     private boolean autoRevertUnappliedEntryChanges = true;
 
@@ -518,13 +529,46 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
     /**
      * Converts an entry for this calendar. A rule without {@code dtstart} starts at the entry start, which the
      * library reads in the time zone of the calendar, so it is converted to that zone (see {@link RRuleConverter}).
+     * <p>
+     * The library compares an excluded date with the start of each occurrence, so a plain date only matches an
+     * all-day occurrence. For a timed rule, each excluded date gets the time of the rule's {@code dtstart}.
      */
     private ObjectNode toClientJson(Entry entry) {
         ObjectNode json = entry.toJson();
         if (entry.getRRule() != null) {
-            json.set("rrule", RRuleConverter.toClientModelInZone(entry.getRRule(), entry, getTimezoneForOffsets()));
+            JsonNode rrule = RRuleConverter.toClientModelInZone(entry.getRRule(), entry, getTimezoneForOffsets());
+            json.set("rrule", rrule);
+            String startTime = startTimeOf(rrule);
+            if (startTime != null && json.get("exdate") instanceof ArrayNode exdate) {
+                ArrayNode timed = JsonFactory.createArray();
+                exdate.valueStream().forEach(date -> timed.add(date.asString() + startTime));
+                json.set("exdate", timed);
+            }
         }
         return json;
+    }
+
+    /**
+     * Returns the time of the {@code dtstart} of a rule in its client form, in the extended form and starting with
+     * {@code T}, such as {@code T10:00:00} or {@code T10:00:00Z}. Null for a rule that starts on a date only or has no
+     * start.
+     */
+    private static String startTimeOf(JsonNode rrule) {
+        String dtstart = null;
+        if (rrule.isObject()) {
+            dtstart = rrule.path("dtstart").asString(null);
+        } else if (rrule.isString()) {
+            Matcher text = TEXT_DTSTART.matcher(rrule.asString());
+            dtstart = text.find() ? text.group(1) : null;
+        }
+        Matcher time = dtstart != null ? DTSTART_TIME.matcher(dtstart) : null;
+        if (time == null || !time.find()) {
+            return null;
+        }
+        String seconds = time.group(3) == null ? "00" : time.group(3);
+        String fraction = time.group(4) == null ? "" : "." + time.group(4).substring(1);
+        String zone = time.group(5) == null ? "" : time.group(5);
+        return "T" + time.group(1) + ":" + time.group(2) + ":" + seconds + fraction + zone;
     }
 
     /**
@@ -1110,7 +1154,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
 
     /**
      * Returns whether the calendar automatically reverts client-side entry changes
-     * when {@link EntryDataEvent#applyChangesOnEntry()} is not called in a drop/resize listener.
+     * when {@link EntryChangedEvent#applyChangesOnEntry()} is not called in a drop/resize listener.
      * Default is {@code true}.
      *
      * @return true if auto-revert is enabled
@@ -1122,7 +1166,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
 
     /**
      * Sets whether the calendar should automatically revert client-side entry changes
-     * when {@link EntryDataEvent#applyChangesOnEntry()} is not called during event listener
+     * when {@link EntryChangedEvent#applyChangesOnEntry()} is not called during event listener
      * processing of drop or resize events.
      * <p>
      * When {@code true} (the default), if a developer's listener does not call
@@ -1191,10 +1235,10 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
     }
 
     /**
-     * Wraps a listener for {@link EntryDataEvent} subclasses with auto-revert support.
+     * Wraps a listener for {@link EntryChangedEvent} subclasses with auto-revert support.
      * When {@link #isAutoRevertUnappliedEntryChanges()} is true, schedules a
      * {@code beforeClientResponse} callback after each event dispatch to check if
-     * {@link EntryDataEvent#applyChangesOnEntry()} was called. If not, the client-side
+     * {@link EntryChangedEvent#applyChangesOnEntry()} was called. If not, the client-side
      * entry is reverted to its original position.
      * <p>
      * The listeners are counted per DOM event of the event class. While none exists for a DOM event, the client
@@ -1202,11 +1246,11 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
      *
      * @param eventType the event class, annotated with {@link DomEvent}
      * @param listener the user's listener
-     * @param <T> event type extending EntryDataEvent
+     * @param <T> event type extending EntryChangedEvent
      * @return registration to remove the listener
      * @since 7.2.0
      */
-    protected <T extends EntryDataEvent> Registration addAutoRevertAwareListener(
+    protected <T extends EntryChangedEvent> Registration addAutoRevertAwareListener(
             Class<T> eventType, ComponentEventListener<T> listener) {
 
         Registration registration = addListener(eventType, event -> {
@@ -1417,12 +1461,13 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
     }
 
     /**
-     * Registers a listener for when any external HTML element is dropped onto the calendar.
+     * Registers a listener for when a registered {@link Draggable} or an entry from another calendar is dropped
+     * onto the calendar.
      * Requires {@link FullCalendarViewOptions#getDroppable() droppable} to be set to {@code true}.
      * <p>
-     *     This listener is considered low-level. If you external html element uses the Draggable feature
-     *     of the FullCalendar and also provides valid entry data, we strongly recommend to use
-     *     the {@link #addEntryReceiveListener(ComponentEventListener)} instead.
+     *     This listener is considered low-level. Every drop of a registered {@link Draggable} or of an entry from
+     *     another calendar also fires an {@link EntryReceiveEvent}. Add the dropped entry in only one of the two
+     *     listeners, preferably in {@link #addEntryReceiveListener(ComponentEventListener)}.
      * </p>
      *
      * @param listener listener
@@ -1438,14 +1483,12 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
      * Registers a {@link Draggable} on this calendar. The wrapped component becomes draggable
      * onto any calendar that has {@link FullCalendarViewOptions#getDroppable() droppable} set to {@code true}.
      * <p>
-     * When the component is dropped onto <em>this</em> calendar, the resulting {@link DropEvent}
-     * provides typed access to the component and entry via {@link DropEvent#getDraggedComponent()}
-     * and {@link DropEvent#getDraggedEntry()}.
+     * When the component is dropped onto <em>this</em> calendar, {@link DropEvent#getDraggable()} returns the
+     * draggable, with its component and entry data.
      * <p>
      * <strong>Important:</strong> The draggable registry is per-calendar. If the component is dropped
-     * onto a <em>different</em> calendar, that calendar's {@link DropEvent} will not resolve the
-     * draggable — {@code getDraggedComponent()} and {@code getDraggedEntry()} will return empty.
-     * The raw {@link DropEvent#getEntryJson()} is still available in all cases.
+     * onto a <em>different</em> calendar, that calendar's {@link DropEvent#getDraggable()} is empty.
+     * {@link DropEvent#getCreatedEntry()} is still available in all cases.
      *
      * @param draggable the draggable to register
      * @return registration to remove the draggable
@@ -1518,8 +1561,9 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
     }
 
     /**
-     * Registers a listener for when an external element with a {@code data-event} attribute has been dropped
-     * and FullCalendar has created a new entry from it. The entry is not added to the provider automatically.
+     * Registers a listener for when FullCalendar has created a new entry from a drop of a registered {@link Draggable}
+     * or of an entry from another calendar. The event also fires for a registered {@link Draggable} without entry data.
+     * The entry is not added to the provider automatically.
      * Requires {@link FullCalendarViewOptions#getDroppable() droppable} to be set to {@code true}.
      *
      * @param listener listener
@@ -1668,7 +1712,9 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
      * Registers a listener for when an entry from an entry source ({@link RemoteEntrySource}) is dragged to a new
      * time slot. Fires instead of {@link EntryDroppedEvent} when the dropped entry's id is not in the server-side cache.
      * <br><br>
-     * Requires that drag/drop is enabled on the source via {@link RemoteEntrySource#withEditable(boolean) withEditable(true)}.
+     * Whether entries of a source can be dragged follows the calendar's {@code editable} option.
+     * {@link RemoteEntrySource#withEditable(boolean)} or {@link RemoteEntrySource#withStartEditable(boolean)}
+     * on the source override it.
      *
      * @param listener listener
      * @return registration to remove the listener
@@ -1683,7 +1729,9 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
      * Registers a listener for when an entry from an entry source ({@link RemoteEntrySource}) is resized.
      * Fires instead of {@link EntryResizedEvent} when the resized entry's id is not in the server-side cache.
      * <br><br>
-     * Requires that resize is enabled on the source via {@link RemoteEntrySource#withEditable(boolean) withEditable(true)}.
+     * Whether entries of a source can be resized follows the calendar's {@code editable} option.
+     * {@link RemoteEntrySource#withEditable(boolean)} or {@link RemoteEntrySource#withDurationEditable(boolean)}
+     * on the source override it.
      *
      * @param listener listener
      * @return registration to remove the listener
