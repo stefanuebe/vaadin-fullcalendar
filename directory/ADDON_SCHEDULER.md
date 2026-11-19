@@ -1,10 +1,10 @@
-This separate add-on extends the [FullCalendar for Flow](https://vaadin.com/directory/component/full-calendar-flow) add-on with the FullCalendar Scheduler, which provides
+This separate add-on extends the [FullCalendar for Flow](https://vaadin.com/directory/component/full-calendar-flow) add-on with the FullCalendar Premium Plugins / Scheduler, which provide
 additional resource-based views (Timeline View and Vertical Resource View).
 
 Each version of this add-on belongs to the same version of FullCalendar for Flow. The FullCalendar for Flow page lists the supported versions.
 
 For information about the Scheduler (functionality, features, license information, etc.)
-visit https://fullcalendar.io/scheduler.
+visit https://fullcalendar.io/pricing.
 
 ## Documentation and Samples
 Please visit our [GitHub wiki](https://github.com/stefanuebe/vaadin-fullcalendar/wiki) for samples and other information about this add-on.

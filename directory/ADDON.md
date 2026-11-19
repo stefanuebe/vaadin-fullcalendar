@@ -17,11 +17,11 @@ To get started, see [Getting Started](https://github.com/stefanuebe/vaadin-fullc
 [Samples](https://github.com/stefanuebe/vaadin-fullcalendar/wiki/Samples) in the wiki.
 
 ## FullCalendar Scheduler for Flow add-on
-This separate add-on extends the **FullCalendar for Flow** add-on with the FullCalendar Scheduler, which provides
+This separate add-on extends the **FullCalendar for Flow** add-on with the FullCalendar Premium Plugins / Scheduler, which provide
 additional resource-based views (Timeline View and Vertical Resource View).
 
 For information about the Scheduler (functionality, features, license information, etc.)
-visit https://fullcalendar.io/scheduler.
+visit https://fullcalendar.io/pricing.
 
 ### License information
 Please be aware that the FullCalendar Scheduler library this add-on is based on has a different license model
