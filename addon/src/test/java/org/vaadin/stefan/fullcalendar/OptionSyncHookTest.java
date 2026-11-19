@@ -50,9 +50,8 @@ public class OptionSyncHookTest extends BrowserlessTest {
     /** The option changes among the given client calls. */
     private static List<ObjectNode> optionChanges(List<PendingJavaScriptInvocation> calls) {
         return calls.stream()
-                .map(PendingJavaScriptInvocation::getInvocation)
-                .filter(invocation -> invocation.getExpression().contains("setOptions"))
-                .map(invocation -> (ObjectNode) invocation.getParameters().getLast())
+                .filter(invocation -> ClientCalls.calls(invocation, "setOptions"))
+                .map(invocation -> (ObjectNode) ClientCalls.lastArgument(invocation))
                 .toList();
     }
 
@@ -95,7 +94,7 @@ public class OptionSyncHookTest extends BrowserlessTest {
         List<ObjectNode> changes = optionChanges(calls);
         assertEquals(1, changes.size());
         assertTrue(entryDidMountOf(changes.getFirst()).contains("addEventListener('click'"));
-        assertTrue(calls.stream().noneMatch(call -> call.getInvocation().getExpression().contains("setOption(")),
+        assertTrue(calls.stream().noneMatch(call -> ClientCalls.calls(call, "setOption")),
                 "no separate call for eventDidMount");
     }
 

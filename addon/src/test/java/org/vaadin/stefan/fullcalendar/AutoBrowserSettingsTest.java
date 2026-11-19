@@ -5,7 +5,6 @@ import org.vaadin.stefan.fullcalendar.option.CalendarLocale;
 import org.vaadin.stefan.fullcalendar.option.Timezone;
 import com.vaadin.browserless.BrowserlessTest;
 import com.vaadin.flow.component.UI;
-import com.vaadin.flow.component.internal.PendingJavaScriptInvocation;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import tools.jackson.databind.JsonNode;
@@ -50,9 +49,8 @@ public class AutoBrowserSettingsTest extends BrowserlessTest {
         UI ui = UI.getCurrent();
         ui.getInternals().getStateTree().runExecutionsBeforeClientResponse();
         return ui.getInternals().dumpPendingJavaScriptInvocations().stream()
-                .map(PendingJavaScriptInvocation::getInvocation)
-                .filter(invocation -> invocation.getExpression().contains("setOptions"))
-                .map(invocation -> (JsonNode) invocation.getParameters().getLast())
+                .filter(invocation -> ClientCalls.calls(invocation, "setOptions"))
+                .map(invocation -> (JsonNode) ClientCalls.lastArgument(invocation))
                 .toList();
     }
 

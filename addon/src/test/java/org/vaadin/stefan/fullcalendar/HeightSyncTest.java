@@ -2,7 +2,6 @@ package org.vaadin.stefan.fullcalendar;
 
 import com.vaadin.browserless.BrowserlessTest;
 import com.vaadin.flow.component.UI;
-import com.vaadin.flow.component.internal.PendingJavaScriptInvocation;
 import org.junit.jupiter.api.Test;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.node.ObjectNode;
@@ -33,9 +32,8 @@ public class HeightSyncTest extends BrowserlessTest {
         UI ui = UI.getCurrent();
         ui.getInternals().getStateTree().runExecutionsBeforeClientResponse();
         return ui.getInternals().dumpPendingJavaScriptInvocations().stream()
-                .map(PendingJavaScriptInvocation::getInvocation)
-                .filter(invocation -> invocation.getExpression().contains("setOptions"))
-                .map(invocation -> (JsonNode) invocation.getParameters().getLast())
+                .filter(invocation -> ClientCalls.calls(invocation, "setOptions"))
+                .map(invocation -> (JsonNode) ClientCalls.lastArgument(invocation))
                 .toList();
     }
 
