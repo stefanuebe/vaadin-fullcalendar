@@ -50,7 +50,7 @@ import java.util.Locale;
 
 @SuppressWarnings("rawtypes")
 public abstract class AbstractLayout extends AppLayout implements AfterNavigationObserver {
-    public static final String ADDON_VERSION = "8.0.0-SNAPSHOT";
+    public static final String ADDON_VERSION = "8.0.0";
     private static final long serialVersionUID = -7479612679602267287L;
     private Registration currentStyleSheetRegistration;
     private Select<Theme> themeSelect;
