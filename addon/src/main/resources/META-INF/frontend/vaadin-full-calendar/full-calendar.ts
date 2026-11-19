@@ -70,6 +70,10 @@ const loadedThemes = new Map<string, Promise<PluginInput>>();
  */
 const resolvedThemes = new Map<string, PluginInput>([['vaadin', vaadinTheme]]);
 
+// The entry data of the last drag of each registered draggable element, as its eventData returned it at the start of
+// the drag. Shared by all calendars, because an element registered on one calendar can be dropped on another.
+const lastDragEventData = new WeakMap<HTMLElement, any>();
+
 /**
  * Recursively walks a value and evaluates any JsCallback markers.
  * A JsCallback marker is an object with a {@code __jsCallback} string property.
@@ -443,11 +447,13 @@ export class FullCalendar extends HTMLElement {
 
             // External drag-drop
             drop: (eventInfo: any) => {
+                const draggable = this.findDraggableElement(eventInfo.draggedEl);
+                const eventData = draggable ? lastDragEventData.get(draggable) : null;
                 return {
                     date: this.formatDate(eventInfo.date, eventInfo.allDay),
                     allDay: eventInfo.allDay,
-                    draggedElData: eventInfo.draggedEl ? eventInfo.draggedEl.getAttribute('data-event') : null,
-                    draggableId: eventInfo.draggedEl ? eventInfo.draggedEl.getAttribute('data-draggable-id') : null
+                    draggedElData: eventData && eventData.create !== false ? JSON.stringify(eventData) : null,
+                    draggableId: draggable ? draggable.getAttribute('data-draggable-id') : null
                 };
             },
             eventReceive: (eventInfo: any) => {
@@ -468,9 +474,10 @@ export class FullCalendar extends HTMLElement {
                 // Remove the client-side phantom entry — the server will manage persistence
                 event.remove();
 
+                const draggable = this.findDraggableElement(eventInfo.draggedEl);
                 return {
                     data,
-                    draggableId: eventInfo.draggedEl ? eventInfo.draggedEl.getAttribute('data-draggable-id') : null
+                    draggableId: draggable ? draggable.getAttribute('data-draggable-id') : null
                 };
             },
             eventLeave: (eventInfo: any) => {
@@ -1046,16 +1053,26 @@ export class FullCalendar extends HTMLElement {
             options.itemSelector = itemSelector;
         }
 
+        let eventData: (dragEl: HTMLElement) => any;
         if (eventDataCallback) {
             // eventDataCallback is a JsCallback marker — evaluate it
-            options.eventData = evaluateCallbacks(eventDataCallback, this.createdCalendar);
+            eventData = evaluateCallbacks(eventDataCallback, this.createdCalendar);
         } else {
-            // Default: read data-event attribute from the dragged element
-            options.eventData = function(dragEl: HTMLElement) {
-                const data = dragEl.getAttribute('data-event');
-                return data ? JSON.parse(data) : {};
+            // The server sets data-event on the registered element. With an itemSelector, that is the container,
+            // not the dragged item. Without entry data, {create: false} keeps the library from creating an event
+            // (and firing eventReceive), as its own default does.
+            eventData = (dragEl: HTMLElement) => {
+                const data = dragEl.getAttribute('data-event') || el.getAttribute('data-event');
+                return data ? JSON.parse(data) : {create: false};
             };
         }
+        // The library calls eventData once when the drag starts. The drop handler reuses that result instead of calling
+        // a user callback a second time.
+        options.eventData = (dragEl: HTMLElement) => {
+            const data = eventData(dragEl);
+            lastDragEventData.set(el, data);
+            return data;
+        };
 
         const d = new Draggable(el, options);
         this._draggables.set(el, d);
@@ -1067,6 +1084,14 @@ export class FullCalendar extends HTMLElement {
             existing.destroy();
             this._draggables.delete(el);
         }
+    }
+
+    /**
+     * Returns the element registered as draggable for a dragged element. With an itemSelector, the dragged element
+     * is an item inside the registered container.
+     */
+    private findDraggableElement(draggedEl: HTMLElement | null | undefined): HTMLElement | null {
+        return draggedEl ? draggedEl.closest('[data-draggable-id]') as HTMLElement | null : null;
     }
 
     // Event source management

@@ -1465,9 +1465,11 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
      * onto the calendar.
      * Requires {@link FullCalendarViewOptions#getDroppable() droppable} to be set to {@code true}.
      * <p>
-     *     This listener is considered low-level. Every drop of a registered {@link Draggable} or of an entry from
-     *     another calendar also fires an {@link EntryReceiveEvent}. Add the dropped entry in only one of the two
-     *     listeners, preferably in {@link #addEntryReceiveListener(ComponentEventListener)}.
+     *     This listener is considered low-level. A drop that carries entry data also fires an
+     *     {@link EntryReceiveEvent}: a {@link Draggable} with entry data or with an entry data callback, or an entry
+     *     from another calendar. Add the dropped entry in only one of the two listeners, preferably in
+     *     {@link #addEntryReceiveListener(ComponentEventListener)}. A {@link Draggable} without entry data fires only
+     *     the {@link DropEvent}.
      * </p>
      *
      * @param listener listener
@@ -1562,7 +1564,8 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
 
     /**
      * Registers a listener for when FullCalendar has created a new entry from a drop of a registered {@link Draggable}
-     * or of an entry from another calendar. The event also fires for a registered {@link Draggable} without entry data.
+     * or of an entry from another calendar. A registered {@link Draggable} without entry data fires no such event,
+     * only a {@link DropEvent}.
      * The entry is not added to the provider automatically.
      * Requires {@link FullCalendarViewOptions#getDroppable() droppable} to be set to {@code true}.
      *

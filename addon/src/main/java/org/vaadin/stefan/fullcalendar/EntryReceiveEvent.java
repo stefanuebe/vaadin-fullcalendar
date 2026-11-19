@@ -27,8 +27,8 @@ import java.util.Optional;
 
 /**
  * Fires when FullCalendar has created a new entry from a drop: a registered {@link Draggable} dropped onto
- * the calendar, or an entry dragged in from another calendar. This event fires for every drop of a registered
- * {@link Draggable}, even one without entry data.
+ * the calendar, or an entry dragged in from another calendar. A {@link Draggable} without entry data creates no
+ * entry, so its drop fires only a {@link DropEvent}.
  * <br><br>
  * The {@link #getEntry()} method returns a freshly constructed {@link Entry} populated from the data
  * passed by the client. This entry is <em>not</em> added to the calendar's entry provider automatically;
