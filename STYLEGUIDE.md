@@ -263,6 +263,14 @@ configuration.
   that presents several events or features, each gets a `###` with a small
   sample. Not a bullet list of events that each end in "[X] shows an example",
   and not "as shown in [Adding a listener]" in place of a sample of its own.
+- **No run of paragraphs on unrelated options.** When a section goes on with one
+  option per paragraph (one for the time grid, the next for the timeline, then a
+  pointer elsewhere), group them under `###` headings by what they belong to,
+  such as the view, or put them in a table. Not "In the resource time grid … /
+  By default, the area with the resource titles takes 30% … / The area can show
+  more columns …" in a row under "Scheduler views", but a `### Resource time grid`
+  and a `### Resource area of the timeline`. The whole-page pass checks for such
+  runs.
 - **Requirements from another topic are a line in the sample.** The option that
   allows dragging is `options().setEditable(true)` in the drop listener sample,
   not a paragraph on options at the start of a section about listeners.
