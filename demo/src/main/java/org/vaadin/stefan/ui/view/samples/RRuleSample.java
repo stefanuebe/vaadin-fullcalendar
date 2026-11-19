@@ -1,5 +1,7 @@
 package org.vaadin.stefan.ui.view.samples;
 
+import java.util.List;
+
 import org.vaadin.stefan.fullcalendar.Entry;
 import org.vaadin.stefan.fullcalendar.FullCalendar;
 import org.vaadin.stefan.fullcalendar.RRule;
@@ -42,6 +44,6 @@ public class RRuleSample extends AbstractSample {
                 .dtstart(LocalDate.now().with(DayOfWeek.TUESDAY))
                 .excludeDates(LocalDate.now().plusWeeks(4).with(DayOfWeek.TUESDAY)));
 
-        calendar.getEntryProvider().asInMemory().addEntries(standup, review, planning);
+        calendar.getEntryProvider().asInMemory().getItems().addAll(List.of(standup, review, planning));
     }
 }

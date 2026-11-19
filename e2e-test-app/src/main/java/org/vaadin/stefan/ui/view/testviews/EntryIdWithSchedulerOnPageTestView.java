@@ -18,7 +18,7 @@ import java.util.List;
 
 /**
  * Regression test view: plain {@link FullCalendar} with entries on the same page as a
- * {@link FullCalendarScheduler}. The scheduler's presence loads FC's Resource plugin,
+ * {@link FullCalendarScheduler}. The scheduler's presence loads FullCalendar's Resource plugin,
  * which patches {@code EventApi.prototype.getResources} onto every entry, including
  * the plain calendar's. If the default {@code eventDidMount} snippet (#202) calls
  * {@code event.getResources()} unguarded, the plain entry's {@code _def.resourceIds}
@@ -46,7 +46,7 @@ public class EntryIdWithSchedulerOnPageTestView extends VerticalLayout {
         FullCalendar plain = new FullCalendar();
         plain.getElement().setAttribute("data-testid", "plain-calendar");
         plain.changeView(CalendarViewImpl.DAY_GRID_MONTH);
-        plain.setOption("initialDate", LocalDate.of(2025, 3, 3).toString());
+        plain.options().setInitialDate(LocalDate.of(2025, 3, 3));
 
         Entry e1 = new Entry("e1");
         e1.setTitle("Entry 1");
@@ -63,7 +63,7 @@ public class EntryIdWithSchedulerOnPageTestView extends VerticalLayout {
         // The scheduler instance only exists to force the Resource plugin to load.
         // No entries / resources — just the empty calendar.
         FullCalendarScheduler scheduler = new FullCalendarScheduler();
-        scheduler.setOption(FullCalendarScheduler.SchedulerOption.LICENSE_KEY, Scheduler.DEVELOPER_LICENSE_KEY);
+        scheduler.options().setSchedulerLicenseKey(Scheduler.DEVELOPER_LICENSE_KEY);
         scheduler.getElement().setAttribute("data-testid", "scheduler-loader");
         scheduler.getStyle().set("display", "none");
 

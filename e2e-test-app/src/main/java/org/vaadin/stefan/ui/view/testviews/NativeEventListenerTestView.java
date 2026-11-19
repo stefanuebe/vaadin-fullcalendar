@@ -1,5 +1,6 @@
 package org.vaadin.stefan.ui.view.testviews;
 
+import org.vaadin.stefan.fullcalendar.option.JsCallback;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.Paragraph;
 import com.vaadin.flow.component.html.Span;
@@ -13,15 +14,15 @@ import org.vaadin.stefan.ui.menu.MenuItem;
 import java.time.LocalDate;
 
 /**
- * Test view for native entry event listeners combined with an ENTRY_DID_MOUNT callback.
+ * Test view for native entry event listeners combined with an entryDidMount callback.
  * <p>
  * Verifies:
  * <ul>
- *   <li>The ENTRY_DID_MOUNT callback fires and sets {@code data-did-mount="true"} on the entry element</li>
+ *   <li>The entryDidMount callback fires and sets {@code data-did-mount="true"} on the entry element</li>
  *   <li>A native click listener registered via {@code addEntryNativeEventListener} fires on click
  *       and increments a visible counter</li>
- *   <li>Both the user callback and the native listener work when set via
- *       {@link FullCalendar#setOption(FullCalendar.Option, Object)} with {@link JsCallback}</li>
+ *   <li>Both the user callback and the native listener work when the callback is set via
+ *       {@code options().setEntryDidMount(…)}, which the calendar merges with the native listener</li>
  * </ul>
  * <p>
  * Route: /test/native-event-listener
@@ -36,7 +37,7 @@ public class NativeEventListenerTestView extends VerticalLayout {
 
         add(new H2("Native Entry Event Listener"));
         add(new Paragraph(
-                "The entry below has data-did-mount='true' set by an ENTRY_DID_MOUNT callback. " +
+                "The entry below has data-did-mount='true' set by an entryDidMount callback. " +
                 "Clicking it increments the counter via a native click listener."));
 
         Span clickCounter = new Span("0");
@@ -44,11 +45,10 @@ public class NativeEventListenerTestView extends VerticalLayout {
         add(clickCounter);
 
         FullCalendar calendar = new FullCalendar();
-        calendar.addThemeVariants(FullCalendarVariant.VAADIN);
 
         // Fix date for reproducible tests
-        calendar.setOption("initialDate", LocalDate.of(2025, 3, 10).toString());
-        calendar.setOption("initialView", CalendarViewImpl.DAY_GRID_MONTH.getClientSideValue());
+        calendar.options().setInitialDate(LocalDate.of(2025, 3, 10));
+        calendar.options().setInitialView(CalendarViewImpl.DAY_GRID_MONTH);
 
         Entry entry = new Entry();
         entry.setTitle("Click Me");
@@ -56,8 +56,7 @@ public class NativeEventListenerTestView extends VerticalLayout {
         entry.setAllDay(true);
         calendar.setEntryProvider(EntryProvider.inMemoryFrom(entry));
 
-        // ENTRY_DID_MOUNT via JsCallback — must end with closing brace for merge to work
-        calendar.setOption(FullCalendar.Option.ENTRY_DID_MOUNT,
+        calendar.options().setEntryDidMount(
                 JsCallback.of("function(info) { info.el.setAttribute('data-did-mount', 'true'); }"));
 
         // Native click listener — increments the visible counter element

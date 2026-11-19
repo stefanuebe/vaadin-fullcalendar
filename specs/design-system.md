@@ -6,40 +6,72 @@
 
 ## 1. Theme Architecture
 
-The addon uses **light DOM** (no shadow DOM), so all FullCalendar CSS is directly accessible. Four style layers:
+The addon uses **light DOM** (no shadow DOM), so all FullCalendar CSS is directly accessible. Style layers:
 
 | Layer | File | Purpose |
 |-------|------|---------|
-| **FullCalendar native** | Bundled via `@fullcalendar/*` npm packages | Default FC appearance (grid, entries, toolbar) |
+| **FullCalendar skeleton** | `fullcalendar/skeleton.css`, imported by `full-calendar.ts` | Layout every FullCalendar theme builds on |
+| **FullCalendar theme** | Theme plugin plus `theme.css`, loaded on demand by the theme registry in `full-calendar.ts` (UC-027). Stock themes bring their default palette inside the cascade layer `fc-palette` (ADR 0002) | Look of the calendar (grid, entries, toolbar) |
+| **Stable class names** | `legacy-class-names.ts`, `legacy-class-names-scheduler.ts` (FullCalendar plugins) | Re-add the documented v6 class names, see UC-025 and ADR 0001 |
 | **Addon base styles** | `full-calendar-styles.css` | Sizing, layout fixes, integration with Vaadin |
-| **Vaadin theme variant** | `full-calendar-theme-vaadin.css` | Aligns FC look with Vaadin Lumo/Aura theme |
+| **FullCalendar Vaadin theme** | `vaadin-theme.ts` and `vaadin-theme.css`, `FullCalendarTheme.VAADIN`, the default. Loaded with the main module (UC-023) | Aligns FullCalendar look with Vaadin Lumo/Aura theme |
 | **Scheduler styles** | `full-calendar-scheduler-styles.css` | Additional styles for scheduler views |
 
-Apply the Vaadin theme variant:
+Select a FullCalendar theme per calendar:
 ```java
-calendar.addThemeVariants(FullCalendarVariant.VAADIN);
+calendar.setTheme(FullCalendarTheme.MONARCH);
 ```
 
-### Custom Properties (`--vaadin-fc-*`)
+### FullCalendar Vaadin Theme Variables
 
-The Vaadin theme variant defines these CSS custom properties on `html`. Override them to retheme:
+The FullCalendar Vaadin theme is classic plus `vaadin-theme.css`. The plugin puts the class `fc-vaadin` on the calendar,
+its popover and its entries. The rules set classic's color variables `--fc-classic-*` on `.fc-vaadin`, inside the
+cascade layer `fc-palette` (ADR 0002), so unlayered application CSS overrides them.
 
-| Token | Resolves to | Purpose |
-|-------|-------------|---------|
-| `--vaadin-fc-bg-color` | `--vaadin-background-color` | Calendar background |
-| `--vaadin-fc-highlight-color` | `--lumo-primary-color` / `--aura-accent-color` | Primary accent (entries, selection, today badge) |
-| `--vaadin-fc-highlight-color-100..800` | `color-mix()` alpha variants of above | Hover, selection highlight, background entries |
-| `--vaadin-fc-highlight-text-color` | `--lumo-primary-text-color` / `--aura-accent-text-color` | Today badge text |
-| `--vaadin-fc-contrast-color` | `--lumo-contrast` / `--aura-accent-contrast-color` | Grid lines, now indicator |
-| `--vaadin-fc-contrast-color-50..800` | `color-mix()` alpha variants of above | Borders, non-business shading |
-| `--vaadin-fc-neutral-color` | `--vaadin-text-color-disabled` at 15% | Non-business hours shading |
-| `--vaadin-fc-hover-color` | `--vaadin-fc-highlight-color-100` | Entry/link hover background |
-| `--vaadin-fc-font-size-s` | `--lumo-font-size-s` / `--aura-font-size-s` | Small text (headers, labels) |
-| `--vaadin-fc-line-height-xs` | `--lumo-line-height-xs` / `--aura-line-height-xs` | Compact line height |
+The `--vaadin-fc-*` variables, named by purpose, are the documented way to restyle the theme. The theme does not define
+them. It reads each with its default as the fallback, so an application sets them on `html`, `:root` or a class of one
+calendar:
 
-**Fallback chain**: Every token uses `var(--lumo-*, var(--aura-*, fallback))`, so the theme works in both Lumo and Aura contexts. Custom themes that define neither will get CSS fallback values.
+```css
+html { --vaadin-fc-accent-color: #2e7d32; }
+.my-calendar { --vaadin-fc-entry-color: #c62828; }
+```
 
-**Browser compatibility**: The Vaadin theme variant uses `color-mix(in srgb, ...)` which requires Chrome 111+, Firefox 113+, Safari 16.2+.
+| Variable | Purpose | Default |
+|----------|---------|---------|
+| `--vaadin-fc-bg-color` | calendar background | `--lumo-base-color` / `--aura-surface-color-solid` |
+| `--vaadin-fc-text-color` | text, base of the neutral tones | `--lumo-body-text-color` / `--aura-neutral` |
+| `--vaadin-fc-accent-color` | accent | `--lumo-primary-color` / `--aura-accent-color` |
+| `--vaadin-fc-accent-text-color` | accent as a text color | `--lumo-primary-text-color` / `--aura-accent-text-color` |
+| `--vaadin-fc-entry-color` | entries | accent |
+| `--vaadin-fc-entry-text-color` | text on entries | `--lumo-primary-contrast-color` / `--aura-accent-contrast-color` |
+| `--vaadin-fc-background-entry-color` | background entries | accent |
+| `--vaadin-fc-selection-color` | selected dates and time slots | accent 20% |
+| `--vaadin-fc-today-color` | background of the today badge | accent 10% |
+| `--vaadin-fc-today-text-color` | text of the today badge | accent text |
+| `--vaadin-fc-now-indicator-color` | now indicator | text 50% |
+| `--vaadin-fc-hover-color` | hover of list-item entries, more links and list view entries | accent 10% |
+| `--vaadin-fc-focus-color` | `:focus-visible` of the same elements | classic's muted tone (faint in the list view) |
+| `--vaadin-fc-active-color` | `:active` of the same elements | classic's strong tone (muted in the list view) |
+| `--vaadin-fc-border-color` | grid lines | text 12% |
+| `--vaadin-fc-non-business-color` | non-business hours | classic's faint tone (text 4%) |
+| `--vaadin-fc-font-size-s` | small text | `--lumo-font-size-s` / `--aura-font-size-s` |
+
+The base colors are resolved on the outermost `.fc-vaadin` element, so a base color set on one calendar reaches the
+derived colors of that calendar. Neutral backgrounds, borders and secondary text are `color-mix()` of the text color.
+The base `--vaadin-*` colors are the fallback without Lumo and Aura. Buttons and the fine neutral tones have no
+`--vaadin-fc-*` variable. They keep the `--fc-classic-*` variables.
+
+Classic colors hover, focus and active with its faint, muted and strong tones, which it also uses for surfaces, and
+non-business hours with the faint tone it also uses for disabled days. The plugin adds the classes
+`fc-vaadin-hover`, `fc-vaadin-muted-pressable`, `fc-vaadin-faint-pressable` and `fc-vaadin-non-business` under
+classic's conditions, and `vaadin-theme.css` colors these states with the variables above instead of reassigning the
+tones.
+
+**Color scheme**: Lumo and Aura switch colors through `color-scheme`. The option `colorScheme` (`options().setColorScheme(...)`) sets `data-color-scheme` on
+the calendar, its popover and a dragged entry, which switches `color-scheme` for them.
+
+**Browser compatibility**: The theme uses `color-mix(in srgb, ...)` which requires Chrome 111+, Firefox 113+, Safari 16.2+.
 
 **Entry hover effect**: The base styles apply `filter: brightness(90%) contrast(1.2)` on `.fc-event:not(.fc-bg-event):hover`. This is a direct CSS rule, not a custom property — there is no token to override it. To change or disable the hover effect, override the rule directly:
 ```css
@@ -50,15 +82,15 @@ vaadin-full-calendar .fc-event:not(.fc-bg-event):hover {
 
 ### Known Limitation: Entry Text Contrast
 
-When developers use custom entry background colors, FullCalendar defaults entry text to white. This can produce poor contrast on light backgrounds. The Vaadin theme includes a commented-out OKLCH-based auto-contrast rule (`--fc-event-text-color`) that is not yet active. **Developers using custom entry colors must verify text contrast meets WCAG 4.5:1 ratio themselves.**
+When developers use custom entry background colors, FullCalendar defaults entry text to white. This can produce poor contrast on light backgrounds. **Developers using custom entry colors must verify text contrast meets WCAG 4.5:1 ratio themselves.**
 
 ---
 
 ## 2. CSS Customization
 
-Since the component uses light DOM, any CSS can target FC elements from document scope.
+Since the component uses light DOM, any CSS can target FullCalendar elements from document scope. FullCalendar 7 renders build-generated class names only. Stable hooks for CSS and tests are the stable class names (UC-025), the `data-date` / `data-time` / `data-resource-id` attributes and ARIA roles. Selectors that depend on the DOM structure (`table td`, `> a`) are not stable.
 
-**Addon-internal CSS** (bundled with the addon): Uses `@CssImport("./vaadin-full-calendar/...")` on the component class. Files live under `META-INF/resources/frontend/`. This is the correct V25 mechanism for addon/component CSS bundled via Vite.
+**Addon-internal CSS** (bundled with the addon): Uses `@CssImport("./vaadin-full-calendar/...")` on the component class. Files live under `META-INF/frontend/`. This is the correct V25 mechanism for addon/component CSS bundled via Vite.
 
 **Application-level customization** (by addon users): Use `@StyleSheet` on `AppShellConfigurator` or place CSS in the app's stylesheet. Example:
 
@@ -87,9 +119,9 @@ Entries can be styled at multiple levels (highest priority wins):
 
 | Level | Mechanism | Example |
 |-------|-----------|---------|
-| **Global** | `Option.ENTRY_COLOR`, `ENTRY_BACKGROUND_COLOR`, etc. | `calendar.setOption(Option.ENTRY_COLOR, "#3788d8")` |
-| **Per-resource** | `Resource.setEntryBackgroundColor()`, etc. | `resource.setEntryBackgroundColor("#ff6b6b")` |
-| **Per-entry** | `Entry.setColor()`, `setBackgroundColor()`, `setTextColor()`, `setBorderColor()` | `entry.setColor("red")` |
+| **Global** | `entryColor`, `entryContrastColor` | `calendar.options().setEntryColor("#3788d8")` |
+| **Per-resource** | `Resource.setColor()`, `setEntryContrastColor()` | `resource.setColor("#ff6b6b")` |
+| **Per-entry** | `Entry.setColor()`, `setContrastColor()` | `entry.setColor("red")` |
 | **CSS classes** | `Entry.setClassNames(Set)` or `Resource.setEntryClassNames(Set)` | `entry.setClassNames(Set.of("urgent"))` |
 | **Display mode** | `Entry.setDisplayMode(DisplayMode)` | `BACKGROUND`, `INVERSE_BACKGROUND`, `BLOCK`, `LIST_ITEM`, `NONE` |
 
@@ -99,37 +131,36 @@ Entries can be styled at multiple levels (highest priority wins):
 
 | Option | Description | Default |
 |--------|-------------|---------|
-| `Option.HEIGHT` | Total calendar height (px, %, or `"auto"`) | Fills parent |
-| `Option.CONTENT_HEIGHT` | Event area height | `"auto"` |
-| `Option.ASPECT_RATIO` | Width-to-height ratio | `1.35` |
-| `Option.EXPAND_ROWS` | Stretch rows to fill vertically | `false` |
-| `SchedulerOption.RESOURCE_AREA_WIDTH` | Resource panel width in scheduler | Auto |
-| `SchedulerOption.SLOT_MIN_WIDTH` | Minimum slot width in timeline | Auto |
+| `calendar.setHeight(...)` (`HasSize`, there is no `height` option field) | Total calendar height (px, %, or `"auto"`) | Fills parent |
+| `contentHeight` | Event area height | `"auto"` |
+| `aspectRatio` | Width-to-height ratio | `1.35` |
+| `expandRows` | Stretch rows to fill vertically | `false` |
+| `resourceColumnsWidth` (scheduler) | Resource column width in scheduler | Auto |
+| `slotMinWidth` (scheduler) | Minimum slot width in timeline | Auto |
 
-The component includes a `ResizeObserver` for responsive sizing (cleaned up in `disconnectedCallback()`).
+FullCalendar resizes itself when the component's size changes. There is no `updateSize()` to call.
 
 ---
 
 ## 5. Toolbar
 
-Configured via `Option.HEADER_TOOLBAR` and `Option.FOOTER_TOOLBAR`:
+Configured via the options `headerToolbar` and `footerToolbar`:
 
 ```java
-calendar.setOption(Option.HEADER_TOOLBAR,
-    Map.of("left", "prev,next,today",
-           "center", "title",
-           "right", "dayGridMonth,timeGridWeek,timeGridDay"));
+calendar.options().setHeaderToolbar(
+    ToolbarValue.ofLeftRight("prev,next,today", "title",
+                             "dayGridMonth,timeGridWeek,timeGridDay"));
 ```
 
-Button labels: `Option.NATIVE_TOOLBAR_BUTTON_TEXT` (e.g., `Map.of("today", "Heute")`).
+Button labels: the `buttons` option, one map per button (e.g., `calendar.options().setButtons(Map.of("today", Map.of("text", "Heute")))`).
 
 ---
 
 ## 6. Responsive Behavior
 
-- The calendar adapts to its container width automatically via a `ResizeObserver`
+- The calendar adapts to its container size automatically (FullCalendar observes its own size)
 - The host element must have a sized ancestor — without explicit height on a parent, the calendar may collapse to 0px
-- Use `Option.DAY_MIN_WIDTH` to enable horizontal scrolling on narrow containers (sensible default: ~100px)
+- Use the option `dayMinWidth` to enable horizontal scrolling on narrow containers (sensible default: ~100px)
 
 ### Recommended Views by Width
 
@@ -141,11 +172,11 @@ Button labels: `Option.NATIVE_TOOLBAR_BUTTON_TEXT` (e.g., `Map.of("today", "Heut
 
 ### Toolbar Overflow
 
-When many buttons are configured on narrow screens, FullCalendar wraps toolbar sections to new lines. The addon does not add custom overflow handling. Developers on mobile should reduce toolbar buttons or use a `Vaadin MenuBar` for view switching instead of the native FC toolbar.
+When many buttons are configured on narrow screens, FullCalendar wraps toolbar sections to new lines. The addon does not add custom overflow handling. Developers on mobile should reduce toolbar buttons or use a `Vaadin MenuBar` for view switching instead of the built-in FullCalendar toolbar.
 
 ### Animation & Reduced Motion
 
-The addon uses `filter: brightness(90%) contrast(1.2)` for entry hover and `DRAG_REVERT_DURATION` for drag animations. These do **not** automatically respect `prefers-reduced-motion`. Developers targeting WCAG should add:
+The addon uses `filter: brightness(90%) contrast(1.2)` for entry hover and `dragRevertDuration` for drag animations. These do **not** automatically respect `prefers-reduced-motion`. Developers targeting WCAG should add:
 ```css
 @media (prefers-reduced-motion: reduce) {
     vaadin-full-calendar .fc-event { transition: none !important; }

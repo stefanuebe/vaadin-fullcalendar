@@ -7,7 +7,7 @@ on:
 jobs:
   build:
 
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04 # Playwright of e2e-tests has no Chromium for newer Ubuntu releases yet
 
     steps:
     - uses: actions/checkout@v4
@@ -22,6 +22,10 @@ jobs:
       uses: actions/setup-node@v4
       with:
         node-version: '20'
+
+    # runs the unit and browserless tests and installs the addons, which the E2E app resolves from the local repository
+    - name: Test and install addons
+      run: mvn -B install -pl addon,addon-scheduler -am
 
     - name: Install Playwright system dependencies
       run: cd e2e-tests && npx playwright install-deps chromium

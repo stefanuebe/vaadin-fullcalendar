@@ -1,5 +1,6 @@
 package org.vaadin.stefan.ui.view.demos.basic;
 
+import org.vaadin.stefan.fullcalendar.option.DisplayMode;
 import com.vaadin.flow.router.Route;
 import org.vaadin.stefan.ui.dialogs.DemoDialog;
 import org.vaadin.stefan.ui.view.AbstractCalendarView;
@@ -21,8 +22,8 @@ public class BasicDemo extends AbstractCalendarView {
         EntryService<Entry> simpleInstance = EntryService.createSimpleInstance();
 
         FullCalendar calendar = new FullCalendar(defaultInitialOptions);
-        ((InMemoryEntryProvider<Entry>) calendar.getEntryProvider()).addEntries(simpleInstance.getEntries());
-        calendar.setOption(FullCalendar.Option.MAX_ENTRIES_PER_DAY, 3);
+        ((InMemoryEntryProvider<Entry>) calendar.getEntryProvider()).getItems().addAll(simpleInstance.getEntries());
+        calendar.options().setDayMaxEntries(3);
         return calendar;
     }
 
@@ -36,7 +37,7 @@ public class BasicDemo extends AbstractCalendarView {
         System.out.println(event.getClass().getSimpleName() + ": " + event);
 
         if (event.getEntry().getDisplayMode() != DisplayMode.BACKGROUND && event.getEntry().getDisplayMode() != DisplayMode.INVERSE_BACKGROUND) {
-            DemoDialog dialog = new DemoDialog(event.getEntry(), false);
+            DemoDialog dialog = new DemoDialog(event.getSource(), event.getEntry(), false);
             dialog.setSaveConsumer(this::onEntryChanged);
             dialog.setDeleteConsumer(e -> onEntriesRemoved(Collections.singletonList(e)));
             dialog.open();
@@ -52,9 +53,8 @@ public class BasicDemo extends AbstractCalendarView {
         entry.setStart(event.getStart());
         entry.setEnd(event.getEnd());
         entry.setAllDay(event.isAllDay());
-        entry.setCalendar(event.getSource());
 
-        DemoDialog dialog = new DemoDialog(entry, true);
+        DemoDialog dialog = new DemoDialog(event.getSource(), entry, true);
         dialog.setSaveConsumer(e -> onEntriesCreated(Collections.singletonList(e)));
         dialog.setDeleteConsumer(e -> onEntriesRemoved(Collections.singletonList(e)));
         dialog.open();

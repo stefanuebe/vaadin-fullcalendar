@@ -16,6 +16,10 @@
  */
 package org.vaadin.stefan.ui.view.demos.full;
 
+import org.vaadin.stefan.fullcalendar.option.BusinessHours;
+import org.vaadin.stefan.fullcalendar.option.DisplayMode;
+import org.vaadin.stefan.fullcalendar.option.Timezone;
+import org.vaadin.stefan.fullcalendar.option.WidthValue;
 import com.vaadin.flow.component.ClientCallable;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.dependency.CssImport;
@@ -34,13 +38,12 @@ import tools.jackson.databind.node.ObjectNode;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
+import java.time.Duration;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 
-import static org.vaadin.stefan.fullcalendar.FullCalendar.Option.*;
 
 @Route(value = "", layout = MainLayout.class)
 @org.vaadin.stefan.ui.menu.MenuItem(label = "Playground")
@@ -57,19 +60,20 @@ public class FullDemo extends AbstractSchedulerView {
 //                "}");
 
         FullCalendarScheduler scheduler = new FullCalendarScheduler(initialOptions);
-        scheduler.setOption(FullCalendarScheduler.SchedulerOption.LICENSE_KEY, Scheduler.GPL_V3_LICENSE_KEY);
-        scheduler.setOption(FullCalendar.Option.MAX_ENTRIES_PER_DAY, 3);
-        scheduler.addBrowserTimezoneObtainedListener(event -> scheduler.setTimezone(event.getTimezone()));
-        scheduler.setLocale(UI.getCurrent().getLocale());
+        FullCalendarSchedulerOptions options = scheduler.options();
+        options.setSchedulerLicenseKey(Scheduler.AGPL_V3_LICENSE_KEY);
+        options.setDayMaxEntries(3);
+        options.setTimeZone(Timezone.LOCAL);
+        options.setLocale(UI.getCurrent().getLocale());
         FullCalendar calendar = scheduler;
-        scheduler.setOption(FullCalendarScheduler.SchedulerOption.RESOURCE_AREA_WIDTH, "15%");
-        scheduler.setOption(FullCalendarScheduler.SchedulerOption.SLOT_MIN_WIDTH, 100);
-        scheduler.setOption(FullCalendarScheduler.SchedulerOption.RESOURCES_INITIALLY_EXPANDED, false);
+        options.setResourceColumnsWidth(WidthValue.ofPercent(15));
+        options.setSlotMinWidth(100);
+        options.setResourcesInitiallyExpanded(false);
 
-        calendar.setOption(NOW_INDICATOR, true);
-        calendar.setOption(SELECTABLE, true);
+        options.setNowIndicator(true);
+        options.setSelectable(true);
 
-        calendar.setOption(NAV_LINKS, true);
+        options.setNavLinks(true);
         calendar.addDayNumberClickedListener(event -> {
             calendar.changeView(CalendarViewImpl.TIME_GRID_DAY);
             calendar.gotoDate(event.getDate());
@@ -84,14 +88,13 @@ public class FullDemo extends AbstractSchedulerView {
 //        calendar.changeView(CalendarViewImpl.TIME_GRID_WEEK);
 //        calendar.gotoDate(LocalDate.of(2023, Month.JUNE, 1));
 
-        calendar.setOption(SLOT_MIN_TIME, LocalTime.of(7, 0));
-        calendar.setOption(SLOT_MAX_TIME, LocalTime.of(17, 0));
+        options.setSlotMinTime(Duration.ofHours(7));
+        options.setSlotMaxTime(Duration.ofHours(17));
 
-        calendar.setOption(BUSINESS_HOURS, new BusinessHours[]{
+        options.setBusinessHours(
                 BusinessHours.businessWeek().start(9).end(17),
                 BusinessHours.of(DayOfWeek.SATURDAY).start(12).end(15),
-                BusinessHours.of(DayOfWeek.SUNDAY).start(12).end(13)
-        });
+                BusinessHours.of(DayOfWeek.SUNDAY).start(12).end(13));
 
         calendar.addBrowserTimezoneObtainedListener(event -> {
             getToolbar().setTimezone(event.getTimezone());
@@ -99,24 +102,13 @@ public class FullDemo extends AbstractSchedulerView {
 
         LocalDate now = LocalDate.now();
         EntryManager.createDayEntry(calendar, "Test 1", now.withDayOfMonth(12), 2, "lightgreen")
-                .setCustomProperty("count", "3");
+                .setExtendedProp("count", "3");
         EntryManager.createDayEntry(calendar, "Test 2", now.withDayOfMonth(12), 2, "tomato")
-                .setCustomProperty("count", "2");
+                .setExtendedProp("count", "2");
         EntryManager.createDayEntry(calendar, "Test 3", now.withDayOfMonth(12), 2, "lightblue")
-                .setCustomProperty("count", "1");
+                .setExtendedProp("count", "1");
 
-        scheduler.setOption(FullCalendarScheduler.SchedulerOption.ENTRY_RESOURCES_EDITABLE, false);
-
-//        calendar.setEntryClassNamesCallback("function(arg) {\n" +
-//                "    return [ 'hello','world' ]\n" +
-//                "}");
-//        calendar.setEntryContentCallback("" +
-//                "function(arg, createElement) {" +
-//                " console.warn('hello');" +
-//                "  return 'WORLD';" +
-//                "}");
-
-
+        options.setEntryResourceEditable(false);
 
 //        calendar.addEntryNativeEventListener("mouseover", "e => info.el.style.opacity = '0.5'");
 //        calendar.addEntryNativeEventListener("mouseout", "e => info.el.style.opacity = ''");
@@ -127,29 +119,11 @@ public class FullDemo extends AbstractSchedulerView {
                 "   e.preventDefault(); " +
                 "   this.el.parentElement.$server.openContextMenu(info.event.id);" +
                 "}");
-//        calendar.setEntryDidMountCallback("""
-//                function(info) {
-//                    info.el.id = "entry-" + info.event.id;
-//                }""");
-
-//
-//        scheduler.setResourceLabelContentCallback(
-//                "function(arg, createElement) {" +
-//                " console.warn('hello');" +
-//                "  return 'Hello';" +
-//                "}");
-//
-//        scheduler.setResourceLaneContentCallback(
-//                "function(arg, createElement) {" +
-//                " console.warn('world');" +
-//                "  return 'World';" +
-//                "}");
 
         createTestEntries(calendar);
 
 //        calendar.changeView(CalendarViewImpl.MULTI_MONTH);
 //        calendar.gotoDate(LocalDate.now().plusYears(1));
-
 
         return calendar;
     }
@@ -266,7 +240,6 @@ public class FullDemo extends AbstractSchedulerView {
         EntryManager.createDayEntry(calendar, "Multi 9", now.withDayOfMonth(12), 2, "tomato");
         EntryManager.createDayEntry(calendar, "Multi 10", now.withDayOfMonth(12), 2, "tomato");
 
-
         EntryManager.createDayBackgroundEntry(calendar, now.withDayOfMonth(4), 6, "#B9FFC3");
         EntryManager.createDayBackgroundEntry(calendar, now.withDayOfMonth(19), 2, "#CEE3FF");
         EntryManager.createTimedBackgroundEntry(calendar, now.withDayOfMonth(20).atTime(11, 0), 150, "#ff0000");
@@ -321,7 +294,7 @@ public class FullDemo extends AbstractSchedulerView {
         System.out.println(event.getClass().getSimpleName() + ": " + event);
 
         if (event.getEntry().getDisplayMode() != DisplayMode.BACKGROUND && event.getEntry().getDisplayMode() != DisplayMode.INVERSE_BACKGROUND) {
-            DemoDialog dialog = new DemoDialog(event.getEntry(), false);
+            DemoDialog dialog = new DemoDialog(event.getSource(), event.getEntry(), false);
             dialog.setSaveConsumer(this::onEntryChanged);
             dialog.setDeleteConsumer(e -> onEntriesRemoved(Collections.singletonList(e)));
             dialog.open();
@@ -369,7 +342,7 @@ public class FullDemo extends AbstractSchedulerView {
         super.onTimeslotsSelectedScheduler(event);
         System.out.println(event.getClass().getSimpleName() + ": " + event);
 
-        System.out.println( "ZoneId: " + event.getSource().getTimezone().getZoneId() );
+        System.out.println( "ZoneId: " + event.getSource().options().getTimeZone().getZoneId() );
         LocalDateTime startDate = event.getStart();
         System.out.println( "getStart(): " + event.getStart() );
         System.out.println( "getStartWithOffset():  " + event.getStartWithOffset() );
@@ -380,12 +353,11 @@ public class FullDemo extends AbstractSchedulerView {
         entry.setEnd(event.getEnd());
         entry.setAllDay(event.isAllDay());
 
-        entry.setCalendar(event.getSource());
 
         // Pre-assign the resource the user clicked on, if any (#164).
         event.getResource().ifPresent(entry::addResources);
 
-        DemoDialog dialog = new DemoDialog(entry, true);
+        DemoDialog dialog = new DemoDialog(event.getSource(), entry, true);
         dialog.setSaveConsumer(e -> onEntriesCreated(Collections.singletonList(e)));
         dialog.setDeleteConsumer(e -> onEntriesRemoved(Collections.singletonList(e)));
         dialog.open();

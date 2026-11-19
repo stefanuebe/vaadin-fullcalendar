@@ -27,7 +27,7 @@ public class CrudSample extends AbstractSample {
             buttonSave = new Button("Create", e -> {
                 if (binder.validate().isOk()) {
                     // add the entry to the calendar instance
-                    entryProvider.addEntry(entry);
+                    entryProvider.getItems().add(entry);
                     entryProvider.refreshAll();
                 }
             });
@@ -44,7 +44,7 @@ public class CrudSample extends AbstractSample {
 
         if (!newInstance) {
             Button buttonRemove = new Button("Remove", e -> {
-                entryProvider.removeEntry(entry);
+                entryProvider.getItems().remove(entry);
                 entryProvider.refreshAll();
             });
             buttons.add(buttonRemove);

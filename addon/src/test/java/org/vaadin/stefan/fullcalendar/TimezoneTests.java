@@ -1,5 +1,6 @@
 package org.vaadin.stefan.fullcalendar;
 
+import org.vaadin.stefan.fullcalendar.option.Timezone;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -72,6 +73,5 @@ public class TimezoneTests {
         Assertions.assertEquals(nowZoned, timezone.applyTimezone(now).toLocalDateTime());
         Assertions.assertEquals(now, timezone.removeTimezone(nowZoned).toLocalDateTime());
     }
-
 
 }

@@ -8,7 +8,7 @@
 
 - **Java 21** — minimum language level
 - **Vaadin 25.x** — Flow component framework (BOM-managed)
-- **FullCalendar JS v6.1.x** — client-side calendar library (bundled via `@NpmPackage`)
+- **FullCalendar JS 7.1.x** — client-side calendar library (`fullcalendar`, `fullcalendar-scheduler`, bundled via `@NpmPackage`)
 - **Jackson 3** (`tools.jackson`) — JSON serialization for client-server data exchange
 - **Lombok** — boilerplate reduction (`@Getter`, `@Setter`, `@EqualsAndHashCode`, etc.)
 - **Apache Commons Text** — string utilities (camelCase conversion for option names)
@@ -27,7 +27,7 @@ fullcalendar-parent (pom, root)
 ├── demo/                  # Spring Boot 4.x demo application
 ├── e2e-test-app/          # Vaadin Spring Boot app serving Playwright test views
 ├── e2e-tests/             # Playwright test suite (npm, NOT a Maven module)
-└── fc-docs/               # Local copy of FullCalendar JS v6 docs (reference)
+└── fc-docs/               # Local copies of the FullCalendar JS v6 and v7 docs (reference)
 ```
 
 ### addon/ (core)
@@ -37,19 +37,20 @@ The main Vaadin component. Custom element tag: `<vaadin-full-calendar>`.
 ```
 org.vaadin.stefan.fullcalendar/
   FullCalendar.java           — Main component (extends Component, @JsModule, @NpmPackage)
-  FullCalendarBuilder.java    — Fluent builder for calendar configuration
   Entry.java                  — Calendar entry model (title, start/end, color, recurrence, etc.)
-  FullCalendar.Option         — Enum of all supported calendar options
+  FullCalendarOptions.java    — User entry point for the options, `calendar.options()`; typed fields plus raw options
+  FullCalendarViewOptions.java — Options of one view type, `calendar.options().view(view)`
+  CalendarOptions.java, ViewOptions.java — Package-private data classes that hold the typed option fields
   dataprovider/
     EntryProvider.java        — Interface for providing entries to the calendar
-    InMemoryEntryProvider.java — Client-side entry storage (all entries sent to browser)
+    InMemoryEntryProvider.java — Entries in a server-side collection, like ListDataProvider
     CallbackEntryProvider.java — Lazy loading (entries fetched per visible date range)
   converters/                 — Java ↔ JS type converters (Duration, DayOfWeek, RRule, etc.)
   json/                       — Custom annotations (@JsonName, @JsonConverter, @JsonIgnore)
   model/                      — Header/Footer toolbar models
 ```
 
-Frontend (TypeScript): `addon/src/main/resources/META-INF/resources/frontend/vaadin-full-calendar/full-calendar.ts`
+Frontend (TypeScript): `addon/src/main/resources/META-INF/frontend/vaadin-full-calendar/full-calendar.ts`
 
 ### addon-scheduler/ (scheduler extension)
 
@@ -59,11 +60,15 @@ Extends the base calendar with resource management. Custom element tag: `<vaadin
 org.vaadin.stefan.fullcalendar/
   FullCalendarScheduler.java  — Extends FullCalendar, implements Scheduler
   Scheduler.java              — Interface for resource management
-  FullCalendarScheduler.SchedulerOption — Scheduler-specific option enum
+  FullCalendarSchedulerOptions.java, FullCalendarSchedulerViewOptions.java — Options entry points of the scheduler
+  SchedulerCalendarOptions.java, SchedulerViewOptions.java — Package-private data classes with the scheduler option fields
   Resource.java               — Resource model (hierarchical, per-resource styling)
   ResourceEntry.java          — Entry subclass with resource assignments
   SchedulerView.java          — Scheduler view enum (timeline, resource-timeline, resource-timegrid)
-  ResourceAreaColumn.java     — Column definition for resource area
+  option/
+    ResourceColumn.java — Column definitions for resource columns
+    ComponentResourceColumn.java — Resource columns that render a Vaadin component per resource
+    EntryPrintLayout.java     — Value of the entry print layout option
 ```
 
 ---
@@ -75,7 +80,7 @@ The addon uses Vaadin's built-in Element API for bidirectional communication:
 - **Java → JS**: `getElement().callJsFunction(name, args)` for imperative calls; `getElement().setPropertyJson(name, json)` for option/state sync
 - **JS → Java**: `@DomEvent` annotations on event classes trigger server-side `ComponentEvent` subclasses
 - **Entry sync**: Entries are serialized to JSON via `Entry.toJson()` using reflection-based `BeanProperties` + custom `@JsonConverter` annotations, then sent to the client as batched updates. **Important**: Setting entry properties (e.g., `entry.setTitle("new")`) does NOT auto-push to the client. You must call `provider.refreshItem(entry)` or `provider.refreshAll()` to sync changes. This is unlike `Resource`, where `setTitle()` and `setColor()` auto-push.
-- **Option system**: `setOption(Option, value)` stores the value server-side and pushes it to the client via `callJsFunction("setOption", key, value)`. Option enum constants map to FC option names via camelCase conversion or explicit `@JsonName`.
+- **Option system**: `calendar.options()` returns the live options object. A setter such as `setSlotDuration(...)` writes a typed field and schedules a sync. Before the response, the changed options are sent to the client in one `callJsFunction("setOptions", changes)` call (before the first attach, via the element property `initialOptions`). Field names follow the FullCalendar option name, with "event" replaced by "entry" (`eventColor` becomes `entryColor`). Options without a field are set with `options().setRawOption(name, value)`. The options of one view type are set with `options().view(view)`.
 
 ---
 
@@ -104,7 +109,7 @@ The addon uses Vaadin's built-in Element API for bidirectional communication:
 
 ## 5. Key Design Decisions
 
-1. **Light DOM** — FullCalendar manages its own DOM; shadow DOM would break FC's style injection and DOM queries. The component uses light DOM for full compatibility.
-2. **Option enums over typed setters** — Most FC options are exposed via `setOption(Option, value)` rather than individual setter methods. This keeps the API surface manageable and makes adding new options trivial.
+1. **Light DOM** — FullCalendar manages its own DOM; shadow DOM would break FullCalendar's style injection and DOM queries. The component uses light DOM for full compatibility.
+2. **Option fields on one options object** — The FullCalendar options are typed fields of the data classes behind `calendar.options()`, not individual methods on the component. This keeps the component's API surface small. Adding an option means adding a field to the data class.
 3. **Reflection-based JSON** — `BeanProperties` uses reflection + annotation caching to serialize `Entry` fields to JSON. This allows subclasses (like `ResourceEntry`) to add fields without modifying serialization code.
-4. **Entry ≠ Event** — FullCalendar JS calls them "events"; this addon calls them **"entries"** to avoid collision with Vaadin's component event system. This applies to both class names (`Entry`, `ResourceEntry`) and enum constant prefixes (`ENTRY_*`). See also `README.md` Naming Convention section.
+4. **Entry ≠ Event** — FullCalendar JS calls them "events"; this addon calls them **"entries"** to avoid collision with Vaadin's component event system. This applies to both class names (`Entry`, `ResourceEntry`) and option field names (`entryColor`). See also `README.md` Naming Convention section.

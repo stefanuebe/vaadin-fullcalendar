@@ -16,6 +16,11 @@
  */
 package org.vaadin.stefan.fullcalendar;
 
+import org.vaadin.stefan.fullcalendar.option.BusinessHours;
+import org.vaadin.stefan.fullcalendar.option.ConstraintValue;
+import org.vaadin.stefan.fullcalendar.option.DisplayMode;
+import org.vaadin.stefan.fullcalendar.option.ExtendedLocalTime;
+import org.vaadin.stefan.fullcalendar.option.Timezone;
 import com.vaadin.flow.data.binder.Setter;
 import com.vaadin.flow.function.SerializableFunction;
 import com.vaadin.flow.function.ValueProvider;
@@ -40,6 +45,39 @@ import java.time.*;
 import java.util.*;
 import java.util.stream.Stream;
 
+/**
+ * A calendar item shown by {@link FullCalendar}, called "event" in the FullCalendar client library.
+ * <p>
+ * An entry has a title, a start and an end, and can be all-day. Start and end are stored as UTC
+ * ({@link #setStart(LocalDateTime)}). The calendar's {@link FullCalendarOptions#getTimeZone() time zone} only
+ * changes how they are shown.
+ * An entry can repeat, either with the basic recurrence ({@link #setRecurringDaysOfWeek(Set)},
+ * {@link #setRecurringStartTime(LocalTime)}, ...) or with an {@link RRule} ({@link #setRRule(RRule)}).
+ * <p>
+ * Color, class names, editability and display mode can be set per entry and override the calendar's options.
+ * Values of your own, such as an ID from your backend, can be attached with {@link #setExtendedProp(String, Object)}.
+ * <p>
+ * The calendar gets its entries from its {@link org.vaadin.stefan.fullcalendar.dataprovider.EntryProvider}.
+ * After changing an entry that is already shown, call
+ * {@link org.vaadin.stefan.fullcalendar.dataprovider.EntryProvider#refreshItem(Entry)} to send the change to the
+ * client:
+ * <pre>{@code
+ * Entry entry = new Entry();
+ * entry.setTitle("Meeting");
+ * entry.setStart(LocalDateTime.of(2025, 3, 3, 9, 0));
+ * entry.setEnd(LocalDateTime.of(2025, 3, 3, 10, 0));
+ *
+ * InMemoryEntryProvider<Entry> provider = new InMemoryEntryProvider<>();
+ * provider.getItems().add(entry);
+ * calendar.setEntryProvider(provider);
+ *
+ * entry.setTitle("Team meeting");
+ * provider.refreshItem(entry);
+ * }</pre>
+ * Entries are equal when their ids are equal. The id must be unique within a calendar. Without an id given to the
+ * constructor, the entry generates one. Use {@code ResourceEntry} of the scheduler add-on to assign entries to
+ * resources.
+ */
 @Getter
 @lombok.Setter // prevent conflicts with Vaadin Setter
 @EqualsAndHashCode(of = "id")
@@ -82,29 +120,36 @@ public class Entry implements Serializable {
     private Boolean startEditable;
     private Boolean durationEditable;
     private String color;
-    @Getter(AccessLevel.NONE)
     @lombok.Setter(AccessLevel.NONE)
-    private Object constraint;
-    private String backgroundColor;
-    private String borderColor;
-    private String textColor;
+    @JsonConverter(ConstraintValueConverter.class)
+    private ConstraintValue constraint;
+    private String contrastColor;
     private Boolean overlap;
 
-    /** Whether the entry is keyboard-focusable (tabbable) independently of drag/drop. Null inherits the calendar-level {@code eventInteractive} option. */
+    /**
+     * Whether the user can reach the entry with the Tab key, independently of drag and drop. Applies only while the
+     * calendar option {@code entryInteractive} is not set. Once that option is set, to {@code true} or {@code false},
+     * it overrides this value for every entry without a URL. Null makes the entry interactive. An entry with a URL
+     * is always interactive.
+     */
     private Boolean interactive;
 
     /**
-     * A URL that FC navigates to when the event is clicked. Null means no URL navigation.
+     * A URL that FullCalendar navigates to when the event is clicked. Null means no URL navigation.
      * <p>
-     * If a server-side click listener is also registered, FC will navigate to the url immediately on click
+     * If a server-side click listener is also registered, FullCalendar will navigate to the url immediately on click
      * and the listener will still fire — but the page may already be unloading. Use one mechanism or the other, not both.
      */
     private String url;
 
-    @NonNull
+    /**
+     * How the calendar renders this entry. Null means not set, then the calendar's
+     * {@link FullCalendarOptions#setEntryDisplay(DisplayMode) entry display} applies, which is {@link DisplayMode#AUTO}
+     * by default. An entry set to {@link DisplayMode#AUTO} keeps it, also when the calendar sets another display.
+     */
     @JsonName("display")
     @JsonConverter(DisplayModeConverter.class)
-    private DisplayMode displayMode = DisplayMode.AUTO;
+    private DisplayMode displayMode;
 
     @JsonName("startRecur")
     @JsonConverter(LocalDateConverter.class)
@@ -115,31 +160,36 @@ public class Entry implements Serializable {
     private LocalDate recurringEndDate;
 
     @JsonName("startTime")
-    @JsonConverter(RecurringTimeConverter.class)
-    private RecurringTime recurringStartTime; // see #139
+    @JsonConverter(ExtendedLocalTimeConverter.class)
+    private ExtendedLocalTime recurringStartTime; // see #139
 
     @JsonName("endTime")
-    @JsonConverter(RecurringTimeConverter.class)
-    private RecurringTime recurringEndTime; // see #139
+    @JsonConverter(ExtendedLocalTimeConverter.class)
+    private ExtendedLocalTime recurringEndTime; // see #139
 
     @JsonName("daysOfWeek")
     @JsonConverter(DayOfWeekItemConverter.class)
     private Set<DayOfWeek> recurringDaysOfWeek;
 
     /**
-     * The duration of each occurrence for recurring events (e.g. {@code "P3D"}, {@code "48:00:00"}).
-     * Only meaningful when recurrence fields ({@code recurringDaysOfWeek} etc.) are set.
-     * Without this, each occurrence spans one day (for all-day) or uses start/end times.
+     * The duration of each occurrence of a recurring entry, e.g. {@code Duration.ofHours(48)} for an occurrence
+     * spanning two days. Applies to both the basic recurrence and an {@link RRule}, so neither of them clears it.
+     * Without it, an all-day occurrence spans one day and a timed occurrence uses the recurring start and end time.
+     * <p>
+     * Sent to the client as {@code hh:mm:ss}, where the hours may exceed 24. The client adds it in wall-clock time, so an
+     * occurrence ends at the same wall-clock time across a daylight saving change.
+     *
      * @see <a href="https://fullcalendar.io/docs/recurring-events">recurring events</a>
      */
     @JsonName("duration")
-    private String recurringDuration;
+    @JsonConverter(DurationConverter.class)
+    private Duration recurringDuration;
 
     /**
-     * RRule-based recurrence definition. Requires the {@code @fullcalendar/rrule} plugin.
+     * RRule-based recurrence definition, through the {@code @fullcalendar/rrule} plugin that the add-on loads.
      * <p>
-     * <b>Mutually exclusive</b> with FC's built-in recurrence ({@code recurringDaysOfWeek}, etc.).
-     * Do not set both on the same entry.
+     * <b>Mutually exclusive</b> with the basic recurrence ({@code recurringDaysOfWeek}, etc.), so setting one
+     * removes the other. See {@link #setRRule(RRule)}.
      * <p>
      * Use {@link #setRRule(RRule)} and {@link #getRRule()} instead of the Lombok-generated accessors.
      *
@@ -188,28 +238,35 @@ public class Entry implements Serializable {
      * to the entry's {@code exdate} property and serialized separately as required by
      * FullCalendar's RRule plugin.
      * <p>
-     * Pass {@code null} to remove the recurrence rule and any associated excluded dates.
+     * Pass {@code null} to remove the recurrence rule and any associated excluded dates and rules.
+     * <p>
+     * A non-null RRule removes the basic recurrence (days of week, recurring start and end date, recurring
+     * start and end time), because the two must not be combined. The {@link #getRecurringDuration() recurring
+     * duration} is kept, as it applies to both.
      *
      * @param rrule the RRule to set, or {@code null} to clear
      */
     public void setRRule(RRule rrule) {
+        if (rrule != null) {
+            // fields, not setters: the setters of the basic recurrence call setRRule(null)
+            recurringDaysOfWeek = null;
+            recurringStartDate = null;
+            recurringEndDate = null;
+            recurringStartTime = null;
+            recurringEndTime = null;
+        }
         this.rrule = rrule;
         this.exdate = rrule != null ? rrule.getExcludedDates() : null;
         this.exrule = rrule != null ? rrule.getExcludedRules() : null;
     }
 
+    @JsonName("className")
+    @JsonConverter(ClassNameConverter.class)
     private Set<String> classNames;
 
-    private Map<String, Object> customProperties;
-
-    @JsonIgnore
-    private boolean knownToTheClient; // not sure if still needed?
-
-    /**
-     * The referenced calendar instance. Can be null.
-     */
-    @JsonIgnore
-    private FullCalendar calendar;
+    // null until extended props are set, most entries have none
+    @JsonConverter(ExtendedPropsConverter.class)
+    private Map<String, Object> extendedProps;
 
     /**
      * Creates a new editable instance with a generated id.
@@ -228,22 +285,6 @@ public class Entry implements Serializable {
      */
     public Entry(String id) {
         this.id = id == null ? UUID.randomUUID().toString() : id;
-    }
-
-    /**
-     * Returns the calendar instance of this entry. Is empty when not yet added to a calendar.
-     *
-     * @return calendar instance
-     */
-    public Optional<FullCalendar> getCalendar() {
-        return Optional.ofNullable(calendar);
-    }
-
-    public void setCalendar(FullCalendar calendar) {
-        if (this.calendar != null && calendar != null && this.calendar != calendar) {
-            throw new UnsupportedOperationException("This entry is already attached to a calendar instance. Please remove it first from the old one.");
-        }
-        this.calendar = calendar;
     }
 
     /**
@@ -366,7 +407,6 @@ public class Entry implements Serializable {
         }
     }
 
-
     /**
      * Checks whether the given json object is a valid source to update this instance.
      *
@@ -432,7 +472,8 @@ public class Entry implements Serializable {
      * Copies all values from source to target (except for the id). When the boolean is set to false,
      * both objects have to be of the <b>same</b> type. Otherwise it is up to the developer to guarantee,
      * that the target can take all properties of the source.<br>
-     * Properties without a setter are ignored.
+     * Properties without a setter are ignored.<br>
+     * The {@link RRule} instance is taken over as it is, together with its excluded dates and rules.
      * @param source source
      * @param target target
      * @param ignoreTypeDifference difference
@@ -469,6 +510,9 @@ public class Entry implements Serializable {
                 }
             });
         });
+
+        // The loop finds no setter for rrule, because it is named setRRule. That setter also fills exdate and exrule.
+        target.setRRule(source.getRRule());
     }
 
     @SuppressWarnings("unchecked")
@@ -540,38 +584,25 @@ public class Entry implements Serializable {
     }
 
     /**
-     * Returns the start time as a zoned date time using this entry's start time zone. By default this is
-     * the calendar's timezone or, if no calendar is set yet, UTC.
+     * Returns the start time as a zoned date time in the given time zone, for example the calendar's
+     * ({@code calendar.options().getTimeZone()}).
      * <p></p>
      * Calling {@link ZonedDateTime#toLocalDateTime()} returns the time including the offset as LocalDateTime.
-     * @return start at current timezone or null
+     * @param timezone time zone
+     * @return start in the given time zone or null
      */
-    public ZonedDateTime getStartWithTimezone() {
-        return getStartTimezone().applyTimezone(getStart());
+    public ZonedDateTime getStartWithTimezone(Timezone timezone) {
+        return timezone.applyTimezone(getStart());
     }
 
     /**
      * Returns the start time as a local date time after applying the timezone's offset to
-     * the utc based start date ({@link #getStart()}). By default the timezone is
-     * the calendar's timezone or, if no calendar is set yet, UTC.
+     * the utc based start date ({@link #getStart()}). Pass the calendar's time zone
+     * ({@code calendar.options().getTimeZone()}) to get the start as the calendar shows it.
      * <p></p>
-     * To get a {@link OffsetDateTime} please use {@link #getStartWithTimezone()} and call
+     * To get a {@link OffsetDateTime} please use {@link #getStartWithTimezone(Timezone)} and call
      * {@link ZonedDateTime#toOffsetDateTime()}
-     * @return start with offset or null
-     */
-    public LocalDateTime getStartWithOffset() {
-        return getStartWithOffset(getStartTimezone());
-    }
-
-    /**
-     * Returns the start time as a local date time after applying the timezone's offset to
-     * the utc based start date ({@link #getStart()}).
-     * <p></p>
-     * This method is intended to be used for new entries that have not yet been added to the
-     * calendar and thus have no reference to its timezone.
-     * <p></p>
-     * To get a {@link OffsetDateTime} please use {@link #getStartWithTimezone()} and call
-     * {@link ZonedDateTime#toOffsetDateTime()}
+     * @param timezone time zone
      * @return start with offset or null
      */
     public LocalDateTime getStartWithOffset(Timezone timezone) {
@@ -619,30 +650,13 @@ public class Entry implements Serializable {
 
     /**
      * Sets the entry's start. The given date time will be interpreted as having the offset of the
-     * start time zone applied. The time will be converted to UTC.
-     * <p></p>
-     * For instance, when passing an instance with ...T01:00 and the timezone is Europe/Berlin in winter,
-     * the resulting start time will be ...T00:00.
-     * <p></p>
-     * This method is intended to be used in cases where the start time is edited in relation to
-     * the current time zone (like a calendar entry editor).
-     * <p></p>
-     *
-     * @param startWithTimezone start with time zone
-     */
-    public void setStartWithOffset(LocalDateTime startWithTimezone) {
-        setStartWithOffset(startWithTimezone, getStartTimezone());
-    }
-
-    /**
-     * Sets the entry's start. The given date time will be interpreted as having the offset of the
      * given time zone applied. The time will be converted to UTC.
      * <p></p>
      * For instance, when passing an instance with ...T01:00 and the timezone is Europe/Berlin in winter,
      * the resulting start time will be ...T00:00.
      * <p></p>
-     * This method is intended to be used in cases where entry is not yet added to the calendar and thus
-     * cannot use its timezone to interpret the offset.
+     * This method is intended for a time edited in the calendar's time zone, for example in an entry editor.
+     * Pass the calendar's time zone ({@code calendar.options().getTimeZone()}).
      * <p></p>
      *
      * @param startWithTimezone start with time zone
@@ -679,38 +693,25 @@ public class Entry implements Serializable {
     }
 
     /**
-     * Returns the end time as a zoned date time using this entry's end time zone. By default this is
-     * the calendar's timezone or, if no calendar is set yet, UTC.
+     * Returns the end time as a zoned date time in the given time zone, for example the calendar's
+     * ({@code calendar.options().getTimeZone()}).
      * <p></p>
      * Calling {@link ZonedDateTime#toLocalDateTime()} returns the time including the offset as LocalDateTime.
-     * @return end at current timezone or null
+     * @param timezone time zone
+     * @return end in the given time zone or null
      */
-    public ZonedDateTime getEndWithTimezone() {
-        return getEndTimezone().applyTimezone(getEnd());
+    public ZonedDateTime getEndWithTimezone(Timezone timezone) {
+        return timezone.applyTimezone(getEnd());
     }
 
     /**
      * Returns the end time as a local date time after applying the timezone's offset to
-     * the utc based end date ({@link #getEnd()}). By default the timezone is
-     * the calendar's timezone or, if no calendar is set yet, UTC.
+     * the utc based end date ({@link #getEnd()}). Pass the calendar's time zone
+     * ({@code calendar.options().getTimeZone()}) to get the end as the calendar shows it.
      * <p></p>
-     * To get a {@link OffsetDateTime} please use {@link #getEndWithTimezone()} and call
+     * To get a {@link OffsetDateTime} please use {@link #getEndWithTimezone(Timezone)} and call
      * {@link ZonedDateTime#toOffsetDateTime()}
-     * @return end with offset or null
-     */
-    public LocalDateTime getEndWithOffset() {
-        return getEndTimezone().applyTimezoneOffset(getEnd());
-    }
-
-    /**
-     * Returns the end time as a local date time after applying the timezone's offset to
-     * the utc based end date ({@link #getEnd()}).
-     * <p></p>
-     * This method is intended to be used for new entries that have not yet been added to the
-     * calendar and thus have no reference to its timezone.
-     * <p></p>
-     * To get a {@link OffsetDateTime} please use {@link #getEndWithTimezone()} and call
-     * {@link ZonedDateTime#toOffsetDateTime()}
+     * @param timezone time zone
      * @return end with offset or null
      */
     public LocalDateTime getEndWithOffset(Timezone timezone) {
@@ -758,30 +759,13 @@ public class Entry implements Serializable {
 
     /**
      * Sets the entry's end. The given date time will be interpreted as having the offset of the
-     * end time zone applied. The time will be converted to UTC.
-     * <p></p>
-     * For instance, when passing an instance with ...T01:00 and the timezone is Europe/Berlin in winter,
-     * the resulting end time will be ...T00:00.
-     * <p></p>
-     * This method is intended to be used in cases where the end time is edited in relation to
-     * the current time zone (like a calendar entry editor).
-     * <p></p>
-     *
-     * @param endWithTimezone end with time zone
-     */
-    public void setEndWithOffset(LocalDateTime endWithTimezone) {
-        setEnd(getEndTimezone().removeTimezoneOffset(endWithTimezone));
-    }
-
-    /**
-     * Sets the entry's end. The given date time will be interpreted as having the offset of the
      * given time zone applied. The time will be converted to UTC.
      * <p></p>
      * For instance, when passing an instance with ...T01:00 and the timezone is Europe/Berlin in winter,
      * the resulting end time will be ...T00:00.
      * <p></p>
-     * This method is intended to be used in cases where entry is not yet added to the calendar and thus
-     * cannot use its timezone to interpret the offset.
+     * This method is intended for a time edited in the calendar's time zone, for example in an entry editor.
+     * Pass the calendar's time zone ({@code calendar.options().getTimeZone()}).
      * <p></p>
      *
      * @param endWithTimezone end with time zone
@@ -827,26 +811,6 @@ public class Entry implements Serializable {
     }
 
     /**
-     * Returns the timezone which is used on the client side. It is used to convert the internal utc timestamp
-     * to the client side timezone. By default UTC.
-     *
-     * @return timezone
-     */
-    public Timezone getStartTimezone() {
-        return calendar != null ? calendar.getTimezone() : Timezone.UTC;
-    }
-
-    /**
-     * Returns the timezone which is used on the client side. It is used to convert the internal utc timestamp
-     * to the client side timezone. By default UTC.
-     *
-     * @return timezone
-     */
-    public Timezone getEndTimezone() {
-        return calendar != null ? calendar.getTimezone() : Timezone.UTC;
-    }
-
-    /**
      * Returns the set of class names or creates a new, empty one, if none exists yet. The returned set is
      * the same as used internally, therefore any changes to it will be reflected to the client side on the
      * next refresh.
@@ -865,50 +829,13 @@ public class Entry implements Serializable {
     }
 
     /**
-     * Assign an additional className to this entry. Already assigned classNames will be kept.
-     *
-     * @param className class name to assign
-     * @throws NullPointerException when null is passed
-     * @deprecated use {@link #addClassNames(String...)}
-     */
-    @Deprecated
-    public void assignClassName(String className) {
-        assignClassNames(Objects.requireNonNull(className));
-    }
-
-    /**
-     * Assign additional classNames to this entry. Already assigned classNames will be kept.
-     *
-     * @param classNames class names to assign
-     * @throws NullPointerException when null is passed
-     * @deprecated use {@link #addClassNames(String...)}
-     */
-    @Deprecated
-    public void assignClassNames(String... classNames) {
-        assignClassNames(Arrays.asList(classNames));
-    }
-
-    /**
-     * Assign additional classNames to this entry. Already assigned classNames will be kept.
-     *
-     * @param classNames class names to assign
-     * @throws NullPointerException when null is passed
-     * @deprecated use {@link #addClassNames(Collection)}
-     */
-    @Deprecated
-    public void assignClassNames(Collection<String> classNames) {
-        Objects.requireNonNull(classNames);
-        getOrCreateClassNames().addAll(classNames);
-    }
-
-    /**
      * Adds css class names to this entry. Duplicates will automatically be filtered out.
      *
      * @param classNames class names to add
      * @throws NullPointerException when null is passed
      */
     public void addClassNames(String... classNames) {
-        assignClassNames(Arrays.asList(classNames));
+        addClassNames(Arrays.asList(classNames));
     }
 
     /**
@@ -920,52 +847,6 @@ public class Entry implements Serializable {
     public void addClassNames(Collection<String> classNames) {
         Objects.requireNonNull(classNames);
         getOrCreateClassNames().addAll(classNames);
-    }
-
-    /**
-     * Unassigns the given className from this entry.
-     *
-     * @param className class name to unassign
-     * @throws NullPointerException when null is passed
-     * @deprecated use {@link #removeClassNames(String...)}
-     */
-    @Deprecated
-    public void unassignClassName(String className) {
-        unassignClassNames(Objects.requireNonNull(className));
-    }
-
-    /**
-     * Unassigns the given classNames from this entry.
-     *
-     * @param classNames class names to unassign
-     * @throws NullPointerException when null is passed
-     * @deprecated use {@link #removeClassNames(String...)}
-     */
-    @Deprecated
-    public void unassignClassNames(String... classNames) {
-        unassignClassNames(Arrays.asList(classNames));
-    }
-
-    /**
-     * Unassigns the given classNames from this entry.
-     *
-     * @param classNamesToRemove class names to unassign
-     * @throws NullPointerException when null is passed
-     * @deprecated use {@link #removeClassNames(Collection)}
-     */
-    @Deprecated
-    public void unassignClassNames(Collection<String> classNamesToRemove) {
-        removeClassNames(classNamesToRemove);
-    }
-
-    /**
-     * Unassigns all classNames from this entry.
-     *
-     * @deprecated use {@link #removeClassNames()}
-     */
-    @Deprecated
-    public void unassignAllClassNames() {
-        removeClassNames();
     }
 
     /**
@@ -1038,8 +919,10 @@ public class Entry implements Serializable {
 
     /**
      * Checks whether this entry is editable (draggable + resizable). Returns {@code true}
-     * by default — if {@code editable} has not been explicitly set, the entry inherits the
-     * calendar-level {@code editable} option at render time.
+     * when no explicit value is set. The effective state then comes from the calendar-level
+     * {@code editable} option at render time. The library's default for that option is
+     * {@code false}, so an entry without its own value is only draggable when the calendar
+     * sets {@code editable}.
      * <p>
      * Semantically equivalent to the pre-7.2 getter. Internally, the field is now nullable
      * so that {@code null} can be skipped during JSON serialization, which is what makes
@@ -1070,41 +953,62 @@ public class Entry implements Serializable {
     }
 
     /**
-     * Checks, if the duration of this entry is editable. This is either the case, when this entry is
-     * editable in general ({@link #isEditable()} or has explicitly set `durationEditable` to be `true`.
+     * Checks, if the duration of this entry is editable. An explicitly set {@code durationEditable} wins.
+     * Otherwise the entry falls back to {@link #isEditable()}.
      * @return is duration editable
      */
     public boolean isDurationEditable() {
-        return isEditable() || durationEditable == Boolean.TRUE;
+        return durationEditable != null ? durationEditable : isEditable();
     }
 
     /**
-     * Checks, if the start of this entry is editable. This is either the case, when this entry is
-     * editable in general ({@link #isEditable()} or has explicitly set `startEditable` to be `true`.
+     * Checks, if the start of this entry is editable. An explicitly set {@code startEditable} wins.
+     * Otherwise the entry falls back to {@link #isEditable()}.
      * @return is start editable
      */
     public boolean isStartEditable() {
-        return isEditable() || startEditable == Boolean.TRUE;
+        return startEditable != null ? startEditable : isEditable();
     }
 
     /**
-     * Returns the current constraint value. This may be a {@code String} (groupId or {@code "businessHours"})
-     * or a {@link BusinessHours} JSON representation ({@code ObjectNode}).
+     * Returns where the entry may be dragged or resized, or {@code null} when the entry has no constraint of its own.
      *
-     * @return constraint value, or {@code null} if unset
+     * @return the constraint, or {@code null}
+     * @see #setConstraint(ConstraintValue)
      */
-    public Object getConstraint() {
+    public ConstraintValue getConstraint() {
         return constraint;
     }
 
     /**
-     * Sets the entry constraint to a groupId or the literal {@code "businessHours"}.
-     * Null or empty string resets the constraint to FC's default.
+     * Limits where the user can drag or resize this entry, for example to the entries of a group, the business hours
+     * of the calendar, windows of time or resources. It applies in addition to the constraint of the calendar
+     * ({@code options().setEntryConstraint(…)}) and of the entry's {@link RemoteEntrySource}. The value takes the
+     * same forms as the constraint of the calendar.
+     *
+     * @param constraint the constraint, or {@code null} to remove it
+     * @see <a href="https://fullcalendar.io/docs/eventConstraint">eventConstraint</a>
+     */
+    public void setConstraint(ConstraintValue constraint) {
+        this.constraint = constraint;
+    }
+
+    /**
+     * Sets the entry constraint to a group id or the literal {@code "businessHours"}.
+     * Null or a blank string removes the constraint.
      *
      * @param constraint constraint string
+     * @deprecated use {@link #setConstraint(ConstraintValue)} with {@link ConstraintValue#ofGroupId(String)} or
+     * {@link ConstraintValue#BUSINESS_HOURS}.
      */
+    @Deprecated(since = "8.0.0", forRemoval = true)
     public void setConstraint(String constraint) {
-        this.constraint = StringUtils.trimToNull(constraint);
+        String trimmed = StringUtils.trimToNull(constraint);
+        if (trimmed == null) {
+            this.constraint = null;
+        } else {
+            this.constraint = trimmed.equals("businessHours") ? ConstraintValue.BUSINESS_HOURS : ConstraintValue.ofGroupId(trimmed);
+        }
     }
 
     /**
@@ -1113,82 +1017,85 @@ public class Entry implements Serializable {
      *
      * @param hours business hours defining the allowed time window
      * @throws NullPointerException when null is passed
-     * @see #setConstraint(String)
-     * @see #setConstraintToBusinessHours()
+     * @deprecated use {@link #setConstraint(ConstraintValue)} with {@link ConstraintValue#ofWindows(BusinessHours...)}.
      */
+    @Deprecated(since = "8.0.0", forRemoval = true)
     public void setConstraint(BusinessHours hours) {
-        this.constraint = Objects.requireNonNull(hours).toJson();
+        this.constraint = ConstraintValue.ofWindows(Objects.requireNonNull(hours));
     }
 
     /**
      * Sets the entry's constraint to business hours, meaning the entry can only be placed during business hours.
-     * Equivalent to {@code setConstraint("businessHours")}.
+     *
+     * @deprecated use {@link #setConstraint(ConstraintValue)} with {@link ConstraintValue#BUSINESS_HOURS}.
      */
+    @Deprecated(since = "8.0.0", forRemoval = true)
     public void setConstraintToBusinessHours() {
-        this.constraint = "businessHours";
+        this.constraint = ConstraintValue.BUSINESS_HOURS;
     }
 
     /**
-     * Sets the color for this entry. This is interpreted as background and border color on the client side.
-     * Null or empty string resets the color to the FC's default.
+     * Sets the color for this entry. FullCalendar sets it on the entry's element as the CSS variable
+     * {@code --fc-event-color}. The theme's styles read it, so where the color shows depends on the theme.
+     * Own styles can read the variable as well, e.g. for entries with a CSS class:
+     * <pre>{@code
+     * .fc-event.important { border-left: 4px solid var(--fc-event-color); }
+     * }</pre>
+     * The class {@code fc-event} marks foreground entries, background entries carry {@code fc-bg-event}.
+     * Null or empty string resets the color to FullCalendar's default.
      *
      * @param color color
+     * @see <a href="https://fullcalendar.io/docs/custom-themes">Custom themes: event colors</a>
      */
     public void setColor(String color) {
         this.color = StringUtils.trimToNull(color);
     }
 
     /**
-     * Sets the background color for this entry. Null or empty string resets the color to the FC's default.
+     * Sets the contrast color for this entry, used for text and other elements drawn on the entry color.
+     * FullCalendar sets it on the entry's element as the CSS variable {@code --fc-event-contrast-color}. The
+     * theme's styles read it, so where the color shows depends on the theme. Own styles can read the variable
+     * as well:
+     * <pre>{@code
+     * .fc-event.important { outline: 2px dashed var(--fc-event-contrast-color); }
+     * }</pre>
+     * Null or empty string resets the color to FullCalendar's default.
      *
-     * @param backgroundColor background color
+     * @param contrastColor contrast color
+     * @see #setColor(String)
      */
-    public void setBackgroundColor(String backgroundColor) {
-        this.backgroundColor = StringUtils.trimToNull(backgroundColor);
+    public void setContrastColor(String contrastColor) {
+        this.contrastColor = StringUtils.trimToNull(contrastColor);
     }
 
     /**
-     * Sets the text color for this entry. Null or empty string resets the color to the FC's default.
+     * Former name of {@link #getContrastColor()}: returns the contrast color of this entry. Delegates to it.
      *
-     * @param textColor text color
+     * @return the contrast color
+     * @deprecated use {@link #getContrastColor()}. FullCalendar 7 renamed the text color to contrast color.
      */
+    @Deprecated(since = "8.0.0", forRemoval = true)
+    public String getTextColor() {
+        return getContrastColor();
+    }
+
+    /**
+     * Former name of {@link #setContrastColor(String)}: sets the contrast color of this entry. Delegates to it.
+     *
+     * @param textColor contrast color
+     * @deprecated use {@link #setContrastColor(String)}. FullCalendar 7 renamed the text color to contrast color.
+     */
+    @Deprecated(since = "8.0.0", forRemoval = true)
     public void setTextColor(String textColor) {
-        this.textColor = StringUtils.trimToNull(textColor);
+        setContrastColor(textColor);
     }
 
     /**
-     * Sets the border color for this entry. Null or empty string resets the color to the FC's default.
-     *
-     * @param borderColor border color
-     */
-    public void setBorderColor(String borderColor) {
-        this.borderColor = StringUtils.trimToNull(borderColor);
-    }
-
-    /**
-     * Returns the description of this entry. Since the description is a <b>custom property</b>, it will
-     * not automatically be shown on the entry.
-     * @return description
-     */
-    public String getDescription() {
-        return getCustomProperty(EntryCustomProperties.DESCRIPTION);
-    }
-
-    /**
-     * Sets the description of this entry. Since the description is a <b>custom property</b>, it will
-     * not automatically be shown on the entry.
-     * @param description description
-     */
-    public void setDescription(String description) {
-        setCustomProperty(EntryCustomProperties.DESCRIPTION, description);
-    }
-
-    /**
-     * Sets the display mode for this entry. Passing null will reset it to the default.
-     * @param displayMode how to display the entry
+     * Sets how the calendar renders this entry, see {@link #getDisplayMode()}.
+     * @param displayMode how to display the entry, or null to follow the calendar's entry display
      */
     public void setDisplayMode(DisplayMode displayMode) {
-        this.displayMode = displayMode != null ? displayMode : DisplayMode.AUTO;
+        this.displayMode = displayMode;
     }
 
     /**
@@ -1204,13 +1111,14 @@ public class Entry implements Serializable {
         return (daysOfWeek != null && !daysOfWeek.isEmpty())
                 || getRecurringEndDate() != null
                 || getRecurringStartDate() != null
-                || getRecurringStartTimeAsLocalTime() != null
-                || getRecurringEndTimeAsLocalTime() != null;
+                || recurringStartTime != null
+                || recurringEndTime != null;
     }
 
     /**
-     * Sets days of week on which this entry shall recur. Setting a non empty set automatically marks this entry
-     * as recurring. Pass null or an empty set may remove the recurring.
+     * Sets days of week on which this entry shall recur. Setting a non empty set automatically marks this entry as
+     * recurring. An {@link RRule} set before is removed completely, including its excluded dates and rules. Passing
+     * null or an empty set removes only the days of week and leaves an {@link RRule} untouched.
      *
      * @param daysOfWeek day of week
      * @see #isRecurring()
@@ -1219,8 +1127,47 @@ public class Entry implements Serializable {
         setRecurringDaysOfWeek(daysOfWeek.length == 0 ? null : new HashSet<>(Arrays.asList(daysOfWeek)));
     }
 
+    /**
+     * Sets days of week on which this entry shall recur. Setting a non empty set automatically marks this entry as
+     * recurring. An {@link RRule} set before is removed completely, including its excluded dates and rules. Passing
+     * null or an empty set removes only the days of week and leaves an {@link RRule} untouched.
+     *
+     * @param daysOfWeek days of week
+     * @see #isRecurring()
+     */
     public void setRecurringDaysOfWeek(Set<DayOfWeek> daysOfWeek) {
+        if (daysOfWeek != null && !daysOfWeek.isEmpty()) {
+            setRRule(null);
+        }
         this.recurringDaysOfWeek = daysOfWeek;
+    }
+
+    /**
+     * Sets the first date of the recurrence. Passing a non null value automatically marks this entry as recurring. An
+     * {@link RRule} set before is removed completely, including its excluded dates and rules.
+     *
+     * @param recurringStartDate first date of the recurrence
+     * @see #isRecurring()
+     */
+    public void setRecurringStartDate(LocalDate recurringStartDate) {
+        if (recurringStartDate != null) {
+            setRRule(null);
+        }
+        this.recurringStartDate = recurringStartDate;
+    }
+
+    /**
+     * Sets the date the recurrence ends (exclusive). Passing a non null value automatically marks this entry as
+     * recurring. An {@link RRule} set before is removed completely, including its excluded dates and rules.
+     *
+     * @param recurringEndDate end date of the recurrence, exclusive
+     * @see #isRecurring()
+     */
+    public void setRecurringEndDate(LocalDate recurringEndDate) {
+        if (recurringEndDate != null) {
+            setRRule(null);
+        }
+        this.recurringEndDate = recurringEndDate;
     }
 
     public Set<DayOfWeek> getRecurringDaysOfWeek() {
@@ -1228,19 +1175,19 @@ public class Entry implements Serializable {
     }
 
     /**
-     * Returns the recurring start time as a recurring time instance. <br>
-     * Since the FC allows recurring times to be
+     * Returns the recurring start time as an {@link ExtendedLocalTime}. <br>
+     * Since FullCalendar allows recurring times to be
      * above the normal 24h span of a day, this format is used to represent start and end "times".
      *
      * @return recurring start time
      */
-    public RecurringTime getRecurringStartTime() {
+    public ExtendedLocalTime getRecurringStartTime() {
         return recurringStartTime;
     }
 
     /**
      * Returns the recurring start time as a local time.<br>
-     * Since the FC allows recurring times to be above the normal 24h span of a day, using a LocalTime can lead to
+     * Since FullCalendar allows recurring times to be above the normal 24h span of a day, using a LocalTime can lead to
      * issues, as it does not support times of 24h or above.
      *
      * @return LocalTime instance
@@ -1251,43 +1198,46 @@ public class Entry implements Serializable {
     }
 
     /**
-     * Sets the start time for a recurring entry. Passing a non null value automatically marks this entry
-     * as recurring. Passing null may remove the recurrence or let the recurring entry extend to the
-     * end of day.
+     * Sets the start time for a recurring entry. Passing a non null value automatically marks this entry as recurring.
+     * An {@link RRule} set before is removed completely, including its excluded dates and rules. Passing null may
+     * remove the recurrence or let the recurring entry extend to the end of day.
      *
      * @param start start time
      * @see #isRecurring()
      */
-    public void setRecurringStartTime(RecurringTime start) {
+    public void setRecurringStartTime(ExtendedLocalTime start) {
+        if (start != null) {
+            setRRule(null);
+        }
         this.recurringStartTime = start;
     }
 
     /**
-     * Sets the start time for a recurring entry. Passing a non null value automatically marks this entry
-     * as recurring. Passing null may remove the recurrence or let the recurring entry extend to the
-     * end of day.
+     * Sets the start time for a recurring entry. Passing a non null value automatically marks this entry as recurring.
+     * An {@link RRule} set before is removed completely, including its excluded dates and rules. Passing null may
+     * remove the recurrence or let the recurring entry extend to the end of day.
      *
      * @param start start time
      * @see #isRecurring()
      */
     public void setRecurringStartTime(LocalTime start) {
-        setRecurringStartTime(start != null ? RecurringTime.of(start) : null);
+        setRecurringStartTime(start != null ? ExtendedLocalTime.of(start) : null);
     }
 
     /**
-     * Returns the recurring end time as a recurring time instance. <br>
-     * Since the FC allows recurring times to be
-     * above the normal 24h span of a day, this format is used to represent end and end "times".
+     * Returns the recurring end time as an {@link ExtendedLocalTime}. <br>
+     * Since FullCalendar allows recurring times to be
+     * above the normal 24h span of a day, this format is used to represent start and end "times".
      *
      * @return recurring end time
      */
-    public RecurringTime getRecurringEndTime() {
+    public ExtendedLocalTime getRecurringEndTime() {
         return recurringEndTime;
     }
 
     /**
      * Returns the recurring end time as a local time.<br>
-     * Since the FC allows recurring times to be above the normal 24h span of a day, using a LocalTime can lead to
+     * Since FullCalendar allows recurring times to be above the normal 24h span of a day, using a LocalTime can lead to
      * issues, as it does not support times of 24h or above.
      *
      * @return LocalTime instance
@@ -1298,263 +1248,153 @@ public class Entry implements Serializable {
     }
 
     /**
-     * Sets the end time for a recurring entry. Passing a non null value automatically marks this entry
-     * as recurring. Passing null may remove the recurrence or let the recurring entry extend to the
-     * end of day.
+     * Sets the end time for a recurring entry. Passing a non null value automatically marks this entry as recurring. An
+     * {@link RRule} set before is removed completely, including its excluded dates and rules. Passing null may remove
+     * the recurrence or let the recurring entry extend to the end of day.
      *
      * @param end end time
      * @see #isRecurring()
      */
-    public void setRecurringEndTime(RecurringTime end) {
+    public void setRecurringEndTime(ExtendedLocalTime end) {
+        if (end != null) {
+            setRRule(null);
+        }
         this.recurringEndTime = end;
     }
 
     /**
-     * Sets the end time for a recurring entry. Passing a non null value automatically marks this entry
-     * as recurring. Passing null may remove the recurrence or let the recurring entry extend to the
-     * end of day.
+     * Sets the end time for a recurring entry. Passing a non null value automatically marks this entry as recurring. An
+     * {@link RRule} set before is removed completely, including its excluded dates and rules. Passing null may remove
+     * the recurrence or let the recurring entry extend to the end of day.
      *
      * @param end end time
      * @see #isRecurring()
      */
     public void setRecurringEndTime(LocalTime end) {
-        setRecurringEndTime(end != null ? RecurringTime.of(end) : null);
+        setRecurringEndTime(end != null ? ExtendedLocalTime.of(end) : null);
     }
 
     /**
-     * Returns the recurring start. This method is a shortcut for combining {@link #getRecurringStartDate()}
-     * and {@link #getRecurringStartTimeAsLocalTime()}. <br>
-     * Will return null, when no recurrence date is defined. When only
-     * a start date is defined, the returned date time will be at the start of that day.
-     * <br>
-     * In case that the recurring start time is 24h or greater, the date part will shift depending on the
-     * resulting additional days. See {@link LocalDateTime#plusHours(long)}.
+     * Replaces the extended props of this entry with a copy of the given map. {@code null} clears them.
      *
-     * @return start date time of recurrence
-     * @see #isRecurring()
+     * @param extendedProps extended props
+     * @throws NullPointerException when the map contains a null key
+     * @see #setExtendedProp(String, Object)
      */
-    public LocalDateTime getRecurringStart() {
-        LocalDate startDate = getRecurringStartDate();
-        if (startDate == null) {
-            return null;
+    public void setExtendedProps(Map<String, Object> extendedProps) {
+        Map<String, Object> copy = extendedProps != null ? new HashMap<>(extendedProps) : new HashMap<>();
+        if (copy.containsKey(null)) {
+            throw new NullPointerException("Extended props must not contain a null key");
         }
 
-        RecurringTime startTime = getRecurringStartTime();
-        if (startTime == null) {
-            return startDate.atStartOfDay();
-        }
-
-        return startDate.atStartOfDay().plusHours(startTime.getHour()).plusMinutes(startTime.getMinute());
+        this.extendedProps = copy.isEmpty() ? null : copy;
     }
 
     /**
-     * Returns the recurring end. This method is a shortcut for combining {@link #getRecurringEndDate()}
-     * and {@link #getRecurringEndTime()}.<br>
-     * Will return null, when no recurrence date is defined. When only a
-     * end date is defined, the returned date time will be at the end of that day (23:59:99).<br>
-     * <br>
-     * In case that the recurring end time is 24h or greater, the date part will shift depending on the
-     * resulting additional days. See {@link LocalDateTime#plusHours(long)}.
+     * Sets an extended prop. An extended prop is an additional value of your own, stored under a key of your
+     * choice. Extended props do not change the regular properties of the entry, such as its title or color, and FullCalendar does not
+     * use them itself. Setting a key again overwrites the extended prop stored under that key.
+     * <p>
+     * Extended props are sent to the client as the entry's {@code extendedProps}, where your own JavaScript
+     * callbacks can read them, for instance in {@link FullCalendarOptions#getEntryDidMount() entryDidMount}:
+     * <pre>{@code
+     * entry.setExtendedProp("department", "Engineering");
      *
-     * @return end date time of recurrence
-     * @see #isRecurring()
-     */
-    public LocalDateTime getRecurringEnd() {
-        LocalDate endDate = getRecurringEndDate();
-        if (endDate == null) {
-            return null;
-        }
-
-        RecurringTime endTime = getRecurringEndTime();
-
-        if (endTime == null) {
-            return endDate.plusDays(1).atStartOfDay().minusSeconds(1);
-        }
-
-        return endDate.atStartOfDay().plusHours(endTime.getHour()).plusMinutes(endTime.getMinute());
-    }
-
-    /**
-     * Sets the recurring start as local date time. Shortcut for calling {@link #setRecurringStartDate(LocalDate)}
-     * and {@link #setRecurringStartTime(LocalTime)}.
-     * <p></p>
-     * <b>Please note</b>, that despite being a LocalDateTime the date and time must not necessarily be related
-     * to each other due to the nature of a recurring entry. It is just a shortcut method.
-     *
-     * @param recurringStart recurring start
-     */
-    public void setRecurringStart(LocalDateTime recurringStart) {
-        setRecurringStartDate(recurringStart != null ? recurringStart.toLocalDate() : null);
-        setRecurringStartTime(recurringStart != null ? recurringStart.toLocalTime() : null);
-    }
-
-    /**
-     * Sets the recurring end as local date time. Shortcut for calling {@link #setRecurringEndDate(LocalDate)}
-     * and {@link #setRecurringEndTime(LocalTime)}.
-     * <p></p>
-     * <b>Please note</b>, that despite being a LocalDateTime the date and time must not necessarily be related
-     * to each other due to the nature of a recurring entry. It is just a shortcut method.
-     *
-     * @param recurringEnd recurring end
-     */
-    public void setRecurringEnd(LocalDateTime recurringEnd) {
-        setRecurringEndDate(recurringEnd != null ? recurringEnd.toLocalDate() : null);
-        setRecurringEndTime(recurringEnd != null ? recurringEnd.toLocalTime() : null);
-    }
-
-    /**
-     * Clears the current recurring start date and time.
-     */
-    public void clearRecurringStart() {
-        setRecurringStartDate(null);
-        setRecurringStartTime((RecurringTime) null);
-    }
-
-    /**
-     * Clears the current recurring end date and time.
-     */
-    public void clearRecurringEnd() {
-        setRecurringEndDate(null);
-        setRecurringEndTime((RecurringTime) null);
-    }
-
-    /**
-     * Sets custom properties.
-     * <p></p>
-     * You can access custom properties on the client side when customizing the event rendering via the property
-     * <code>event.getCustomProperty('key')</code>, for instance inside the entry content callback.
-     *
-     * @see FullCalendar.Option#ENTRY_CONTENT
-     * @param customProperties custom properties
-     */
-    public void setCustomProperties(Map<String, Object> customProperties) {
-        this.customProperties = customProperties;
-    }
-
-    /**
-     * Sets custom property for this entry. An existing property will be overwritten.
-     * <p></p>
-     * You can access custom properties on the client side when customizing the event rendering via the property
-     * <code>event.getCustomProperty('key')</code>, for instance inside the entry content callback.
-     *
-     *  @see FullCalendar.Option#ENTRY_CONTENT
+     * calendar.options().setEntryDidMount(JsCallback.of(
+     *         "info => info.el.title = info.event.extendedProps.department"));
+     * }</pre>
+     * Strings, numbers, booleans, maps, collections, arrays and {@link tools.jackson.databind.JsonNode}s are sent
+     * as the matching JSON values. Numbers other than {@code Integer} and {@code Long} are sent as doubles, so a
+     * {@code BigDecimal} can lose precision. Any other object is serialized with Jackson.
+     * <p>
+     * Entries that come from the client ({@link EntryReceiveEvent}, {@link DropEvent}) carry their extended props
+     * as they were parsed from JSON, so an object you set arrives in those entries as a {@code Map}.
+     * <p>
+     * Call {@link org.vaadin.stefan.fullcalendar.dataprovider.EntryProvider#refreshItem(Entry)} after changing the
+     * extended props of an entry that is already shown.
      *
      * @param key   the name of the property to set
-     * @param value value to set
+     * @param value value to set, can be null
      */
-    public void setCustomProperty(String key, Object value) {
+    public void setExtendedProp(String key, Object value) {
         Objects.requireNonNull(key);
-        getOrCreateCustomProperties().put(key, value);
+        if (extendedProps == null) {
+            extendedProps = new HashMap<>();
+        }
+
+        extendedProps.put(key, value);
     }
 
     /**
-     * Returns a custom property (or null if not defined).
-     * <p></p>
-     * You can access custom properties on the client side when customizing the event rendering via the property
-     * <code>event.getCustomProperty('key')</code>, for instance inside the entry content callback.
+     * Returns an extended prop, or null if the key is not set or set to null. Use
+     * {@link #hasExtendedProp(String)} to tell the two apart.
      *
-     * @see FullCalendar.Option#ENTRY_CONTENT
+     * @param key name of the extended prop
+     * @return value or null
+     * @see #setExtendedProp(String, Object)
+     */
+    public Object getExtendedProp(String key) {
+        return getExtendedProps().get(key);
+    }
+
+    /**
+     * Returns whether an extended prop is set under the given key, also when its value is null.
      *
-     * @param key name of the custom property
-     * @param <T> return type
-     * @return custom property value or null
+     * @param key name of the extended prop
+     * @return true if the key is set
+     */
+    public boolean hasExtendedProp(String key) {
+        return getExtendedProps().containsKey(key);
+    }
+
+    /**
+     * Returns an extended prop, or the default value if the key is not set. A key set to {@code null} returns
+     * {@code null}, not the default value.
+     * <p>
+     * The value is cast to the type of the default value without a check, so a value of another type leads to a
+     * {@link ClassCastException} at the caller.
+     *
+     * @param key          name of the extended prop
+     * @param defaultValue value returned when the key is not set
+     * @param <T>          type of the value
+     * @return value or the default value
+     * @see #setExtendedProp(String, Object)
      */
     @SuppressWarnings("unchecked")
-    public <T> T getCustomProperty(String key) {
-        return (T) getCustomPropertiesOrEmpty().get(key);
+    public <T> T getExtendedProp(String key, T defaultValue) {
+        Map<String, Object> props = getExtendedProps();
+        return props.containsKey(key) ? (T) props.get(key) : defaultValue;
     }
 
     /**
-     * Remove the custom property based on the name.
+     * Removes an extended prop.
      *
-     * @param key the name of the property to remove
+     * @param key the name of the extended prop to remove
      */
-    public void removeCustomProperty(String key) {
-        Map<String, Object> customProperties = getCustomProperties();
-        if (customProperties != null) {
-            // FIXME this will currently not remove the custom property from the client side!
-            customProperties.remove(Objects.requireNonNull(key));
+    public void removeExtendedProp(String key) {
+        Objects.requireNonNull(key);
+        if (extendedProps != null) {
+            extendedProps.remove(key);
+            if (extendedProps.isEmpty()) {
+                extendedProps = null;
+            }
         }
     }
 
     /**
-     * Remove specific custom property where the name and value match.
+     * Returns the extended props of this entry as a read-only map. Never null. Change them with
+     * {@link #setExtendedProp(String, Object)}, {@link #removeExtendedProp(String)} or
+     * {@link #setExtendedProps(Map)}, then call this method again, because an earlier result may not reflect
+     * the change.
      *
-     * @param key   the name of the property to remove
-     * @param value the object to remove
+     * @return extended props, not modifiable
      */
-    public void removeCustomProperty(String key, Object value) {
-        Map<String, Object> customProperties = getCustomProperties();
-        if (customProperties != null) {
-            // FIXME this will currently not remove the custom property from the client side!
-            customProperties.remove(Objects.requireNonNull(key), Objects.requireNonNull(value));
-        }
-    }
-
-    /**
-     * Returns the map of the custom properties of this instance. This map is editable and any changes
-     * will be sent to the client when entries are refreshed.
-     * <p></p>
-     * Might be null.
-     * <p></p>
-     * You can access custom properties on the client side when customizing the event rendering via the property
-     * <code>event.getCustomProperty('key')</code>, for instance inside the entry content callback.
-     *
-     * @see FullCalendar.Option#ENTRY_CONTENT
-     *
-     * @return Map
-     * @see #getCustomPropertiesOrEmpty()
-     * @see #getOrCreateCustomProperties()
-     */
-    public Map<String, Object> getCustomProperties() {
-        return customProperties;
-    }
-
-    /**
-     * Returns the custom properties map or an empty one, if none has yet been created. The map is not writable.
-     *
-     * @return map
-     * @see #getCustomProperties()
-     * @see #getOrCreateCustomProperties()
-     */
-    public Map<String, Object> getCustomPropertiesOrEmpty() {
-        return customProperties != null ? Collections.unmodifiableMap(customProperties) : Collections.emptyMap();
-    }
-
-    /**
-     * Returns the map of the custom properties of this instance. This map is editable and any changes
-     * will be sent to the client when the entry provider is refreshed.
-     * <p></p>
-     * Creates and registers a new map, if none is there yet.
-     * <p></p>
-     * Be aware, that any non standard property you
-     * set via "set(..., ...)" is not automatically put into this map, but this is done by the client later.
-     *
-     * @return Map
-     * @see #getCustomPropertiesOrEmpty()
-     * @see #getCustomProperties()
-     */
-    public Map<String, Object> getOrCreateCustomProperties() {
-        if (customProperties == null) {
-            customProperties = new HashMap<>();
-        }
-        return customProperties;
+    public Map<String, Object> getExtendedProps() {
+        return extendedProps != null ? Collections.unmodifiableMap(extendedProps) : Collections.emptyMap();
     }
 
     protected <T, R> R convertNullable(T value, SerializableFunction<T, R> converter) {
         return value != null ? converter.apply(value) : null;
     }
-
-
-    /**
-     * Defines known custom properties, for instance since they are widely used.
-     */
-    public static final class EntryCustomProperties {
-        /**
-         * Key for an entry's description.
-         */
-        public static final String DESCRIPTION = "description";
-    }
-
 
 }

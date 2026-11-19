@@ -10,8 +10,9 @@ import java.util.Collection;
 
 /**
  * Converts the {@code exrule} field of an {@link Entry} to the JSON format expected by
- * FullCalendar's RRule plugin. A single RRule is serialized as an object; multiple RRules
- * are serialized as an array.
+ * FullCalendar's RRule plugin. A single RRule is serialized as an object, multiple RRules
+ * are serialized as an array. Every rule is written as an object, also one with a positional weekday,
+ * because the plugin reads no string.
  */
 public class ExruleConverter<T extends Entry> implements JsonItemPropertyConverter<Collection<RRule>, T> {
 
@@ -26,11 +27,11 @@ public class ExruleConverter<T extends Entry> implements JsonItemPropertyConvert
             return null;
         }
         if (serverValue.size() == 1) {
-            return serverValue.iterator().next().toJson();
+            return serverValue.iterator().next().toExruleJson();
         }
         ArrayNode array = JsonFactory.createArray();
         for (RRule rule : serverValue) {
-            array.add(rule.toJson());
+            array.add(rule.toExruleJson());
         }
         return array;
     }

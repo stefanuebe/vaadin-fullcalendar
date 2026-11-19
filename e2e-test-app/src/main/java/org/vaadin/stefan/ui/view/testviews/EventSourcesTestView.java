@@ -18,8 +18,9 @@ import java.time.LocalDate;
  * Verifies:
  * <ul>
  *   <li>Calendar renders with a JSON feed event source configured</li>
- *   <li>Event source failure fires when the configured URL does not exist</li>
- *   <li>External entry drop counter badge is present for Playwright</li>
+ *   <li>Event source failure fires when the configured URL does not exist, and the source's own
+ *   {@code withFailure} callback runs as well (it counts its calls in {@code window.userFailureCalls})</li>
+ *   <li>Remote entry drop counter badge is present for Playwright</li>
  * </ul>
  * <p>
  * Route: /test/event-sources
@@ -37,7 +38,7 @@ public class EventSourcesTestView extends VerticalLayout {
                 "A JSON feed source pointing to a non-existent URL is added. " +
                 "When the feed fails to load the failure message is shown below."));
 
-        // Badge for external entry drop events (opt-in via editable source)
+        // Badge for remote entry drop events (opt-in via editable source)
         Span externalDropCount = new Span("0");
         externalDropCount.setId("external-drop-count");
 
@@ -52,25 +53,25 @@ public class EventSourcesTestView extends VerticalLayout {
         add(counters);
 
         FullCalendar calendar = new FullCalendar();
-        calendar.addThemeVariants(FullCalendarVariant.VAADIN);
         calendar.getElement().setAttribute("data-testid", "calendar");
 
         // Fix the date for reproducible tests
-        calendar.setOption("initialDate", LocalDate.of(2025, 3, 1).toString());
-        calendar.setOption("initialView", CalendarViewImpl.TIME_GRID_WEEK.getClientSideValue());
+        calendar.options().setInitialDate(LocalDate.of(2025, 3, 1));
+        calendar.options().setInitialView(CalendarViewImpl.TIME_GRID_WEEK);
 
         // Add a JSON feed source pointing to a non-existent URL to trigger the failure event
-        JsonFeedEventSource failingSource = new JsonFeedEventSource("/test/api/event-sources/events")
-                .withId("failing-feed");
-        calendar.addClientSideEventSource(failingSource);
+        JsonFeedEntrySource failingSource = new JsonFeedEntrySource("/test/api/event-sources/events")
+                .withId("failing-feed")
+                .withFailure("function(error) { window.userFailureCalls = (window.userFailureCalls || 0) + 1; }");
+        calendar.addRemoteEntrySource(failingSource);
 
         // Listen for event source failures
-        calendar.addEventSourceFailureListener(e -> {
+        calendar.addRemoteEntrySourceFailureListener(e -> {
             failureMessage.setText(e.getMessage() != null ? e.getMessage() : "unknown error");
         });
 
-        // Listen for external entry drops (won't fire unless source is editable, but wiring is tested)
-        calendar.addExternalEntryDroppedListener(e -> {
+        // Listen for drops of entry source entries (won't fire unless source is editable, but wiring is tested)
+        calendar.addRemoteEntryDroppedListener(e -> {
             int count = Integer.parseInt(externalDropCount.getText()) + 1;
             externalDropCount.setText(String.valueOf(count));
         });

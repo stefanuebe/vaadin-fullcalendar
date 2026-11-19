@@ -32,19 +32,16 @@ test.describe('Scheduler Resource Features', () => {
     });
 
     // -------------------------------------------------------------------------
-    // Resource area columns
+    // Resource columns
     // -------------------------------------------------------------------------
 
-    test('resource area shows Resource Name column header', async ({ page }) => {
-        await expect(
-            page.locator('.fc-datagrid-header').getByText('Resource Name')
-        ).toBeVisible();
+    test('resource columns show their headers', async ({ page }) => {
+        await expect(page.locator('.fc-datagrid-cell[role="columnheader"]')).toHaveText(['Resource Name', 'Dept']);
     });
 
-    test('resource area shows Dept column header', async ({ page }) => {
-        await expect(
-            page.locator('.fc-datagrid-header').getByText('Dept')
-        ).toBeVisible();
+    test('resource column headerClass and cellClass reach the column cells', async ({ page }) => {
+        await expect(page.locator('.fc-datagrid-cell[role="columnheader"].dept-header')).toHaveText('Dept');
+        await expect(page.locator('.fc-datagrid-cell.dept-cell').first()).toBeVisible();
     });
 
     // -------------------------------------------------------------------------
@@ -102,16 +99,13 @@ test.describe('Scheduler Resource Features', () => {
     });
 
     // -------------------------------------------------------------------------
-    // Resource group CSS class names callback
+    // Resource group header class callback
     // -------------------------------------------------------------------------
 
-    test('resourceGroupClassNamesCallback: group header rows have custom-group class', async ({ page }) => {
-        // setResourceGroupClassNamesCallback("function(arg) { return ['custom-group']; }") causes
-        // FC to add the custom-group CSS class to each resource group header cell.
-        const groupCells = page.locator('.fc-datagrid-cell.custom-group');
-        const count = await groupCells.count();
-        // There are 2 departments (Engineering, Design) → 2 group header rows
-        expect(count).toBeGreaterThanOrEqual(2);
+    test('resourceGroupHeaderClass: group header cells have the custom-group class', async ({ page }) => {
+        // The view sets RESOURCE_GROUP_HEADER_CLASS to a callback returning 'custom-group'.
+        await expect(page.locator('.fc-datagrid-cell.fc-resource-group.custom-group'))
+            .toHaveText(['Engineering', 'Design']);
     });
 
     // -------------------------------------------------------------------------

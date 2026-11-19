@@ -16,10 +16,15 @@
  */
 package org.vaadin.stefan.ui.view.demos.tooltip;
 
+import com.vaadin.flow.component.dependency.CssImport;
+import com.vaadin.flow.component.dependency.JsModule;
+import com.vaadin.flow.component.dependency.NpmPackage;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import org.vaadin.stefan.fullcalendar.Entry;
 import org.vaadin.stefan.fullcalendar.FullCalendar;
+import org.vaadin.stefan.fullcalendar.FullCalendarScheduler;
+import org.vaadin.stefan.fullcalendar.option.JsCallback;
 import org.vaadin.stefan.fullcalendar.dataprovider.InMemoryEntryProvider;
 import org.vaadin.stefan.ui.layouts.MainLayout;
 import org.vaadin.stefan.ui.menu.MenuItem;
@@ -28,27 +33,40 @@ import org.vaadin.stefan.ui.view.demos.entryproviders.EntryService;
 import tools.jackson.databind.node.ObjectNode;
 
 @Route(value = "tooltip", layout = MainLayout.class)
-@PageTitle("FC with Tooltips")
+@PageTitle("FullCalendar with Tooltips")
 @MenuItem(label = "Tooltips")
+@JsModule("./tippy-global.ts")
+@NpmPackage(value = "tippy.js", version = "6.3.7")
+@CssImport("tippy.js/dist/tippy.css")
+@CssImport("tippy.js/themes/light.css")
 public class DemoWithTooltip extends AbstractCalendarView {
     private static final long serialVersionUID = 1L;
-    private InMemoryEntryProvider<Entry> entryProvider;
-
 
     @Override
     protected FullCalendar createCalendar(ObjectNode defaultInitialOptions) {
         EntryService entryService = EntryService.createSimpleInstance();
 
-        FullCalendarWithTooltip calendar = new FullCalendarWithTooltip(defaultInitialOptions);
-        calendar.setOption(FullCalendar.Option.MAX_ENTRIES_PER_DAY, 3);
-        ((InMemoryEntryProvider<Entry>) calendar.getEntryProvider()).addEntries(entryService.getEntries());
+        FullCalendar calendar = new FullCalendarScheduler(defaultInitialOptions);
+        calendar.options().setDayMaxEntries(3);
+        calendar.options().setEntryDidMount(JsCallback.of("""
+                function(info) {
+                    if (!info.isMirror) {
+                        tippy(info.el, {
+                            content: info.event.extendedProps.description ?? info.event.title,
+                            theme: 'light'
+                        });
+                    }
+                }"""));
+        calendar.options().setEntryWillUnmount(JsCallback.of("function(info) { info.el._tippy?.destroy(); }"));
+        ((InMemoryEntryProvider<Entry>) calendar.getEntryProvider()).getItems().addAll(entryService.getEntries());
 
         return calendar;
     }
 
     @Override
     protected String createDescription() {
-        return "This demo shows the integration of the Tippy tooltip library. Every calendar entry will show a tooltip based on the entry's description. The integration " +
-                "is done in a simple client side extension of the base javascript class of the FullCalendar.";
+        return "This demo shows the integration of the Tippy tooltip library. Every calendar entry shows a tooltip "
+                + "based on the entry's description. A small client module makes tippy available to the entry callbacks "
+                + "set on the server.";
     }
 }

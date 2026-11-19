@@ -1,0 +1,205 @@
+/* The demo-plain theme: its colors, the --demo-plain-* variables, and the classes that demo-plain.ts assigns. Without a
+   palette attribute the colors are those of the forest palette. The view sets the selected palette as the attribute
+   data-demo-palette on the body, so that the palette also applies to the popover and the dragged entry, which
+   FullCalendar adds to the body. The theme class is on the calendar, the popover and every entry, the background only
+   on the calendar and the popover (demo-plain-surface, set in demo-plain.ts). */
+
+.demo-plain {
+    --demo-plain-background: #fdfcf9;
+    --demo-plain-foreground: #2d2a26;
+    --demo-plain-muted: #8a8378;
+    --demo-plain-line: #e6e1d8;
+    --demo-plain-event-contrast: #ffffff;
+    --demo-plain-shadow: #0000002e;
+
+    color: var(--demo-plain-foreground);
+    font-family: Georgia, serif;
+}
+
+.demo-plain-surface {
+    background: var(--demo-plain-background);
+}
+
+.demo-plain, [data-demo-palette=forest] .demo-plain {
+    --demo-plain-accent: #2f6b3a;
+    --demo-plain-event: #4d8b55;
+    --demo-plain-today: #eef5ea;
+}
+
+[data-demo-palette=berry] .demo-plain {
+    --demo-plain-accent: #7b2d5c;
+    --demo-plain-event: #a63d7a;
+    --demo-plain-today: #f8ecf3;
+}
+
+@media not print {
+    .demo-plain:is([data-color-scheme=dark], [data-color-scheme=dark] *) {
+        --demo-plain-background: #1d1b18;
+        --demo-plain-foreground: #ece7df;
+        --demo-plain-muted: #8f877b;
+        --demo-plain-line: #38342e;
+        --demo-plain-shadow: #000000a6;
+    }
+
+    .demo-plain:is([data-color-scheme=dark], [data-color-scheme=dark] *),
+    [data-demo-palette=forest] .demo-plain:is([data-color-scheme=dark], [data-color-scheme=dark] *) {
+        --demo-plain-accent: #8cc795;
+        --demo-plain-today: #24301f;
+    }
+
+    [data-demo-palette=berry] .demo-plain:is([data-color-scheme=dark], [data-color-scheme=dark] *) {
+        --demo-plain-accent: #e39ac4;
+        --demo-plain-today: #362331;
+    }
+}
+
+.demo-plain-view {
+    border: 1px solid var(--demo-plain-line);
+}
+
+.demo-plain-toolbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-bottom: 12px;
+}
+
+.demo-plain-toolbar-section, .demo-plain-button-group {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.demo-plain-title {
+    font-size: 1.4em;
+}
+
+.demo-plain-button {
+    padding: 4px 12px;
+    border: 1px solid var(--demo-plain-line);
+    border-radius: 4px;
+    background: transparent;
+    color: inherit;
+    font: inherit;
+    cursor: pointer;
+}
+
+.demo-plain-button:hover {
+    border-color: var(--demo-plain-accent);
+}
+
+.demo-plain-selected {
+    background: var(--demo-plain-accent);
+    border-color: var(--demo-plain-accent);
+    color: var(--demo-plain-background);
+}
+
+.demo-plain-lines {
+    border: 0 solid var(--demo-plain-line);
+    border-width: 1px 0 0 1px;
+}
+
+.demo-plain-day-header {
+    padding: 6px;
+    color: var(--demo-plain-muted);
+    font-size: 0.85em;
+    text-transform: uppercase;
+}
+
+.demo-plain-day-number {
+    padding: 4px 6px;
+}
+
+.demo-plain-other {
+    color: var(--demo-plain-muted);
+}
+
+.demo-plain-today {
+    background: var(--demo-plain-today);
+}
+
+.demo-plain-slot-label {
+    padding: 0 6px;
+    color: var(--demo-plain-muted);
+    font-size: 0.85em;
+}
+
+.demo-plain-divider {
+    border-bottom: 2px solid var(--demo-plain-line);
+}
+
+/* FullCalendar sets --fc-event-color and --fc-event-contrast-color on every entry, from the entry's own color or the
+   eventColor option */
+.demo-plain-block-entry {
+    margin: 1px 2px;
+    padding: 1px 4px;
+    border-radius: 3px;
+    background: var(--fc-event-color);
+    color: var(--fc-event-contrast-color);
+    font-size: 0.85em;
+}
+
+.demo-plain-list-item-entry {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 1px 4px;
+    font-size: 0.85em;
+}
+
+.demo-plain-list-item-inner {
+    display: flex;
+    gap: 6px;
+    overflow: hidden;
+    white-space: nowrap;
+}
+
+.demo-plain-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--fc-event-color);
+}
+
+.demo-plain-more {
+    padding: 0 4px;
+    color: var(--demo-plain-accent);
+    font-size: 0.85em;
+}
+
+.demo-plain-week-number {
+    position: absolute;
+    top: 4px;
+    right: 6px;
+    color: var(--demo-plain-muted);
+    font-size: 0.75em;
+}
+
+.demo-plain-now {
+    border-top: 2px solid var(--demo-plain-accent);
+}
+
+.demo-plain-popover {
+    min-width: 200px;
+    border: 1px solid var(--demo-plain-line);
+    box-shadow: 0 4px 12px var(--demo-plain-shadow);
+}
+
+.demo-plain-popover-close {
+    position: absolute;
+    top: 2px;
+    right: 6px;
+    border: 0;
+    background: transparent;
+    color: var(--demo-plain-muted);
+    font-size: 1.2em;
+    cursor: pointer;
+}
+
+.demo-plain-list-day {
+    display: flex;
+    justify-content: space-between;
+    padding: 6px;
+    background: var(--demo-plain-today);
+    color: var(--demo-plain-accent);
+}

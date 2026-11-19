@@ -1,5 +1,6 @@
 package org.vaadin.stefan.ui.view.demos.externaldrag;
 
+import org.vaadin.stefan.fullcalendar.option.JsCallback;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.notification.Notification;
@@ -12,6 +13,7 @@ import org.vaadin.stefan.ui.menu.MenuItem;
 import org.vaadin.stefan.ui.view.AbstractCalendarView;
 import tools.jackson.databind.node.ObjectNode;
 
+import java.time.Duration;
 import java.time.LocalDateTime;
 
 /**
@@ -25,9 +27,9 @@ public class ExternalDragDemo extends AbstractCalendarView {
     @Override
     protected FullCalendar createCalendar(ObjectNode defaultInitialOptions) {
         FullCalendar calendar = new FullCalendar(defaultInitialOptions);
-        calendar.setOption(FullCalendar.Option.MAX_ENTRIES_PER_DAY, 3);
+        calendar.options().setDayMaxEntries(3);
 
-        calendar.setOption(FullCalendar.Option.DROPPABLE, true);
+        calendar.options().setDroppable(true);
 
         InMemoryEntryProvider<Entry> provider = new InMemoryEntryProvider<>();
         calendar.setEntryProvider(provider);
@@ -51,12 +53,9 @@ public class ExternalDragDemo extends AbstractCalendarView {
 
         // --- Entry receive listener: persist the client-created entry ---
         calendar.addEntryReceiveListener(e -> {
-            provider.addEntry(e.getEntry());
+            provider.getItems().add(e.getEntry());
             provider.refreshAll();
         });
-
-
-
 
         return calendar;
     }
@@ -93,7 +92,6 @@ public class ExternalDragDemo extends AbstractCalendarView {
                         "function(el) { console.info(el); return { title: el.innerText, duration: '01:00' }; }")));
         // Insert drag items and task list before the calendar
 
-
         // --- Draggable items ---
         HorizontalLayout dragItems = new HorizontalLayout();
         dragItems.setSpacing(true);
@@ -111,7 +109,7 @@ public class ExternalDragDemo extends AbstractCalendarView {
         lunchEntry.setTitle("Lunch Break");
         lunchEntry.setColor("#FF9800");
         lunchEntry.setAllDay(false);
-        lunchEntry.setRecurringDuration("00:30");
+        lunchEntry.setRecurringDuration(Duration.ofMinutes(30));
         Div lunchItem = createDragItem("Lunch Break", "#FF9800");
 
         // Task — blue, no entry data

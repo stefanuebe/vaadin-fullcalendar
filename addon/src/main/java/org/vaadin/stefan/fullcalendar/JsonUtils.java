@@ -16,11 +16,15 @@
  */
 package org.vaadin.stefan.fullcalendar;
 
+import org.vaadin.stefan.fullcalendar.option.JsCallback;
 import com.vaadin.flow.function.SerializableFunction;
 import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.json.JsonMapper;
+import tools.jackson.databind.module.SimpleModule;
 import tools.jackson.databind.node.ArrayNode;
 import tools.jackson.databind.node.JsonNodeType;
 import tools.jackson.databind.node.ObjectNode;
+import tools.jackson.databind.ser.std.ToStringSerializer;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -32,6 +36,16 @@ import java.util.stream.Stream;
  * JsonUtils used for internally handling conversion of objects sent to or received from the client side.
  */
 public final class JsonUtils {
+
+    /**
+     * Writes a {@link LocalTime} and a {@link LocalDateTime} like their {@code toString()}, which leaves out zero
+     * seconds. Jackson alone would always write them, and the library reads both forms the same way.
+     */
+    private static final JsonMapper MAPPER = JsonMapper.builder()
+            .addModule(new SimpleModule()
+                    .addSerializer(LocalTime.class, ToStringSerializer.instance)
+                    .addSerializer(LocalDateTime.class, ToStringSerializer.instance))
+            .build();
 
     private JsonUtils() {
         // noop
@@ -63,6 +77,10 @@ public final class JsonUtils {
 
         if (value instanceof ClientSideValue clientSideValue) {
             value = clientSideValue.getClientSideValue();
+        }
+
+        if (value instanceof JsCallback callback) {
+            return callback.toMarkerJson();
         }
 
         if (value == null) {
@@ -114,6 +132,17 @@ public final class JsonUtils {
     }
 
     /**
+     * Converts the given object like {@link #toJsonNode(Object)}, but serializes any object without a default
+     * conversion with Jackson instead of sending its {@code toString()}.
+     *
+     * @param value value
+     * @return json value
+     */
+    public static JsonNode toJsonNodeWithJackson(Object value) {
+        return toJsonNode(value, MAPPER::valueToTree);
+    }
+
+    /**
      * Returns true, if this value would be converted to a json array (or iterable like) for the client, like
      * any Java iterable, stream, array, map or iterator.
      *
@@ -137,7 +166,6 @@ public final class JsonUtils {
         };
 
     }
-
 
     public static String formatClientSideDateString(Object value) {
         return switch (value) {

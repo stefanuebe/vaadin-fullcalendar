@@ -1,10 +1,15 @@
 package org.vaadin.stefan.fullcalendar;
 
+import org.vaadin.stefan.fullcalendar.option.ExtendedLocalTime;
+import org.vaadin.stefan.fullcalendar.option.DisplayMode;
+import org.vaadin.stefan.fullcalendar.option.Timezone;
 import com.vaadin.flow.function.ValueProvider;
 import org.apache.commons.lang3.reflect.FieldUtils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.vaadin.stefan.fullcalendar.converters.ExtendedPropsConverter;
 import org.vaadin.stefan.fullcalendar.json.JsonName;
+import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.node.ObjectNode;
 
 import java.lang.reflect.Field;
@@ -96,7 +101,6 @@ public class EntryTest {
         Entry entry = new Entry();
         ObjectNode jsonObject = entry.toJson();
 
-
         Set<String> defaultKeys = new HashSet<>(Arrays.asList(
                         Fields.ID,
                         // Fields.EDITABLE is intentionally omitted: since #212 the editable field
@@ -123,6 +127,44 @@ public class EntryTest {
         }
     }
 
+    @Test
+    void toJson_usesFullCalendar7ColorAndClassKeys() {
+        Entry entry = new Entry();
+        entry.setColor("red");
+        entry.setContrastColor("white");
+        entry.addClassNames("urgent", "large");
+
+        ObjectNode json = entry.toJson();
+
+        assertEquals("red", json.get("color").asString());
+        assertEquals("white", json.get("contrastColor").asString());
+        assertEquals("urgent large", json.get("className").asString());
+        assertFalse(json.has("classNames"));
+        assertFalse(json.has("textColor"));
+    }
+
+    @Test
+    void updateFromJson_readsClassNameString() {
+        Entry entry = new Entry("1");
+        ObjectNode json = JsonFactory.createObject();
+        json.put("id", "1");
+        json.put("className", "urgent  large");
+
+        entry.updateAllFromJson(json, true);
+
+        assertEquals(Set.of("urgent", "large"), entry.getClassNames());
+    }
+
+    @Test
+    @SuppressWarnings("removal")
+    void textColor_isAliasOfContrastColor() {
+        Entry entry = new Entry();
+        entry.setTextColor(" white ");
+
+        assertEquals("white", entry.getContrastColor());
+        assertEquals("white", entry.getTextColor());
+    }
+
     /**
      * Returns the json key to be used for the given field. Expects the field name as it is set in the class
      * and returns either the field name or the name given in the {@link JsonName} annotation.
@@ -144,8 +186,7 @@ public class EntryTest {
         assertNull(entry.getStart());
         assertNull(entry.getStartAsInstant());
         assertNull(entry.getStartAsLocalDate());
-        assertNull(entry.getStartWithTimezone());
-        assertNull(entry.getStartWithOffset());
+        assertNull(entry.getStartWithTimezone(Timezone.UTC));
         assertNull(entry.getStartWithOffset(Timezone.UTC));
 
         entry.clearStart();
@@ -153,7 +194,6 @@ public class EntryTest {
         entry.setStart((Instant) null);
         entry.setStart((LocalDate) null);
         entry.setStartWithTimezone(null);
-        entry.setStartWithOffset(null);
         entry.setStartWithOffset(null, Timezone.UTC);
     }
 
@@ -169,42 +209,26 @@ public class EntryTest {
 
         assertEquals(now, entry.getStart());
         assertEquals(nowInstant, entry.getStartAsInstant());
-        assertEquals(nowZoned, entry.getStartWithTimezone());
-        assertEquals(nowPlusOffset, entry.getStartWithTimezone().toLocalDateTime());
-        assertEquals(nowPlusOffset, entry.getStartWithOffset());
+        assertEquals(nowZoned, entry.getStartWithTimezone(Timezone.UTC));
+        assertEquals(nowPlusOffset, entry.getStartWithTimezone(Timezone.UTC).toLocalDateTime());
         assertEquals(nowPlusOffset, entry.getStartWithOffset(Timezone.UTC));
         ObjectNode json = entry.toJson();
         assertEquals(JSON_UTC_TIMESTAMP, json.get(Fields.START).asString());
 
-
         entry.setStart(nowInstant);
         assertEquals(now, entry.getStart());
         assertEquals(nowInstant, entry.getStartAsInstant());
-        assertEquals(nowZoned, entry.getStartWithTimezone());
-        assertEquals(nowPlusOffset, entry.getStartWithTimezone().toLocalDateTime());
-        assertEquals(nowPlusOffset, entry.getStartWithOffset());
+        assertEquals(nowZoned, entry.getStartWithTimezone(Timezone.UTC));
+        assertEquals(nowPlusOffset, entry.getStartWithTimezone(Timezone.UTC).toLocalDateTime());
         assertEquals(nowPlusOffset, entry.getStartWithOffset(Timezone.UTC));
         json = entry.toJson();
         assertEquals(JSON_UTC_TIMESTAMP, json.get(Fields.START).asString());
-
 
         entry.setStartWithTimezone(nowZoned);
         assertEquals(now, entry.getStart());
         assertEquals(nowInstant, entry.getStartAsInstant());
-        assertEquals(nowZoned, entry.getStartWithTimezone());
-        assertEquals(nowPlusOffset, entry.getStartWithTimezone().toLocalDateTime());
-        assertEquals(nowPlusOffset, entry.getStartWithOffset());
-        assertEquals(nowPlusOffset, entry.getStartWithOffset(Timezone.UTC));
-        json = entry.toJson();
-        assertEquals(JSON_UTC_TIMESTAMP, json.get(Fields.START).asString());
-
-
-        entry.setStartWithOffset(nowZoned.toLocalDateTime());
-        assertEquals(now, entry.getStart());
-        assertEquals(nowInstant, entry.getStartAsInstant());
-        assertEquals(nowZoned, entry.getStartWithTimezone());
-        assertEquals(nowPlusOffset, entry.getStartWithTimezone().toLocalDateTime());
-        assertEquals(nowPlusOffset, entry.getStartWithOffset());
+        assertEquals(nowZoned, entry.getStartWithTimezone(Timezone.UTC));
+        assertEquals(nowPlusOffset, entry.getStartWithTimezone(Timezone.UTC).toLocalDateTime());
         assertEquals(nowPlusOffset, entry.getStartWithOffset(Timezone.UTC));
         json = entry.toJson();
         assertEquals(JSON_UTC_TIMESTAMP, json.get(Fields.START).asString());
@@ -212,13 +236,20 @@ public class EntryTest {
         entry.setStartWithOffset(nowZoned.toLocalDateTime(), Timezone.UTC);
         assertEquals(now, entry.getStart());
         assertEquals(nowInstant, entry.getStartAsInstant());
-        assertEquals(nowZoned, entry.getStartWithTimezone());
-        assertEquals(nowPlusOffset, entry.getStartWithTimezone().toLocalDateTime());
-        assertEquals(nowPlusOffset, entry.getStartWithOffset());
+        assertEquals(nowZoned, entry.getStartWithTimezone(Timezone.UTC));
+        assertEquals(nowPlusOffset, entry.getStartWithTimezone(Timezone.UTC).toLocalDateTime());
         assertEquals(nowPlusOffset, entry.getStartWithOffset(Timezone.UTC));
         json = entry.toJson();
         assertEquals(JSON_UTC_TIMESTAMP, json.get(Fields.START).asString());
 
+        entry.setStartWithOffset(nowZoned.toLocalDateTime(), Timezone.UTC);
+        assertEquals(now, entry.getStart());
+        assertEquals(nowInstant, entry.getStartAsInstant());
+        assertEquals(nowZoned, entry.getStartWithTimezone(Timezone.UTC));
+        assertEquals(nowPlusOffset, entry.getStartWithTimezone(Timezone.UTC).toLocalDateTime());
+        assertEquals(nowPlusOffset, entry.getStartWithOffset(Timezone.UTC));
+        json = entry.toJson();
+        assertEquals(JSON_UTC_TIMESTAMP, json.get(Fields.START).asString());
 
         LocalDate nowDate = now.toLocalDate();
         entry.setStart(nowDate);
@@ -233,57 +264,39 @@ public class EntryTest {
      */
     @Test
     void test_startMethods_timezone() {
-        Timezone timezone = Timezone.getSystem();
+        Timezone timezone = new Timezone(ZoneId.of("Europe/Berlin")); // fixed non-UTC zone, so the test proves an offset on any machine
 
         LocalDateTime now = DEFAULT_START;
         Instant nowInstant = now.toInstant(ZoneOffset.UTC);
         ZonedDateTime nowZoned = nowInstant.atZone(timezone.getZoneId());
         LocalDateTime nowPlusOffset = timezone.applyTimezoneOffset(now);
+        assertEquals(now.plusHours(1), nowPlusOffset); // Berlin is UTC+1 in January, independent of the code under test
 
         Entry entry = new Entry();
         entry.setStart(now);
 
-        FullCalendar calendar = new FullCalendar();
-        calendar.setTimezone(timezone);
-        calendar.getEntryProvider().asInMemory().addEntry(entry);
-
         assertEquals(now, entry.getStart());
         assertEquals(nowInstant, entry.getStartAsInstant());
-        assertEquals(nowZoned, entry.getStartWithTimezone());
-        assertEquals(nowPlusOffset, entry.getStartWithTimezone().toLocalDateTime());
-        assertEquals(nowPlusOffset, entry.getStartWithOffset());
+        assertEquals(nowZoned, entry.getStartWithTimezone(timezone));
+        assertEquals(nowPlusOffset, entry.getStartWithTimezone(timezone).toLocalDateTime());
         assertEquals(nowPlusOffset, entry.getStartWithOffset(timezone));
         ObjectNode json = entry.toJson();
         assertEquals(JSON_UTC_TIMESTAMP, json.get(Fields.START).asString());
 
-
         entry.setStart(nowInstant);
         assertEquals(now, entry.getStart());
         assertEquals(nowInstant, entry.getStartAsInstant());
-        assertEquals(nowZoned, entry.getStartWithTimezone());
-        assertEquals(nowPlusOffset, entry.getStartWithTimezone().toLocalDateTime());
-        assertEquals(nowPlusOffset, entry.getStartWithOffset());
+        assertEquals(nowZoned, entry.getStartWithTimezone(timezone));
+        assertEquals(nowPlusOffset, entry.getStartWithTimezone(timezone).toLocalDateTime());
         assertEquals(nowPlusOffset, entry.getStartWithOffset(timezone));
         json = entry.toJson();
         assertEquals(JSON_UTC_TIMESTAMP, json.get(Fields.START).asString());
-
 
         entry.setStartWithTimezone(nowZoned);
         assertEquals(now, entry.getStart());
         assertEquals(nowInstant, entry.getStartAsInstant());
-        assertEquals(nowZoned, entry.getStartWithTimezone());
-        assertEquals(nowPlusOffset, entry.getStartWithTimezone().toLocalDateTime());
-        assertEquals(nowPlusOffset, entry.getStartWithOffset());
-        assertEquals(nowPlusOffset, entry.getStartWithOffset(timezone));
-        json = entry.toJson();
-        assertEquals(JSON_UTC_TIMESTAMP, json.get(Fields.START).asString());
-
-        entry.setStartWithOffset(nowZoned.toLocalDateTime());
-        assertEquals(now, entry.getStart());
-        assertEquals(nowInstant, entry.getStartAsInstant());
-        assertEquals(nowZoned, entry.getStartWithTimezone());
-        assertEquals(nowPlusOffset, entry.getStartWithTimezone().toLocalDateTime());
-        assertEquals(nowPlusOffset, entry.getStartWithOffset());
+        assertEquals(nowZoned, entry.getStartWithTimezone(timezone));
+        assertEquals(nowPlusOffset, entry.getStartWithTimezone(timezone).toLocalDateTime());
         assertEquals(nowPlusOffset, entry.getStartWithOffset(timezone));
         json = entry.toJson();
         assertEquals(JSON_UTC_TIMESTAMP, json.get(Fields.START).asString());
@@ -291,9 +304,17 @@ public class EntryTest {
         entry.setStartWithOffset(nowZoned.toLocalDateTime(), timezone);
         assertEquals(now, entry.getStart());
         assertEquals(nowInstant, entry.getStartAsInstant());
-        assertEquals(nowZoned, entry.getStartWithTimezone());
-        assertEquals(nowPlusOffset, entry.getStartWithTimezone().toLocalDateTime());
-        assertEquals(nowPlusOffset, entry.getStartWithOffset());
+        assertEquals(nowZoned, entry.getStartWithTimezone(timezone));
+        assertEquals(nowPlusOffset, entry.getStartWithTimezone(timezone).toLocalDateTime());
+        assertEquals(nowPlusOffset, entry.getStartWithOffset(timezone));
+        json = entry.toJson();
+        assertEquals(JSON_UTC_TIMESTAMP, json.get(Fields.START).asString());
+
+        entry.setStartWithOffset(nowZoned.toLocalDateTime(), timezone);
+        assertEquals(now, entry.getStart());
+        assertEquals(nowInstant, entry.getStartAsInstant());
+        assertEquals(nowZoned, entry.getStartWithTimezone(timezone));
+        assertEquals(nowPlusOffset, entry.getStartWithTimezone(timezone).toLocalDateTime());
         assertEquals(nowPlusOffset, entry.getStartWithOffset(timezone));
         json = entry.toJson();
         assertEquals(JSON_UTC_TIMESTAMP, json.get(Fields.START).asString());
@@ -314,8 +335,7 @@ public class EntryTest {
         assertNull(entry.getEnd());
         assertNull(entry.getEndAsInstant());
         assertNull(entry.getEndAsLocalDate());
-        assertNull(entry.getEndWithTimezone());
-        assertNull(entry.getEndWithOffset());
+        assertNull(entry.getEndWithTimezone(Timezone.UTC));
         assertNull(entry.getEndWithOffset(Timezone.UTC));
 
         entry.clearEnd();
@@ -323,7 +343,6 @@ public class EntryTest {
         entry.setEnd((Instant) null);
         entry.setEnd((LocalDate) null);
         entry.setEndWithTimezone(null);
-        entry.setEndWithOffset(null);
         entry.setEndWithOffset(null, Timezone.UTC);
     }
 
@@ -339,9 +358,8 @@ public class EntryTest {
 
         assertEquals(now, entry.getEnd());
         assertEquals(nowInstant, entry.getEndAsInstant());
-        assertEquals(nowZoned, entry.getEndWithTimezone());
-        assertEquals(nowPlusOffset, entry.getEndWithTimezone().toLocalDateTime());
-        assertEquals(nowPlusOffset, entry.getEndWithOffset());
+        assertEquals(nowZoned, entry.getEndWithTimezone(Timezone.UTC));
+        assertEquals(nowPlusOffset, entry.getEndWithTimezone(Timezone.UTC).toLocalDateTime());
         assertEquals(nowPlusOffset, entry.getEndWithOffset(Timezone.UTC));
 
         ObjectNode json = entry.toJson();
@@ -350,9 +368,8 @@ public class EntryTest {
         entry.setEnd(nowInstant);
         assertEquals(now, entry.getEnd());
         assertEquals(nowInstant, entry.getEndAsInstant());
-        assertEquals(nowZoned, entry.getEndWithTimezone());
-        assertEquals(nowPlusOffset, entry.getEndWithTimezone().toLocalDateTime());
-        assertEquals(nowPlusOffset, entry.getEndWithOffset());
+        assertEquals(nowZoned, entry.getEndWithTimezone(Timezone.UTC));
+        assertEquals(nowPlusOffset, entry.getEndWithTimezone(Timezone.UTC).toLocalDateTime());
         assertEquals(nowPlusOffset, entry.getEndWithOffset(Timezone.UTC));
 
         json = entry.toJson();
@@ -361,20 +378,8 @@ public class EntryTest {
         entry.setEndWithTimezone(nowZoned);
         assertEquals(now, entry.getEnd());
         assertEquals(nowInstant, entry.getEndAsInstant());
-        assertEquals(nowZoned, entry.getEndWithTimezone());
-        assertEquals(nowPlusOffset, entry.getEndWithTimezone().toLocalDateTime());
-        assertEquals(nowPlusOffset, entry.getEndWithOffset());
-        assertEquals(nowPlusOffset, entry.getEndWithOffset(Timezone.UTC));
-
-        json = entry.toJson();
-        assertEquals(JSON_UTC_TIMESTAMP, json.get(Fields.END).asString());
-
-        entry.setEndWithOffset(nowZoned.toLocalDateTime());
-        assertEquals(now, entry.getEnd());
-        assertEquals(nowInstant, entry.getEndAsInstant());
-        assertEquals(nowZoned, entry.getEndWithTimezone());
-        assertEquals(nowPlusOffset, entry.getEndWithTimezone().toLocalDateTime());
-        assertEquals(nowPlusOffset, entry.getEndWithOffset());
+        assertEquals(nowZoned, entry.getEndWithTimezone(Timezone.UTC));
+        assertEquals(nowPlusOffset, entry.getEndWithTimezone(Timezone.UTC).toLocalDateTime());
         assertEquals(nowPlusOffset, entry.getEndWithOffset(Timezone.UTC));
 
         json = entry.toJson();
@@ -383,9 +388,18 @@ public class EntryTest {
         entry.setEndWithOffset(nowZoned.toLocalDateTime(), Timezone.UTC);
         assertEquals(now, entry.getEnd());
         assertEquals(nowInstant, entry.getEndAsInstant());
-        assertEquals(nowZoned, entry.getEndWithTimezone());
-        assertEquals(nowPlusOffset, entry.getEndWithTimezone().toLocalDateTime());
-        assertEquals(nowPlusOffset, entry.getEndWithOffset());
+        assertEquals(nowZoned, entry.getEndWithTimezone(Timezone.UTC));
+        assertEquals(nowPlusOffset, entry.getEndWithTimezone(Timezone.UTC).toLocalDateTime());
+        assertEquals(nowPlusOffset, entry.getEndWithOffset(Timezone.UTC));
+
+        json = entry.toJson();
+        assertEquals(JSON_UTC_TIMESTAMP, json.get(Fields.END).asString());
+
+        entry.setEndWithOffset(nowZoned.toLocalDateTime(), Timezone.UTC);
+        assertEquals(now, entry.getEnd());
+        assertEquals(nowInstant, entry.getEndAsInstant());
+        assertEquals(nowZoned, entry.getEndWithTimezone(Timezone.UTC));
+        assertEquals(nowPlusOffset, entry.getEndWithTimezone(Timezone.UTC).toLocalDateTime());
         assertEquals(nowPlusOffset, entry.getEndWithOffset(Timezone.UTC));
 
         json = entry.toJson();
@@ -404,25 +418,21 @@ public class EntryTest {
      */
     @Test
     void test_endMethods_timezone() {
-        Timezone timezone = Timezone.getSystem();
+        Timezone timezone = new Timezone(ZoneId.of("Europe/Berlin")); // fixed non-UTC zone, so the test proves an offset on any machine
 
         LocalDateTime now = DEFAULT_START;
         Instant nowInstant = now.toInstant(ZoneOffset.UTC);
         ZonedDateTime nowZoned = nowInstant.atZone(timezone.getZoneId());
         LocalDateTime nowPlusOffset = timezone.applyTimezoneOffset(now);
+        assertEquals(now.plusHours(1), nowPlusOffset); // Berlin is UTC+1 in January, independent of the code under test
 
         Entry entry = new Entry();
         entry.setEnd(now);
 
-        FullCalendar calendar = new FullCalendar();
-        calendar.setTimezone(timezone);
-        calendar.getEntryProvider().asInMemory().addEntry(entry);
-
         assertEquals(now, entry.getEnd());
         assertEquals(nowInstant, entry.getEndAsInstant());
-        assertEquals(nowZoned, entry.getEndWithTimezone());
-        assertEquals(nowPlusOffset, entry.getEndWithTimezone().toLocalDateTime());
-        assertEquals(nowPlusOffset, entry.getEndWithOffset());
+        assertEquals(nowZoned, entry.getEndWithTimezone(timezone));
+        assertEquals(nowPlusOffset, entry.getEndWithTimezone(timezone).toLocalDateTime());
         assertEquals(nowPlusOffset, entry.getEndWithOffset(timezone));
 
         ObjectNode json = entry.toJson();
@@ -431,9 +441,8 @@ public class EntryTest {
         entry.setEnd(nowInstant);
         assertEquals(now, entry.getEnd());
         assertEquals(nowInstant, entry.getEndAsInstant());
-        assertEquals(nowZoned, entry.getEndWithTimezone());
-        assertEquals(nowPlusOffset, entry.getEndWithTimezone().toLocalDateTime());
-        assertEquals(nowPlusOffset, entry.getEndWithOffset());
+        assertEquals(nowZoned, entry.getEndWithTimezone(timezone));
+        assertEquals(nowPlusOffset, entry.getEndWithTimezone(timezone).toLocalDateTime());
         assertEquals(nowPlusOffset, entry.getEndWithOffset(timezone));
 
         json = entry.toJson();
@@ -442,20 +451,8 @@ public class EntryTest {
         entry.setEndWithTimezone(nowZoned);
         assertEquals(now, entry.getEnd());
         assertEquals(nowInstant, entry.getEndAsInstant());
-        assertEquals(nowZoned, entry.getEndWithTimezone());
-        assertEquals(nowPlusOffset, entry.getEndWithTimezone().toLocalDateTime());
-        assertEquals(nowPlusOffset, entry.getEndWithOffset());
-        assertEquals(nowPlusOffset, entry.getEndWithOffset(timezone));
-
-        json = entry.toJson();
-        assertEquals(JSON_UTC_TIMESTAMP, json.get(Fields.END).asString());
-
-        entry.setEndWithOffset(nowZoned.toLocalDateTime());
-        assertEquals(now, entry.getEnd());
-        assertEquals(nowInstant, entry.getEndAsInstant());
-        assertEquals(nowZoned, entry.getEndWithTimezone());
-        assertEquals(nowPlusOffset, entry.getEndWithTimezone().toLocalDateTime());
-        assertEquals(nowPlusOffset, entry.getEndWithOffset());
+        assertEquals(nowZoned, entry.getEndWithTimezone(timezone));
+        assertEquals(nowPlusOffset, entry.getEndWithTimezone(timezone).toLocalDateTime());
         assertEquals(nowPlusOffset, entry.getEndWithOffset(timezone));
 
         json = entry.toJson();
@@ -464,9 +461,18 @@ public class EntryTest {
         entry.setEndWithOffset(nowZoned.toLocalDateTime(), timezone);
         assertEquals(now, entry.getEnd());
         assertEquals(nowInstant, entry.getEndAsInstant());
-        assertEquals(nowZoned, entry.getEndWithTimezone());
-        assertEquals(nowPlusOffset, entry.getEndWithTimezone().toLocalDateTime());
-        assertEquals(nowPlusOffset, entry.getEndWithOffset());
+        assertEquals(nowZoned, entry.getEndWithTimezone(timezone));
+        assertEquals(nowPlusOffset, entry.getEndWithTimezone(timezone).toLocalDateTime());
+        assertEquals(nowPlusOffset, entry.getEndWithOffset(timezone));
+
+        json = entry.toJson();
+        assertEquals(JSON_UTC_TIMESTAMP, json.get(Fields.END).asString());
+
+        entry.setEndWithOffset(nowZoned.toLocalDateTime(), timezone);
+        assertEquals(now, entry.getEnd());
+        assertEquals(nowInstant, entry.getEndAsInstant());
+        assertEquals(nowZoned, entry.getEndWithTimezone(timezone));
+        assertEquals(nowPlusOffset, entry.getEndWithTimezone(timezone).toLocalDateTime());
         assertEquals(nowPlusOffset, entry.getEndWithOffset(timezone));
 
         json = entry.toJson();
@@ -490,7 +496,7 @@ public class EntryTest {
         entry.setAllDay(true);
         entry.setEditable(true);
         entry.setColor(DEFAULT_COLOR);
-        entry.setDescription(DEFAULT_DESCRIPTION);
+        entry.setExtendedProp("description", DEFAULT_DESCRIPTION);
         entry.setDisplayMode(DEFAULT_DISPLAY_MODE_ALTERN);
 
         // TODO extend values
@@ -552,11 +558,9 @@ public class EntryTest {
         assertFalse(entry.isRecurring());
         assertNull(entry.getTitle());
         assertNull(entry.getColor());
-        assertNull(entry.getBorderColor());
-        assertNull(entry.getBackgroundColor());
-        assertNull(entry.getTextColor());
-        assertNull(entry.getDescription());
-        assertEquals(DisplayMode.AUTO, entry.getDisplayMode());
+        assertNull(entry.getContrastColor());
+        assertFalse(entry.hasExtendedProp("description"));
+        assertNull(entry.getDisplayMode());
     }
 
     // Issue #212: disable DnD via calendar-level editable:false must no longer be overridden
@@ -616,4 +620,348 @@ public class EntryTest {
         Assertions.assertFalse(entry.toJson().has("editable"), "null is not serialized");
     }
 
+    // Issue #268. The specific flags win over editable, as FullCalendar applies them
+
+    @Test
+    void startAndDurationEditable_explicitFalse_winsOverEditable() {
+        Entry entry = new Entry();
+        entry.setEditable(true);
+        entry.setStartEditable(false);
+        entry.setDurationEditable(false);
+
+        Assertions.assertFalse(entry.isStartEditable());
+        Assertions.assertFalse(entry.isDurationEditable());
+        ObjectNode json = entry.toJson();
+        Assertions.assertFalse(json.get("startEditable").asBoolean());
+        Assertions.assertFalse(json.get("durationEditable").asBoolean());
+    }
+
+    @Test
+    void startAndDurationEditable_explicitTrue_winsOverEditableFalse() {
+        // Regression guard, because this case already worked before #268
+        Entry entry = new Entry();
+        entry.setEditable(false);
+        entry.setStartEditable(true);
+        entry.setDurationEditable(true);
+
+        assertTrue(entry.isStartEditable());
+        assertTrue(entry.isDurationEditable());
+    }
+
+    @Test
+    void startAndDurationEditable_oneExplicit_otherFollowsEditable() {
+        Entry entry = new Entry();
+        entry.setEditable(true);
+        entry.setStartEditable(false);
+
+        Assertions.assertFalse(entry.isStartEditable());
+        assertTrue(entry.isDurationEditable());
+        Assertions.assertFalse(entry.toJson().has("durationEditable"));
+    }
+
+    @Test
+    void startAndDurationEditable_unset_followEditable() {
+        Entry entry = new Entry();
+        entry.setEditable(false);
+        Assertions.assertFalse(entry.isStartEditable());
+        Assertions.assertFalse(entry.isDurationEditable());
+        ObjectNode json = entry.toJson();
+        Assertions.assertFalse(json.has("startEditable"));
+        Assertions.assertFalse(json.has("durationEditable"));
+
+        entry.setEditable(true);
+        assertTrue(entry.isStartEditable());
+        assertTrue(entry.isDurationEditable());
+    }
+
+    @Test
+    void addAndRemoveClassNames() {
+        Entry entry = new Entry();
+        entry.addClassNames("a", "b");
+        entry.addClassNames(List.of("b", "c"));
+
+        assertEquals(Set.of("a", "b", "c"), entry.getClassNames());
+
+        entry.removeClassNames("a");
+        entry.removeClassNames(List.of("b"));
+        assertEquals(Set.of("c"), entry.getClassNames());
+
+        entry.removeClassNames();
+        assertFalse(entry.hasClassNames());
+    }
+
+    // -------------------------------------------------------------------------
+    // Extended props
+    // -------------------------------------------------------------------------
+
+    /**
+     * FullCalendar spreads every non-standard key of the entry JSON into extendedProps after the explicit
+     * extendedProps object, so such a key would overwrite an extended prop of the same name. Every key the entry
+     * sends must therefore be one FullCalendar 7 parses itself (event-parsing docs, plus the rrule plugin's keys).
+     */
+    static final Set<String> FULLCALENDAR_EVENT_KEYS = Set.of(
+            "id", "groupId", "allDay", "start", "end", "daysOfWeek", "startTime", "endTime", "startRecur", "endRecur",
+            "title", "url", "interactive", "className", "editable", "startEditable", "durationEditable",
+            "resourceEditable", "resourceId", "resourceIds", "display", "overlap", "constraint", "color",
+            "contrastColor", "extendedProps",
+            "rrule", "exrule", "exdate", "duration");
+
+    @Test
+    void everyJsonKeyIsAFullCalendarEventKey() {
+        Set<String> jsonNames = new Entry().streamProperties()
+                .filter(def -> !def.isJsonIgnored())
+                .map(BeanProperties::getJsonName)
+                .collect(Collectors.toSet());
+
+        jsonNames.removeAll(FULLCALENDAR_EVENT_KEYS);
+        assertEquals(Set.of(), jsonNames, "non-standard keys would overwrite extended props of the same name");
+    }
+
+    @Test
+    void extendedProps_neverNullAndReadOnly() {
+        Entry entry = new Entry();
+        assertNotNull(entry.getExtendedProps());
+        assertThrows(UnsupportedOperationException.class, () -> entry.getExtendedProps().put("a", 1));
+
+        entry.setExtendedProp("a", 1);
+        assertEquals(1, entry.getExtendedProp("a"));
+        assertThrows(UnsupportedOperationException.class, () -> entry.getExtendedProps().put("b", 2));
+
+        entry.setExtendedProps(null);
+        assertNotNull(entry.getExtendedProps());
+        assertTrue(entry.getExtendedProps().isEmpty());
+
+        entry.setExtendedProps(Map.of("b", 2));
+        entry.setExtendedProp("c", 3); // the given map is copied, so an immutable one does not break this
+        assertEquals(Map.of("b", 2, "c", 3), entry.getExtendedProps());
+
+        entry.removeExtendedProp("b");
+        assertEquals(Map.of("c", 3), entry.getExtendedProps());
+    }
+
+    @Test
+    void setExtendedProps_nullKey_throwsNPE() {
+        Entry entry = new Entry();
+        Map<String, Object> props = new HashMap<>();
+        props.put(null, 1);
+        assertThrows(NullPointerException.class, () -> entry.setExtendedProps(props));
+    }
+
+    @Test
+    void hasExtendedProp_alsoForNullValue() {
+        Entry entry = new Entry();
+        assertFalse(entry.hasExtendedProp("a"));
+
+        entry.setExtendedProp("a", null);
+        assertTrue(entry.hasExtendedProp("a"));
+        assertNull(entry.getExtendedProp("a"));
+
+        entry.removeExtendedProp("a");
+        assertFalse(entry.hasExtendedProp("a"));
+    }
+
+    @Test
+    void getExtendedProp_defaultOnlyForAbsentKey() {
+        Entry entry = new Entry();
+        entry.setExtendedProp("set", "value");
+        entry.setExtendedProp("cleared", null);
+
+        assertEquals("value", entry.getExtendedProp("set", "default"));
+        assertNull(entry.getExtendedProp("cleared", "default"));
+        assertEquals("default", entry.getExtendedProp("absent", "default"));
+        assertNull(entry.getExtendedProp("absent"));
+    }
+
+    @Test
+    void toJson_sendsExtendedPropsUnderStandardKey() {
+        Entry entry = new Entry();
+        assertFalse(entry.toJson().has("extendedProps"), "no empty object for entries without extended props");
+
+        entry.setExtendedProps(Map.of());
+        assertFalse(entry.toJson().has("extendedProps"), "no empty object after setting an empty map");
+
+        entry.setExtendedProp("department", "Engineering");
+        ObjectNode json = entry.toJson();
+        assertEquals("Engineering", json.get("extendedProps").get("department").asString());
+        assertFalse(json.has("customProperties"));
+        assertFalse(json.has("department"));
+    }
+
+    record Room(String name, int floor) {
+    }
+
+    @Test
+    void toJson_serializesObjectValuesWithJackson() {
+        Entry entry = new Entry();
+        entry.setExtendedProp("room", new Room("Atlas", 3));
+        entry.setExtendedProp("rooms", List.of(new Room("Atlas", 3)));
+
+        ObjectNode json = entry.toJson();
+        assertEquals("Atlas", json.get("extendedProps").get("room").get("name").asString());
+        assertEquals(3, json.get("extendedProps").get("room").get("floor").asInt());
+        assertEquals("Atlas", json.get("extendedProps").get("rooms").get(0).get("name").asString());
+    }
+
+    enum Level {
+        LOW;
+
+        @Override
+        public String toString() {
+            return "low level";
+        }
+    }
+
+    @Test
+    void toJson_serializesEnumsDatesAndNullsInExtendedProps() {
+        Entry entry = new Entry();
+        entry.setExtendedProp("level", Level.LOW);
+        entry.setExtendedProp("date", LocalDate.of(2025, 3, 1));
+        entry.setExtendedProp("cleared", null);
+
+        ObjectNode extendedProps = (ObjectNode) entry.toJson().get("extendedProps");
+        assertEquals("low level", extendedProps.get("level").asString(), "Jackson 3 writes enums with toString(), as 7.x did");
+        assertEquals("2025-03-01", extendedProps.get("date").asString());
+        assertTrue(extendedProps.get("cleared").isNull());
+    }
+
+    static class NoProperties {
+    }
+
+    @Test
+    void toJson_sendsAnObjectWithoutPropertiesAsEmptyObject() {
+        Entry entry = new Entry();
+        entry.setExtendedProp("empty", new NoProperties());
+
+        JsonNode value = entry.toJson().get("extendedProps").get("empty");
+        assertTrue(value.isObject() && value.isEmpty(), "Jackson 3 does not fail on empty beans");
+    }
+
+    @Test
+    void extendedPropsConverter_readsNonObjectAsEmptyMap() {
+        ExtendedPropsConverter converter = new ExtendedPropsConverter();
+        assertEquals(Map.of(), converter.toServerModel(JsonFactory.create("text"), null));
+        assertTrue(converter.toClientModel(new HashMap<>(), null).isNull());
+    }
+
+    @Test
+    void updateAllFromJson_readsExtendedProps() {
+        ObjectNode json = JsonFactory.createObject();
+        json.putObject("extendedProps").put("department", "Engineering").put("count", 0);
+
+        Entry entry = new Entry();
+        entry.updateAllFromJson(json, false);
+        assertEquals("Engineering", entry.getExtendedProp("department"));
+        assertEquals(0, entry.<Number>getExtendedProp("count", -1).intValue());
+    }
+
+    @Test
+    void copy_copiesExtendedProps() {
+        Entry entry = new Entry();
+        entry.setExtendedProp("a", 1);
+
+        Entry copy = entry.copy();
+        copy.setExtendedProp("b", 2);
+        assertEquals(Map.of("a", 1), entry.getExtendedProps());
+        assertEquals(Map.of("a", 1, "b", 2), copy.getExtendedProps());
+    }
+
+    @Test
+    void copy_entryWithoutExtendedProps() {
+        Entry copy = new Entry().copy();
+        assertTrue(copy.getExtendedProps().isEmpty());
+
+        Entry target = new Entry();
+        target.setExtendedProp("a", 1);
+        Entry.copy(new Entry(), target, false);
+        assertTrue(target.getExtendedProps().isEmpty(), "copying an entry without extended props clears them");
+    }
+
+    @Test
+    void toJson_omitsExtendedPropsAfterRemovingTheLast() throws IllegalAccessException {
+        Entry entry = new Entry();
+        entry.setExtendedProp("a", 1);
+        entry.removeExtendedProp("a");
+        assertNull(FieldUtils.readField(entry, "extendedProps", true), "no empty map is kept");
+        assertFalse(entry.toJson().has("extendedProps"));
+    }
+
+    @Test
+    void copy_keepsTheRRule() {
+        Entry source = new Entry();
+        source.setStart(LocalDateTime.of(2025, 3, 3, 9, 0));
+        source.setRRule(RRule.weekly()
+                .excludeDates(LocalDate.of(2025, 3, 10))
+                .excludeRules(RRule.monthly()));
+
+        Entry copiedFrom = new Entry(source.getId());
+        copiedFrom.copyFrom(source);
+        Entry copiedFromIgnoringId = new Entry();
+        copiedFromIgnoringId.copyFrom(source, true);
+        Entry staticCopy = new Entry();
+        Entry.copy(source, staticCopy, false);
+
+        for (Entry copy : List.of(source.copy(), source.copyAsType(Entry.class), copiedFrom, copiedFromIgnoringId,
+                staticCopy)) {
+            // RRule has no equals, and the copy takes the instance over as it is
+            assertSame(source.getRRule(), copy.getRRule());
+
+            // excluded dates and rules are sent as their own properties
+            ObjectNode json = copy.toJson();
+            assertEquals(source.toJson().get("exdate"), json.get("exdate"));
+            assertEquals(source.toJson().get("exrule"), json.get("exrule"));
+        }
+    }
+
+    @Test
+    void copy_keepsTheBasicRecurrence() {
+        Entry source = new Entry();
+        source.setRecurringDaysOfWeek(DayOfWeek.MONDAY);
+        source.setRecurringStartDate(LocalDate.of(2025, 3, 1));
+        source.setRecurringEndDate(LocalDate.of(2025, 3, 31));
+        source.setRecurringStartTime(LocalTime.of(9, 0));
+        source.setRecurringEndTime(LocalTime.of(10, 0));
+
+        Entry copiedFrom = new Entry(source.getId());
+        copiedFrom.setRRule(RRule.weekly());
+        copiedFrom.copyFrom(source);
+        Entry staticCopy = new Entry();
+        staticCopy.setRRule(RRule.weekly());
+        Entry.copy(source, staticCopy, false);
+
+        for (Entry copy : List.of(source.copy(), source.copyAsType(Entry.class), copiedFrom, staticCopy)) {
+            assertNull(copy.getRRule());
+            assertEquals(Set.of(DayOfWeek.MONDAY), copy.getRecurringDaysOfWeek());
+            assertEquals(LocalDate.of(2025, 3, 1), copy.getRecurringStartDate());
+            assertEquals(LocalDate.of(2025, 3, 31), copy.getRecurringEndDate());
+            assertEquals(ExtendedLocalTime.of(9, 0), copy.getRecurringStartTime());
+            assertEquals(ExtendedLocalTime.of(10, 0), copy.getRecurringEndTime());
+        }
+    }
+
+    @Test
+    void copyFrom_aSourceWithoutRecurrenceRemovesTheTargetsRRule() {
+        Entry source = new Entry();
+
+        Entry target = new Entry(source.getId());
+        target.setRRule(RRule.weekly().excludeDates(LocalDate.of(2025, 3, 10)));
+        target.copyFrom(source);
+
+        assertNull(target.getRRule());
+        assertFalse(target.toJson().has("exdate"));
+    }
+
+    @Test
+    void copyFrom_anRRuleReplacesTheTargetsBasicRecurrence() {
+        Entry source = new Entry();
+        source.setRRule(RRule.weekly());
+
+        Entry target = new Entry(source.getId());
+        target.setRecurringDaysOfWeek(DayOfWeek.MONDAY);
+        target.setRecurringStartDate(LocalDate.of(2025, 3, 1));
+        target.copyFrom(source);
+
+        assertSame(source.getRRule(), target.getRRule());
+        assertNull(target.getRecurringDaysOfWeek());
+        assertNull(target.getRecurringStartDate());
+    }
 }

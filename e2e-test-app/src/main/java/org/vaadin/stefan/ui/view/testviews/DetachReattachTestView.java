@@ -84,12 +84,11 @@ public class DetachReattachTestView extends VerticalLayout {
 
         // --- Calendar ---
         calendar = new FullCalendar();
-        calendar.addThemeVariants(FullCalendarVariant.VAADIN);
-        calendar.setLocale(Locale.ENGLISH);
-        calendar.setOption("initialDate", LocalDate.of(2025, 3, 1).toString());
-        calendar.setOption("initialView", CalendarViewImpl.DAY_GRID_MONTH.getClientSideValue());
-        calendar.setOption(FullCalendar.Option.EDITABLE, true);
-        calendar.setOption(FullCalendar.Option.WEEK_NUMBERS, true);
+        calendar.options().setLocale(Locale.ENGLISH);
+        calendar.options().setInitialDate(LocalDate.of(2025, 3, 1));
+        calendar.options().setInitialView(CalendarViewImpl.DAY_GRID_MONTH);
+        calendar.options().setEditable(true);
+        calendar.options().setWeekNumbers(true);
 
         // --- Entries ---
         InMemoryEntryProvider<Entry> provider = new InMemoryEntryProvider<>();
@@ -99,13 +98,13 @@ public class DetachReattachTestView extends VerticalLayout {
         entry1.setStart(LocalDate.of(2025, 3, 5).atStartOfDay());
         entry1.setAllDay(true);
         entry1.setColor("green");
-        provider.addEntry(entry1);
+        provider.getItems().add(entry1);
 
         Entry entry2 = new Entry();
         entry2.setTitle("Timed Entry");
         entry2.setStart(LocalDateTime.of(2025, 3, 5, 9, 0));
         entry2.setEnd(LocalDateTime.of(2025, 3, 5, 10, 0));
-        provider.addEntry(entry2);
+        provider.getItems().add(entry2);
 
         calendar.setEntryProvider(provider);
 

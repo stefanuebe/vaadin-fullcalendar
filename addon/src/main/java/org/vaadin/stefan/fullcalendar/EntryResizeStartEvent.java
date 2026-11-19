@@ -29,8 +29,7 @@ import tools.jackson.databind.node.ObjectNode;
  * clean up such feedback when resizing ends.
  * <br><br>
  * Note: {@link #getEntry()} returns the server-side entry at its <em>original</em> duration.
- * Do not call {@link #applyChangesOnEntry()} on this event — resize start does not represent
- * a committed duration change. Use it for UI feedback only.
+ * The event carries no change. Use it for UI feedback only.
  * <br><br>
  * Client side name: eventResizeStart
  */

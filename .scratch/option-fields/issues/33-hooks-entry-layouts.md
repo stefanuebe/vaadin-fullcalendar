@@ -1,0 +1,21 @@
+# 33: Render hooks: block, column and row entries
+
+| | |
+|---|---|
+| GitHub | #369 |
+| Labels | enhancement, ready-for-agent |
+| Status | done (2026-10-16, 6f133df4) |
+| Blocked by | `11-static-checks-core`, `12-pinned-api-and-converter-roundtrip`, `21-value-types-render-hooks`, `60-setters-without-form-overloads` |
+| Spec | `../option-fields-spec.md`; shared rules in `README.md` |
+
+---
+
+**What to build:** Add the typed fields for these library options (20), named as in *Names* of the spec ("event" becomes "entry" in Java, `@JsonName` keeps the library name): `blockEventAfterClass`, `blockEventBeforeClass`, `blockEventClass`, `blockEventInnerClass`, `blockEventTimeClass`, `blockEventTitleClass`, `columnEventAfterClass`, `columnEventBeforeClass`, `columnEventClass`, `columnEventInnerClass`, `columnEventTimeClass`, `columnEventTitleClass`, `rowEventAfterClass`, `rowEventAfterContent`, `rowEventBeforeClass`, `rowEventBeforeContent`, `rowEventClass`, `rowEventInnerClass`, `rowEventTimeClass`, `rowEventTitleClass`.
+
+**Blocked by:** `11-static-checks-core`, `12-pinned-api-and-converter-roundtrip`, `21-value-types-render-hooks`, `60-setters-without-form-overloads`
+
+**Status:** done (2026-10-16, 6f133df4)
+
+- [x] Every field follows *Field batches* in `README.md` (Javadoc with `@see`, section, wrapper type, global or per view as the option-name resource says).
+- [x] The static checks (11) pass with the new fields; the pinned method list and the converter round trip (12) include them.
+- [x] A browserless test sets one field per value form of this batch and finds it in the client state.

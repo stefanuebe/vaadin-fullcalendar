@@ -3,12 +3,12 @@ const { test, expect } = require('@playwright/test');
 const { waitForVaadin } = require('./fixtures');
 
 /**
- * Regression test for issue #212: before 7.2, a calendar-level Option.EDITABLE=false
+ * Regression test for issue #212: before 7.2, a calendar-level editable=false
  * was silently overridden by each entry's implicit editable:true default. From 7.2,
  * an un-set editable field is no longer serialized, so the calendar-level option
  * actually takes effect.
  *
- * This spec verifies the end-to-end DOM behaviour: on a calendar with EDITABLE=false
+ * This spec verifies the end-to-end DOM behaviour: on a calendar with editable=false
  * and entries that never called setEditable, FullCalendar must NOT add the
  * fc-event-draggable class to any entry.
  */

@@ -1,5 +1,9 @@
 package org.vaadin.stefan.ui.view.testviews;
 
+import org.vaadin.stefan.fullcalendar.option.ConstraintValue;
+import org.vaadin.stefan.fullcalendar.option.DisplayMode;
+import org.vaadin.stefan.fullcalendar.option.JsCallback;
+import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.Paragraph;
@@ -21,8 +25,7 @@ import java.util.Set;
  * Verifies Pattern 1: "When I set a property on an entry, does it have the expected effect in the client?"
  * <ul>
  *   <li>color — CSS background-color</li>
- *   <li>backgroundColor / textColor — CSS background + text color</li>
- *   <li>borderColor — CSS border-color</li>
+ *   <li>color / contrastColor — CSS background + text color</li>
  *   <li>displayMode BACKGROUND — fc-bg-event class</li>
  *   <li>displayMode INVERSE_BACKGROUND — fc-bg-event class</li>
  *   <li>displayMode NONE — entry not visible</li>
@@ -30,6 +33,7 @@ import java.util.Set;
  *   <li>allDay true/false — placement in day-events vs timed area</li>
  *   <li>editable=false per-entry — no drag when calendar is editable</li>
  *   <li>durationEditable=false — no resize handle</li>
+ *   <li>extended props — readable in render hooks under extendedProps, removable</li>
  * </ul>
  * Route: /test/entry-properties
  */
@@ -46,11 +50,10 @@ public class EntryPropertyTestView extends VerticalLayout {
 
         // --- Calendar ---
         FullCalendar calendar = new FullCalendar();
-        calendar.addThemeVariants(FullCalendarVariant.VAADIN);
-        calendar.setLocale(Locale.ENGLISH);
-        calendar.setOption("initialDate", LocalDate.of(2025, 3, 1).toString());
-        calendar.setOption("initialView", CalendarViewImpl.DAY_GRID_MONTH.getClientSideValue());
-        calendar.setOption(FullCalendar.Option.EDITABLE, true);
+        calendar.options().setLocale(Locale.ENGLISH);
+        calendar.options().setInitialDate(LocalDate.of(2025, 3, 1));
+        calendar.options().setInitialView(CalendarViewImpl.DAY_GRID_MONTH);
+        calendar.options().setEditable(true);
 
         // --- Entry provider ---
         InMemoryEntryProvider<Entry> provider = new InMemoryEntryProvider<>();
@@ -61,110 +64,135 @@ public class EntryPropertyTestView extends VerticalLayout {
         redEntry.setStart(LocalDate.of(2025, 3, 3).atStartOfDay());
         redEntry.setAllDay(true);
         redEntry.setColor("red");
-        provider.addEntry(redEntry);
+        provider.getItems().add(redEntry);
 
-        // 2. Custom background + text color
-        Entry customBg = new Entry();
-        customBg.setTitle("Custom BG");
-        customBg.setStart(LocalDate.of(2025, 3, 4).atStartOfDay());
-        customBg.setAllDay(true);
-        customBg.setBackgroundColor("#00ff00");
-        customBg.setTextColor("#ffffff");
-        provider.addEntry(customBg);
+        // 2. Custom color + contrast color
+        Entry customColor = new Entry();
+        customColor.setTitle("Custom Color");
+        customColor.setStart(LocalDate.of(2025, 3, 4).atStartOfDay());
+        customColor.setAllDay(true);
+        customColor.setColor("#00ff00");
+        customColor.setContrastColor("#ffffff");
+        provider.getItems().add(customColor);
 
-        // 3. Border color
-        Entry borderEntry = new Entry();
-        borderEntry.setTitle("Border Entry");
-        borderEntry.setStart(LocalDate.of(2025, 3, 5).atStartOfDay());
-        borderEntry.setAllDay(true);
-        borderEntry.setBorderColor("blue");
-        provider.addEntry(borderEntry);
-
-        // 4. DisplayMode BACKGROUND
+        // 3. DisplayMode BACKGROUND
         Entry bgMode = new Entry();
         bgMode.setTitle("Background Mode");
         bgMode.setStart(LocalDate.of(2025, 3, 6).atStartOfDay());
         bgMode.setAllDay(true);
         bgMode.setDisplayMode(DisplayMode.BACKGROUND);
         bgMode.setColor("orange");
-        provider.addEntry(bgMode);
+        provider.getItems().add(bgMode);
 
-        // 5. DisplayMode INVERSE_BACKGROUND
+        // 4. DisplayMode INVERSE_BACKGROUND
         Entry inverseBg = new Entry();
         inverseBg.setTitle("Inverse BG Mode");
         inverseBg.setStart(LocalDate.of(2025, 3, 7).atStartOfDay());
         inverseBg.setAllDay(true);
         inverseBg.setDisplayMode(DisplayMode.INVERSE_BACKGROUND);
         inverseBg.setColor("purple");
-        provider.addEntry(inverseBg);
+        provider.getItems().add(inverseBg);
 
-        // 6. DisplayMode NONE — hidden
+        // 5. DisplayMode NONE — hidden
         Entry hiddenEntry = new Entry();
         hiddenEntry.setTitle("Hidden Entry");
         hiddenEntry.setStart(LocalDate.of(2025, 3, 8).atStartOfDay());
         hiddenEntry.setAllDay(true);
         hiddenEntry.setDisplayMode(DisplayMode.NONE);
-        provider.addEntry(hiddenEntry);
+        provider.getItems().add(hiddenEntry);
 
-        // 7. Custom classNames
+        // 6. Custom classNames
         Entry classEntry = new Entry();
         classEntry.setTitle("Custom Class");
         classEntry.setStart(LocalDate.of(2025, 3, 10).atStartOfDay());
         classEntry.setAllDay(true);
         classEntry.setClassNames(Set.of("my-custom-class"));
-        provider.addEntry(classEntry);
+        provider.getItems().add(classEntry);
 
-        // 8. All-day entry
+        // 7. All-day entry
         Entry allDayEntry = new Entry();
         allDayEntry.setTitle("All-Day Entry");
         allDayEntry.setStart(LocalDate.of(2025, 3, 12).atStartOfDay());
         allDayEntry.setAllDay(true);
-        provider.addEntry(allDayEntry);
+        provider.getItems().add(allDayEntry);
 
-        // 9. Timed entry (not all-day)
+        // 8. Timed entry (not all-day)
         Entry timedEntry = new Entry();
         timedEntry.setTitle("Timed Entry");
         timedEntry.setStart(LocalDateTime.of(2025, 3, 12, 9, 0));
         timedEntry.setEnd(LocalDateTime.of(2025, 3, 12, 10, 0));
         timedEntry.setAllDay(false);
-        provider.addEntry(timedEntry);
+        provider.getItems().add(timedEntry);
 
-        // 10. Non-editable entry (per-entry override)
+        // 9. Non-editable entry (per-entry override)
         Entry notEditable = new Entry();
         notEditable.setTitle("Not Editable");
         notEditable.setStart(LocalDate.of(2025, 3, 14).atStartOfDay());
         notEditable.setAllDay(true);
         notEditable.setEditable(false);
-        provider.addEntry(notEditable);
+        provider.getItems().add(notEditable);
 
-        // 11. Non-resizable entry (durationEditable=false)
+        // 10. Non-resizable entry (durationEditable=false)
         Entry noResize = new Entry();
         noResize.setTitle("No Resize");
         noResize.setStart(LocalDateTime.of(2025, 3, 14, 10, 0));
         noResize.setEnd(LocalDateTime.of(2025, 3, 14, 11, 0));
         noResize.setAllDay(false);
         noResize.setDurationEditable(false);
-        provider.addEntry(noResize);
+        provider.getItems().add(noResize);
 
-        // 12. Entry with extendedProps — verified via entryDidMount console.log
+        // 11. Entry with extended props, read by the render hooks below
         Entry propsEntry = new Entry();
         propsEntry.setTitle("Has Props");
         propsEntry.setStart(LocalDate.of(2025, 3, 17).atStartOfDay());
         propsEntry.setAllDay(true);
-        propsEntry.setCustomProperty("department", "Engineering");
-        propsEntry.setCustomProperty("priority", "high");
-        provider.addEntry(propsEntry);
+        propsEntry.setExtendedProp("department", "Engineering");
+        propsEntry.setExtendedProp("priority", "high");
+        provider.getItems().add(propsEntry);
+
+        // 12. Entry with most fields set besides its extended props. None of these fields may end up in
+        // extendedProps, where it would overwrite an extended prop of the same name.
+        Entry allFields = new Entry();
+        allFields.setTitle("All Fields");
+        allFields.setGroupId("group");
+        allFields.setStart(LocalDateTime.of(2025, 3, 19, 9, 0));
+        allFields.setEnd(LocalDateTime.of(2025, 3, 19, 10, 0));
+        allFields.setAllDay(false);
+        allFields.setColor("teal");
+        allFields.setContrastColor("white");
+        allFields.setClassNames(Set.of("all-fields"));
+        allFields.setEditable(true);
+        allFields.setStartEditable(true);
+        allFields.setDurationEditable(true);
+        allFields.setOverlap(false);
+        allFields.setConstraint(ConstraintValue.BUSINESS_HOURS);
+        allFields.setInteractive(true);
+        allFields.setUrl("#all-fields");
+        allFields.setDisplayMode(DisplayMode.BLOCK);
+        allFields.setExtendedProp("department", "Engineering");
+        provider.getItems().add(allFields);
 
         calendar.setEntryProvider(provider);
 
-        // entryDidMount callback that logs extendedProps to a data attribute for E2E verification
-        calendar.setOption(FullCalendar.Option.ENTRY_DID_MOUNT,
-                JsCallback.of("function(info) { " +
-                "  var ep = info.event.extendedProps || {}; " +
-                "  if (ep.customProperties && ep.customProperties.department) { " +
-                "    info.el.setAttribute('data-department', ep.customProperties.department); " +
+        // entryDidMount writes extended props to data attributes for E2E verification
+        calendar.options().setEntryDidMount(JsCallback.of("function(info) { " +
+                "  var ep = info.event.extendedProps; " +
+                "  if (ep.department) { " +
+                "    info.el.setAttribute('data-department', ep.department); " +
                 "  } " +
+                "  info.el.setAttribute('data-extended-keys', Object.keys(ep).sort().join(',')); " +
                 "}"));
+
+        // a FullCalendar 7 split class hook, run again on every render
+        calendar.options().setEntryTitleClass(
+                JsCallback.of("info => 'dept-' + (info.event.extendedProps.department || 'none')"));
+
+        Button removeDepartment = new Button("Remove department", e -> {
+            propsEntry.removeExtendedProp("department");
+            provider.refreshItem(propsEntry);
+        });
+        removeDepartment.setId("remove-department");
+        add(removeDepartment);
 
         add(calendar);
         setFlexGrow(1, calendar);

@@ -1,5 +1,9 @@
 package org.vaadin.stefan.fullcalendar;
 
+import org.vaadin.stefan.fullcalendar.option.ClassName;
+import org.vaadin.stefan.fullcalendar.option.ConstraintValue;
+import org.vaadin.stefan.fullcalendar.option.JsCallback;
+import org.vaadin.stefan.fullcalendar.option.Timezone;
 import org.junit.jupiter.api.Test;
 import org.vaadin.stefan.fullcalendar.dataprovider.CallbackEntryProvider;
 import org.vaadin.stefan.fullcalendar.dataprovider.InMemoryEntryProvider;
@@ -8,11 +12,18 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.time.DayOfWeek;
+import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
@@ -42,10 +53,59 @@ public class SerializationTest {
     }
 
     @Test
+    void calendarWithRawOptionsIsSerializable() throws Exception {
+        FullCalendar calendar = new FullCalendar();
+        calendar.options().setRawOption("weekends", false);
+        calendar.options().setRawOption("dayCellClass", JsCallback.of("() => 'x'"));
+        calendar.options().view(CalendarViewImpl.DAY_GRID_MONTH).setRawOption("dayCount", 3);
+
+        FullCalendar copy = roundtrip(calendar);
+        assertTrue(copy.options().getRawOption("dayCellClass").isPresent());
+        assertEquals(3, copy.options().view(CalendarViewImpl.DAY_GRID_MONTH).getRawOption("dayCount").orElseThrow().asInt());
+    }
+
+    @Test
+    void calendarWithTypedOptionsIsSerializable() throws Exception {
+        FullCalendar calendar = new FullCalendar();
+        calendar.options().setFirstDay(DayOfWeek.MONDAY);
+        calendar.options().setInitialDate(LocalDate.of(2025, 3, 3));
+        calendar.options().setDayCellClass(JsCallback.of("() => 'x'"));
+        calendar.options().setButtons(Map.of("refresh", Map.of("click", JsCallback.of("() => {}"))));
+
+        FullCalendar copy = roundtrip(calendar);
+        assertEquals(DayOfWeek.MONDAY, copy.options().getFirstDay());
+        assertEquals(JsCallback.of("() => 'x'"), copy.options().getDayCellClass());
+        assertEquals(Map.of("refresh", Map.of("click", JsCallback.of("() => {}"))), copy.options().getButtons());
+
+        // the options object of the copy changes the copy, not the original
+        copy.options().setFirstDay(DayOfWeek.TUESDAY);
+        assertEquals(DayOfWeek.TUESDAY, copy.options().getFirstDay());
+        assertEquals(DayOfWeek.MONDAY, calendar.options().getFirstDay());
+    }
+
+    @Test
+    void calendarWithViewOptionsAndAKeptViewReferenceIsSerializable() throws Exception {
+        FullCalendar calendar = new FullCalendar();
+        FullCalendarViewOptions week = calendar.options().view(CalendarViewImpl.TIME_GRID_WEEK);
+        week.setWeekends(false);
+
+        // serialized together, as in a session, so the copied reference points to the copied calendar
+        List<?> copy = roundtrip(new ArrayList<>(List.of(calendar, week)));
+        FullCalendar calendarCopy = (FullCalendar) copy.get(0);
+        FullCalendarViewOptions weekCopy = (FullCalendarViewOptions) copy.get(1);
+
+        assertEquals(Boolean.FALSE, calendarCopy.options().view(CalendarViewImpl.TIME_GRID_WEEK).getWeekends());
+        weekCopy.setDayCellClass("week-day");
+        assertEquals(ClassName.of("week-day"),
+                calendarCopy.options().view(CalendarViewImpl.TIME_GRID_WEEK).getDayCellClass());
+        assertNull(week.getDayCellClass());
+    }
+
+    @Test
     void calendarWithInMemoryEntriesIsSerializable() throws Exception {
         FullCalendar calendar = new FullCalendar();
-        calendar.setTimezone(Timezone.getSystem());
-        calendar.setLocale(java.util.Locale.ENGLISH);
+        calendar.options().setTimeZone(Timezone.getSystem());
+        calendar.options().setLocale(Locale.ENGLISH);
 
         InMemoryEntryProvider<Entry> provider = calendar.getEntryProvider().asInMemory();
         Entry entry = new Entry();
@@ -53,13 +113,14 @@ public class SerializationTest {
         entry.setStart(LocalDateTime.now());
         entry.setEnd(LocalDateTime.now().plusHours(1));
         entry.setColor("#ff0000");
-        provider.addEntry(entry);
+        provider.getItems().add(entry);
 
         Entry recurring = new Entry();
         recurring.setRecurringDaysOfWeek(java.time.DayOfWeek.MONDAY, java.time.DayOfWeek.FRIDAY);
         recurring.setRecurringStartDate(LocalDate.now());
-        provider.addEntry(recurring);
+        provider.getItems().add(recurring);
 
+        provider.fetchAll().count(); // builds the id map, so the roundtrip also covers it
         FullCalendar restored = roundtrip(calendar);
         assertNotNull(restored);
         assertTrue(restored.getEntryProvider().asInMemory().fetchAll().count() >= 2);
@@ -78,10 +139,20 @@ public class SerializationTest {
     @Test
     void calendarWithOptionsIsSerializable() throws Exception {
         FullCalendar calendar = new FullCalendar();
-        calendar.setOption(FullCalendar.Option.EDITABLE, true);
-        calendar.setMaxEntriesPerDay(5);
+        calendar.options().setEditable(true);
+        calendar.options().setDayMaxEntries(5);
         calendar.changeView(CalendarViewImpl.TIME_GRID_WEEK);
         assertNotNull(roundtrip(calendar));
+    }
+
+    @Test
+    void calendarWithARuleWindowConstraintIsSerializable() throws Exception {
+        FullCalendar calendar = new FullCalendar();
+        calendar.options().setEntryConstraint(ConstraintValue.Window.ofRRule(
+                RRule.weekly().dtstart(LocalDateTime.of(2026, 1, 5, 9, 0)).excludeDates(LocalDate.of(2026, 1, 12)),
+                Duration.ofHours(8)));
+        FullCalendar restored = roundtrip(calendar);
+        assertEquals(calendar.options().getEntryConstraint(), restored.options().getEntryConstraint());
     }
 
     @Test
@@ -89,16 +160,16 @@ public class SerializationTest {
         Entry entry = new Entry();
         entry.setTitle("Standalone");
         entry.setStart(LocalDateTime.now());
-        entry.setCustomProperty("foo", "bar");
+        entry.setExtendedProp("foo", "bar");
         assertNotNull(roundtrip(entry));
     }
 
     @Test
-    void calendarWithClientSideEventSourcesIsSerializable() throws Exception {
+    void calendarWithRemoteEntrySourcesIsSerializable() throws Exception {
         FullCalendar calendar = new FullCalendar();
-        calendar.addClientSideEventSource(new JsonFeedEventSource("/api/events").withEditable(true));
-        calendar.addClientSideEventSource(new ICalendarEventSource("/feed.ics"));
-        calendar.addClientSideEventSource(new GoogleCalendarEventSource("cal-id").withApiKey("api-key"));
+        calendar.addRemoteEntrySource(new JsonFeedEntrySource("/api/events").withEditable(true));
+        calendar.addRemoteEntrySource(new ICalendarEntrySource("/feed.ics"));
+        calendar.addRemoteEntrySource(new GoogleCalendarEntrySource("cal-id").withApiKey("api-key"));
         assertNotNull(roundtrip(calendar));
     }
 

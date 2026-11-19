@@ -1,0 +1,82 @@
+package org.vaadin.stefan.ui.view.testviews;
+
+import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.html.H2;
+import com.vaadin.flow.component.html.Span;
+import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.router.BeforeEvent;
+import com.vaadin.flow.router.HasUrlParameter;
+import com.vaadin.flow.router.OptionalParameter;
+import com.vaadin.flow.router.Route;
+import org.vaadin.stefan.fullcalendar.CalendarViewImpl;
+import org.vaadin.stefan.fullcalendar.Entry;
+import org.vaadin.stefan.fullcalendar.FullCalendar;
+import org.vaadin.stefan.fullcalendar.option.JsCallback;
+import org.vaadin.stefan.fullcalendar.option.MoreLinkClickValue;
+import org.vaadin.stefan.fullcalendar.dataprovider.InMemoryEntryProvider;
+import org.vaadin.stefan.ui.layouts.TestLayout;
+import org.vaadin.stefan.ui.menu.MenuItem;
+
+import java.time.LocalDate;
+
+/**
+ * Test view for the {@code moreLinkClick} field: its value decides what the "+N more" link does, and the server
+ * receives every click.
+ * <p>
+ * Before attach the calendar gets {@link MoreLinkClickValue.Action#DAY}, with the parameter {@code callback} a
+ * {@link JsCallback} returning {@code "week"}, and with the parameter {@code view} the list day view. A button sets
+ * that callback after attach. {@code #more-link-count} counts the {@code MoreLinkClickedEvent}s on the server.
+ * <p>
+ * Route: /test/more-link-click, /test/more-link-click/callback, /test/more-link-click/view
+ */
+@Route(value = "more-link-click", layout = TestLayout.class)
+@MenuItem(label = "More Link Click")
+public class MoreLinkClickTestView extends VerticalLayout implements HasUrlParameter<String> {
+
+    private static final JsCallback RETURN_WEEK = JsCallback.of("function(info) { return 'week'; }");
+
+    private final FullCalendar calendar = new FullCalendar();
+
+    public MoreLinkClickTestView() {
+        setSizeFull();
+        setPadding(true);
+
+        add(new H2("More Link Click"));
+
+        calendar.getElement().setAttribute("data-testid", "calendar");
+        calendar.options().setInitialDate(LocalDate.of(2025, 3, 1));
+        calendar.options().setInitialView(CalendarViewImpl.DAY_GRID_MONTH);
+        calendar.options().setDayMaxEntryRows(2);
+
+        // 5 all-day entries on 2025-03-05 produce a "+N more" link with 2 rows
+        InMemoryEntryProvider<Entry> provider = new InMemoryEntryProvider<>();
+        for (int i = 1; i <= 5; i++) {
+            Entry entry = new Entry();
+            entry.setTitle("Entry " + i);
+            entry.setStart(LocalDate.of(2025, 3, 5));
+            entry.setAllDay(true);
+            provider.getItems().add(entry);
+        }
+        calendar.setEntryProvider(provider);
+
+        Span count = new Span("0");
+        count.setId("more-link-count");
+        calendar.addMoreLinkClickedListener(e -> count.setText(String.valueOf(Integer.parseInt(count.getText()) + 1)));
+
+        Button callbackButton = new Button("Callback returning week",
+                e -> calendar.options().setMoreLinkClick(RETURN_WEEK));
+        callbackButton.getElement().setAttribute("data-testid", "btn-callback");
+
+        add(callbackButton, count, calendar);
+    }
+
+    @Override
+    public void setParameter(BeforeEvent event, @OptionalParameter String parameter) {
+        // runs before the view is attached, so the option goes with the initial options
+        switch (parameter == null ? "" : parameter) {
+            case "callback" -> calendar.options().setMoreLinkClick(RETURN_WEEK);
+            case "view" -> calendar.options().setMoreLinkClick(CalendarViewImpl.LIST_DAY);
+            default -> calendar.options().setMoreLinkClick(MoreLinkClickValue.Action.DAY);
+        }
+    }
+}

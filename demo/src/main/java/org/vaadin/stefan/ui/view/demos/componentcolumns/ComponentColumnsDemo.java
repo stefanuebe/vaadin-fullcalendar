@@ -1,5 +1,8 @@
 package org.vaadin.stefan.ui.view.demos.componentcolumns;
 
+import org.vaadin.stefan.fullcalendar.option.ComponentResourceColumn;
+import org.vaadin.stefan.fullcalendar.option.ResourceColumn;
+import org.vaadin.stefan.fullcalendar.option.Timezone;
 import com.vaadin.flow.component.datepicker.DatePicker;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.notification.Notification;
@@ -16,7 +19,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 /**
- * Demo view for component resource area columns (UC-024).
+ * Demo view for component resource columns (UC-024).
  * <p>
  * Shows a scheduler with tasks assigned to resources. Each resource row has two
  * DatePicker columns (Start, End) that reflect the assigned entry's time range.
@@ -28,8 +31,8 @@ import java.util.List;
 public class ComponentColumnsDemo extends VerticalLayout {
 
     private final FullCalendarScheduler scheduler;
-    private final ComponentResourceAreaColumn<DatePicker> startColumn;
-    private final ComponentResourceAreaColumn<DatePicker> endColumn;
+    private final ComponentResourceColumn<DatePicker> startColumn;
+    private final ComponentResourceColumn<DatePicker> endColumn;
     private final InMemoryEntryProvider<Entry> entryProvider;
 
     public ComponentColumnsDemo() {
@@ -43,25 +46,25 @@ public class ComponentColumnsDemo extends VerticalLayout {
 
         // Build scheduler
         scheduler = new FullCalendarScheduler();
-        scheduler.setOption(FullCalendarScheduler.SchedulerOption.LICENSE_KEY, Scheduler.GPL_V3_LICENSE_KEY);
-        scheduler.addBrowserTimezoneObtainedListener(event -> scheduler.setTimezone(event.getTimezone()));
+        FullCalendarSchedulerOptions options = scheduler.options();
+        options.setSchedulerLicenseKey(Scheduler.AGPL_V3_LICENSE_KEY);
+        options.setTimeZone(Timezone.LOCAL);
 
-        scheduler.addThemeVariants(FullCalendarVariant.VAADIN);
-        scheduler.setOption("initialView", SchedulerView.RESOURCE_TIMELINE_MONTH.getClientSideValue());
-        scheduler.setOption("initialDate", LocalDate.of(2025, 3, 1).toString());
-        scheduler.setOption(FullCalendar.Option.ENTRY_DURATION_EDITABLE, true);
-        scheduler.setOption(FullCalendar.Option.EDITABLE, true);
+        options.setInitialView(SchedulerView.RESOURCE_TIMELINE_MONTH);
+        options.setInitialDate(LocalDate.of(2025, 3, 1));
+        options.setEntryDurationEditable(true);
+        options.setEditable(true);
         // Disable cross-resource dragging
-        scheduler.setOption(FullCalendarScheduler.SchedulerOption.ENTRY_RESOURCES_EDITABLE, false);
+        options.setEntryResourceEditable(false);
         // Wider resource area to fit both date picker columns
-        scheduler.setOption(FullCalendarScheduler.SchedulerOption.RESOURCE_AREA_WIDTH, "500px");
+        options.setResourceColumnsWidth(500);
         // Taller rows for date pickers
-        scheduler.setOption("resourceAreaHeaderContent", "Project Plan");
+        options.setResourceColumnHeaderContent("Project Plan");
 
         entryProvider = scheduler.getEntryProvider().asInMemory();
 
         // Component columns: Start and End date pickers
-        startColumn = new ComponentResourceAreaColumn<>("start", "Start",
+        startColumn = new ComponentResourceColumn<>("start", "Start",
                 resource -> {
                     DatePicker picker = createCompactDatePicker();
                     picker.addValueChangeListener(e -> {
@@ -72,7 +75,7 @@ public class ComponentColumnsDemo extends VerticalLayout {
                     return picker;
                 });
 
-        endColumn = new ComponentResourceAreaColumn<>("end", "End",
+        endColumn = new ComponentResourceColumn<>("end", "End",
                 resource -> {
                     DatePicker picker = createCompactDatePicker();
                     picker.addValueChangeListener(e -> {
@@ -83,10 +86,10 @@ public class ComponentColumnsDemo extends VerticalLayout {
                     return picker;
                 });
 
-        scheduler.setResourceAreaColumns(List.of(
-                new ResourceAreaColumn("title", "Task").withWidth("150px"),
-                startColumn.withWidth("170px"),
-                endColumn.withWidth("170px")
+        options.setResourceColumns(List.of(
+                new ResourceColumn("title", "Task").withWidth(150),
+                startColumn.withWidth(170),
+                endColumn.withWidth(170)
         ));
 
         // Resources with entries
@@ -120,7 +123,7 @@ public class ComponentColumnsDemo extends VerticalLayout {
         entry.setAllDay(true);
         entry.setColor(color);
         entry.addResources(resource);
-        entryProvider.addEntry(entry);
+        entryProvider.getItems().add(entry);
 
         // Set initial DatePicker values
         startColumn.getComponent(resource).ifPresent(p -> p.setValue(start));

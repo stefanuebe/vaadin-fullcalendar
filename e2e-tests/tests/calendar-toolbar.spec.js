@@ -1,5 +1,15 @@
 // @ts-check
-const { test, expect, closeDialog, waitForCalendarUpdate, clickEntriesMenuItem, openSettingsMenu } = require('./fixtures');
+const { test, expect, closeDialog, clickEntriesMenuItem, openSettingsMenu } = require('./fixtures');
+
+/**
+ * Counts the entries of the month view, including those hidden behind a "+N more" link. A full day cell (e.g. today,
+ * where the playground puts its multi-day entries) hides a new entry behind the link.
+ */
+async function countEntries(page) {
+  const shown = await page.locator('.fc-event').count();
+  const moreTexts = await page.getByText(/^\+\d+ more$/).allTextContents();
+  return moreTexts.reduce((sum, text) => sum + parseInt(text.slice(1), 10), shown);
+}
 
 test.describe('Calendar Toolbar', () => {
 
@@ -31,7 +41,7 @@ test.describe('Calendar Toolbar', () => {
 
     test('should create entry via Add single entry menu', async ({ page }) => {
       // Count entries before
-      const initialCount = await page.locator('.fc-event').count();
+      const initialCount = await countEntries(page);
 
       const result = await clickEntriesMenuItem(page, 'Add single entry');
       expect(result).toBe(true);
@@ -40,8 +50,7 @@ test.describe('Calendar Toolbar', () => {
 
       // "Add single entry" creates an entry directly (no dialog)
       // Verify a new entry was created
-      const newCount = await page.locator('.fc-event').count();
-      expect(newCount).toBeGreaterThan(initialCount);
+      await expect.poll(() => countEntries(page)).toBeGreaterThan(initialCount);
     });
 
     test('should have Add recurring entries option', async ({ page }) => {
@@ -83,97 +92,54 @@ test.describe('Calendar Toolbar', () => {
     test('should open Settings menu', async ({ page }) => {
       await openSettingsMenu(page);
 
-      // Settings menu contains checkboxes - check for visible checkbox
-      const lumoCheckbox = page.locator('vaadin-checkbox:has-text("Lumo")');
-      await expect(lumoCheckbox).toBeVisible({ timeout: 3000 });
+      // Settings menu contains the calendar theme submenu
+      const themeItem = page.getByRole('menuitem', { name: 'Calendar theme' });
+      await expect(themeItem).toBeVisible({ timeout: 3000 });
 
       await page.keyboard.press('Escape');
     });
   });
 
-  test.describe('Theme Selection', () => {
+  test.describe('Vaadin Theme and Color Scheme', () => {
 
-    test('should have theme dropdown (AURA)', async ({ page }) => {
-      // Theme dropdown is a vaadin-select showing AURA/LUMO/MATERIAL
-      const themeDropdown = page.locator('vaadin-select').filter({ hasText: /AURA|LUMO|MATERIAL/ }).first();
-      await expect(themeDropdown).toBeVisible();
+    /** A variable of the page root, empty when no stylesheet defines it. */
+    const rootVariable = (page, name) => page.evaluate((n) =>
+        getComputedStyle(document.documentElement).getPropertyValue(n).trim(), name);
+    const rootColorScheme = (page) => page.evaluate(() => getComputedStyle(document.documentElement).colorScheme);
+
+    async function choose(page, label, item) {
+      const select = page.locator('vaadin-select').filter({ has: page.locator(`label:has-text("${label}")`) });
+      // a click shortly after the previous choice, while its overlay still closes, does not open the select
+      await expect(async () => {
+        await select.click();
+        await expect(select).toHaveAttribute('opened', '', { timeout: 1000 });
+      }).toPass();
+      await page.locator(`vaadin-select-item:has-text("${item}")`).click();
+    }
+
+    test('the app starts with Lumo and the system color scheme', async ({ page }) => {
+      await expect(page.locator('vaadin-select').filter({ hasText: 'LUMO' })).toBeVisible();
+      await expect(page.locator('vaadin-select').filter({ hasText: 'SYSTEM' })).toBeVisible();
+      expect(await rootVariable(page, '--lumo-base-color')).not.toBe('');
+      expect(await rootVariable(page, '--aura-accent-color')).toBe('');
     });
 
-    test('should switch to LUMO theme', async ({ page }) => {
-      const themeDropdown = page.locator('vaadin-select').filter({ hasText: /AURA|LUMO|MATERIAL/ }).first();
-      await themeDropdown.click();
-      await page.waitForTimeout(500);
+    test('the theme select switches the app to Aura', async ({ page }) => {
+      await choose(page, 'Theme', 'AURA');
 
-      const lumoOption = page.locator('vaadin-select-overlay vaadin-select-item:has-text("LUMO")');
-      if (await lumoOption.isVisible({ timeout: 2000 })) {
-        await lumoOption.click();
-        await waitForCalendarUpdate(page, 1500);
-
-        const calendar = page.locator('.fc');
-        await expect(calendar).toBeVisible();
-      } else {
-        await page.keyboard.press('Escape');
-      }
+      await expect(page).toHaveURL(/theme=aura/);
+      await expect.poll(() => rootVariable(page, '--aura-accent-color')).not.toBe('');
+      expect(await rootVariable(page, '--lumo-base-color')).toBe('');
     });
 
-    test('should switch to MATERIAL theme', async ({ page }) => {
-      const themeDropdown = page.locator('vaadin-select').filter({ hasText: /AURA|LUMO|MATERIAL/ }).first();
-      await themeDropdown.click();
-      await page.waitForTimeout(500);
+    test('the mode select switches the color scheme to dark and to light', async ({ page }) => {
+      await choose(page, 'Mode', 'DARK');
+      await expect(page).toHaveURL(/scheme=dark/);
+      await expect.poll(() => rootColorScheme(page)).toBe('dark');
 
-      const materialOption = page.locator('vaadin-select-overlay vaadin-select-item:has-text("MATERIAL")');
-      if (await materialOption.isVisible({ timeout: 2000 })) {
-        await materialOption.click();
-        await waitForCalendarUpdate(page, 1500);
-
-        const calendar = page.locator('.fc');
-        await expect(calendar).toBeVisible();
-      } else {
-        await page.keyboard.press('Escape');
-      }
-    });
-  });
-
-  test.describe('Dark/Light Mode', () => {
-
-    test('should have mode dropdown (SYSTEM)', async ({ page }) => {
-      // Mode dropdown is a vaadin-select showing SYSTEM/DARK/LIGHT
-      const modeDropdown = page.locator('vaadin-select').filter({ hasText: /SYSTEM|DARK|LIGHT/ }).first();
-      await expect(modeDropdown).toBeVisible();
-    });
-
-    test('should switch to DARK mode', async ({ page }) => {
-      const modeDropdown = page.locator('vaadin-select').filter({ hasText: /SYSTEM|LIGHT/ }).first();
-      await modeDropdown.click();
-      await page.waitForTimeout(500);
-
-      const darkOption = page.locator('vaadin-select-overlay vaadin-select-item:has-text("DARK")');
-      if (await darkOption.isVisible({ timeout: 2000 })) {
-        await darkOption.click();
-        await waitForCalendarUpdate(page, 1500);
-
-        const calendar = page.locator('.fc');
-        await expect(calendar).toBeVisible();
-      } else {
-        await page.keyboard.press('Escape');
-      }
-    });
-
-    test('should switch to LIGHT mode', async ({ page }) => {
-      const modeDropdown = page.locator('vaadin-select').filter({ hasText: /SYSTEM|DARK/ }).first();
-      await modeDropdown.click();
-      await page.waitForTimeout(500);
-
-      const lightOption = page.locator('vaadin-select-overlay vaadin-select-item:has-text("LIGHT")');
-      if (await lightOption.isVisible({ timeout: 2000 })) {
-        await lightOption.click();
-        await waitForCalendarUpdate(page, 1500);
-
-        const calendar = page.locator('.fc');
-        await expect(calendar).toBeVisible();
-      } else {
-        await page.keyboard.press('Escape');
-      }
+      await choose(page, 'Mode', 'LIGHT');
+      await expect(page).toHaveURL(/scheme=light/);
+      await expect.poll(() => rootColorScheme(page)).toBe('light');
     });
   });
 

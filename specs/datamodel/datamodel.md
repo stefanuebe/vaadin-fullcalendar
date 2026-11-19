@@ -8,7 +8,7 @@
 
 ### Entry
 
-The primary data object representing a calendar entry (FC "event"). All entries have a unique ID.
+The primary data object representing a calendar entry (FullCalendar "event"). All entries have a unique ID.
 
 | Field | Type | Description |
 |-------|------|-------------|
@@ -17,29 +17,26 @@ The primary data object representing a calendar entry (FC "event"). All entries 
 | `start` | `LocalDateTime` | Start date/time (stored as UTC). Setters accept `LocalDateTime`, `Instant`, `LocalDate` |
 | `end` | `LocalDateTime` | End date/time (stored as UTC, optional — omitting creates point-in-time entry). Setters accept `LocalDateTime`, `Instant`, `LocalDate` |
 | `allDay` | `boolean` | Force all-day rendering regardless of time part |
-| `editable` | `boolean` | Per-entry drag/resize toggle |
-| `startEditable` | `Boolean` | Per-entry override for `ENTRY_START_EDITABLE` (`null` = inherit global) |
-| `durationEditable` | `Boolean` | Per-entry override for `ENTRY_DURATION_EDITABLE` (`null` = inherit global) |
-| `color` | `String` | Combined background + border color (CSS color string) |
-| `backgroundColor` | `String` | Background color override |
-| `borderColor` | `String` | Border color override |
-| `textColor` | `String` | Text color override |
-| `description` | `String` | Description (available in JS callbacks) |
+| `editable` | `Boolean` | Per-entry drag/resize toggle (`null` = inherit global). `startEditable` and `durationEditable` win over it, also in `isStartEditable()` / `isDurationEditable()` |
+| `startEditable` | `Boolean` | Per-entry override for `entryStartEditable` (`null` = inherit global) |
+| `durationEditable` | `Boolean` | Per-entry override for `entryDurationEditable` (`null` = inherit global) |
+| `color` | `String` | Entry color (CSS color string). FullCalendar sets it as the CSS variable `--fc-event-color`, the theme's styles decide where it shows |
+| `contrastColor` | `String` | Color for text and other elements drawn on the entry color |
 | `groupId` | `String` | Group ID for visual linking and constraint-by-group |
 | `displayMode` | `DisplayMode` | Rendering mode: `AUTO`, `BLOCK`, `LIST_ITEM`, `BACKGROUND`, `INVERSE_BACKGROUND`, `NONE` |
 | `overlap` | `Boolean` | Whether entry may overlap others (`null` = inherit global) |
 | `constraint` | `String` | Group ID or `"businessHours"` restricting placement |
 | `url` | `String` | Makes entry an `<a>` tag — navigates on click |
 | `interactive` | `Boolean` | Keyboard focusability (`null` = inherit global `eventInteractive`) |
-| `classNames` | `Set<String>` | CSS classes applied to the entry element |
+| `classNames` | `Set<String>` | CSS classes applied to the entry element (sent as one space-separated `className` string) |
 | `recurringDaysOfWeek` | `Set<DayOfWeek>` | Simple weekly recurrence |
-| `recurringStartTime` | `RecurringTime` | Start time for recurring entries |
-| `recurringEndTime` | `RecurringTime` | End time for recurring entries |
+| `recurringStartTime` | `ExtendedLocalTime` | Start time for recurring entries |
+| `recurringEndTime` | `ExtendedLocalTime` | End time for recurring entries |
 | `recurringStartDate` | `LocalDate` | Start bound for recurrence range |
 | `recurringEndDate` | `LocalDate` | End bound for recurrence range |
-| `recurringDuration` | `String` | Duration for multi-day recurring all-day entries (ISO 8601 string, e.g., `"P2D"`) |
+| `recurringDuration` | `Duration` | Length of each occurrence, for the basic recurrence and RRule alike. Sent as `hh:mm:ss`, where the hours may exceed 24 (e.g. `"48:00:00"`) |
 | `rrule` | `RRule` | RFC 5545 recurrence rule |
-| `customProperties` | `Map<String, Object>` | Arbitrary data accessible in JS callbacks via `setCustomProperty(key, value)` |
+| `extendedProps` | `Map<String, Object>` | Arbitrary data, set with `setExtendedProp(key, value)`, sent as `extendedProps` and read in JS callbacks as `event.extendedProps.<key>`. The getter returns a read-only map, never null, that may not reflect later changes. `hasExtendedProp(key)` tells a key set to null apart from an absent one. Objects are serialized with Jackson |
 
 **Serialization**: `Entry.toJson()` uses reflection-based `BeanProperties` with `@JsonName`, `@JsonConverter`, and `@JsonIgnore` annotations.
 
@@ -50,7 +47,7 @@ Entry subclass for scheduler views that can be assigned to one or more resources
 | Field | Type | Description |
 |-------|------|-------------|
 | `resources` | `Set<Resource>` | Assigned resources (LinkedHashSet) |
-| `resourceEditable` | `boolean` | Whether entry can be dragged between resources |
+| `resourceEditable` | `Boolean` | Whether entry can be dragged between resources (`null` = inherit `entryResourceEditable`, not sent) |
 
 **Convenience accessor**: `getResource()` returns `Optional<Resource>` (first assigned resource). Use `getResourcesOrEmpty()` for all resources.
 
@@ -64,17 +61,15 @@ Represents a schedulable resource (room, person, equipment). Supports hierarchic
 |-------|------|-------------|
 | `id` | `String` | Unique identifier (auto-generated UUID if not provided) |
 | `title` | `String` | Display name |
-| `color` | `String` | Color shorthand for associated entries |
+| `color` | `String` | Entry color of associated entries, sent as `eventColor`. FullCalendar 7 has no separate background and border colors, the theme's styles read it from `--fc-event-color` |
 | `children` | `Set<Resource>` | Child resources (hierarchical) |
 | `parent` | `Resource` | Parent resource (null for top-level) |
 | `businessHoursArray` | `BusinessHours[]` | Per-resource business hours |
-| `extendedProps` | `Map<String, Object>` | Custom properties |
-| `entryBackgroundColor` | `String` | Per-resource entry background color (Java setter: `setEntryBackgroundColor()`) |
-| `entryBorderColor` | `String` | Per-resource entry border color (Java setter: `setEntryBorderColor()`) |
-| `entryTextColor` | `String` | Per-resource entry text color (Java setter: `setEntryTextColor()`) |
+| `extendedProps` | `Map<String, Object>` | Arbitrary data (`setExtendedProp(key, value)`), sent flat on the top level of the resource JSON. The getter returns a read-only view |
+| `entryContrastColor` | `String` | Per-resource entry contrast color, sent as `eventContrastColor` (Java setter: `setEntryContrastColor()`) |
 | `entryConstraint` | `String` | Per-resource entry constraint (Java setter: `setEntryConstraint()`) |
 | `entryOverlap` | `Boolean` | Per-resource entry overlap setting (Java setter: `setEntryOverlap()`) |
-| `entryClassNames` | `Set<String>` | Per-resource CSS classes for entries (Java setter: `setEntryClassNames()`) |
+| `entryClassNames` | `Set<String>` | Per-resource CSS classes for entries, sent as one space-separated `eventClass` string (Java setter: `setEntryClassNames()`) |
 | `entryAllow` | `JsCallback` | Per-resource drop-allow callback (Java setter: `setEntryAllow(JsCallback)` — see UC-016) |
 
 **Auto-push**: `setTitle()` and `setColor()` auto-push updates to client. Other entry style properties require manual `scheduler.updateResource(resource)`.
@@ -141,20 +136,20 @@ Provides entries to the calendar. Two implementations:
 
 | Provider | Description | When to use |
 |----------|-------------|-------------|
-| `InMemoryEntryProvider` | All entries sent to client; client handles filtering | Small datasets (< few thousand entries) |
+| `InMemoryEntryProvider` | Entries held in memory and filtered per visible date range on the server (`EntryQuery`) | Small datasets (< few thousand entries) |
 | `CallbackEntryProvider` | Entries fetched lazily per visible date range via callback | Large datasets or database-backed calendars |
 
-### Client-Side Event Sources
+### Remote Entry Sources
 
 Load entries directly in the browser (bypassing Java backend):
 
 | Source | Class | Description |
 |--------|-------|-------------|
-| JSON Feed | `JsonFeedEventSource` | FC fetches from a REST endpoint with `start`/`end` params |
-| Google Calendar | `GoogleCalendarEventSource` | Requires API key |
-| iCalendar | `ICalendarEventSource` | Loads `.ics` feeds |
+| JSON Feed | `JsonFeedEntrySource` | FullCalendar fetches from a REST endpoint with `start`/`end` params |
+| Google Calendar | `GoogleCalendarEntrySource` | Requires API key |
+| iCalendar | `ICalendarEntrySource` | Loads `.ics` feeds |
 
-Client-side entries fire `ExternalEntryDroppedEvent` / `ExternalEntryResizedEvent` (not the server-managed counterparts).
+Entries of remote entry sources fire `RemoteEntry…Event`s, such as `RemoteEntryClickedEvent`, `RemoteEntryDroppedEvent` and `RemoteEntryResizedEvent`, instead of the entry events of the entry provider.
 
 ---
 
@@ -164,7 +159,7 @@ Client-side entries fire `ExternalEntryDroppedEvent` / `ExternalEntryResizedEven
 FullCalendar
   ├── has one EntryProvider
   │     └── manages many Entry instances
-  └── has many ClientSideEventSource instances
+  └── has many RemoteEntrySource instances
 
 FullCalendarScheduler (extends FullCalendar)
   ├── has many Resource instances

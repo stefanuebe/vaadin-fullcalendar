@@ -22,6 +22,6 @@ public class BaseSample extends AbstractSample {
 
         // FC uses a data provider concept similar to the Vaadin default's one, with some differences
         // By default the FC uses a in-memory data provider, which is sufficient for most basic use cases.
-        calendar.getEntryProvider().asInMemory().addEntries(entry);
+        calendar.getEntryProvider().asInMemory().getItems().add(entry);
     }
 }

@@ -10,7 +10,7 @@
 ## Scope
 
 **Addon module:** addon (+ addon-scheduler for scheduler views)
-**Related Options:** `Option.HEADER_TOOLBAR`, `Option.FOOTER_TOOLBAR`
+**Related Options:** `headerToolbar`, `footerToolbar`
 **Related Events:** `DatesRenderedEvent`
 
 ---
@@ -43,7 +43,7 @@
 
 ### Custom Views
 
-`CustomCalendarView` allows defining arbitrary FC views with custom duration.
+`CustomCalendarView` allows defining arbitrary FullCalendar views with custom duration.
 
 ---
 
@@ -54,10 +54,9 @@
 calendar.changeView(CalendarViewImpl.TIME_GRID_WEEK);
 
 // Configure toolbar with view buttons
-calendar.setOption(Option.HEADER_TOOLBAR,
-    Map.of("left", "prev,next,today",
-           "center", "title",
-           "right", "dayGridMonth,timeGridWeek,timeGridDay,listWeek"));
+calendar.options().setHeaderToolbar(
+    ToolbarValue.ofLeftRight("prev,next,today", "title",
+                             "dayGridMonth,timeGridWeek,timeGridDay,listWeek"));
 
 // Listen for view changes
 calendar.addDatesRenderedListener(event -> {
@@ -91,7 +90,7 @@ calendar.changeView(threeDayView);
 |----|------|
 | BR-01 | Scheduler views require `FullCalendarScheduler` (not plain `FullCalendar`) |
 | BR-02 | `DatesRenderedEvent` fires whenever the visible date range changes (view switch or navigation) |
-| BR-03 | Toolbar button names must match FC view names exactly |
+| BR-03 | Toolbar button names must match FullCalendar view names exactly |
 | BR-04 | View-specific options can override global options for particular views |
 
 ---
@@ -104,7 +103,7 @@ calendar.changeView(threeDayView);
 - [ ] `DatesRenderedEvent` fires on view change with correct date range
 - [ ] Custom views with arbitrary durations work
 - [ ] Scheduler views show resource columns/rows
-- [ ] `setViewSpecificOption()` overrides options for specific views
+- [ ] `calendar.options().view(view)` sets options for one view type, which override the calendar-wide values while that view is shown
 
 ---
 

@@ -16,13 +16,13 @@ import java.util.List;
 
 /**
  * Regression test view for issue #212, in the direction the original bug hit: a calendar-level
- * {@code setOption(EDITABLE, false)} must actually prevent entries from being draggable, even
+ * {@code options().setEditable(false)} must actually prevent entries from being draggable, even
  * when those entries were never explicitly configured (no {@code setEditable(...)} call). Before
  * #212, every entry's implicit {@code editable: true} default was serialized and overrode the
  * calendar-level option.
  * <p>
  * The view renders two entries, neither of which calls {@code setEditable}. Playwright verifies
- * that FC does <b>not</b> add the {@code fc-event-draggable} class to their rendered elements.
+ * that FullCalendar does <b>not</b> add the {@code fc-event-draggable} class to their rendered elements.
  * <p>
  * Route: /test/calendar-editable-false
  */
@@ -41,9 +41,9 @@ public class CalendarEditableFalseTestView extends VerticalLayout {
 
         FullCalendar calendar = new FullCalendar();
         calendar.getElement().setAttribute("data-testid", "calendar");
-        calendar.setOption("initialDate", LocalDate.of(2025, 3, 3).toString());
-        calendar.setOption(FullCalendar.Option.INITIAL_VIEW, CalendarViewImpl.TIME_GRID_WEEK.getClientSideValue());
-        calendar.setOption(FullCalendar.Option.EDITABLE, false);
+        calendar.options().setInitialDate(LocalDate.of(2025, 3, 3));
+        calendar.options().setInitialView(CalendarViewImpl.TIME_GRID_WEEK);
+        calendar.options().setEditable(false);
 
         Entry e1 = new Entry("e1");
         e1.setTitle("Default A");

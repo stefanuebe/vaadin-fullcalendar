@@ -27,8 +27,16 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
- * Abstract base class for FC header and footer
+ * Abstract base class for FullCalendar header and footer
+ *
+ * @deprecated set the toolbar with {@link org.vaadin.stefan.fullcalendar.FullCalendarOptions#setHeaderToolbar(org.vaadin.stefan.fullcalendar.option.ToolbarValue)} or
+ * {@link org.vaadin.stefan.fullcalendar.FullCalendarOptions#setFooterToolbar(org.vaadin.stefan.fullcalendar.option.ToolbarValue)} and a
+ * {@link org.vaadin.stefan.fullcalendar.option.ToolbarValue}, for example
+ * {@code ToolbarValue.ofStartEnd("prev,next today", "title", "dayGridMonth,timeGridWeek")}.
+ * {@link org.vaadin.stefan.fullcalendar.option.NativeToolbarParts} has constants for the positions and the built-in buttons.
+ * This model knows only some of the buttons. View and custom buttons cannot be expressed with it, therefore it is deprecated.
  */
+@Deprecated(since = "8.0.0", forRemoval = true)
 @EqualsAndHashCode
 @ToString
 public class AbstractHeaderFooter {
@@ -82,8 +90,6 @@ public class AbstractHeaderFooter {
     public HeaderFooterPart getEnd() {
         return parts.computeIfAbsent(HeaderFooterPartPosition.END, HeaderFooterPart::new);
     }
-
-
 
     /**
      * Converts the given object into a json object.

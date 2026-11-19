@@ -10,7 +10,7 @@
 ## Scope
 
 **Addon module:** addon
-**Related Options:** `Option.SELECTABLE`, `Option.SELECT_MIRROR`, `Option.SELECT_CONSTRAINT`, `Option.SELECT_OVERLAP`, `Option.SELECT_MIN_DISTANCE`, `Option.SELECT_ALLOW`, `Option.UNSELECT_AUTO`, `Option.UNSELECT_CANCEL`, `Option.SELECT_LONG_PRESS_DELAY`
+**Related Options:** `selectable`, `selectMirror`, `selectConstraint`, `selectOverlap`, `selectMinDistance`, `selectAllow`, `unselectAuto`, `unselectCancel`, `selectLongPressDelay`
 **Related Events:** `TimeslotClickedEvent`, `TimeslotsSelectedEvent`, `TimeslotsUnselectEvent`
 
 ---
@@ -18,10 +18,10 @@
 ## User-Facing Behavior
 
 - Clicking an empty timeslot fires `TimeslotClickedEvent` with the clicked date/time
-- When `SELECTABLE = true`, the user can click and drag to select a time range
+- When `selectable = true`, the user can click and drag to select a time range
 - A highlight (or mirror) appears during selection
 - On mouse release, `TimeslotsSelectedEvent` fires with the selected start/end
-- Clicking outside the selection deselects (if `UNSELECT_AUTO = true`)
+- Clicking outside the selection deselects (if `unselectAuto = true`)
 
 ---
 
@@ -29,8 +29,8 @@
 
 ```java
 // Enable selection
-calendar.setOption(Option.SELECTABLE, true);
-calendar.setOption(Option.SELECT_MIRROR, true);
+calendar.options().setSelectable(true);
+calendar.options().setSelectMirror(true);
 
 // Timeslot click
 calendar.addTimeslotClickedListener(event -> {
@@ -58,11 +58,11 @@ calendar.addTimeslotsUnselectListener(event -> {
 
 | ID | Rule |
 |----|------|
-| BR-01 | `TimeslotClickedEvent` fires regardless of `SELECTABLE` setting |
-| BR-02 | `TimeslotsSelectedEvent` requires `SELECTABLE = true` |
-| BR-03 | `SELECT_CONSTRAINT` restricts selection ranges (e.g., `"businessHours"`) |
-| BR-04 | `SELECT_OVERLAP = false` prevents selecting ranges that overlap entries |
-| BR-05 | `SELECT_ALLOW` JS callback can programmatically accept/reject selections |
+| BR-01 | `TimeslotClickedEvent` fires regardless of `selectable` setting |
+| BR-02 | `TimeslotsSelectedEvent` requires `selectable = true` |
+| BR-03 | `selectConstraint` restricts selection ranges (e.g., `ConstraintValue.BUSINESS_HOURS`) |
+| BR-04 | `selectOverlap = false` prevents selecting ranges that overlap entries |
+| BR-05 | `selectAllow` JS callback can programmatically accept/reject selections |
 | BR-06 | In dayGrid views, selections span whole days; in timeGrid views, they span time ranges |
 | BR-07 | `TimeslotClickedEvent.getDateTime()` returns a `LocalDateTime` in UTC. Convert to the user's timezone or to `Instant` before persisting. |
 
@@ -71,12 +71,12 @@ calendar.addTimeslotsUnselectListener(event -> {
 ## Acceptance Criteria
 
 - [ ] Clicking an empty timeslot fires `TimeslotClickedEvent` with correct date/time
-- [ ] Dragging across timeslots with `SELECTABLE = true` creates a selection highlight
+- [ ] Dragging across timeslots with `selectable = true` creates a selection highlight
 - [ ] `TimeslotsSelectedEvent` fires with correct start and end
-- [ ] `SELECT_MIRROR` shows a mirror entry during selection
-- [ ] `SELECT_CONSTRAINT = "businessHours"` limits selection to business hours
-- [ ] `SELECT_OVERLAP = false` prevents selection over existing entries
-- [ ] Clicking outside deselects when `UNSELECT_AUTO = true`
+- [ ] `selectMirror` shows a mirror entry during selection
+- [ ] `selectConstraint = ConstraintValue.BUSINESS_HOURS` limits selection to business hours
+- [ ] `selectOverlap = false` prevents selection over existing entries
+- [ ] Clicking outside deselects when `unselectAuto = true`
 - [ ] `TimeslotsUnselectEvent` fires when selection is cleared
 
 ---

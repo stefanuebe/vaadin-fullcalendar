@@ -23,19 +23,24 @@ import tools.jackson.databind.node.ArrayNode;
 import tools.jackson.databind.node.ObjectNode;
 
 import java.io.Serializable;
+import java.time.DateTimeException;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.Month;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
+import java.util.Set;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
  * Represents a recurrence rule (RRULE) for a calendar entry, compatible with the {@code @fullcalendar/rrule}
- * plugin. Used to define rich recurrence patterns beyond the simple built-in recurrence fields
+ * plugin. Used to define rich recurrence patterns beyond the basic recurrence of an entry
  * ({@code recurringDaysOfWeek}, {@code recurringStartDate}, etc.).
  * <p>
  * Two modes of use:
@@ -48,18 +53,18 @@ import java.util.stream.Stream;
  * <p>
  * The two modes are mutually exclusive. If a raw RRULE string is set, it takes precedence.
  * <p>
- * <b>Important:</b> RRule-based recurrence and FC's built-in recurrence ({@code daysOfWeek} etc.) are
- * <em>mutually exclusive</em> on a per-entry basis. Do not set both on the same entry.
+ * <b>Important:</b> an RRule and the basic recurrence of an entry are <em>mutually exclusive</em>. Setting one
+ * removes the other. See {@link Entry#setRRule(RRule)}.
  * <p>
- * Requires the {@code @fullcalendar/rrule} npm package and plugin to be loaded.
+ * The add-on loads the {@code @fullcalendar/rrule} plugin, so no extra dependency is needed.
  *
- * @see <a href="https://fullcalendar.io/docs/rrule-plugin">FC rrule plugin documentation</a>
+ * @see <a href="https://fullcalendar.io/docs/rrule-plugin">FullCalendar rrule plugin documentation</a>
  */
 @Getter
 public class RRule implements Serializable {
 
     /**
-     * The recurrence frequency. Maps to FC's {@code freq} property.
+     * The recurrence frequency. Maps to FullCalendar's {@code freq} property.
      */
     public enum Frequency implements ClientSideValue {
         YEARLY("yearly"),
@@ -87,7 +92,7 @@ public class RRule implements Serializable {
 
     /**
      * The start date/time of the recurrence. ISO 8601 datetime string.
-     * If not set, FC uses the event's {@code start} date.
+     * If not set, FullCalendar uses the event's {@code start} date.
      */
     private String dtstart;
 
@@ -148,7 +153,7 @@ public class RRule implements Serializable {
 
     /**
      * Raw iCalendar RRULE string. When set, all structured fields are ignored and this string
-     * is sent directly to FC. Used for importing recurrence rules from external sources.
+     * is sent directly to FullCalendar. Used for importing recurrence rules from external sources.
      * Example: {@code "FREQ=WEEKLY;BYDAY=MO,WE;UNTIL=20231231T235959Z"}
      */
     private String rawRRule;
@@ -219,7 +224,7 @@ public class RRule implements Serializable {
     }
 
     /**
-     * Creates a new RRule from a raw iCalendar RRULE string. The string will be sent directly to FC
+     * Creates a new RRule from a raw iCalendar RRULE string. The string will be sent directly to FullCalendar
      * without any parsing. Useful for importing recurrence rules from external sources.
      * <p>
      * Example: {@code RRule.ofRaw("FREQ=WEEKLY;BYDAY=MO,WE;UNTIL=20231231T235959Z")}
@@ -470,7 +475,7 @@ public class RRule implements Serializable {
      * an {@link Entry} via {@link Entry#setRRule(RRule)}, these rules are transferred to the
      * entry's {@code exrule} property and serialized for FullCalendar's RRule plugin.
      * <p>
-     * The FC rrule plugin only accepts exrule as a structured object (or array of objects),
+     * The FullCalendar rrule plugin only accepts exrule as a structured object (or array of objects),
      * never as an iCalendar string. Passing a rule created via {@link #ofRaw(String)} therefore
      * throws an {@link IllegalArgumentException} — translate the raw string into a structured
      * RRule via the fluent API before excluding it.
@@ -508,7 +513,7 @@ public class RRule implements Serializable {
     }
 
     /**
-     * Converts a {@link DayOfWeek} to the 2-letter lowercase string expected by the FC rrule plugin
+     * Converts a {@link DayOfWeek} to the 2-letter lowercase string expected by the FullCalendar rrule plugin
      * (e.g. {@code MONDAY} → {@code "mo"}).
      */
     private static String toRRuleDay(DayOfWeek day) {
@@ -516,27 +521,69 @@ public class RRule implements Serializable {
     }
 
     /**
-     * Serializes this RRule to a JsonNode for sending to the FC client.
+     * Serializes this RRule to a JsonNode for sending to the client. An excluded rule is written by
+     * {@link #toExruleJson()} instead.
      * <ul>
-     *   <li>If a raw RRULE string was set (via {@link #ofRaw(String)}), returns a StringNode so FC
+     *   <li>If a raw RRULE string was set (via {@link #ofRaw(String)}), returns a StringNode so FullCalendar
      *       parses it through the iCalendar string parser.</li>
      *   <li>If {@link #byweekday} contains a positional token such as {@code "-1fr"} or {@code "2mo"},
-     *       returns a StringNode. FC's object-form parser resolves weekday strings via
+     *       returns a StringNode. FullCalendar's object-form parser resolves weekday strings via
      *       {@code rrule.RRule[day.toUpperCase()]}, which only knows plain {@code MO..SU} — a
      *       positional token would resolve to {@code undefined} and crash the plugin. The string
      *       (iCal) parser handles positional BYDAY tokens natively.</li>
-     *   <li>Otherwise, returns an ObjectNode with the structured properties. FC's rrule plugin
-     *       requires the object form when the enclosing entry also carries {@code exdate} or
-     *       {@code exrule} — sending the rrule as a string in those cases crashes the plugin.</li>
+     *   <li>Otherwise, returns an ObjectNode with the structured properties.</li>
      * </ul>
      *
      * @return JsonNode representing this RRule
+     * @see #toExruleJson()
      */
     public JsonNode toJson() {
         if (rawRRule != null || hasPositionalByWeekday()) {
             return JsonUtils.toJsonNode(toRRuleString());
         }
         return toJsonObject();
+    }
+
+    /**
+     * Serializes this RRule as an excluded rule ({@code exrule}). FullCalendar's rrule plugin reads every excluded
+     * rule as an object, never as a string. A positional weekday, such as {@code "-1fr"}, is therefore written as
+     * {@code {"weekday": 4, "n": -1}}, with Monday as 0, the way the rrule library reads it. A plain weekday stays
+     * a string.
+     *
+     * @return JsonNode representing this RRule as an excluded rule
+     */
+    public JsonNode toExruleJson() {
+        if (rawRRule != null) {
+            throw new IllegalArgumentException("A raw RRule cannot be an excluded rule, because FullCalendar's "
+                    + "rrule plugin reads an excluded rule only as an object, not as a string.");
+        }
+        ObjectNode obj = toJsonObject();
+        if (hasPositionalByWeekday()) {
+            ArrayNode arr = JsonFactory.createArray();
+            for (String day : byweekday) {
+                arr.add(day.length() > 2 ? toExruleWeekday(day) : JsonUtils.toJsonNode(day));
+            }
+            obj.set("byweekday", arr);
+        }
+        return obj;
+    }
+
+    /** Writes a positional weekday token such as {@code "-1fr"} as {@code {"weekday": 4, "n": -1}}. */
+    private static JsonNode toExruleWeekday(String day) {
+        if (day == null || day.length() < 3) {
+            throw new IllegalArgumentException("Not a positional weekday: " + day);
+        }
+        int weekday = WEEKDAYS.indexOf(day.substring(day.length() - 2).toLowerCase());
+        int n;
+        try {
+            n = Integer.parseInt(day.substring(0, day.length() - 2));
+        } catch (NumberFormatException e) {
+            throw new IllegalArgumentException("Not a positional weekday: " + day, e);
+        }
+        if (weekday < 0) {
+            throw new IllegalArgumentException("Not a positional weekday: " + day);
+        }
+        return JsonFactory.createObject().put("weekday", weekday).put("n", n);
     }
 
     /**
@@ -610,7 +657,7 @@ public class RRule implements Serializable {
     }
 
     /**
-     * Converts this RRule to an iCalendar RRULE string that FC's rrule plugin can parse directly.
+     * Converts this RRule to an iCalendar RRULE string that FullCalendar's rrule plugin can parse directly.
      * If this was created via {@link #ofRaw(String)}, the raw string is returned as-is.
      *
      * @return RRULE string (e.g. {@code "FREQ=WEEKLY;BYDAY=MO,FR;DTSTART=20250303;UNTIL=20250331"})
@@ -649,27 +696,27 @@ public class RRule implements Serializable {
         if (byyearday != null && !byyearday.isEmpty()) {
             if (!sb.isEmpty()) sb.append(";");
             sb.append("BYYEARDAY=").append(byyearday.stream()
-                    .map(String::valueOf).collect(java.util.stream.Collectors.joining(",")));
+                    .map(String::valueOf).collect(Collectors.joining(",")));
         }
         if (bymonth != null && !bymonth.isEmpty()) {
             if (!sb.isEmpty()) sb.append(";");
             sb.append("BYMONTH=").append(bymonth.stream()
-                    .map(String::valueOf).collect(java.util.stream.Collectors.joining(",")));
+                    .map(String::valueOf).collect(Collectors.joining(",")));
         }
         if (bymonthday != null && !bymonthday.isEmpty()) {
             if (!sb.isEmpty()) sb.append(";");
             sb.append("BYMONTHDAY=").append(bymonthday.stream()
-                    .map(String::valueOf).collect(java.util.stream.Collectors.joining(",")));
+                    .map(String::valueOf).collect(Collectors.joining(",")));
         }
         if (byhour != null && !byhour.isEmpty()) {
             if (!sb.isEmpty()) sb.append(";");
             sb.append("BYHOUR=").append(byhour.stream()
-                    .map(String::valueOf).collect(java.util.stream.Collectors.joining(",")));
+                    .map(String::valueOf).collect(Collectors.joining(",")));
         }
         if (byminute != null && !byminute.isEmpty()) {
             if (!sb.isEmpty()) sb.append(";");
             sb.append("BYMINUTE=").append(byminute.stream()
-                    .map(String::valueOf).collect(java.util.stream.Collectors.joining(",")));
+                    .map(String::valueOf).collect(Collectors.joining(",")));
         }
         if (wkst != null) {
             if (!sb.isEmpty()) sb.append(";");
@@ -677,5 +724,193 @@ public class RRule implements Serializable {
         }
 
         return sb.toString();
+    }
+
+    /**
+     * Creates a deep copy of this rule, including its excluded dates and rules.
+     *
+     * @return the copy
+     */
+    public RRule copy() {
+        RRule copy = new RRule();
+        copy.freq = freq;
+        copy.dtstart = dtstart;
+        copy.until = until;
+        copy.count = count;
+        copy.interval = interval;
+        copy.byweekday = copyOf(byweekday);
+        copy.byyearday = copyOf(byyearday);
+        copy.bymonth = copyOf(bymonth);
+        copy.bymonthday = copyOf(bymonthday);
+        copy.byhour = copyOf(byhour);
+        copy.byminute = copyOf(byminute);
+        copy.wkst = wkst;
+        copy.rawRRule = rawRRule;
+        copy.excludedDates = copyOf(excludedDates);
+        copy.excludedRules = excludedRules == null ? null
+                : new ArrayList<>(excludedRules.stream().map(rule -> rule == null ? null : rule.copy()).toList());
+        return copy;
+    }
+
+    private static <T> List<T> copyOf(List<T> list) {
+        return list == null ? null : new ArrayList<>(list);
+    }
+
+    /** The weekday abbreviations, Monday first, as the rrule library numbers weekdays. */
+    private static final List<String> WEEKDAYS = List.of("mo", "tu", "we", "th", "fr", "sa", "su");
+
+    private static final Set<String> JSON_KEYS = Set.of("freq", "dtstart", "until", "count", "interval", "byweekday",
+            "byyearday", "bymonth", "bymonthday", "byhour", "byminute", "wkst");
+
+    /**
+     * Reads a rule from the JSON {@link #toJson()} writes: a string is read as {@link #ofRaw(String) raw rule}, an
+     * object as the structured form. The excluded dates and rules are not part of that JSON, see
+     * {@link #fromJson(JsonNode, JsonNode, JsonNode)}.
+     *
+     * @param json the JSON of the rule
+     * @return the rule
+     * @throws IllegalArgumentException when the JSON is neither a string nor an object, or the object has a key or
+     *                                  a value this class does not write
+     */
+    public static RRule fromJson(JsonNode json) {
+        return fromJson(json, null, null);
+    }
+
+    /**
+     * Reads a rule like {@link #fromJson(JsonNode)} together with its excluded dates and rules, as an entry writes
+     * them in {@code exdate} and {@code exrule}. An excluded rule must be an object, as
+     * {@link #toExruleJson()} writes it, a string is rejected.
+     *
+     * @param json    the JSON of the rule
+     * @param exdate  an array of dates like {@code "2026-01-02"}, or null or a null node for none
+     * @param exrule  one rule or an array of rules, or null or a null node for none
+     * @return the rule
+     * @throws IllegalArgumentException when one of the JSON values is not one this class writes
+     */
+    public static RRule fromJson(JsonNode json, JsonNode exdate, JsonNode exrule) {
+        if (json == null || json.isNull()) {
+            throw new IllegalArgumentException("Not a rule: " + json);
+        }
+        RRule rule;
+        if (json.isString()) {
+            rule = ofRaw(json.asString());
+        } else if (json.isObject()) {
+            rule = fromJsonObject(json);
+        } else {
+            throw new IllegalArgumentException("Not a rule: " + json);
+        }
+        if (exdate != null && !exdate.isNull()) {
+            if (!exdate.isArray()) {
+                throw new IllegalArgumentException("Not a list of dates: " + exdate);
+            }
+            try {
+                rule.excludedDates = exdate.valueStream().map(date -> LocalDate.parse(asString(date))).toList();
+            } catch (DateTimeException e) {
+                throw new IllegalArgumentException("Not a list of dates: " + exdate, e);
+            }
+        }
+        if (exrule != null && !exrule.isNull()) {
+            rule.excludedRules = (exrule.isArray() ? exrule.valueStream() : Stream.of(exrule)).map(node -> {
+                if (!node.isObject()) {
+                    throw new IllegalArgumentException("Not an excluded rule: " + node);
+                }
+                return fromJsonObject(node);
+            }).toList();
+        }
+        return rule;
+    }
+
+    private static RRule fromJsonObject(JsonNode json) {
+        if (!JSON_KEYS.containsAll(json.propertyNames())) {
+            throw new IllegalArgumentException("Not a rule: " + json);
+        }
+        RRule rule = new RRule();
+        if (json.has("freq")) {
+            String freq = asString(json.get("freq"));
+            rule.freq = Arrays.stream(Frequency.values()).filter(f -> f.getClientSideValue().equals(freq))
+                    .findFirst().orElseThrow(() -> new IllegalArgumentException("Not a frequency: " + freq));
+        }
+        rule.dtstart = json.has("dtstart") ? asString(json.get("dtstart")) : null;
+        rule.until = json.has("until") ? asString(json.get("until")) : null;
+        rule.count = json.has("count") ? asInt(json.get("count")) : null;
+        rule.interval = json.has("interval") ? asInt(json.get("interval")) : null;
+        rule.byweekday = list(json.get("byweekday"), RRule::asWeekdayToken);
+        rule.byyearday = ints(json.get("byyearday"));
+        rule.bymonth = ints(json.get("bymonth"));
+        rule.bymonthday = ints(json.get("bymonthday"));
+        rule.byhour = ints(json.get("byhour"));
+        rule.byminute = ints(json.get("byminute"));
+        rule.wkst = json.has("wkst") ? asString(json.get("wkst")) : null;
+        return rule;
+    }
+
+    private static String asString(JsonNode node) {
+        if (!node.isString()) {
+            throw new IllegalArgumentException("Not a string: " + node);
+        }
+        return node.asString();
+    }
+
+    private static int asInt(JsonNode node) {
+        if (!node.isIntegralNumber() || !node.canConvertToInt()) {
+            throw new IllegalArgumentException("Not an integer: " + node);
+        }
+        return node.asInt();
+    }
+
+    /** Reads a weekday written as a string, or as {@code {"weekday", "n"}} of an excluded rule, as a token. */
+    private static String asWeekdayToken(JsonNode node) {
+        if (!node.isObject()) {
+            return asString(node);
+        }
+        if (!node.has("weekday") || !node.has("n") || node.size() != 2) {
+            throw new IllegalArgumentException("Not a weekday: " + node);
+        }
+        int weekday = asInt(node.get("weekday"));
+        if (weekday < 0 || weekday >= WEEKDAYS.size()) {
+            throw new IllegalArgumentException("Not a weekday: " + node);
+        }
+        return asInt(node.get("n")) + WEEKDAYS.get(weekday);
+    }
+
+    private static List<Integer> ints(JsonNode node) {
+        return list(node, RRule::asInt);
+    }
+
+    private static <T> List<T> list(JsonNode node, Function<JsonNode, T> reader) {
+        if (node == null) {
+            return null;
+        }
+        if (!node.isArray()) {
+            throw new IllegalArgumentException("Not a list: " + node);
+        }
+        return new ArrayList<>(node.valueStream().map(reader).toList());
+    }
+
+    /**
+     * Two rules are equal when the client gets the same from them: the same {@link #toJson()} and the same
+     * excluded dates and rules in the same order. A rule from {@link #ofRaw(String)} equals a structured rule only if
+     * {@link #toJson()} gives the same string, which it does for a structured rule with a positional weekday. An
+     * empty list of excluded dates or rules equals none, as nothing is sent for it. The rule is mutable, so do not
+     * change one that is used as a key.
+     *
+     * @param other the other object
+     * @return true when the client gets the same
+     */
+    @Override
+    public boolean equals(Object other) {
+        return this == other || other instanceof RRule rule
+                && toJson().equals(rule.toJson())
+                && Objects.equals(emptyToNull(excludedDates), emptyToNull(rule.excludedDates))
+                && Objects.equals(emptyToNull(excludedRules), emptyToNull(rule.excludedRules));
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(toJson(), emptyToNull(excludedDates), emptyToNull(excludedRules));
+    }
+
+    private static <T> List<T> emptyToNull(List<T> list) {
+        return list == null || list.isEmpty() ? null : list;
     }
 }

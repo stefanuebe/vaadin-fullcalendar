@@ -19,6 +19,7 @@ package org.vaadin.stefan.ui.layouts;
 import com.vaadin.flow.component.sidenav.SideNav;
 import org.vaadin.stefan.ui.view.demos.autorevert.AutoRevertView;
 import org.vaadin.stefan.ui.view.demos.basic.BasicDemo;
+import org.vaadin.stefan.ui.view.demos.customtheme.CustomThemeDemo;
 import org.vaadin.stefan.ui.view.demos.customtimeline.AnonymousCustomViewDemo;
 import org.vaadin.stefan.ui.view.demos.customtimeline.CustomViewDemo;
 import org.vaadin.stefan.ui.view.demos.entryproviders.BackendEntryProviderDemo;
@@ -30,7 +31,6 @@ import org.vaadin.stefan.ui.view.demos.componentcolumns.ComponentColumnsDemo;
 import org.vaadin.stefan.ui.view.demos.multimonthselection.MultiMonthCrossMonthSelectionDemo;
 import org.vaadin.stefan.ui.view.demos.tooltip.DemoWithTooltip;
 
-
 public class MainLayout extends AbstractLayout {
     @Override
     protected void createMenuEntries(SideNav nav) {
@@ -40,13 +40,12 @@ public class MainLayout extends AbstractLayout {
         addMenu(nav, CallbackEntryProviderDemo.class);
         addMenu(nav, BackendEntryProviderDemo.class);
         addMenu(nav, DemoWithTooltip.class);
-//        addMenu(nav, DemoCustomProperties.class); // TODO overhaul the demo first
-//        addMenu(nav, DemoCalendarWithBackgroundEvent.class); // TODO overhaul the demo first
         addMenu(nav, CustomViewDemo.class);
         addMenu(nav, MultiMonthCrossMonthSelectionDemo.class);
         addMenu(nav, ComponentColumnsDemo.class);
         addMenu(nav, ExternalDragDemo.class);
         addMenu(nav, AutoRevertView.class);
+        addMenu(nav, CustomThemeDemo.class);
 //        addMenu(nav, InlineCalendarDemo.class);
     }
 }

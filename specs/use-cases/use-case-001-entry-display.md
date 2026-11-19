@@ -10,7 +10,7 @@
 ## Scope
 
 **Addon module:** addon
-**Related Options:** `Option.ENTRY_COLOR`, `Option.ENTRY_BACKGROUND_COLOR`, `Option.ENTRY_BORDER_COLOR`, `Option.ENTRY_TEXT_COLOR`, `Option.ENTRY_DISPLAY`, `Option.DISPLAY_ENTRY_TIME`, `Option.DISPLAY_EVENT_END`, `Option.FORCE_EVENT_DURATION`
+**Related Options:** `entryColor`, `entryContrastColor`, `entryDisplay`, `displayEntryTime`, `displayEntryEnd`, `forceEntryDuration`
 **Related Events:** —
 
 ---
@@ -52,8 +52,8 @@ bg.setDisplayMode(DisplayMode.BACKGROUND);
 bg.setColor("#e8f5e9");
 
 // Global defaults
-calendar.setOption(Option.ENTRY_COLOR, "#4CAF50");
-calendar.setOption(Option.DISPLAY_ENTRY_TIME, true);
+calendar.options().setEntryColor("#4CAF50");
+calendar.options().setDisplayEntryTime(true);
 ```
 
 ---
@@ -62,10 +62,10 @@ calendar.setOption(Option.DISPLAY_ENTRY_TIME, true);
 
 | ID | Rule |
 |----|------|
-| BR-01 | Per-entry color overrides global `ENTRY_COLOR` |
+| BR-01 | Per-entry color overrides global `entryColor` |
 | BR-02 | `DisplayMode.NONE` suppresses rendering entirely — entry exists in model but is invisible |
 | BR-03 | Setting `start` as `LocalDate` converts to midnight `LocalDateTime` — it does NOT set `allDay = true` automatically. Call `setAllDay(true)` explicitly for all-day entries. |
-| BR-04 | Omitting `end` creates a point-in-time entry (FC renders with default duration) |
+| BR-04 | Omitting `end` creates a point-in-time entry (FullCalendar renders with default duration) |
 | BR-05 | Entries with a `url` property are rendered as `<a>` tags and navigate on click |
 
 ---
@@ -78,8 +78,8 @@ calendar.setOption(Option.DISPLAY_ENTRY_TIME, true);
 - [ ] Background display mode shades the entry's time range *(manual verification)*
 - [ ] Inverse background display mode shades everything except the entry's time range *(manual verification)*
 - [ ] `DisplayMode.NONE` entry is not visible
-- [ ] Entry without end time renders with FC default duration (timed entries: `defaultTimedEventDuration`, default 1 hour; all-day: `defaultAllDayEventDuration`, default 1 day)
-- [ ] Global `ENTRY_COLOR` applies when entry has no individual color
+- [ ] Entry without end time renders with FullCalendar default duration (timed entries: `defaultTimedEventDuration`, default 1 hour; all-day: `defaultAllDayEventDuration`, default 1 day)
+- [ ] Global `entryColor` applies when entry has no individual color
 - [ ] Entry with `url` renders as a link and navigates on click
 
 ---

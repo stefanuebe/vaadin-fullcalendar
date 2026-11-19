@@ -1,78 +1,64 @@
 package org.vaadin.stefan.fullcalendar;
 
+import org.vaadin.stefan.fullcalendar.option.CssSelectorValue;
+import org.vaadin.stefan.fullcalendar.option.JsCallback;
 import org.junit.jupiter.api.Test;
+import tools.jackson.databind.JsonNode;
 
 import java.lang.reflect.Field;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Tests for {@link JsCallback} and the callback-related paths in {@link FullCalendar}.
  */
-@SuppressWarnings("deprecation")
 class JsCallbackTest {
 
-    // --- setOption with JsCallback ---
+    // --- option fields and raw options with JsCallback ---
 
     @Test
-    void setOption_withJsCallback_doesNotThrow() {
-        FullCalendar calendar = FullCalendarBuilder.create().build();
+    void setField_withJsCallback_doesNotThrow() {
+        FullCalendar calendar = new FullCalendar();
         assertDoesNotThrow(() ->
-            calendar.setOption(FullCalendar.Option.DAY_CELL_CLASS_NAMES,
+            calendar.options().setDayCellClass(
                 JsCallback.of("function(arg) { return []; }")));
     }
 
     @Test
-    void setOption_withJsCallback_null_doesNotThrow() {
-        FullCalendar calendar = FullCalendarBuilder.create().build();
+    void setField_withNull_doesNotThrow() {
+        FullCalendar calendar = new FullCalendar();
         assertDoesNotThrow(() ->
-            calendar.setOption(FullCalendar.Option.DROP_ACCEPT, (Object) null));
+            calendar.options().setDropAccept((CssSelectorValue) null));
     }
 
     @Test
-    void setOption_stringKey_withJsCallback_doesNotThrow() {
-        FullCalendar calendar = FullCalendarBuilder.create().build();
+    void setRawOption_withJsCallback_doesNotThrow() {
+        FullCalendar calendar = new FullCalendar();
         assertDoesNotThrow(() ->
-            calendar.setOption("dayCellClassNames",
+            calendar.options().setRawOption("dayCellClassNames",
                 JsCallback.of("function(arg) { return []; }")));
     }
 
-    // --- ENTRY_DID_MOUNT merge / userEntryDidMountCallback field ---
+    // --- the entryDidMount field ---
 
     @Test
-    void setOption_entryDidMount_storesCallback() {
-        FullCalendar calendar = FullCalendarBuilder.create().build();
-        calendar.setOption(FullCalendar.Option.ENTRY_DID_MOUNT,
+    void setEntryDidMount_storesCallback() {
+        FullCalendar calendar = new FullCalendar();
+        calendar.options().setEntryDidMount(
             JsCallback.of("function(info) { info.el.title = 'test'; }"));
-        JsCallback cb = getUserEntryDidMountCallback(calendar);
+        JsCallback cb = calendar.options().getEntryDidMount();
         assertNotNull(cb);
         assertEquals("function(info) { info.el.title = 'test'; }", cb.getJsFunction());
     }
 
     @Test
-    void setOption_entryDidMount_null_clearsCallback() {
-        FullCalendar calendar = FullCalendarBuilder.create().build();
-        calendar.setOption(FullCalendar.Option.ENTRY_DID_MOUNT,
+    void setEntryDidMount_null_clearsCallback() {
+        FullCalendar calendar = new FullCalendar();
+        calendar.options().setEntryDidMount(
             JsCallback.of("function(info) {}"));
-        calendar.setOption(FullCalendar.Option.ENTRY_DID_MOUNT, null);
-        assertNull(getUserEntryDidMountCallback(calendar));
-    }
-
-    @Test
-    void setEntryDidMountCallback_delegatesToMergePath() {
-        FullCalendar calendar = FullCalendarBuilder.create().build();
-        calendar.setEntryDidMountCallback("function(info) {}");
-        JsCallback cb = getUserEntryDidMountCallback(calendar);
-        assertNotNull(cb);
-        assertEquals("function(info) {}", cb.getJsFunction());
-    }
-
-    @Test
-    void setEntryDidMountCallback_null_clearsCallback() {
-        FullCalendar calendar = FullCalendarBuilder.create().build();
-        calendar.setEntryDidMountCallback("function(info) {}");
-        calendar.setEntryDidMountCallback(null);
-        assertNull(getUserEntryDidMountCallback(calendar));
+        calendar.options().setEntryDidMount(null);
+        assertNull(calendar.options().getEntryDidMount());
     }
 
     // --- JsCallback unit tests ---
@@ -114,6 +100,30 @@ class JsCallbackTest {
     }
 
     @Test
+    void jsCallback_fromMarkerJson_readsToMarkerJson() {
+        JsCallback cb = JsCallback.of("function() { return true; }");
+        assertEquals(cb, JsCallback.fromMarkerJson(cb.toMarkerJson()));
+    }
+
+    @Test
+    void jsCallback_isMarker() {
+        assertTrue(JsCallback.isMarker(JsCallback.of("() => {}").toMarkerJson()));
+        assertFalse(JsCallback.isMarker(JsonFactory.createObject().put("month", "short")));
+        assertFalse(JsCallback.isMarker(JsonFactory.create("() => {}")));
+        assertFalse(JsCallback.isMarker(null));
+    }
+
+    @Test
+    void jsCallback_fromMarkerJson_rejectsOtherValues() {
+        for (JsonNode value : List.of(JsonFactory.createObject(), JsonFactory.createObject().put("__jsCallback", 1),
+                JsonFactory.createObject().putNull("__jsCallback"), JsonFactory.createObject().put("__jsCallback", " "),
+                JsonFactory.create("function() {}"))) {
+            assertThrows(IllegalArgumentException.class, () -> JsCallback.fromMarkerJson(value), value.toString());
+        }
+        assertThrows(NullPointerException.class, () -> JsCallback.fromMarkerJson(null));
+    }
+
+    @Test
     void jsCallback_equals_and_hashCode() {
         JsCallback a = JsCallback.of("function() {}");
         JsCallback b = JsCallback.of("function() {}");
@@ -123,71 +133,37 @@ class JsCallbackTest {
         assertNotEquals(a, c);
     }
 
-    // --- setOption with JsCallback round-trip via getOption ---
+    // --- JsCallback round-trip via the getter ---
 
     @Test
-    void setOption_withJsCallback_getOptionReturnsJsCallback() {
-        FullCalendar calendar = FullCalendarBuilder.create().build();
+    void setField_withJsCallback_getterReturnsJsCallback() {
+        FullCalendar calendar = new FullCalendar();
         JsCallback cb = JsCallback.of("function(arg) { return []; }");
-        calendar.setOption(FullCalendar.Option.DAY_CELL_CLASS_NAMES, cb);
+        calendar.options().setDayCellClass(cb);
 
-        // getOption should return the original JsCallback, not the marker JSON
-        var result = calendar.getOption(FullCalendar.Option.DAY_CELL_CLASS_NAMES);
-        assertTrue(result.isPresent());
-        assertInstanceOf(JsCallback.class, result.get());
-        assertEquals(cb, result.get());
+        // the getter returns the original JsCallback, not the marker JSON
+        var result = calendar.options().getDayCellClass();
+        assertInstanceOf(JsCallback.class, result);
+        assertEquals(cb, result);
     }
 
     @Test
-    void setOption_withJsCallback_stringKey_getOptionReturnsJsCallback() {
-        FullCalendar calendar = FullCalendarBuilder.create().build();
+    void setRawOption_withJsCallback_getRawOptionReturnsMarker() {
+        FullCalendar calendar = new FullCalendar();
         JsCallback cb = JsCallback.of("function() { return true; }");
-        calendar.setOption("selectAllow", cb);
+        calendar.options().setRawOption("selectAllow", cb);
 
-        var result = calendar.getOption("selectAllow");
-        assertTrue(result.isPresent());
-        assertInstanceOf(JsCallback.class, result.get());
-        assertEquals(cb, result.get());
-    }
-
-    // --- Deprecated wrapper delegation tests ---
-
-    @Test
-    void setEntryClassNamesCallback_delegatesToSetOption() {
-        FullCalendar calendar = FullCalendarBuilder.create().build();
-        calendar.setEntryClassNamesCallback("function(arg) { return ['cls']; }");
-
-        var result = calendar.getOption(FullCalendar.Option.ENTRY_CLASS_NAMES);
-        assertTrue(result.isPresent());
-        assertInstanceOf(JsCallback.class, result.get());
-        assertEquals("function(arg) { return ['cls']; }", ((JsCallback) result.get()).getJsFunction());
-    }
-
-    @Test
-    void setEntryContentCallback_delegatesToSetOption() {
-        FullCalendar calendar = FullCalendarBuilder.create().build();
-        calendar.setEntryContentCallback("function(arg) { return arg.el; }");
-
-        var result = calendar.getOption(FullCalendar.Option.ENTRY_CONTENT);
-        assertTrue(result.isPresent());
-        assertInstanceOf(JsCallback.class, result.get());
-    }
-
-    @Test
-    void setEntryWillUnmountCallback_delegatesToSetOption() {
-        FullCalendar calendar = FullCalendarBuilder.create().build();
-        calendar.setEntryWillUnmountCallback("function(arg) { }");
-
-        var result = calendar.getOption(FullCalendar.Option.ENTRY_WILL_UNMOUNT);
-        assertTrue(result.isPresent());
-        assertInstanceOf(JsCallback.class, result.get());
+        // a raw option is kept in its client form, the callback marker
+        JsonNode result = calendar.options().getRawOption("selectAllow").orElseThrow();
+        assertTrue(JsCallback.isMarker(result));
+        assertEquals(cb, JsCallback.fromMarkerJson(result));
     }
 
     // --- Native event listener field tests ---
 
     @Test
     void addEntryNativeEventListener_storesInMap() {
-        FullCalendar calendar = FullCalendarBuilder.create().build();
+        FullCalendar calendar = new FullCalendar();
         calendar.addEntryNativeEventListener("click", "e => alert('hi')");
 
         // Verify via reflection that the map has the entry
@@ -200,7 +176,7 @@ class JsCallbackTest {
 
     @Test
     void addEntryNativeEventListener_multipleListeners() {
-        FullCalendar calendar = FullCalendarBuilder.create().build();
+        FullCalendar calendar = new FullCalendar();
         calendar.addEntryNativeEventListener("click", "e => {}");
         calendar.addEntryNativeEventListener("mouseover", "e => {}");
 
@@ -212,9 +188,9 @@ class JsCallbackTest {
 
     @Test
     void buildMerged_userCallbackOnly_returnsCallbackAsIs() {
-        FullCalendar calendar = FullCalendarBuilder.create().build();
+        FullCalendar calendar = new FullCalendar();
         calendar.setAutoProvideEntryIdOnClient(false);
-        calendar.setOption(FullCalendar.Option.ENTRY_DID_MOUNT,
+        calendar.options().setEntryDidMount(
                 JsCallback.of("function(info) { info.el.title = 'x'; }"));
 
         String merged = calendar.buildEntryDidMountMerged();
@@ -222,8 +198,18 @@ class JsCallbackTest {
     }
 
     @Test
+    void buildMerged_userCallbackWithTrailingSemicolon_staysAnExpression() {
+        FullCalendar calendar = new FullCalendar();
+        calendar.options().setEntryDidMount(
+                JsCallback.of("function(info) { info.el.title = 'x'; };"));
+
+        String merged = calendar.buildEntryDidMountMerged();
+        assertTrue(merged.contains("(function(info) { info.el.title = 'x'; }\n).apply(this, arguments)"), merged);
+    }
+
+    @Test
     void buildMerged_nativeListenerOnly_generatesWrapper() {
-        FullCalendar calendar = FullCalendarBuilder.create().build();
+        FullCalendar calendar = new FullCalendar();
         calendar.setAutoProvideEntryIdOnClient(false);
         calendar.addEntryNativeEventListener("click", "e => alert(1)");
 
@@ -236,8 +222,8 @@ class JsCallbackTest {
 
     @Test
     void buildMerged_userCallbackAndNativeListeners_mergesCorrectly() {
-        FullCalendar calendar = FullCalendarBuilder.create().build();
-        calendar.setOption(FullCalendar.Option.ENTRY_DID_MOUNT,
+        FullCalendar calendar = new FullCalendar();
+        calendar.options().setEntryDidMount(
                 JsCallback.of("function(info) { info.el.title = 'x'; }"));
         calendar.addEntryNativeEventListener("click", "e => {}");
 
@@ -245,7 +231,7 @@ class JsCallbackTest {
         assertNotNull(merged);
         // User callback content preserved
         assertTrue(merged.contains("info.el.title = 'x'"));
-        // Native listener spliced in before closing brace
+        // Native listener registered after the user callback
         assertTrue(merged.contains("addEventListener('click', e => {})"));
         // Starts with function and ends with closing brace
         assertTrue(merged.startsWith("function(info)"));
@@ -254,21 +240,21 @@ class JsCallbackTest {
 
     @Test
     void buildMerged_nothingSet_returnsNull() {
-        FullCalendar calendar = FullCalendarBuilder.create().build();
+        FullCalendar calendar = new FullCalendar();
         calendar.setAutoProvideEntryIdOnClient(false);
         assertNull(calendar.buildEntryDidMountMerged());
     }
 
     @Test
     void buildMerged_userCallbackCleared_nativeListenerRemains() {
-        FullCalendar calendar = FullCalendarBuilder.create().build();
+        FullCalendar calendar = new FullCalendar();
         calendar.setAutoProvideEntryIdOnClient(false);
-        calendar.setOption(FullCalendar.Option.ENTRY_DID_MOUNT,
+        calendar.options().setEntryDidMount(
                 JsCallback.of("function(info) { }"));
         calendar.addEntryNativeEventListener("mouseover", "e => {}");
 
         // Clear user callback
-        calendar.setOption(FullCalendar.Option.ENTRY_DID_MOUNT, null);
+        calendar.options().setEntryDidMount(null);
 
         String merged = calendar.buildEntryDidMountMerged();
         assertNotNull(merged, "native listener should still produce a merged function");
@@ -281,13 +267,13 @@ class JsCallbackTest {
 
     @Test
     void autoProvideEntryIdOnClient_defaultsToTrue() {
-        FullCalendar calendar = FullCalendarBuilder.create().build();
+        FullCalendar calendar = new FullCalendar();
         assertTrue(calendar.isAutoProvideEntryIdOnClient());
     }
 
     @Test
     void setAutoProvideEntryIdOnClient_roundTrip() {
-        FullCalendar calendar = FullCalendarBuilder.create().build();
+        FullCalendar calendar = new FullCalendar();
         calendar.setAutoProvideEntryIdOnClient(false);
         assertFalse(calendar.isAutoProvideEntryIdOnClient());
         calendar.setAutoProvideEntryIdOnClient(true);
@@ -296,7 +282,7 @@ class JsCallbackTest {
 
     @Test
     void buildMerged_autoProvideOnly_wrapsSnippetInFunction() {
-        FullCalendar calendar = FullCalendarBuilder.create().build();
+        FullCalendar calendar = new FullCalendar();
         String merged = calendar.buildEntryDidMountMerged();
         assertNotNull(merged);
         assertTrue(merged.startsWith("function(info) {"));
@@ -306,8 +292,8 @@ class JsCallbackTest {
 
     @Test
     void buildMerged_autoProvideAndUserCallback_defaultPrefixesUser() {
-        FullCalendar calendar = FullCalendarBuilder.create().build();
-        calendar.setOption(FullCalendar.Option.ENTRY_DID_MOUNT,
+        FullCalendar calendar = new FullCalendar();
+        calendar.options().setEntryDidMount(
                 JsCallback.of("function(info) { info.el.title = 'x'; }"));
 
         String merged = calendar.buildEntryDidMountMerged();
@@ -321,8 +307,8 @@ class JsCallbackTest {
 
     @Test
     void buildMerged_autoProvideUserAndNative_allThreePresentInOrder() {
-        FullCalendar calendar = FullCalendarBuilder.create().build();
-        calendar.setOption(FullCalendar.Option.ENTRY_DID_MOUNT,
+        FullCalendar calendar = new FullCalendar();
+        calendar.options().setEntryDidMount(
                 JsCallback.of("function(info) { info.el.title = 'x'; }"));
         calendar.addEntryNativeEventListener("click", "e => {}");
 
@@ -337,7 +323,7 @@ class JsCallbackTest {
 
     @Test
     void buildMerged_autoProvideAndNativeOnly_wrapsBoth() {
-        FullCalendar calendar = FullCalendarBuilder.create().build();
+        FullCalendar calendar = new FullCalendar();
         calendar.addEntryNativeEventListener("mouseover", "e => {}");
 
         String merged = calendar.buildEntryDidMountMerged();
@@ -358,44 +344,42 @@ class JsCallbackTest {
     }
 
     @Test
-    void buildMerged_expressionBodyArrowCallback_returnedAsIsNoCorruption() {
-        FullCalendar calendar = FullCalendarBuilder.create().build();
-        // auto-provide default: true. User provides an expression-body arrow (no braces).
-        calendar.setOption(FullCalendar.Option.ENTRY_DID_MOUNT,
-                JsCallback.of("info => info.el.title = 'x'"));
-
-        String merged = calendar.buildEntryDidMountMerged();
-        // Output must be syntactically valid JS — returned verbatim when there is no
-        // brace-delimited body to splice into. The default snippet is intentionally dropped
-        // rather than prepended raw outside the arrow expression.
-        assertEquals("info => info.el.title = 'x'", merged);
-    }
-
-    @Test
-    void buildMerged_expressionBodyArrowWithNativeListeners_droppedByContract() {
-        // Documents the current contract: addEntryNativeEventListener's Javadoc requires
-        // a braced body; if the user callback is an expression-body arrow, native listeners
-        // are silently skipped because there is nowhere syntactically valid to splice them.
-        FullCalendar calendar = FullCalendarBuilder.create().build();
-        calendar.setOption(FullCalendar.Option.ENTRY_DID_MOUNT,
+    void buildMerged_expressionBodyArrowWithNativeListeners_keepsTheIdAndTheListeners() {
+        FullCalendar calendar = new FullCalendar();
+        calendar.options().setEntryDidMount(
                 JsCallback.of("info => info.el.title = 'x'"));
         calendar.addEntryNativeEventListener("click", "e => {}");
 
         String merged = calendar.buildEntryDidMountMerged();
-        assertEquals("info => info.el.title = 'x'", merged, "native listeners must not corrupt an expression-body arrow");
+        assertTrue(merged.contains("(info => info.el.title = 'x'\n).apply(this, arguments)"), merged);
+        assertTrue(merged.contains(FullCalendar.DEFAULT_ENTRY_ID_ASSIGNMENT_SNIPPET), merged);
+        assertTrue(merged.contains("addEventListener('click', e => {})"), merged);
+    }
+
+    @Test
+    void buildMerged_braceInTheParameters_wrapsTheCallbackUnchanged() {
+        FullCalendar calendar = new FullCalendar();
+        calendar.options().setEntryDidMount(
+                JsCallback.of("({el}, options = {}) => { el.title = 'x'; }"));
+
+        String merged = calendar.buildEntryDidMountMerged();
+        assertTrue(merged.contains("(({el}, options = {}) => { el.title = 'x'; }\n).apply(this, arguments)"), merged);
+    }
+
+    @Test
+    void buildMerged_defaultSnippet_runsInItsOwnFunction() {
+        // The id snippet's return for drag mirrors must not skip the user callback. Its arguments[0] must be the info object.
+        FullCalendar calendar = new FullCalendar();
+        calendar.options().setEntryDidMount(
+                JsCallback.of("info => { info.el.title = 'x'; }"));
+
+        String merged = calendar.buildEntryDidMountMerged();
+        assertTrue(merged.contains("(function() {\n" + FullCalendar.DEFAULT_ENTRY_ID_ASSIGNMENT_SNIPPET
+                + "}).apply(this, arguments);"), merged);
     }
 
     // --- Helpers ---
 
-    private static JsCallback getUserEntryDidMountCallback(FullCalendar calendar) {
-        try {
-            Field field = FullCalendar.class.getDeclaredField("userEntryDidMountCallback");
-            field.setAccessible(true);
-            return (JsCallback) field.get(calendar);
-        } catch (ReflectiveOperationException e) {
-            throw new RuntimeException(e);
-        }
-    }
 
     @SuppressWarnings("unchecked")
     private static java.util.Map<String, String> getNativeEventsMap(FullCalendar calendar) {

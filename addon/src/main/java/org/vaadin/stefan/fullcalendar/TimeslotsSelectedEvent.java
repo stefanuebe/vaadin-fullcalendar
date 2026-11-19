@@ -16,6 +16,7 @@
  */
 package org.vaadin.stefan.fullcalendar;
 
+import org.vaadin.stefan.fullcalendar.option.Timezone;
 import com.vaadin.flow.component.ComponentEvent;
 import com.vaadin.flow.component.DomEvent;
 import com.vaadin.flow.component.EventData;
@@ -62,10 +63,13 @@ public class TimeslotsSelectedEvent extends ComponentEvent<FullCalendar> {
      * @param end end time slot as iso string
      * @param allDay all day event
      */
-    public TimeslotsSelectedEvent(FullCalendar source, boolean fromClient, @EventData("event.detail.start") String start, @EventData("event.detail.end") String end, @EventData("event.detail.allDay") boolean allDay) {
+    public TimeslotsSelectedEvent(FullCalendar source, boolean fromClient,
+                                  @EventData("event.detail.start") String start,
+                                  @EventData("event.detail.end") String end,
+                                  @EventData("event.detail.allDay") boolean allDay) {
         super(source, fromClient);
 
-        Timezone timezone = source.getTimezone();
+        Timezone timezone = source.getTimezoneForOffsets();
         this.allDay = allDay;
         this.start = JsonUtils.parseClientSideDateTime(start);
         this.end = JsonUtils.parseClientSideDateTime(end);
@@ -99,7 +103,7 @@ public class TimeslotsSelectedEvent extends ComponentEvent<FullCalendar> {
      * @return start with offset
      */
     public LocalDateTime getStartWithOffset() {
-        return getSource().getTimezone().applyTimezoneOffset(start);
+        return getSource().getTimezoneForOffsets().applyTimezoneOffset(start);
     }
 
     /**
@@ -109,7 +113,7 @@ public class TimeslotsSelectedEvent extends ComponentEvent<FullCalendar> {
      * @return end with offset
      */
     public LocalDateTime getEndWithOffset() {
-        return getSource().getTimezone().applyTimezoneOffset(end);
+        return getSource().getTimezoneForOffsets().applyTimezoneOffset(end);
     }
 
     /**

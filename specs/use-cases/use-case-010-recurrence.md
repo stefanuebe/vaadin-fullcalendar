@@ -18,9 +18,9 @@
 ## User-Facing Behavior
 
 - Recurring entries appear on every matching date within the visible range
-- Simple recurrence: entries repeat on specified days of the week
+- Basic recurrence: entries repeat on specified days of the week
 - RRule recurrence: complex patterns (bi-weekly, monthly-by-weekday, yearly, etc.)
-- Individual occurrences cannot be edited separately (FC renders them as repeating instances)
+- Individual occurrences cannot be edited separately (FullCalendar renders them as repeating instances)
 
 ---
 
@@ -32,8 +32,8 @@ Entry standup = new Entry();
 standup.setTitle("Daily Standup");
 standup.setRecurringDaysOfWeek(Set.of(DayOfWeek.MONDAY, DayOfWeek.TUESDAY,
     DayOfWeek.WEDNESDAY, DayOfWeek.THURSDAY, DayOfWeek.FRIDAY));
-standup.setRecurringStartTime(RecurringTime.of(9, 0));
-standup.setRecurringEndTime(RecurringTime.of(9, 15));
+standup.setRecurringStartTime(ExtendedLocalTime.of(9, 0));
+standup.setRecurringEndTime(ExtendedLocalTime.of(9, 15));
 
 // RRule: bi-weekly on Monday
 Entry biWeekly = new Entry();
@@ -64,12 +64,13 @@ custom.setRRule(RRule.ofRaw("FREQ=WEEKLY;BYDAY=MO,WE;INTERVAL=2"));
 
 | ID | Rule |
 |----|------|
-| BR-01 | Simple recurrence and RRule are mutually exclusive per entry |
-| BR-02 | Setting an RRule overrides `recurringDaysOfWeek` / `recurringStartTime` / `recurringEndTime` |
+| BR-01 | Basic recurrence and RRule are mutually exclusive per entry. Setting one (non-null) removes the other. `recurringDuration` is kept for both |
+| BR-02 | Setting an RRule clears `recurringDaysOfWeek`, `recurringStartDate`, `recurringEndDate`, `recurringStartTime` and `recurringEndTime`. Setting one of them clears the RRule with its excluded dates and rules |
 | BR-03 | `excludeDates` removes specific occurrences from the recurrence pattern |
-| BR-04 | `recurringDuration` sets duration for multi-day recurring all-day entries (ISO 8601, e.g., `"P2D"`) |
+| BR-04 | `recurringDuration` (`java.time.Duration`) sets the length of each occurrence, sent as `hh:mm:ss` (e.g. `Duration.ofHours(48)` → `"48:00:00"`). FullCalendar does not parse ISO 8601 strings |
 | BR-05 | Recurring entries expand client-side — the server sends the rule, not individual instances |
 | BR-06 | Dragging individual occurrences of a recurring entry is not supported — the entire rule would need to be changed |
+| BR-07 | An RRule without `dtstart` starts at the start of its entry: the date for an all-day entry, otherwise the start converted to the time zone of the calendar, because the library reads a `dtstart` without zone in that zone. This holds for the object and the text form. An explicit `dtstart` and a rule created with `ofRaw` are sent as they are (#451, #452) |
 
 ---
 
@@ -88,11 +89,13 @@ custom.setRRule(RRule.ofRaw("FREQ=WEEKLY;BYDAY=MO,WE;INTERVAL=2"));
 ## Tests
 
 ### Unit Tests
-- [ ] `RecurringTimeTest` — RecurringTime conversion
+- [ ] `ExtendedLocalTimeTest` — ExtendedLocalTime conversion
 - [ ] `EntryTest` — RRule serialization
+- [x] `RRuleEntryStartTest` — the entry start as `dtstart`, in the calendar time zone (BR-07)
 
 ### E2E Tests
 - [ ] `entry-model.spec.js` — recurring entry display
+- [x] `rrule-entry-start.spec.js` — rules without `dtstart` in a calendar in `Europe/Berlin` (BR-07)
 
 ---
 

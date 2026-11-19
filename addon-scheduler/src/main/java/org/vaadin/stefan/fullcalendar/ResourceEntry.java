@@ -16,13 +16,14 @@
  */
 package org.vaadin.stefan.fullcalendar;
 
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.vaadin.stefan.fullcalendar.converter.ResourceConverter;
 import org.vaadin.stefan.fullcalendar.json.JsonConverter;
 import org.vaadin.stefan.fullcalendar.json.JsonName;
-import org.vaadin.stefan.fullcalendar.json.JsonUpdateAllowed;
+import org.vaadin.stefan.fullcalendar.json.JsonReadField;
 import tools.jackson.databind.node.ObjectNode;
 
 import java.util.*;
@@ -41,13 +42,17 @@ public class ResourceEntry extends Entry {
 
     /**
      * Whether this entry can be dragged between resources (scheduler only).
-     * {@code null} inherits the calendar-level {@code eventResourceEditable} option.
+     * {@code null} inherits the calendar-level {@code eventResourceEditable} option and is not sent to the client.
+     * Like {@link Entry#setEditable(Boolean)}, {@code null} means inherit.
      *
      * @see <a href="https://fullcalendar.io/docs/eventResourceEditable">eventResourceEditable</a>
      */
-    private boolean resourceEditable = true;
+    @Getter(AccessLevel.NONE)
+    @Setter(AccessLevel.NONE)
+    @JsonReadField
+    private Boolean resourceEditable;
 
-    @JsonUpdateAllowed
+    // The client never sends resourceIds. A drop reports oldResource and newResource, see EntryDroppedSchedulerEvent.
     @JsonName("resourceIds")
     @JsonConverter(ResourceConverter.class)
     private Set<Resource> resources;
@@ -64,24 +69,30 @@ public class ResourceEntry extends Entry {
         super(id);
     }
 
+    /**
+     * Checks whether this entry can be dragged between resources. Returns {@code true} if the value has not been
+     * set explicitly. The entry then inherits the calendar-level {@code eventResourceEditable} option at render time.
+     *
+     * @return {@code true} unless explicitly set to {@code false}
+     */
+    public boolean isResourceEditable() {
+        return resourceEditable == null || resourceEditable;
+    }
+
+    /**
+     * Sets whether this entry can be dragged between resources. The value overrides the calendar-level
+     * {@code eventResourceEditable} option. Pass {@code null} to inherit the calendar-level option instead.
+     *
+     * @param resourceEditable {@code true} or {@code false} to override, {@code null} to inherit
+     */
+    public void setResourceEditable(Boolean resourceEditable) {
+        this.resourceEditable = resourceEditable;
+    }
+
     @Override
     @SuppressWarnings("unchecked")
     protected Stream<BeanProperties<Entry>> streamProperties() {
         return Stream.concat(super.streamProperties(), PROPERTIES.stream());
-    }
-
-    /**
-     * Sets the calendar for this instance. The given calendar must be implementing Scheduler.
-     *
-     * @param calendar calendar instance
-     * @throws IllegalArgumentException instance is not implementing {@link Scheduler}
-     */
-    @Override
-    public void setCalendar(FullCalendar calendar) {
-        if (calendar != null && !(calendar instanceof Scheduler)) {
-            throw new IllegalArgumentException("ResourceEntries must be added to a FullCalendar that implements Scheduler");
-        }
-        super.setCalendar(calendar);
     }
 
     /**
@@ -155,28 +166,6 @@ public class ResourceEntry extends Entry {
      * @param resources resources
      * @throws NullPointerException when null is passed
      */
-    @Deprecated
-    public void assignResources(Resource... resources) {
-        addResources(resources);
-    }
-
-    /**
-     * Assign an additional resource to this entry. Already assigned resources will be kept.
-     *
-     * @param resource resource
-     * @throws NullPointerException when null is passed
-     */
-    @Deprecated
-    public void assignResource(Resource resource) {
-        addResources(Objects.requireNonNull(resource));
-    }
-
-    /**
-     * Assigns additional resources to this entry. Already assigned resources will be kept.
-     *
-     * @param resources resources
-     * @throws NullPointerException when null is passed
-     */
     public void addResources(Resource... resources) {
         addResources(Arrays.asList(resources));
     }
@@ -217,14 +206,6 @@ public class ResourceEntry extends Entry {
     /**
      * Unassigns all resources from this entry.
      */
-    @Deprecated
-    public void unassignAllResources() {
-        removeAllResources();
-    }
-
-    /**
-     * Unassigns all resources from this entry.
-     */
     public void removeAllResources() {
         setResources(null);
     }
@@ -243,7 +224,9 @@ public class ResourceEntry extends Entry {
         // - https://github.com/fullcalendar/fullcalendar/issues/5262
         // Therefore this if will lead to a lot of "reset event", due to the fact, that resource editable
         // etc. might be set often.
-//        if (changedValuesOnly && (getColor() == null && hasResources() || isMarkedAsChangedProperty(ResourceEntryKey.RESOURCES) || isMarkedAsChangedProperty(ResourceEntryKey.RESOURCE_EDITABLE))) {
+//        if (changedValuesOnly && (getColor() == null && hasResources()
+//                || isMarkedAsChangedProperty(ResourceEntryKey.RESOURCES)
+//                || isMarkedAsChangedProperty(ResourceEntryKey.RESOURCE_EDITABLE))) {
 //            // set correctly. Might change in future, if not performant
 //            super.toJson(jsonObject, false);
 ////            writeHardResetToJson(jsonObject);
@@ -252,6 +235,5 @@ public class ResourceEntry extends Entry {
 //        }
 //
 //    }
-
 
 }

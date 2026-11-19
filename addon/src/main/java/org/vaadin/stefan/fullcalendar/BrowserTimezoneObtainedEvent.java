@@ -16,6 +16,7 @@
  */
 package org.vaadin.stefan.fullcalendar;
 
+import org.vaadin.stefan.fullcalendar.option.Timezone;
 import com.vaadin.flow.component.ComponentEvent;
 import lombok.Getter;
 import lombok.ToString;

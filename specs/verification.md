@@ -33,13 +33,12 @@ mvn test -pl addon-scheduler
 - Converters: Java ↔ JS type conversions (Duration, DayOfWeek, RRule, Locale, etc.)
 - Options: setting/getting options, option name mapping
 - Data providers: InMemoryEntryProvider CRUD, CallbackEntryProvider queries
-- Builder: FullCalendarBuilder configuration
 - Resource model: hierarchy, style overrides, JSON serialization
 - ResourceEntry: resource assignment, cross-validation
 
 ### Naming Conventions
 
-- Test class: `[Feature]Test.java` (e.g., `EntryTest`, `FullCalendarBuilderTest`)
+- Test class: `[Feature]Test.java` (e.g., `EntryTest`, `DeltaTest`)
 - Test methods: descriptive names mapping to behavior (e.g., `settingStartUpdatesJson`, `recurringEntryWithRRule`)
 
 ---

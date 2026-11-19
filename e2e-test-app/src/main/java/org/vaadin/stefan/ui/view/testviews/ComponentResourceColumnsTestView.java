@@ -1,5 +1,7 @@
 package org.vaadin.stefan.ui.view.testviews;
 
+import org.vaadin.stefan.fullcalendar.option.ComponentResourceColumn;
+import org.vaadin.stefan.fullcalendar.option.ResourceColumn;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.datepicker.DatePicker;
 import com.vaadin.flow.component.html.H2;
@@ -19,7 +21,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 /**
- * Test view for component resource area columns (UC-024).
+ * Test view for component resource columns (UC-024).
  * <p>
  * Verifies:
  * <ul>
@@ -37,8 +39,8 @@ import java.util.List;
 public class ComponentResourceColumnsTestView extends VerticalLayout {
 
     private final FullCalendarScheduler calendar;
-    private final ComponentResourceAreaColumn<DatePicker> dateColumn;
-    private final ComponentResourceAreaColumn<TextField> notesColumn;
+    private final ComponentResourceColumn<DatePicker> dateColumn;
+    private final ComponentResourceColumn<TextField> notesColumn;
     private final Span stateSpan;
 
     public ComponentResourceColumnsTestView() {
@@ -54,13 +56,13 @@ public class ComponentResourceColumnsTestView extends VerticalLayout {
 
         // Build scheduler
         calendar = new FullCalendarScheduler();
-        calendar.setOption(FullCalendarScheduler.SchedulerOption.LICENSE_KEY, Scheduler.DEVELOPER_LICENSE_KEY);
+        calendar.options().setSchedulerLicenseKey(Scheduler.DEVELOPER_LICENSE_KEY);
         calendar.getElement().setAttribute("data-testid", "calendar");
-        calendar.setOption("initialDate", LocalDate.of(2025, 3, 3).toString());
-        calendar.setOption("initialView", SchedulerView.RESOURCE_TIMELINE_WEEK.getClientSideValue());
+        calendar.options().setInitialDate(LocalDate.of(2025, 3, 3));
+        calendar.options().setInitialView(SchedulerView.RESOURCE_TIMELINE_WEEK);
 
         // Component columns
-        dateColumn = new ComponentResourceAreaColumn<>("deadline", "Deadline",
+        dateColumn = new ComponentResourceColumn<>("deadline", "Deadline",
                 resource -> {
                     DatePicker picker = new DatePicker();
                     picker.setWidth("130px");
@@ -72,7 +74,7 @@ public class ComponentResourceColumnsTestView extends VerticalLayout {
                     return picker;
                 });
 
-        notesColumn = new ComponentResourceAreaColumn<>("notes", "Notes",
+        notesColumn = new ComponentResourceColumn<>("notes", "Notes",
                 resource -> {
                     TextField field = new TextField();
                     field.setWidth("120px");
@@ -82,10 +84,10 @@ public class ComponentResourceColumnsTestView extends VerticalLayout {
                     return field;
                 });
 
-        calendar.setResourceAreaColumns(List.of(
-                new ResourceAreaColumn("title", "Name").withWidth("150px"),
-                dateColumn.withWidth("160px"),
-                notesColumn.withWidth("150px")
+        calendar.options().setResourceColumns(List.of(
+                new ResourceColumn("title", "Name").withWidth(150),
+                dateColumn.withWidth(160),
+                notesColumn.withWidth(150)
         ));
 
         // Resources
@@ -103,7 +105,7 @@ public class ComponentResourceColumnsTestView extends VerticalLayout {
         entry.setStart(LocalDateTime.of(2025, 3, 3, 10, 0));
         entry.setEnd(LocalDateTime.of(2025, 3, 3, 12, 0));
         entry.addResources(resA);
-        calendar.getEntryProvider().asInMemory().addEntry(entry);
+        calendar.getEntryProvider().asInMemory().getItems().add(entry);
 
         calendar.setSizeFull();
         add(calendar);

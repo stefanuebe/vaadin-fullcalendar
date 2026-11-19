@@ -41,6 +41,9 @@ public class ExternalDropTestView extends VerticalLayout {
         Span dropData = badge("drop-data", "");
         Span dropComponent = badge("drop-component", "");
         Span dropEntry = badge("drop-entry", "");
+        Span dropExtendedProp = badge("drop-extended-prop", "");
+        Span receiveExtendedProp = badge("receive-extended-prop", "");
+        Span receiveDisplayMode = badge("receive-display-mode", "");
 
         Div badges = new Div(
                 label("dropCount: "), dropCount,
@@ -48,7 +51,10 @@ public class ExternalDropTestView extends VerticalLayout {
                 label(" | dropAllDay: "), dropAllDay,
                 label(" | dropData: "), dropData,
                 label(" | dropComponent: "), dropComponent,
-                label(" | dropEntry: "), dropEntry
+                label(" | dropEntry: "), dropEntry,
+                label(" | dropExtendedProp: "), dropExtendedProp,
+                label(" | receiveExtendedProp: "), receiveExtendedProp,
+                label(" | receiveDisplayMode: "), receiveDisplayMode
         );
         badges.getStyle().set("font-size", "12px");
         add(badges);
@@ -71,14 +77,14 @@ public class ExternalDropTestView extends VerticalLayout {
         entryData.setTitle("External Task");
         entryData.setStart(LocalDateTime.of(2025, 3, 12, 10, 0));
         entryData.setEnd(LocalDateTime.of(2025, 3, 12, 11, 0));
+        entryData.setExtendedProp("priority", "high");
 
         // --- Calendar ---
         FullCalendar calendar = new FullCalendar();
-        calendar.addThemeVariants(FullCalendarVariant.VAADIN);
-        calendar.setLocale(Locale.ENGLISH);
-        calendar.setOption("initialDate", LocalDate.of(2025, 3, 1).toString());
-        calendar.setOption("initialView", CalendarViewImpl.DAY_GRID_MONTH.getClientSideValue());
-        calendar.setOption(FullCalendar.Option.DROPPABLE, true);
+        calendar.options().setLocale(Locale.ENGLISH);
+        calendar.options().setInitialDate(LocalDate.of(2025, 3, 1));
+        calendar.options().setInitialView(CalendarViewImpl.DAY_GRID_MONTH);
+        calendar.options().setDroppable(true);
 
         InMemoryEntryProvider<Entry> provider = new InMemoryEntryProvider<>();
         calendar.setEntryProvider(provider);
@@ -94,6 +100,12 @@ public class ExternalDropTestView extends VerticalLayout {
             dropAllDay.setText(String.valueOf(e.isAllDay()));
             dropComponent.setText(e.getDraggable().map(Draggable::getComponent).map(c -> c.getId().orElse("no-id")).orElse("none"));
             dropEntry.setText(e.getDraggable().flatMap(Draggable::getEntryData).map(Entry::getTitle).orElse("none"));
+            dropExtendedProp.setText(String.valueOf(e.getCreatedEntry().getExtendedProp("priority")));
+        });
+
+        calendar.addEntryReceiveListener(e -> {
+            receiveExtendedProp.setText(String.valueOf(e.getEntry().getExtendedProp("priority")));
+            receiveDisplayMode.setText(String.valueOf(e.getEntry().getDisplayMode()));
         });
 
         add(calendar);

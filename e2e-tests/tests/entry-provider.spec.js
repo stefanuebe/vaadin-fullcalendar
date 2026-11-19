@@ -34,8 +34,7 @@ async function addEntriesViaToolbar(page, menuItem) {
  * Helper to find the first all-day event in the calendar
  */
 async function findFirstAllDayEvent(page) {
-  // All-day events in month view are in fc-daygrid-event-harness with fc-daygrid-block-event class
-  // or they don't have a time displayed
+  // All-day entries in month view carry fc-daygrid-block-event or show no time
   const allDayEvent = page.locator('.fc-daygrid-block-event .fc-event, .fc-daygrid-event:not(:has(.fc-event-time))').first();
   if (await allDayEvent.isVisible({ timeout: 3000 })) {
     return allDayEvent;

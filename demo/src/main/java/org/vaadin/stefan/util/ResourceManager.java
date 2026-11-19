@@ -2,7 +2,7 @@ package org.vaadin.stefan.util;
 
 import java.util.Collection;
 
-import org.vaadin.stefan.fullcalendar.BusinessHours;
+import org.vaadin.stefan.fullcalendar.option.BusinessHours;
 import org.vaadin.stefan.fullcalendar.Resource;
 import org.vaadin.stefan.fullcalendar.Scheduler;
 

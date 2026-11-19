@@ -1,10 +1,15 @@
 package org.vaadin.stefan.fullcalendar;
 
+import org.vaadin.stefan.fullcalendar.option.BusinessHoursValue;
+import org.vaadin.stefan.fullcalendar.option.EntryLimitValue;
+import org.vaadin.stefan.fullcalendar.option.LocaleValue;
+import org.vaadin.stefan.fullcalendar.option.BusinessHours;
+import org.vaadin.stefan.fullcalendar.option.CalendarLocale;
+import org.vaadin.stefan.fullcalendar.option.Timezone;
 import com.vaadin.flow.component.ComponentEventBusUtil;
 import com.vaadin.flow.dom.Element;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import org.vaadin.stefan.fullcalendar.FullCalendar.Option;
 import org.vaadin.stefan.fullcalendar.dataprovider.InMemoryEntryProvider;
 import tools.jackson.databind.node.ObjectNode;
 
@@ -13,13 +18,11 @@ import java.lang.reflect.Constructor;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeoutException;
-import java.util.function.Consumer;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.vaadin.stefan.fullcalendar.TestUtils.assertNPE;
@@ -44,7 +47,7 @@ public class FullCalendarTest {
     private FullCalendar setupTestCalendar(FullCalendar calendar) {
         // to simulate a client timezone, we have to use the server time zone, since all the LocalDate... instances
         // will not be on utc, but on the server timezone.
-        calendar.setTimezone(Timezone.getSystem());
+        calendar.options().setTimeZone(Timezone.getSystem());
         return calendar;
     }
 
@@ -57,27 +60,35 @@ public class FullCalendarTest {
     }
 
     @Test
-    void testNonArgsConstructor() {
+    void noArgConstructor_leavesEditableToTheLibrary() {
         FullCalendar calendar = new FullCalendar();
 
-        // locale + dayMaxEvents + editable (addon default, since #212 changed entry-level serialization)
-        assertExistingOptionCount(calendar, 3);
-        assertSame(CalendarLocale.getDefaultLocale(), calendar.getLocale());
-        assertEquals(Boolean.TRUE, calendar.getOption(Option.EDITABLE).orElse(null));
+        // no add-on default, the library's default applies
+        assertNull(calendar.options().getEditable());
     }
 
     @Test
-    void testArgsConstructor_dayMaxEvents() {
+    void noArgConstructor_setsDefaultLocale() {
+        FullCalendar calendar = new FullCalendar();
+
+        assertEquals(LocaleValue.of(CalendarLocale.getDefaultLocale()), calendar.options().getLocale());
+    }
+
+    @Test
+    void initialOptionsConstructor_setsDefaultLocaleWhenNoneGiven() {
+        FullCalendar calendar = new FullCalendar(JsonFactory.createObject());
+
+        assertEquals(LocaleValue.of(CalendarLocale.getDefaultLocale()), calendar.options().getLocale());
+    }
+
+    @Test
+    void dayMaxEntries_setAndGet() {
         int entryLimit = 5;
 
         FullCalendar calendar = new FullCalendar();
-        calendar.setMaxEntriesPerDay(entryLimit);
+        calendar.options().setDayMaxEntries(entryLimit);
 
-        // locale + dayMaxEvents + editable (addon default)
-        assertExistingOptionCount(calendar, 3);
-        assertSame(CalendarLocale.getDefaultLocale(), calendar.getLocale());
-
-        assertEquals(entryLimit, calendar.getOption(Option.MAX_ENTRIES_PER_DAY).orElse(-1));
+        assertEquals(EntryLimitValue.of(entryLimit), calendar.options().getDayMaxEntries());
     }
 
     @Test
@@ -87,8 +98,6 @@ public class FullCalendarTest {
         FullCalendar calendar = new FullCalendar(options);
         Element element = calendar.getElement();
 
-        // locale + dayMaxEvents + editable (addon default)
-        assertExistingOptionCount(calendar, 3);
         Serializable returnedOptions = element.getPropertyRaw("initialOptions");
 
         assertTrue(returnedOptions instanceof ObjectNode, "Returned initial options not instanceof JsonObject");
@@ -98,23 +107,27 @@ public class FullCalendarTest {
     }
 
     @Test
-    void testInitialOptions_explicitEditableFalse_notOverriddenByAddonDefault() {
-        ObjectNode options = JsonFactory.createObject();
-        options.put(Option.EDITABLE.getOptionKey(), false);
-
-        FullCalendar calendar = new FullCalendar(options);
-
-        // The addon-default branch in postConstruct is skipped because the ctor's
-        // initialOptions already carry editable. Since the user set it via setPropertyJson
-        // (not setOption), the Java-side getOption(EDITABLE) stays empty — the user's value
-        // lives only in the element's initialOptions JSON payload delivered to the client.
-        // The critical assertion: addon default did NOT sneak in a true value.
-        assertTrue(calendar.getOption(Option.EDITABLE).isEmpty(),
-                "addon must not set EDITABLE when the ctor's initialOptions already declares it");
+    void currentViewNameIsTheClientNameBeforeTheFirstRender() {
+        assertEquals("dayGridMonth", createTestCalendar().getCurrentViewName());
     }
 
-    private void assertExistingOptionCount(FullCalendar calendar, int expectedOptionsCount) {
-        assertEquals(expectedOptionsCount, Arrays.stream(Option.values()).map(calendar::getOption).filter(Optional::isPresent).count());
+    @Test
+    void changeViewToAnUnregisteredViewNamesTheRegistrationMethod() {
+        CustomCalendarView unregistered = new CustomCalendarView() {
+            @Override
+            public String getClientSideValue() {
+                return "unregistered";
+            }
+
+            @Override
+            public ObjectNode getViewSettings() {
+                return JsonFactory.createObject();
+            }
+        };
+
+        IllegalArgumentException e = assertThrows(IllegalArgumentException.class,
+                () -> createTestCalendar().changeView(unregistered));
+        assertTrue(e.getMessage().contains("setCustomCalendarViews"), e.getMessage());
     }
 
     @Test
@@ -137,69 +150,36 @@ public class FullCalendarTest {
     }
 
     @Test
-    void testClientSideOptionMethods() {
+    void firstDayAndLocale_setAndGet() {
         FullCalendar calendar = createTestCalendar();
 
-        // first day of week
-        assertNPE(calendar, c -> c.setFirstDay(null));
+        calendar.options().setFirstDay(DayOfWeek.MONDAY);
+        assertEquals(DayOfWeek.MONDAY, calendar.options().getFirstDay());
 
-        calendar.setFirstDay(DayOfWeek.MONDAY);
-        assertOptionalEquals(DayOfWeek.MONDAY, calendar.getOption(Option.FIRST_DAY));
-        assertOptionalEquals(DayOfWeek.MONDAY.getValue(), calendar.getOption(Option.FIRST_DAY, true));
-
-        calendar.setFirstDay(DayOfWeek.SUNDAY);
-        assertOptionalEquals(DayOfWeek.SUNDAY, calendar.getOption(Option.FIRST_DAY));
-        assertOptionalEquals(0, calendar.getOption(Option.FIRST_DAY, true));
-
-        assertNPE(calendar, c -> c.setLocale(null));
+        calendar.options().setFirstDay(DayOfWeek.SUNDAY);
+        assertEquals(DayOfWeek.SUNDAY, calendar.options().getFirstDay());
 
         Locale locale = CalendarLocale.GREEK.getLocale();
 
         // we want to be sure to not use the default to test.
         assertNotEquals(CalendarLocale.getDefaultLocale(), locale);
 
-        calendar.setLocale(locale);
-        assertSame(locale, calendar.getLocale());
-        assertOptionalEquals(locale, calendar.getOption(Option.LOCALE));
-        // Client-side value is the locale tag string, possibly wrapped in a JsonNode
-        Optional<Object> clientSideLocale = calendar.getOption(Option.LOCALE, true);
-        assertTrue(clientSideLocale.isPresent());
-        String clientValue = clientSideLocale.get().toString().replace("\"", "");
-        assertEquals(locale.toLanguageTag().toLowerCase(), clientValue);
+        calendar.options().setLocale(locale);
+        assertEquals(LocaleValue.of(locale), calendar.options().getLocale());
 
-        assertCorrectBooleanOption(calendar, Option.SELECTABLE, calendar::setTimeslotsSelectable);
-        assertCorrectBooleanOption(calendar, Option.WEEK_NUMBERS, calendar::setWeekNumbersVisible);
-        assertCorrectBooleanOption(calendar, Option.NOW_INDICATOR, calendar::setNowIndicatorShown);
-
-        // this must be tested before the other setNumberClickForwads...Target methods
-        assertCorrectBooleanOption(calendar, Option.NAV_LINKS, calendar::setNumberClickable);
-
-        assertNPE(calendar, c -> calendar.setBusinessHours(null));
         BusinessHours hours = BusinessHours.allDays().start(5).end(10);
-        calendar.setBusinessHours(hours);
+        calendar.options().setBusinessHours(hours);
+        assertEquals(BusinessHoursValue.of(hours), calendar.options().getBusinessHours());
 
-        Optional<Object> option = calendar.getOption(Option.BUSINESS_HOURS);
-        assertTrue(option.isPresent());
-        assertTrue(option.get() instanceof BusinessHours[]);
-        assertEquals(hours, ((BusinessHours[]) option.get())[0]);
-
-        calendar.removeBusinessHours();
-        option = calendar.getOption(Option.BUSINESS_HOURS);
-        assertFalse(option.isPresent());
+        calendar.options().setBusinessHours((BusinessHoursValue) null);
+        assertNull(calendar.options().getBusinessHours());
     }
-
-    private void assertCorrectBooleanOption(FullCalendar calendar, Option optionToCheck, Consumer<Boolean> function) {
-        function.accept(true);
-        assertOptionalEquals(true, calendar.getOption(optionToCheck), "Checking set true for setter of "
-                + optionToCheck.name() + " failed. Option returned false.");
-    }
-
 
     @Test
     void testEmptyOptionalOnFetchingNonExistingEntryById() {
         FullCalendar calendar = createTestCalendar();
 
-        Optional<Entry> optional = getEntryProvider(calendar).getEntryById("");
+        Optional<Entry> optional = getEntryProvider(calendar).fetchById("");
         assertNotNull(optional);
         assertFalse(optional.isPresent());
     }
@@ -213,9 +193,9 @@ public class FullCalendarTest {
         FullCalendar calendar = createTestCalendar();
 
         Entry entry = new Entry();
-        calendar.getEntryProvider().asInMemory().addEntry(entry);
+        calendar.getEntryProvider().asInMemory().getItems().add(entry);
 
-        Optional<Entry> optional = getEntryProvider(calendar).getEntryById(entry.getId());
+        Optional<Entry> optional = getEntryProvider(calendar).fetchById(entry.getId());
         assertNotNull(optional);
         assertOptionalEquals(entry, optional);
     }
@@ -229,9 +209,9 @@ public class FullCalendarTest {
         Entry entry3 = new Entry();
 
         InMemoryEntryProvider<Entry> entryProvider = calendar.getEntryProvider().asInMemory();
-        entryProvider.addEntry(entry1);
-        entryProvider.addEntry(entry2);
-        entryProvider.addEntry(entry3);
+        entryProvider.getItems().add(entry1);
+        entryProvider.getItems().add(entry2);
+        entryProvider.getItems().add(entry3);
 
         Collection<Entry> entries = entryProvider.getEntries();
         assertEquals(3, entries.size());
@@ -240,9 +220,9 @@ public class FullCalendarTest {
         assertTrue(entries.contains(entry2));
         assertTrue(entries.contains(entry3));
 
-        assertOptionalEquals(entry1, getEntryProvider(calendar).getEntryById(entry1.getId()));
-        assertOptionalEquals(entry2, getEntryProvider(calendar).getEntryById(entry2.getId()));
-        assertOptionalEquals(entry3, getEntryProvider(calendar).getEntryById(entry3.getId()));
+        assertOptionalEquals(entry1, getEntryProvider(calendar).fetchById(entry1.getId()));
+        assertOptionalEquals(entry2, getEntryProvider(calendar).fetchById(entry2.getId()));
+        assertOptionalEquals(entry3, getEntryProvider(calendar).fetchById(entry3.getId()));
     }
 
     @Test
@@ -255,11 +235,13 @@ public class FullCalendarTest {
 
         InMemoryEntryProvider<Entry> entryProvider = calendar.getEntryProvider().asInMemory();
 
-        entryProvider.addEntry(entry1);
-        entryProvider.addEntry(entry2);
-        entryProvider.addEntry(entry3);
+        entryProvider.getItems().add(entry1);
+        entryProvider.getItems().add(entry2);
+        entryProvider.getItems().add(entry3);
 
-        entryProvider.removeEntry(entry2);
+        entryProvider.getEntries(); // builds the id map, so the removal needs a refresh
+        entryProvider.getItems().remove(entry2);
+        entryProvider.refreshAll();
 
         Collection<Entry> entries = entryProvider.getEntries();
         assertEquals(2, entries.size());
@@ -268,10 +250,78 @@ public class FullCalendarTest {
         assertFalse(entries.contains(entry2));
         assertTrue(entries.contains(entry3));
 
-        assertOptionalEquals(entry1, getEntryProvider(calendar).getEntryById(entry1.getId()));
-        assertOptionalEquals(entry3, getEntryProvider(calendar).getEntryById(entry3.getId()));
+        assertOptionalEquals(entry1, getEntryProvider(calendar).fetchById(entry1.getId()));
+        assertOptionalEquals(entry3, getEntryProvider(calendar).fetchById(entry3.getId()));
 
-        assertFalse(getEntryProvider(calendar).getEntryById(entry2.getId()).isPresent());
+        assertFalse(getEntryProvider(calendar).fetchById(entry2.getId()).isPresent());
+    }
+
+    // #444: an entry holds no calendar, so two calendars can fetch the same instance
+    @Test
+    void testOneEntryFetchedByTwoCalendars() {
+        Entry shared = new Entry();
+        shared.setStart(LocalDateTime.of(2025, 3, 3, 9, 0));
+        FullCalendar first = createTestCalendar();
+        FullCalendar second = createTestCalendar();
+        first.getEntryProvider().asInMemory().getItems().add(shared);
+        second.getEntryProvider().asInMemory().getItems().add(shared);
+
+        assertEquals(1, first.fetchEntriesFromServer(JsonFactory.createObject()).size());
+        assertEquals(1, second.fetchEntriesFromServer(JsonFactory.createObject()).size());
+    }
+
+    /** Counts the refresh requests an entry provider sends to its calendar. */
+    private static class RefreshCountingCalendar extends FullCalendar {
+        int refreshAllRequests;
+        int refreshItemRequests;
+        Entry lastRefreshedItem;
+
+        @Override
+        protected void requestRefreshAllEntries() {
+            refreshAllRequests++;
+        }
+
+        @Override
+        protected void requestRefresh(Entry item) {
+            refreshItemRequests++;
+            lastRefreshedItem = item;
+        }
+    }
+
+    @Test
+    void testOneEntryProviderSharedByTwoCalendars() {
+        InMemoryEntryProvider<Entry> provider = new InMemoryEntryProvider<>();
+        Entry entry = new Entry();
+        provider.getItems().add(entry);
+
+        RefreshCountingCalendar first = new RefreshCountingCalendar();
+        RefreshCountingCalendar second = new RefreshCountingCalendar();
+        first.setEntryProvider(provider);
+        second.setEntryProvider(provider);
+
+        provider.refreshAll();
+        provider.refreshItem(entry);
+
+        assertEquals(1, first.refreshAllRequests);
+        assertEquals(1, second.refreshAllRequests);
+        assertEquals(1, first.refreshItemRequests);
+        assertEquals(1, second.refreshItemRequests);
+        assertSame(entry, first.lastRefreshedItem);
+        assertSame(entry, second.lastRefreshedItem);
+    }
+
+    @Test
+    void testOldEntryProviderNoLongerRefreshesTheCalendar() {
+        InMemoryEntryProvider<Entry> oldProvider = new InMemoryEntryProvider<>();
+        RefreshCountingCalendar calendar = new RefreshCountingCalendar();
+        calendar.setEntryProvider(oldProvider);
+        calendar.setEntryProvider(new InMemoryEntryProvider<>());
+
+        oldProvider.refreshAll();
+        oldProvider.refreshItem(new Entry());
+
+        assertEquals(0, calendar.refreshAllRequests);
+        assertEquals(0, calendar.refreshItemRequests);
     }
 
     @Test
@@ -292,9 +342,9 @@ public class FullCalendarTest {
 //        Entry entry3 = new Entry();
 //
 //        var entryProvider = calendar.getEntryProvider().asInMemory();
-//        entryProvider.addEntry(entry1);
-//        entryProvider.addEntry(entry2);
-//        entryProvider.addEntry(entry3);
+//        entryProvider.getItems().add(entry1);
+//        entryProvider.getItems().add(entry2);
+//        entryProvider.getItems().add(entry3);
 //
 //        entry1.setTitle("1");
 //        entry2.setTitle("2");
@@ -311,9 +361,9 @@ public class FullCalendarTest {
 //        assertTrue(entries.contains(entry2));
 //        assertTrue(entries.contains(entry3));
 //
-//        assertOptionalEquals(entry1, getEntryProvider(calendar).getEntryById(entry1.getId()));
-//        assertOptionalEquals(entry2, getEntryProvider(calendar).getEntryById(entry2.getId()));
-//        assertOptionalEquals(entry3, getEntryProvider(calendar).getEntryById(entry3.getId()));
+//        assertOptionalEquals(entry1, getEntryProvider(calendar).fetchById(entry1.getId()));
+//        assertOptionalEquals(entry2, getEntryProvider(calendar).fetchById(entry2.getId()));
+//        assertOptionalEquals(entry3, getEntryProvider(calendar).fetchById(entry3.getId()));
 //    }
 
     private Entry createEntry(String id, String title, LocalDateTime start, LocalDateTime end, boolean allDay, boolean editable, String color, String description) {
@@ -325,25 +375,24 @@ public class FullCalendarTest {
         entry.setAllDay(allDay);
         entry.setEditable(editable);
         entry.setColor(color);
-        entry.setDescription(description);
+        entry.setExtendedProp("description", description);
 
         return entry;
     }
-
 
     @Test
     void testRemoveAll() {
         FullCalendar calendar = createTestCalendar();
 
-
         InMemoryEntryProvider entryProvider = calendar.getEntryProvider().asInMemory();
-        entryProvider.addEntry(new Entry());
-        entryProvider.addEntry(new Entry());
-        entryProvider.addEntry(new Entry());
+        entryProvider.getItems().add(new Entry());
+        entryProvider.getItems().add(new Entry());
+        entryProvider.getItems().add(new Entry());
 
         assertEquals(3, entryProvider.getEntries().size());
 
-        entryProvider.removeAllEntries();
+        entryProvider.getItems().clear();
+        entryProvider.refreshAll();
         assertEquals(0, entryProvider.getEntries().size());
     }
 
@@ -352,95 +401,47 @@ public class FullCalendarTest {
         FullCalendar calendar = createTestCalendar();
 
         InMemoryEntryProvider<Entry> entryProvider = calendar.getEntryProvider().asInMemory();
-        entryProvider.addEntry(new Entry());
-        entryProvider.addEntry(new Entry());
-        entryProvider.addEntry(new Entry());
+        entryProvider.getItems().add(new Entry());
+        entryProvider.getItems().add(new Entry());
+        entryProvider.getItems().add(new Entry());
 
         Collection<Entry> entries = entryProvider.getEntries();
         assertEquals(3, entries.size());
 
-        entryProvider.removeAllEntries();
+        entryProvider.getItems().clear();
+        entryProvider.refreshAll();
         assertEquals(3, entries.size());
     }
 
     @Test
-    void testGetAndSetOption() {
+    void typedOptions_setAndRemove() {
         FullCalendar calendar = createTestCalendar();
 
-        assertNPE(calendar, c -> c.getOption((Option) null));
-        assertNPE(calendar, c -> c.setOption((Option) null, null));
-        assertNPE(calendar, c -> c.setOption((Option) null, "someValue"));
+        calendar.options().setAllDayText("someValue");
+        assertEquals("someValue", calendar.options().getAllDayText());
 
-        calendar.setOption(Option.LOCALE, "someValue");
-        assertTrue(calendar.getOption(Option.LOCALE).isPresent());
+        calendar.options().setAllDayText(null);
+        assertNull(calendar.options().getAllDayText(), "Option must be absent after setting null");
 
-        calendar.setOption(Option.LOCALE, null);
-        assertFalse(calendar.getOption(Option.LOCALE).isPresent(),
-                "Option must be absent after setting null");
-
-        // Also verify with a non-default option that isn't set in initialOptions
-        calendar.setOption(Option.WEEKENDS, true);
-        assertTrue(calendar.getOption(Option.WEEKENDS).isPresent());
-        calendar.setOption(Option.WEEKENDS, null);
-        assertFalse(calendar.getOption(Option.WEEKENDS).isPresent(),
-                "WEEKENDS must be absent after setting null");
-        // Force client-side read path as well
-        assertFalse(calendar.getOption(Option.WEEKENDS, true).isPresent(),
-                "WEEKENDS must also be absent from client-side option map");
+        calendar.options().setWeekends(true);
+        assertEquals(Boolean.TRUE, calendar.options().getWeekends());
+        calendar.options().setWeekends(null);
+        assertNull(calendar.options().getWeekends(), "weekends must be absent after setting null");
     }
 
     @Test
-    void testGetAndSetOptionWithStringKeys() {
+    void testGetAndSetRawOption() {
         FullCalendar calendar = createTestCalendar();
 
-        assertNPE(calendar, c -> c.getOption((String) null));
-        assertNPE(calendar, c -> c.setOption((String) null, null));
-        assertNPE(calendar, c -> c.setOption((String) null, "someValue"));
+        assertNPE(calendar, c -> c.options().getRawOption(null));
+        assertNPE(calendar, c -> c.options().setRawOption(null, null));
+        assertNPE(calendar, c -> c.options().setRawOption(null, "someValue"));
 
-        String optionKey = Option.LOCALE.getOptionKey();
+        calendar.options().setRawOption("allDayText", "someValue");
+        assertTrue(calendar.options().getRawOption("allDayText").isPresent());
 
-        calendar.setOption(optionKey, "someValue");
-        assertTrue(calendar.getOption(optionKey).isPresent());
-
-        calendar.setOption(optionKey, null);
-        assertFalse(calendar.getOption(optionKey).isPresent());
-    }
-
-    @Test
-    void testGetAndSetOptionWithServerSideValues() {
-        FullCalendar calendar = createTestCalendar();
-
-        Locale locale = Locale.getDefault();
-
-        calendar.setOption(Option.LOCALE, "someValue", locale);
-        assertOptionalEquals(locale, calendar.getOption(Option.LOCALE));
-        assertOptionalEquals("someValue", calendar.getOption(Option.LOCALE, true));
-
-        calendar.setOption(Option.LOCALE, "someValue", null);
-        assertOptionalEquals("someValue", calendar.getOption(Option.LOCALE));
-
-        calendar.setOption(Option.LOCALE, "someOtherValue", locale);
-        calendar.setOption(Option.LOCALE, "someOtherValue");
-        assertOptionalEquals("someOtherValue", calendar.getOption(Option.LOCALE));
-    }
-
-    @Test
-    void testGetAndSetOptionWithServerSideValuesWithStringKeys() {
-        FullCalendar calendar = createTestCalendar();
-
-        Locale locale = Locale.getDefault();
-        String option = Option.LOCALE.getOptionKey();
-
-        calendar.setOption(option, "someValue", locale);
-        assertOptionalEquals(locale, calendar.getOption(option));
-        assertOptionalEquals("someValue", calendar.getOption(option, true));
-
-        calendar.setOption(option, "someValue", null);
-        assertOptionalEquals("someValue", calendar.getOption(option));
-
-        calendar.setOption(option, "someOtherValue", locale);
-        calendar.setOption(option, "someOtherValue");
-        assertOptionalEquals("someOtherValue", calendar.getOption(option));
+        calendar.options().setRawOption("allDayText", null);
+        assertFalse(calendar.options().getRawOption("allDayText").isPresent());
     }
 
     // Removed: testEntryClickedEvent — body was entirely commented out.
@@ -453,11 +454,9 @@ public class FullCalendarTest {
         subTestDateEventSubClass(WeekNumberClickedEvent.class);
     }
 
-
     @Test
     void testTimeslotsSelectedEvent() throws Exception {
         FullCalendar calendar = createTestCalendar();
-
 
         // client timezone may differ server timezone, so we have to simulate that for the event creation
         LocalDate refDateStart = LocalDate.of(2000, 1, 1);
@@ -535,6 +534,67 @@ public class FullCalendarTest {
         calendar.setAutoRevertUnappliedEntryChanges(false);
         calendar.setAutoRevertUnappliedEntryChanges(true);
         assertTrue(calendar.isAutoRevertUnappliedEntryChanges());
+    }
+
+    // The browser reverts a gesture itself when auto-revert is on and no server-side listener exists for it (#440).
+
+    private static boolean dropRevertsOnClient(FullCalendar calendar) {
+        return calendar.getElement().getProperty("eventDropRevertsOnClient", false);
+    }
+
+    private static boolean resizeRevertsOnClient(FullCalendar calendar) {
+        return calendar.getElement().getProperty("eventResizeRevertsOnClient", false);
+    }
+
+    @Test
+    void withoutListenersBothGesturesRevertOnClient() {
+        FullCalendar calendar = createTestCalendar();
+        assertTrue(dropRevertsOnClient(calendar));
+        assertTrue(resizeRevertsOnClient(calendar));
+    }
+
+    @Test
+    void dropListenerStopsClientRevertOfDropsOnly() {
+        FullCalendar calendar = createTestCalendar();
+        calendar.addEntryDroppedListener(event -> {});
+        assertFalse(dropRevertsOnClient(calendar));
+        assertTrue(resizeRevertsOnClient(calendar));
+    }
+
+    @Test
+    void resizeListenerStopsClientRevertOfResizesOnly() {
+        FullCalendar calendar = createTestCalendar();
+        calendar.addEntryResizedListener(event -> {});
+        assertTrue(dropRevertsOnClient(calendar));
+        assertFalse(resizeRevertsOnClient(calendar));
+    }
+
+    @Test
+    void removingTheLastListenerOfAGestureRestoresClientRevert() {
+        FullCalendar calendar = createTestCalendar();
+        var first = calendar.addEntryDroppedListener(event -> {});
+        var second = calendar.addEntryDroppedListener(event -> {});
+
+        first.remove();
+        assertFalse(dropRevertsOnClient(calendar));
+
+        first.remove(); // a second remove of the same registration does not count again
+        assertFalse(dropRevertsOnClient(calendar));
+
+        second.remove();
+        assertTrue(dropRevertsOnClient(calendar));
+    }
+
+    @Test
+    void autoRevertOffStopsClientRevert() {
+        FullCalendar calendar = createTestCalendar();
+        calendar.setAutoRevertUnappliedEntryChanges(false);
+        assertFalse(dropRevertsOnClient(calendar));
+        assertFalse(resizeRevertsOnClient(calendar));
+
+        calendar.setAutoRevertUnappliedEntryChanges(true);
+        assertTrue(dropRevertsOnClient(calendar));
+        assertTrue(resizeRevertsOnClient(calendar));
     }
 
 }

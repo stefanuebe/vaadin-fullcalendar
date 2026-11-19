@@ -1,6 +1,6 @@
-# UC-020: Advanced Options (setOption API)
+# UC-020: Advanced Options (options() API)
 
-**As a** Vaadin application developer, **I want to** set arbitrary FullCalendar options **so that** I can access FC features beyond what dedicated Java methods provide.
+**As a** Vaadin application developer, **I want to** set arbitrary FullCalendar options **so that** I can access FullCalendar features beyond what dedicated Java methods provide.
 
 **Status:** Implemented
 **Date:** 2026-03-21
@@ -10,17 +10,17 @@
 ## Scope
 
 **Addon module:** addon + addon-scheduler
-**Related Options:** All `Option` and `SchedulerOption` enum constants, plus `setOption(String, Object)` for raw options
+**Related Options:** All typed option fields of `calendar.options()`, plus `options().setRawOption(String, Object)` for raw options
 **Related Events:** —
 
 ---
 
 ## User-Facing Behavior
 
-- Every option in the `Option` enum can be set via `setOption(Option, value)`
-- Raw FC option names can be passed as strings: `setOption("someOption", value)`
-- View-specific options override global options for particular views
-- Options can be retrieved via `getOption(Option)`
+- Every supported option is a typed field of `calendar.options()` and is set with its setter, for example `options().setEditable(true)`
+- Raw FullCalendar option names can be passed as strings: `options().setRawOption("someOption", value)`
+- View-specific options override global options for particular views, see `options().view(view)`
+- Options can be read back with the getter of the field, for example `options().getEditable()`, or with `options().getRawOption(name)` for raw options
 
 ---
 
@@ -28,22 +28,25 @@
 
 ```java
 // Typed option
-calendar.setOption(Option.EDITABLE, true);
-calendar.setOption(Option.SLOT_DURATION, Duration.ofMinutes(15));
-calendar.setOption(Option.LOCALE, Locale.GERMAN);
+calendar.options().setEditable(true);
+calendar.options().setSlotDuration(Duration.ofMinutes(15));
+calendar.options().setLocale(Locale.GERMAN);
 
-// Raw option (not in enum)
-calendar.setOption("someNewFcOption", "value");
+// Initial date
+calendar.options().setInitialDate(LocalDate.of(2025, 3, 1));
+
+// Raw option (no field)
+calendar.options().setRawOption("someNewFcOption", "value");
 
 // View-specific override
-calendar.setViewSpecificOption("dayGridMonth", Option.DAY_MAX_EVENT_ROWS, 3);
-calendar.setViewSpecificOption("timeGrid", Option.SLOT_DURATION, Duration.ofMinutes(30));
+calendar.options().view(CalendarViewImpl.DAY_GRID_MONTH).setDayMaxEntryRows(3);
+calendar.options().view(CalendarViewImpl.TIME_GRID_WEEK).setSlotDuration(Duration.ofMinutes(30));
 
 // Scheduler option
-scheduler.setOption(SchedulerOption.RESOURCE_AREA_WIDTH, "200px");
+scheduler.options().setResourceColumnsWidth(200);
 
-// Read back
-Optional<Boolean> editable = calendar.getOption(Option.EDITABLE);
+// Read back, null while not set
+Boolean editable = calendar.options().getEditable();
 ```
 
 ---
@@ -52,30 +55,33 @@ Optional<Boolean> editable = calendar.getOption(Option.EDITABLE);
 
 | ID | Rule |
 |----|------|
-| BR-01 | Option enum constants auto-convert names to camelCase FC option names |
-| BR-02 | Some options have explicit `@JsonName` overrides (e.g., `MAX_ENTRIES_PER_DAY` → `"dayMaxEvents"`) |
-| BR-03 | `@JsonConverter` on option enums handles type conversion (Duration, DayOfWeek, BusinessHours, etc.) |
-| BR-04 | View-specific options are scoped to FC view name prefixes |
-| BR-05 | Raw string options bypass validation — incorrect values may cause client-side errors |
-| BR-06 | Options set via constructor `initialOptions` are NOT cached server-side — `getOption()` will return empty for these values. To read back or later override an option, set it via `setOption()` instead. |
+| BR-01 | The field name is the FullCalendar option name, with "event" replaced by "entry" (`eventColor` → `entryColor`) |
+| BR-02 | Fields whose name differs from the library name have an explicit `@JsonName` (e.g., `dayMaxEntries` → `"dayMaxEvents"`) |
+| BR-03 | `@JsonConverter` on a field handles the conversion to the client form (Duration, DayOfWeek, BusinessHours, etc.) |
+| BR-04 | View-specific options are set per view type with `options().view(view)`. They override the calendar-wide value while that view is shown and reach the client as the library option `views`. A raw option `views` replaces all of them |
+| BR-05 | Raw options bypass the typed fields. The value is converted to JSON as it is, incorrect values may cause client-side errors. A raw option wins over the field with the same name. The time zone cannot be a raw option, use `options().setTimeZone(Timezone)` |
+| BR-06 | Options set via constructor `initialOptions` are raw options, they have no typed field. Two keys are the exception: `views` becomes custom views and `timeZone` goes into its field. `options().getRawOption(name)` returns them, the getters of the fields do not. They win over the field with the same name, as every raw option does; `setRawOption(name, value)` replaces one and `setRawOption(name, null)` removes it. |
+| BR-07 | A getter returns null while the option is not set, then the library default applies. `locale`, `timeZone` and `headerToolbar` start with a value (`headerToolbar` is `ToolbarValue.NONE`) |
+| BR-08 | `setInitialDate` takes a `LocalDate` and sends it as an ISO date string, or a `LocalDateTime`, which it sends as an ISO UTC date-time string |
 
 ---
 
 ## Acceptance Criteria
 
-- [ ] All Option enum values can be set and take effect
+- [ ] All option fields can be set and take effect
 - [ ] Raw string option names work
 - [ ] View-specific options override global options
 - [ ] Type converters handle Duration, DayOfWeek, Locale, BusinessHours correctly
-- [ ] `getOption()` returns previously set values
-- [ ] `getOption()` returns empty for values set only via `initialOptions` constructor
+- [ ] The getters return previously set values, null for an option that is not set
+- [ ] `getRawOption()` returns values set via the `initialOptions` constructor, the field getters do not
+- [ ] `initialDate` converts a `LocalDate` to an ISO date string
 
 ---
 
 ## Tests
 
 ### Unit Tests
-- [ ] `FullCalendarOptionsTest` — option set/get
+- [ ] `FullCalendarOptionsTest` — option set/get, `initialDate` kept as given (its client form is tested in `TypedOptionsSyncTest`)
 - [ ] `AdvancedOptionsTest` — raw options, view-specific options
 - [ ] `ConverterTest` — type conversion
 

@@ -22,6 +22,8 @@ pnpmfile.js
 .pnpmfile.cjs
 frontend/index.html
 tsconfig.json
+# demo keeps a customized tsconfig (excludes generated jsx-dev-transform, see wiki Known Issues)
+!demo/tsconfig.json
 types.d.ts
 vite.config.ts
 vite.generated.ts
@@ -36,3 +38,5 @@ fc-docs/
 wiki
 /test-results/.last-run.json
 /e2e-tests/.claude/inspection-result.json
+# dev-loop state when demo/.vaadin/vaadin-dev drives e2e-test-app (--app), holds a token
+/e2e-test-app/.vaadin/

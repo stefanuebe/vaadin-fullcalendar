@@ -3,7 +3,6 @@ package org.vaadin.stefan.fullcalendar.converter;
 import org.vaadin.stefan.fullcalendar.*;
 import org.vaadin.stefan.fullcalendar.converters.JsonItemPropertyConverter;
 import tools.jackson.databind.JsonNode;
-import tools.jackson.databind.node.NullNode;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -24,36 +23,5 @@ public class ResourceConverter implements JsonItemPropertyConverter<Set<Resource
                 .collect(Collectors.toList());
 
         return JsonUtils.toJsonNode(ids);
-    }
-
-    @Override
-    public Set<Resource> toServerModel(JsonNode clientValue, ResourceEntry currentInstance) {
-
-        if (clientValue instanceof NullNode) {
-            return new LinkedHashSet<>();
-        }
-
-        FullCalendarScheduler calendar = (FullCalendarScheduler) currentInstance.getCalendar()
-                .orElseThrow(() -> new IllegalStateException("Converting to server model requires an assigned scheduler instance"));
-
-        Object value = JsonUtils.ofJsonNode(clientValue);
-        if (value instanceof List) {
-            return ((List<?>) value).stream()
-                    .filter(Objects::nonNull)
-                    .map(Object::toString)
-                    .map(calendar::getResourceById)
-                    .filter(Optional::isPresent)
-                    .map(Optional::get)
-                    .collect(Collectors.toCollection(LinkedHashSet::new));
-        }
-
-        if (value instanceof String || value instanceof Number) {
-            Set<Resource> set = new LinkedHashSet<>();
-            set.add(calendar.getResourceById(value.toString()).orElseThrow(() -> new NoSuchElementException("Id unknown: " + value)));
-            return set;
-
-        }
-
-        throw new IllegalStateException("Value is not supported, as it is neither a string nor a list: " + value);
     }
 }

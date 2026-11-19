@@ -22,7 +22,6 @@ public class LocalTimeConverter<T extends Entry> implements JsonItemPropertyConv
         return type == null || type instanceof LocalTime;
     }
 
-
     @Override
     public JsonNode toClientModel(LocalTime serverValue, T currentInstance) {
         return JsonUtils.toJsonNode(JsonUtils.formatClientSideTimeString(serverValue));
@@ -38,6 +37,7 @@ public class LocalTimeConverter<T extends Entry> implements JsonItemPropertyConv
             return JsonUtils.parseClientSideTime(clientValue.asString());
         }
 
-        throw new IllegalArgumentException(clientValue + " must either be of type NullNode or StringNode, but was " + (clientValue != null ? clientValue.getClass() : null) + ": " + clientValue);
+        throw new IllegalArgumentException(clientValue + " must either be of type NullNode or StringNode, but was "
+                + (clientValue != null ? clientValue.getClass() : null) + ": " + clientValue);
     }
 }

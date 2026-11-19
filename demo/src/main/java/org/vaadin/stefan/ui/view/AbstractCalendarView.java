@@ -32,8 +32,6 @@ public abstract class AbstractCalendarView extends VerticalLayout {
     public AbstractCalendarView() {
         calendar = createCalendar(createDefaultInitialOptions());
 
-        calendar.addThemeVariants(FullCalendarVariant.VAADIN);
-
         calendar.addEntryClickedListener(this::onEntryClick);
         calendar.addEntryDroppedListener(this::onEntryDropped);
         calendar.addEntryResizedListener(this::onEntryResized);
@@ -261,7 +259,6 @@ public abstract class AbstractCalendarView extends VerticalLayout {
         return null;
     }
 
-
     protected Component createTitleElement() {
         String title = createTitle();
         if (title == null) {
@@ -312,11 +309,10 @@ public abstract class AbstractCalendarView extends VerticalLayout {
      * @param entries entries to add
      */
     protected void onEntriesCreated(Collection<Entry> entries) {
-        // The eager in memory provider provider provides API to modify its internal cache and takes care of pushing
-        // the data to the client - no refresh call is needed (or even recommended here)
+        // The in memory provider works on its collection. A refresh tells the client about the change.
         if (getCalendar().isInMemoryEntryProvider()) {
             InMemoryEntryProvider<Entry> entryProvider = (InMemoryEntryProvider<Entry>) getCalendar().getEntryProvider();
-            entryProvider.addEntries(entries);
+            entryProvider.getItems().addAll(entries);
             entryProvider.refreshAll();
         }
     }
@@ -331,11 +327,10 @@ public abstract class AbstractCalendarView extends VerticalLayout {
      * @param entries entries to remove
      */
     protected void onEntriesRemoved(Collection<Entry> entries) {
-        // The eager in memory provider provider provides API to modify its internal cache and takes care of pushing
-        // the data to the client - no refresh call is needed (or even recommended here)
+        // The in memory provider works on its collection. A refresh tells the client about the change.
         if (getCalendar().isInMemoryEntryProvider()) {
             InMemoryEntryProvider<Entry> provider = getCalendar().getEntryProvider();
-            provider.removeEntries(entries);
+            provider.getItems().removeAll(entries);
             provider.refreshAll();
         }
     }
@@ -366,6 +361,5 @@ public abstract class AbstractCalendarView extends VerticalLayout {
     protected EntryProvider<Entry> getEntryProvider() {
         return getCalendar().getEntryProvider();
     }
-
 
 }

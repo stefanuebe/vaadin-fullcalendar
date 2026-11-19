@@ -11,10 +11,10 @@ import org.vaadin.stefan.ui.menu.MenuItem;
 
 import java.time.LocalDate;
 import java.util.Locale;
-import org.vaadin.stefan.fullcalendar.JsonFactory;
-import tools.jackson.databind.node.ObjectNode;
+import org.vaadin.stefan.fullcalendar.option.DateFormat;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Test view for display options.
@@ -42,27 +42,24 @@ public class DisplayOptionsTestView extends VerticalLayout {
                 "On 2025-03-10 there are 5 events, so a '+3 more' link should appear."));
 
         FullCalendar calendar = new FullCalendar();
-        // Note: don't add FullCalendarVariant.VAADIN here — its CSS overrides
-        // prevent dayMaxEventRows from working (overflow: visible on day cells)
-        calendar.setLocale(Locale.ENGLISH);
+        calendar.options().setLocale(Locale.ENGLISH);
 
         // Fix date so the test is reproducible
-        calendar.setOption("initialDate", LocalDate.of(2025, 3, 1).toString());
-        calendar.setOption("initialView", CalendarViewImpl.DAY_GRID_MONTH.getClientSideValue());
+        calendar.options().setInitialDate(LocalDate.of(2025, 3, 1));
+        calendar.options().setInitialView(CalendarViewImpl.DAY_GRID_MONTH);
 
         // Display options under test
-        // MAX_ENTRIES_PER_DAY (= FC dayMaxEvents) removes excess events from the DOM.
+        // DAY_MAX_ENTRIES (= FC dayMaxEvents) removes excess events from the DOM.
         // With value=2: 2 events in DOM + "+3 more" link (5 total - 2 visible = 3 hidden).
-        // Note: DAY_MAX_EVENT_ROWS is tested separately in AdvancedOptionsTestView.
-        calendar.setMaxEntriesPerDay(2);
-        calendar.setOption(FullCalendar.Option.DISPLAY_EVENT_END, true);
+        // Note: DAY_MAX_ENTRY_ROWS is tested separately in AdvancedOptionsTestView.
+        calendar.options().setDayMaxEntries(2);
+        calendar.options().setDisplayEntryEnd(true);
 
         // Use 24h time format for consistent time display (test expects "10:00 - 11:30")
-        ObjectNode eventTimeFormat = JsonFactory.createObject();
-        eventTimeFormat.put("hour", "2-digit");
-        eventTimeFormat.put("minute", "2-digit");
-        eventTimeFormat.put("hour12", false);
-        calendar.setOption("eventTimeFormat", eventTimeFormat);
+        calendar.options().setEntryTimeFormat(DateFormat.of(Map.of(
+                "hour", "2-digit",
+                "minute", "2-digit",
+                "hour12", false)));
 
         // Create 5 entries on 2025-03-10 to trigger the "+N more" overflow link
         LocalDate crowdedDay = LocalDate.of(2025, 3, 10);
@@ -83,7 +80,7 @@ public class DisplayOptionsTestView extends VerticalLayout {
         entries.add(withEnd);
 
         InMemoryEntryProvider<Entry> provider = new InMemoryEntryProvider<>();
-        provider.addEntries(entries);
+        provider.getItems().addAll(entries);
         calendar.setEntryProvider(provider);
 
         add(calendar);

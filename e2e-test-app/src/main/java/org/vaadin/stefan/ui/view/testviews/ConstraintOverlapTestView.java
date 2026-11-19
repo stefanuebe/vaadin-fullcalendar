@@ -1,5 +1,9 @@
 package org.vaadin.stefan.ui.view.testviews;
 
+import org.vaadin.stefan.fullcalendar.option.ConstraintValue;
+import org.vaadin.stefan.fullcalendar.option.Overlap;
+import org.vaadin.stefan.fullcalendar.option.DateRange;
+import org.vaadin.stefan.fullcalendar.option.BusinessHoursValue;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.Paragraph;
@@ -46,15 +50,14 @@ public class ConstraintOverlapTestView extends VerticalLayout {
 
         // --- Calendar ---
         FullCalendar calendar = new FullCalendar();
-        calendar.addThemeVariants(FullCalendarVariant.VAADIN);
-        calendar.setLocale(Locale.UK); // Monday-start
-        calendar.setOption("initialDate", LocalDate.of(2025, 3, 3).toString());
-        calendar.setOption("initialView", CalendarViewImpl.TIME_GRID_WEEK.getClientSideValue());
-        calendar.setOption(FullCalendar.Option.EDITABLE, true);
-        calendar.setOption(FullCalendar.Option.SELECTABLE, true);
+        calendar.options().setLocale(Locale.UK); // Monday-start
+        calendar.options().setInitialDate(LocalDate.of(2025, 3, 3));
+        calendar.options().setInitialView(CalendarViewImpl.TIME_GRID_WEEK);
+        calendar.options().setEditable(true);
+        calendar.options().setSelectable(true);
 
         // validRange: prevent navigation before 2025-03-01 and after 2025-04-30
-        calendar.setValidRange(LocalDate.of(2025, 3, 1), LocalDate.of(2025, 4, 30));
+        calendar.options().setValidRange(new DateRange(LocalDate.of(2025, 3, 1), LocalDate.of(2025, 4, 30)));
 
         // --- Entries ---
         InMemoryEntryProvider<Entry> provider = new InMemoryEntryProvider<>();
@@ -64,7 +67,7 @@ public class ConstraintOverlapTestView extends VerticalLayout {
         normalEntry.setTitle("Normal Entry");
         normalEntry.setStart(LocalDateTime.of(2025, 3, 4, 9, 0));
         normalEntry.setEnd(LocalDateTime.of(2025, 3, 4, 10, 0));
-        provider.addEntry(normalEntry);
+        provider.getItems().add(normalEntry);
 
         // 2. Per-entry editable=false (should NOT be draggable despite calendar editable=true)
         Entry notEditable = new Entry();
@@ -72,7 +75,7 @@ public class ConstraintOverlapTestView extends VerticalLayout {
         notEditable.setStart(LocalDateTime.of(2025, 3, 5, 9, 0));
         notEditable.setEnd(LocalDateTime.of(2025, 3, 5, 10, 0));
         notEditable.setEditable(false);
-        provider.addEntry(notEditable);
+        provider.getItems().add(notEditable);
 
         // 3. Per-entry startEditable=false (should NOT be draggable but CAN be resized)
         Entry noStartEdit = new Entry();
@@ -80,7 +83,7 @@ public class ConstraintOverlapTestView extends VerticalLayout {
         noStartEdit.setStart(LocalDateTime.of(2025, 3, 6, 9, 0));
         noStartEdit.setEnd(LocalDateTime.of(2025, 3, 6, 10, 0));
         noStartEdit.setStartEditable(false);
-        provider.addEntry(noStartEdit);
+        provider.getItems().add(noStartEdit);
 
         // 4. Entry with overlap=false
         Entry noOverlap = new Entry();
@@ -88,27 +91,27 @@ public class ConstraintOverlapTestView extends VerticalLayout {
         noOverlap.setStart(LocalDateTime.of(2025, 3, 3, 11, 0));
         noOverlap.setEnd(LocalDateTime.of(2025, 3, 3, 12, 0));
         noOverlap.setOverlap(false);
-        provider.addEntry(noOverlap);
+        provider.getItems().add(noOverlap);
 
         // 5. Blocking entry on same day as noOverlap — occupies 12:00-13:00
         Entry blocker = new Entry();
         blocker.setTitle("Blocker");
         blocker.setStart(LocalDateTime.of(2025, 3, 3, 12, 0));
         blocker.setEnd(LocalDateTime.of(2025, 3, 3, 13, 0));
-        provider.addEntry(blocker);
+        provider.getItems().add(blocker);
 
         // 6. Entry with constraint=businessHours
         Entry constrained = new Entry();
         constrained.setTitle("BH Constrained");
         constrained.setStart(LocalDateTime.of(2025, 3, 7, 10, 0));
         constrained.setEnd(LocalDateTime.of(2025, 3, 7, 11, 0));
-        constrained.setConstraint("businessHours");
-        provider.addEntry(constrained);
+        constrained.setConstraint(ConstraintValue.BUSINESS_HOURS);
+        provider.getItems().add(constrained);
 
         calendar.setEntryProvider(provider);
 
         // businessHours option for constraint testing
-        calendar.setOption(FullCalendar.Option.BUSINESS_HOURS, true);
+        calendar.options().setBusinessHours(BusinessHoursValue.DEFAULT);
 
         // --- Listeners ---
         calendar.addEntryDroppedListener(e -> {

@@ -3,7 +3,7 @@ const { test, expect } = require('@playwright/test');
 const { waitForVaadin } = require('./fixtures');
 
 /**
- * Regression: when the Scheduler's Resource plugin is loaded, FC patches
+ * Regression: when the Scheduler's Resource plugin is loaded, FullCalendar patches
  * EventApi.prototype.getResources onto every entry — including on plain
  * (non-scheduler) calendars on the same page. Its body is
  * this._def.resourceIds.map(...) and throws when resourceIds is undefined

@@ -46,7 +46,7 @@ public abstract class ViewRenderEvent extends ComponentEvent<FullCalendar> {
     private final LocalDate intervalStart;
 
     /**
-     * The current shown interval's end date.
+     * The current shown interval's end date (exclusive).
      */
     private final LocalDate intervalEnd;
 
@@ -58,11 +58,10 @@ public abstract class ViewRenderEvent extends ComponentEvent<FullCalendar> {
     private final LocalDate start;
 
     /**
-     * The last visible date. In month-view, this value is often after
+     * The day after the last visible date (exclusive). In month-view, this value is often after
      * the last day of the month, because most months do not end on the last day of the week
      */
     private final LocalDate end;
-
 
     private final CalendarView calendarView;
 
@@ -87,18 +86,8 @@ public abstract class ViewRenderEvent extends ComponentEvent<FullCalendar> {
     }
 
     /**
-     * Same as {@link #getViewName()}
-     * @deprecated use {@link #getViewName()} instead
-     * @return Client side name of the view
-     */
-    @Deprecated
-    public String getName() {
-        return viewName;
-    }
-
-    /**
-     * The calendar view of this event. Empty, if the view name could not be matched with one of the predefined
-     * views (e.g. in case of a custom view).
+     * The calendar view of this event. Empty, if the view name could not be matched with a built-in view or a
+     * registered custom view.
      * @return calendar view
      */
     public Optional<CalendarView> getCalendarView() {

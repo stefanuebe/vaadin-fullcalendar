@@ -8,11 +8,11 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.Route;
 import org.vaadin.stefan.fullcalendar.*;
 import org.vaadin.stefan.fullcalendar.dataprovider.InMemoryEntryProvider;
+import org.vaadin.stefan.fullcalendar.option.ToolbarValue;
 import org.vaadin.stefan.ui.layouts.TestLayout;
 import org.vaadin.stefan.ui.menu.MenuItem;
 
 import java.time.LocalDate;
-import java.util.Map;
 
 /**
  * Test view for accessibility and touch improvements.
@@ -22,7 +22,7 @@ import java.util.Map;
  *   <li>Calendar renders in dayGridMonth view</li>
  *   <li>Events have tabindex="0" when eventInteractive is enabled</li>
  *   <li>Nav link day numbers are rendered when navLinks is enabled</li>
- *   <li>Toolbar buttons carry aria-label values from setButtonHints</li>
+ *   <li>Toolbar buttons carry aria-label values from the today, prev and next hints</li>
  *   <li>"+N more" overflow link appears and carries the moreLinkHint aria-label</li>
  *   <li>Clicking an interactive event increments the click counter</li>
  * </ul>
@@ -39,7 +39,7 @@ public class AccessibilityTouchTestView extends VerticalLayout {
 
         add(new H2("Accessibility and Touch"));
         add(new Paragraph(
-                "Tests eventInteractive (tabindex), buttonHints (aria-label on toolbar buttons), " +
+                "Tests eventInteractive (tabindex), button hints (aria-label on toolbar buttons), " +
                 "navLinkHint (aria-label on day numbers), and moreLinkHint (aria-label on +N more links)."));
 
         // --- Status span for Playwright ---
@@ -51,32 +51,25 @@ public class AccessibilityTouchTestView extends VerticalLayout {
 
         // --- Calendar ---
         FullCalendar calendar = new FullCalendar();
-        calendar.addThemeVariants(FullCalendarVariant.VAADIN);
         calendar.getElement().setAttribute("data-testid", "calendar");
 
-        calendar.setOption("initialDate", LocalDate.of(2025, 3, 1).toString());
-        calendar.setOption("initialView", CalendarViewImpl.DAY_GRID_MONTH.getClientSideValue());
+        calendar.options().setInitialDate(LocalDate.of(2025, 3, 1));
+        calendar.options().setInitialView(CalendarViewImpl.DAY_GRID_MONTH);
 
-        // Enable native toolbar so buttonHints (NATIVE_TOOLBAR_BUTTON_HINTS) has buttons to label.
-        // The addon disables headerToolbar by default; this view needs it for its buttonHints tests.
-        calendar.setOption(FullCalendar.Option.HEADER_TOOLBAR, Map.of(
-                "left", "prev,next today",
-                "center", "title",
-                "right", ""
-        ));
+        // Enable native toolbar so the button hints (TODAY_HINT, PREV_HINT, NEXT_HINT) have buttons to label.
+        // The addon disables headerToolbar by default; this view needs it for its button hint tests.
+        calendar.options().setHeaderToolbar(ToolbarValue.ofLeftRight("prev,next today", "title", ""));
 
         // Accessibility options
-        calendar.setOption(FullCalendar.Option.ENTRY_INTERACTIVE, true);
-        calendar.setOption(FullCalendar.Option.NAV_LINKS, true);
+        calendar.options().setEntryInteractive(true);
+        calendar.options().setNavLinks(true);
         // Limit event rows to 2 so the 5 events on 2025-03-05 reliably produce a "+N more" link
-        calendar.setOption(FullCalendar.Option.DAY_MAX_EVENT_ROWS, 2);
-        calendar.setOption(FullCalendar.Option.NAV_LINK_HINT, "Go to $0");
-        calendar.setOption(FullCalendar.Option.MORE_LINK_HINT, "$0 more events. Click to expand");
-        calendar.setOption(FullCalendar.Option.NATIVE_TOOLBAR_BUTTON_HINTS, Map.of(
-                "today", "Jump to today",
-                "prev",  "Go to previous period",
-                "next",  "Go to next period"
-        ));
+        calendar.options().setDayMaxEntryRows(2);
+        calendar.options().setNavLinkHint("Open $0"); // not FullCalendar's default "Go to $0", so the test sees our value
+        calendar.options().setMoreLinkHint("$0 more events. Click to expand");
+        calendar.options().setTodayHint("Jump to today");
+        calendar.options().setPrevHint("Go to previous $0");
+        calendar.options().setNextHint("Go to next $0");
 
         // --- Entry provider ---
         // Five all-day events on 2025-03-05. In month view with default row limits
@@ -89,31 +82,31 @@ public class AccessibilityTouchTestView extends VerticalLayout {
         entryA.setTitle("Interactive Event A");
         entryA.setStart(LocalDate.of(2025, 3, 5));
         entryA.setAllDay(true);
-        provider.addEntry(entryA);
+        provider.getItems().add(entryA);
 
         Entry entryB = new Entry();
         entryB.setTitle("Interactive Event B");
         entryB.setStart(LocalDate.of(2025, 3, 5));
         entryB.setAllDay(true);
-        provider.addEntry(entryB);
+        provider.getItems().add(entryB);
 
         Entry entryC = new Entry();
         entryC.setTitle("Interactive Event C");
         entryC.setStart(LocalDate.of(2025, 3, 5));
         entryC.setAllDay(true);
-        provider.addEntry(entryC);
+        provider.getItems().add(entryC);
 
         Entry entryD = new Entry();
         entryD.setTitle("Interactive Event D");
         entryD.setStart(LocalDate.of(2025, 3, 5));
         entryD.setAllDay(true);
-        provider.addEntry(entryD);
+        provider.getItems().add(entryD);
 
         Entry entryE = new Entry();
         entryE.setTitle("Interactive Event E");
         entryE.setStart(LocalDate.of(2025, 3, 5));
         entryE.setAllDay(true);
-        provider.addEntry(entryE);
+        provider.getItems().add(entryE);
 
         calendar.setEntryProvider(provider);
 

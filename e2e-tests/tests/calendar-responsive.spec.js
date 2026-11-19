@@ -158,3 +158,56 @@ test.describe('Calendar Responsive Design', () => {
     });
   });
 });
+
+/**
+ * FullCalendar 7 observes its own size. The add-on no longer calls updateSize(). These tests change the
+ * height of the calendar's container without a window resize and check a result FullCalendar computes
+ * from measuring. With dayMaxEventRows "true" only the entries that fit a day cell are shown, and the
+ * rest go behind "+N more".
+ */
+test.describe('Calendar follows its own size', () => {
+
+  const MARCH_10 = '.fc-daygrid-day[data-date="2025-03-10"]';
+
+  // number of entries behind the "+N more" link of March 10, 0 when there is none
+  const hiddenOnMarch10 = async (page) => {
+    const moreLink = page.locator(`${MARCH_10} .fc-more-link`);
+    if (await moreLink.count() === 0) return 0;
+    return parseInt((await moreLink.textContent()).replace(/\D/g, ''), 10);
+  };
+
+  // FC writes the height of the calendar element itself, so the test sizes the container (the test view)
+  const setContainerHeight = (page, height) => page.evaluate(height => {
+    document.querySelector('vaadin-full-calendar').parentElement.style.height = height;
+  }, height);
+
+  const setHidden = (page, hidden) => page.evaluate(hidden => {
+    document.querySelector('vaadin-full-calendar').hidden = hidden;
+  }, hidden);
+
+  test.beforeEach(async ({ page }) => {
+    await page.setViewportSize({ width: 1280, height: 1200 });
+    await page.goto('/test/listener-data');
+    await page.waitForSelector('.fc-view', { timeout: 10000 });
+    await waitForVaadin(page);
+    // fit as many entry rows as the cell height allows
+    await page.evaluate(() => document.querySelector('vaadin-full-calendar').calendar.setOption('dayMaxEventRows', true));
+    await setContainerHeight(page, '1600px');
+    // all five overflow entries of March 10 are rendered and fit
+    await expect(page.locator(`${MARCH_10} .fc-event:has-text("Overflow")`)).toHaveCount(5);
+    await expect.poll(() => hiddenOnMarch10(page)).toBe(0);
+  });
+
+  test('fewer entries fit after the container gets smaller', async ({ page }) => {
+    await setContainerHeight(page, '600px');
+    await expect.poll(() => hiddenOnMarch10(page)).toBeGreaterThan(0);
+  });
+
+  test('the calendar measures again when it is shown after its container got smaller while it was hidden', async ({ page }) => {
+    await setHidden(page, true);
+    await expect(page.locator('vaadin-full-calendar')).toBeHidden();
+    await setContainerHeight(page, '600px');
+    await setHidden(page, false);
+    await expect.poll(() => hiddenOnMarch10(page)).toBeGreaterThan(0);
+  });
+});

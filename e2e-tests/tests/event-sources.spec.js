@@ -48,6 +48,12 @@ test.describe('Event Source Improvements', () => {
         await expect(page.locator('#event-source-failure-message')).not.toHaveText('', { timeout: 10000 });
     });
 
+    test('the withFailure callback runs besides the server listener', async ({ page }) => {
+        await expect(page.locator('#event-source-failure-message')).not.toHaveText('', { timeout: 10000 });
+        // the client calls the user's callback before it dispatches the event to the server
+        expect(await page.evaluate(() => window.userFailureCalls)).toBe(1);
+    });
+
     // -------------------------------------------------------------------------
     // Counter badge is present and initially zero
     // -------------------------------------------------------------------------
@@ -65,7 +71,7 @@ test.describe('Event Source Improvements', () => {
 
 // Note: The following event source features are not covered by E2E tests because they
 // require external infrastructure or cannot be reliably simulated in headless Playwright:
-//   - GoogleCalendarEventSource: requires a Google Calendar API key
-//   - ICalendarEventSource: would require serving a real .ics file from the test app
+//   - GoogleCalendarEntrySource: requires a Google Calendar API key
+//   - ICalendarEntrySource: would require serving a real .ics file from the test app
 //   - setStartParam / setEndParam / setTimeZoneParam: require capturing HTTP request query params
-//   - ExternalEntryDroppedEvent: requires dragging an external DOM element into the calendar
+//   - RemoteEntryDroppedEvent: requires an editable entry source and dragging one of its entries

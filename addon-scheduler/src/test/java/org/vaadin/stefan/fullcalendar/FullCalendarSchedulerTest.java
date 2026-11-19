@@ -1,13 +1,19 @@
 package org.vaadin.stefan.fullcalendar;
 
+import org.vaadin.stefan.fullcalendar.option.Order;
+import org.vaadin.stefan.fullcalendar.option.LocaleValue;
+import org.vaadin.stefan.fullcalendar.option.CalendarLocale;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.vaadin.stefan.fullcalendar.dataprovider.InMemoryEntryProvider;
 
-import java.util.Arrays;
+import tools.jackson.databind.node.ObjectNode;
+import org.vaadin.stefan.fullcalendar.option.TextContent;
+import org.vaadin.stefan.fullcalendar.option.WidthValue;
+
 import java.util.Collection;
 import java.util.Optional;
+import java.util.Set;
 
 public class FullCalendarSchedulerTest {
     public static final String[] COMPONENT_HTMLS = {"fullcalendar/full-calendar.html", "fullcalendar/full-calendar-scheduler.html"};
@@ -18,101 +24,71 @@ public class FullCalendarSchedulerTest {
         calendar = new FullCalendarScheduler();
     }
 
+    private ObjectNode initialOptions() {
+        return (ObjectNode) calendar.getElement().getPropertyRaw("initialOptions");
+    }
+
     @Test
     void testSetLicenseKey() {
-        calendar.setSchedulerLicenseKey("123456");
+        calendar.options().setSchedulerLicenseKey("123456");
 
-        Optional<Object> option = calendar.getOption("schedulerLicenseKey");
-
-        Assertions.assertTrue(option.isPresent());
-        Assertions.assertEquals("123456", option.get());
+        Assertions.assertEquals("123456", calendar.options().getSchedulerLicenseKey());
+        Assertions.assertEquals("123456", initialOptions().get("schedulerLicenseKey").asString());
     }
-    
+
     @Test
-    void testSetResourceAreaHeaderContent() {
-        calendar.setResourceAreaHeaderContent("Hello");
+    void testSetResourceColumnHeaderContent() {
+        calendar.options().setResourceColumnHeaderContent("Hello");
 
-        Optional<Object> option = calendar.getOption("resourceAreaHeaderContent");
-
-        Assertions.assertTrue(option.isPresent());
-        Assertions.assertEquals("Hello", option.get());
+        Assertions.assertEquals(TextContent.of("Hello"), calendar.options().getResourceColumnHeaderContent());
+        Assertions.assertEquals("Hello", initialOptions().get("resourceColumnHeaderContent").asString());
     }
-    
+
     @Test
-    void testSetResourceAreaWidtht() {
-        calendar.setResourceAreaWidth("10%");
+    void testSetResourceColumnsWidth() {
+        calendar.options().setResourceColumnsWidth(WidthValue.ofPercent(10));
 
-        Optional<Object> option = calendar.getOption("resourceAreaWidth");
-
-        Assertions.assertTrue(option.isPresent());
-        Assertions.assertEquals("10%", option.get());
+        Assertions.assertEquals(WidthValue.ofPercent(10), calendar.options().getResourceColumnsWidth());
+        Assertions.assertEquals("10%", initialOptions().get("resourceColumnsWidth").asString());
     }
-    
+
     @Test
     void testSetSlotWidtht() {
-        calendar.setSlotMinWidth("100");
+        calendar.options().setSlotMinWidth(100);
 
-        Optional<Object> option = calendar.getOption("slotMinWidth");
-
-        Assertions.assertTrue(option.isPresent());
-        Assertions.assertEquals("100", option.get());
+        Assertions.assertEquals(100, calendar.options().getSlotMinWidth());
+        Assertions.assertEquals(100, initialOptions().get("slotMinWidth").asInt());
     }
-    
+
     @Test
     void testSetResourceInitiallyExpanded() {
-        calendar.setResourcesInitiallyExpanded(false);
+        calendar.options().setResourcesInitiallyExpanded(false);
 
-        Optional<Object> option = calendar.getOption("resourcesInitiallyExpanded");
-
-        Assertions.assertTrue(option.isPresent());
-        Assertions.assertEquals(false, option.get());
+        Assertions.assertEquals(false, calendar.options().getResourcesInitiallyExpanded());
+        Assertions.assertFalse(initialOptions().get("resourcesInitiallyExpanded").asBoolean());
     }
-    
+
     @Test
     void testSetFilterResourcesWithEvents() {
-        calendar.setFilterResourcesWithEvents(true);
+        calendar.options().setFilterResourcesWithEntries(true);
 
-        Optional<Object> option = calendar.getOption("filterResourcesWithEvents");
-
-        Assertions.assertTrue(option.isPresent());
-        Assertions.assertEquals(true, option.get());
-    }
-    
-    @Test
-    void testSetResourceOrder() {
-        calendar.setResourceOrder("-title");
-
-        Optional<Object> option = calendar.getOption("resourceOrder");
-
-        Assertions.assertTrue(option.isPresent());
-        Assertions.assertEquals("-title", option.get());
+        Assertions.assertEquals(true, calendar.options().getFilterResourcesWithEntries());
+        Assertions.assertTrue(initialOptions().get("filterResourcesWithEvents").asBoolean());
     }
 
     @Test
-    void testNonArgsConstructor() {
+    void testSetResourceOrder() {
+        calendar.options().setResourceOrder("-title");
 
-        // this shall assure that all init options are handled
-        assertExistingOptionCount(calendar, 3); // + editable (addon default since #212 change)
-        Assertions.assertSame(CalendarLocale.getDefaultLocale(), calendar.getLocale());
+        Assertions.assertEquals(Order.of("-title"), calendar.options().getResourceOrder());
+        Assertions.assertEquals("-title", initialOptions().get("resourceOrder").get(0).asString());
     }
 
     @Test
-    void testArgsConstructor() {
-        int entryLimit = 5;
-        FullCalendar calendar = new FullCalendarScheduler();
-        calendar.setMaxEntriesPerDay(entryLimit);
-
-        // this shall assure that all init options are handled
-        assertExistingOptionCount(calendar, 3); // + editable (addon default since #212 change)
-        Assertions.assertSame(CalendarLocale.getDefaultLocale(), calendar.getLocale());
-
-        Assertions.assertEquals(entryLimit, calendar.getOption(FullCalendar.Option.MAX_ENTRIES_PER_DAY).orElse(-1));
+    void noArgConstructor_setsDefaultLocale() {
+        Assertions.assertEquals(LocaleValue.of(CalendarLocale.getDefaultLocale()),
+                new FullCalendarScheduler().options().getLocale());
     }
-
-    private void assertExistingOptionCount(FullCalendar calendar, int expectedOptionsCount) {
-        Assertions.assertEquals(expectedOptionsCount, Arrays.stream(FullCalendar.Option.values()).map(calendar::getOption).filter(Optional::isPresent).count());
-    }
-
 
     @Test
     void testEmptyOptionalOnFetchingNonExistingResourceById() {
@@ -202,99 +178,44 @@ public class FullCalendarSchedulerTest {
         Assertions.assertEquals(3, resources.size());
     }
 
+    @Test
+    void removeResource_unlinksChildrenAndGrandchildrenFromEntries() {
+        Resource parent = new Resource();
+        Resource child = new Resource();
+        Resource grandchild = new Resource();
+        Resource other = new Resource();
+        child.addChild(grandchild);
+        parent.addChild(child);
+        calendar.addResources(parent, other);
+
+        ResourceEntry entry = new ResourceEntry();
+        entry.addResources(parent, child, grandchild, other);
+        calendar.getEntryProvider().asInMemory().getItems().add(entry);
+
+        calendar.removeResource(parent);
+
+        Assertions.assertEquals(Set.of(other), entry.getResources());
+    }
+
+    @Test
+    void removeAllResources_unlinksAllResourcesFromEntries() {
+        Resource parent = new Resource();
+        Resource child = new Resource();
+        parent.addChild(child);
+        calendar.addResources(parent);
+
+        ResourceEntry entry = new ResourceEntry();
+        entry.addResources(parent, child);
+        calendar.getEntryProvider().asInMemory().getItems().add(entry);
+
+        calendar.removeAllResources();
+
+        Assertions.assertTrue(entry.getResources().isEmpty());
+    }
+
     @SuppressWarnings("OptionalUsedAsFieldOrParameterType") // we want that here explicitely
     private <T> void assertOptionalEquals(T expected, Optional<T> value) {
         Assertions.assertTrue(value.isPresent());
         Assertions.assertEquals(expected, value.get());
-    }
-
-    @Test
-    void testAddEntriesArray() {
-        FullCalendar calendar = new FullCalendar();
-
-        Entry entry1 = new Entry();
-        Entry entry2 = new Entry();
-        Entry entry3 = new Entry();
-
-        InMemoryEntryProvider<Entry> entryProvider = calendar.getEntryProvider().asInMemory();
-        entryProvider.addEntries(entry1, entry2, entry3, entry3);
-
-        Collection<Entry> entries = entryProvider.getEntries();
-        Assertions.assertEquals(3, entries.size());
-
-        Assertions.assertTrue(entries.contains(entry1));
-        Assertions.assertTrue(entries.contains(entry2));
-        Assertions.assertTrue(entries.contains(entry3));
-
-        assertOptionalEquals(entry1, entryProvider.getEntryById(entry1.getId()));
-        assertOptionalEquals(entry2, entryProvider.getEntryById(entry2.getId()));
-        assertOptionalEquals(entry3, entryProvider.getEntryById(entry3.getId()));
-    }
-
-    @Test
-    void testAddEntriesIterable() {
-        FullCalendar calendar = new FullCalendar();
-
-        Entry entry1 = new Entry();
-        Entry entry2 = new Entry();
-        Entry entry3 = new Entry();
-
-        InMemoryEntryProvider<Entry> entryProvider = calendar.getEntryProvider().asInMemory();
-        entryProvider.addEntries(Arrays.asList(entry1, entry2, entry3, entry3));
-
-        Collection<Entry> entries = entryProvider.getEntries();
-        Assertions.assertEquals(3, entries.size());
-
-        Assertions.assertTrue(entries.contains(entry1));
-        Assertions.assertTrue(entries.contains(entry2));
-        Assertions.assertTrue(entries.contains(entry3));
-
-        assertOptionalEquals(entry1, entryProvider.getEntryById(entry1.getId()));
-        assertOptionalEquals(entry2, entryProvider.getEntryById(entry2.getId()));
-        assertOptionalEquals(entry3, entryProvider.getEntryById(entry3.getId()));
-    }
-
-    @Test
-    void testRemoveEntriesArray() {
-        FullCalendar calendar = new FullCalendar();
-
-        Entry entry1 = new Entry();
-        Entry entry2 = new Entry();
-        Entry entry3 = new Entry();
-
-        InMemoryEntryProvider<Entry> entryProvider = calendar.getEntryProvider().asInMemory();
-        entryProvider.addEntries(entry1, entry2, entry3);
-        entryProvider.removeEntries(entry1, entry2);
-
-        Collection<Entry> entries = entryProvider.getEntries();
-        Assertions.assertEquals(1, entries.size());
-
-        Assertions.assertFalse(entries.contains(entry1));
-        Assertions.assertFalse(entries.contains(entry2));
-        Assertions.assertTrue(entries.contains(entry3));
-    }
-
-    @Test
-    void testRemoveEntriesIterable() {
-        FullCalendar calendar = new FullCalendar();
-
-        Entry entry1 = new Entry();
-        Entry entry2 = new Entry();
-        Entry entry3 = new Entry();
-
-        InMemoryEntryProvider<Entry> entryProvider = calendar.getEntryProvider().asInMemory();
-        entryProvider.addEntries(entry1, entry2, entry3);
-        entryProvider.removeEntries(Arrays.asList(entry1, entry2));
-
-        Collection<Entry> entries = entryProvider.getEntries();
-        Assertions.assertEquals(1, entries.size());
-
-        Assertions.assertFalse(entries.contains(entry1));
-        Assertions.assertFalse(entries.contains(entry2));
-        Assertions.assertTrue(entries.contains(entry3));
-    }
-
-    private InMemoryEntryProvider<Entry> getEntryProvider(FullCalendar calendar) {
-        return calendar.getEntryProvider();
     }
 }

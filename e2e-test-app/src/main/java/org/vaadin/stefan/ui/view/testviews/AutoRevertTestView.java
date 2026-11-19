@@ -75,13 +75,12 @@ public class AutoRevertTestView extends VerticalLayout {
         add(toggleBtn);
 
         FullCalendar calendar = new FullCalendar();
-        calendar.addThemeVariants(FullCalendarVariant.VAADIN);
 
         // Fix date for reproducible tests
-        calendar.setLocale(Locale.UK);
-        calendar.setOption("initialDate", LocalDate.of(2025, 3, 3).toString());
-        calendar.setOption("initialView", CalendarViewImpl.TIME_GRID_WEEK.getClientSideValue());
-        calendar.setOption(FullCalendar.Option.EDITABLE, true);
+        calendar.options().setLocale(Locale.UK);
+        calendar.options().setInitialDate(LocalDate.of(2025, 3, 3));
+        calendar.options().setInitialView(CalendarViewImpl.TIME_GRID_WEEK);
+        calendar.options().setEditable(true);
 
         // autoRevert is true by default — no need to set explicitly
 
@@ -91,7 +90,7 @@ public class AutoRevertTestView extends VerticalLayout {
         draggable.setTitle("Drag Me");
         draggable.setStart(LocalDateTime.of(2025, 3, 3, 9, 0));
         draggable.setEnd(LocalDateTime.of(2025, 3, 3, 10, 0));
-        provider.addEntry(draggable);
+        provider.getItems().add(draggable);
 
         calendar.setEntryProvider(provider);
         provider.refreshAll();

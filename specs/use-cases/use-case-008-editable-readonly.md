@@ -10,20 +10,20 @@
 ## Scope
 
 **Addon module:** addon
-**Related Options:** `Option.EDITABLE`, `Option.ENTRY_START_EDITABLE`, `Option.ENTRY_DURATION_EDITABLE`, `Option.SELECTABLE`
+**Related Options:** `editable`, `entryStartEditable`, `entryDurationEditable`, `selectable`
 **Related Events:** —
 
 ---
 
 ## User-Facing Behavior
 
-- **Default state**: Calendar is read-only (`EDITABLE = false`). Entries cannot be dragged or resized.
-- When `EDITABLE = true`: entries can be dragged and resized (unless individual entries override).
-- `ENTRY_START_EDITABLE` and `ENTRY_DURATION_EDITABLE` offer fine-grained control:
-  - `ENTRY_START_EDITABLE = false`: entries cannot be moved but can be resized
-  - `ENTRY_DURATION_EDITABLE = false`: entries cannot be resized but can be moved
+- **Default state**: Calendar is read-only (calendar `editable = false`). Entries cannot be dragged or resized.
+- When calendar `editable = true`: entries can be dragged and resized (unless individual entries override).
+- `entryStartEditable` and `entryDurationEditable` offer fine-grained control:
+  - `entryStartEditable = false`: entries cannot be moved but can be resized
+  - `entryDurationEditable = false`: entries cannot be resized but can be moved
 - Per-entry `editable` overrides global setting.
-- `SELECTABLE` controls time-range selection independently of entry editing.
+- `selectable` controls time-range selection independently of entry editing.
 - Cursor changes (move cursor on hover) are automatically shown/hidden based on editable state.
 
 ---
@@ -32,16 +32,16 @@
 
 ```java
 // Full editing
-calendar.setOption(Option.EDITABLE, true);
-calendar.setOption(Option.SELECTABLE, true);
+calendar.options().setEditable(true);
+calendar.options().setSelectable(true);
 
 // Move only (no resize)
-calendar.setOption(Option.EDITABLE, true);
-calendar.setOption(Option.ENTRY_DURATION_EDITABLE, false);
+calendar.options().setEditable(true);
+calendar.options().setEntryDurationEditable(false);
 
 // Resize only (no move)
-calendar.setOption(Option.EDITABLE, true);
-calendar.setOption(Option.ENTRY_START_EDITABLE, false);
+calendar.options().setEditable(true);
+calendar.options().setEntryStartEditable(false);
 
 // Individual entry override
 entry.setEditable(false); // this entry is read-only even if global is editable
@@ -57,10 +57,10 @@ entry.setDurationEditable(false); // this entry cannot be resized
 
 | ID | Rule |
 |----|------|
-| BR-01 | `EDITABLE = false` (default) disables all DnD and resize globally |
-| BR-02 | `ENTRY_START_EDITABLE` and `ENTRY_DURATION_EDITABLE` only take effect when `EDITABLE = true` |
+| BR-01 | calendar `editable = false` (default) disables all DnD and resize globally |
+| BR-02 | `entryStartEditable` and `entryDurationEditable` only take effect when calendar `editable = true` |
 | BR-03 | Per-entry `editable` overrides all global options for that entry. Per-entry `startEditable` and `durationEditable` provide finer control. |
-| BR-04 | `SELECTABLE` is independent of `EDITABLE` — a read-only calendar can still allow selection |
+| BR-04 | `selectable` is independent of the calendar's `editable` — a read-only calendar can still allow selection |
 | BR-05 | Click events (`EntryClickedEvent`, `TimeslotClickedEvent`) always fire regardless of editable state |
 
 ---
@@ -68,12 +68,12 @@ entry.setDurationEditable(false); // this entry cannot be resized
 ## Acceptance Criteria
 
 - [ ] Default state: entries are not draggable or resizable
-- [ ] `EDITABLE = true`: entries are draggable and resizable
-- [ ] `EDITABLE = true` + `ENTRY_DURATION_EDITABLE = false`: drag works, resize is disabled
-- [ ] `EDITABLE = true` + `ENTRY_START_EDITABLE = false`: resize works, drag is disabled
-- [ ] Per-entry `editable = false` overrides global `EDITABLE = true`
+- [ ] calendar `editable = true`: entries are draggable and resizable
+- [ ] calendar `editable = true` + `entryDurationEditable = false`: drag works, resize is disabled
+- [ ] calendar `editable = true` + `entryStartEditable = false`: resize works, drag is disabled
+- [ ] Per-entry `editable = false` overrides global calendar `editable = true`
 - [ ] Click events fire in both editable and read-only states
-- [ ] `SELECTABLE` works independently of `EDITABLE`
+- [ ] `selectable` works independently of the calendar's `editable`
 - [ ] Cursor changes match editable state — move cursor on hover for editable entries *(manual verification)*
 
 ---

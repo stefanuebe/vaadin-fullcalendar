@@ -89,7 +89,7 @@ public class EntryService {
                     LocalDate recurringEnd = e.getRecurringEndDate();
                     return recurringEnd == null || recurringEnd.atStartOfDay().isAfter(start);
                 }
-                return e.getEndWithOffset() != null && e.getEndWithOffset().isAfter(start);
+                return e.getEnd() != null && e.getEnd().isAfter(start);
             });
         }
 
@@ -99,7 +99,7 @@ public class EntryService {
                     LocalDate recurringStart = e.getRecurringStartDate();
                     return recurringStart == null || recurringStart.atStartOfDay().isBefore(end);
                 }
-                return e.getStartWithOffset() != null && e.getStartWithOffset().isBefore(end);
+                return e.getStart() != null && e.getStart().isBefore(end);
             });
         }
 

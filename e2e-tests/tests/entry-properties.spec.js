@@ -48,8 +48,8 @@ base.describe('Entry Properties — Visual Effects', () => {
             expect(b).toBeLessThan(100);
         });
 
-        base('custom BG entry has green background', async ({ page }) => {
-            const entry = page.locator('.fc-event:has-text("Custom BG")').first();
+        base('custom color entry has green background', async ({ page }) => {
+            const entry = page.locator('.fc-event:has-text("Custom Color")').first();
             await expect(entry).toBeVisible();
             const bgColor = await entry.evaluate(el => {
                 const style = window.getComputedStyle(el);
@@ -69,8 +69,8 @@ base.describe('Entry Properties — Visual Effects', () => {
             expect(b).toBeLessThan(100);
         });
 
-        base('custom BG entry has white text color', async ({ page }) => {
-            const entry = page.locator('.fc-event:has-text("Custom BG")').first();
+        base('custom color entry has white text from its contrast color', async ({ page }) => {
+            const entry = page.locator('.fc-event:has-text("Custom Color")').first();
             const textColor = await entry.evaluate(el => {
                 // Text color may be on the event-main or event-title element
                 const title = el.querySelector('.fc-event-title') || el.querySelector('.fc-event-main') || el;
@@ -82,22 +82,6 @@ base.describe('Entry Properties — Visual Effects', () => {
             expect(parseInt(match[1])).toBeGreaterThan(200);
             expect(parseInt(match[2])).toBeGreaterThan(200);
             expect(parseInt(match[3])).toBeGreaterThan(200);
-        });
-
-        base('border entry has blue border color', async ({ page }) => {
-            const entry = page.locator('.fc-event:has-text("Border Entry")').first();
-            await expect(entry).toBeVisible();
-            const borderColor = await entry.evaluate(el => {
-                return window.getComputedStyle(el).borderColor || window.getComputedStyle(el).borderLeftColor;
-            });
-            // blue = rgb(0, 0, 255) — blue channel must be dominant
-            expect(borderColor).toMatch(/rgb/);
-            const match = borderColor.match(/rgb\w?\((\d+),\s*(\d+),\s*(\d+)/);
-            expect(match).not.toBeNull();
-            const [r, g, b] = [parseInt(match[1]), parseInt(match[2]), parseInt(match[3])];
-            expect(b).toBeGreaterThan(200);
-            expect(r).toBeLessThan(100);
-            expect(g).toBeLessThan(100);
         });
     });
 
@@ -126,14 +110,10 @@ base.describe('Entry Properties — Visual Effects', () => {
             expect(count).toBeGreaterThanOrEqual(1);
         });
 
-        base('displayMode NONE with clientSideValue=null renders as auto (entry still visible)', async ({ page }) => {
-            // DisplayMode.NONE has clientSideValue=null, which FC treats as "auto" (not "none").
-            // This is a known behavior: to truly hide an entry, FC needs display="none" as a string.
-            // Our NONE enum sends null → FC falls back to auto rendering.
-            // This test documents and verifies that behavior.
-            const hiddenEntry = page.locator('.fc-event:has-text("Hidden Entry")').first();
-            // Entry IS rendered because null → auto
-            await expect(hiddenEntry).toBeVisible();
+        base('displayMode NONE hides the entry', async ({ page }) => {
+            // the calendar has rendered its other entries, so a missing hidden entry is not a render still pending
+            await expect(page.locator('.fc-event:has-text("Red Entry")').first()).toBeVisible();
+            await expect(page.locator('.fc-event:has-text("Hidden Entry")')).toHaveCount(0);
         });
     });
 
@@ -189,15 +169,34 @@ base.describe('Entry Properties — Visual Effects', () => {
         });
     });
 
-    base.describe('ExtendedProps (customProperties)', () => {
+    base.describe('Extended props', () => {
 
-        base('extendedProps accessible via entryDidMount callback sets data-attribute', async ({ page }) => {
-            // The entryDidMount callback reads customProperties.department and sets data-department attribute
+        base('extended props are readable in entryDidMount under extendedProps', async ({ page }) => {
             const propsEntry = page.locator('.fc-event:has-text("Has Props")').first();
-            await expect(propsEntry).toBeVisible();
-            // Wait for entryDidMount to run
-            const dept = await propsEntry.getAttribute('data-department');
-            expect(dept).toBe('Engineering');
+            await expect(propsEntry).toHaveAttribute('data-department', 'Engineering');
+            await expect(propsEntry).toHaveAttribute('data-extended-keys', 'department,priority');
+        });
+
+        base('extended props are readable in a FullCalendar 7 split class hook', async ({ page }) => {
+            const propsEntry = page.locator('.fc-event:has-text("Has Props")').first();
+            await expect(propsEntry.locator('.dept-Engineering')).toHaveCount(1);
+        });
+
+        base('no other entry field ends up in extendedProps', async ({ page }) => {
+            const allFields = page.locator('.fc-event:has-text("All Fields")').first();
+            await expect(allFields).toHaveAttribute('data-extended-keys', 'department');
+        });
+
+        base('a removed extended prop disappears on the client after refreshItem', async ({ page }) => {
+            const propsEntry = page.locator('.fc-event:has-text("Has Props")').first();
+            await expect(propsEntry.locator('.dept-Engineering')).toHaveCount(1);
+
+            await page.locator('#remove-department').click();
+            await waitForVaadin(page);
+
+            const refreshed = page.locator('.fc-event:has-text("Has Props")').first();
+            await expect(refreshed.locator('.dept-none')).toHaveCount(1);
+            await expect(refreshed).toHaveAttribute('data-extended-keys', 'priority');
         });
     });
 });

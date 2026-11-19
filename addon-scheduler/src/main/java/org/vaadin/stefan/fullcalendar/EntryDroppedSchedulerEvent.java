@@ -3,15 +3,18 @@ package org.vaadin.stefan.fullcalendar;
 import com.vaadin.flow.component.DomEvent;
 import com.vaadin.flow.component.EventData;
 import lombok.ToString;
-import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.node.ObjectNode;
 
-import java.util.Collections;
 import java.util.Optional;
 
+/**
+ * Scheduler version of {@link EntryDroppedEvent}. It additionally knows the resources the entry has been moved from
+ * and to. {@link FullCalendarScheduler} fires this event for every drop, also to listeners added with
+ * {@link FullCalendarScheduler#addEntryDroppedListener(com.vaadin.flow.component.ComponentEventListener)}.
+ */
 @DomEvent("eventDrop")
 @ToString(callSuper = true)
-public class EntryDroppedSchedulerEvent extends EntryTimeChangedEvent {
+public class EntryDroppedSchedulerEvent extends EntryDroppedEvent {
 
     private final Resource oldResource;
     private final Resource newResource;
@@ -49,29 +52,10 @@ public class EntryDroppedSchedulerEvent extends EntryTimeChangedEvent {
     @Override
     public Entry applyChangesOnEntry() {
         ResourceEntry entry = (ResourceEntry) super.applyChangesOnEntry();
-        ObjectNode object = getJsonObject();
-
-        updateResourcesFromEventResourceDelta(entry, object);
+        getOldResource().ifPresent(entry::removeResources);
+        getNewResource().ifPresent(entry::addResources);
 
         return entry;
-    }
-
-    public static void updateResourcesFromEventResourceDelta(ResourceEntry entry, ObjectNode object) {
-        entry.getCalendar().map(c -> (Scheduler) c).ifPresent(calendar -> {
-            Optional.ofNullable(object.get("oldResource"))
-                    .filter(JsonNode::isString)
-                    .map(JsonNode::asString)
-                    .flatMap(calendar::getResourceById)
-                    .map(Collections::singleton)
-                    .ifPresent(entry::removeResources);
-
-            Optional.ofNullable(object.get("newResource"))
-                    .filter(JsonNode::isString)
-                    .map(JsonNode::asString)
-                    .flatMap(calendar::getResourceById)
-                    .map(Collections::singleton)
-                    .ifPresent(entry::addResources);
-        });
     }
 
     /**

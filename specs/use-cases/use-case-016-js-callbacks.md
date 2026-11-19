@@ -10,7 +10,7 @@
 ## Scope
 
 **Addon module:** addon + addon-scheduler
-**Related Options:** Various callback options (e.g., `ENTRY_ALLOW`, `SELECT_ALLOW`, `ENTRY_OVERLAP`, render hooks in SchedulerOption)
+**Related Options:** Various callback options (e.g., `entryAllow`, `selectAllow`, `entryOverlap`, render hooks in `ViewOptions` and `SchedulerViewOptions`, callbacks inside map values such as `buttons`)
 **Related Events:** —
 
 ---
@@ -19,8 +19,10 @@
 
 - Developers can pass JavaScript functions as option values
 - JS callbacks execute client-side for render customization, constraint validation, and formatting
-- Entry custom properties (`setCustomProperty`) are accessible in JS callbacks
+- Entry extended props (`setExtendedProp`) are accessible in JS callbacks under `event.extendedProps`
 - Scheduler render hooks customize resource label/lane rendering
+- Every render hook FullCalendar 7.1.5 documents has a field, grouped in families (see BR-08)
+- A `JsCallback` can sit inside a `Map` or `Collection` option value, e.g. a button's `click` in `buttons`
 
 ---
 
@@ -28,24 +30,28 @@
 
 ```java
 // Custom allow callback
-calendar.setOption(Option.ENTRY_ALLOW,
-    JsCallback.of("function(dropInfo, draggedEvent) { return dropInfo.start.getDay() !== 0; }"));
+calendar.options().setEntryAllow(JsCallback.of("function(dropInfo, draggedEvent) { return dropInfo.start.getDay() !== 0; }"));
 
 // Custom overlap callback
-calendar.setOption(Option.ENTRY_OVERLAP,
-    JsCallback.of("function(stillEvent, movingEvent) { return stillEvent.extendedProps.allowOverlap !== false; }"));
+calendar.options().setEntryOverlap(JsCallback.of("function(stillEvent, movingEvent) { return stillEvent.extendedProps.allowOverlap !== false; }"));
 
 // Custom select allow
-calendar.setOption(Option.SELECT_ALLOW,
-    JsCallback.of("function(selectInfo) { return selectInfo.start.getDay() !== 0; }"));
+calendar.options().setSelectAllow(JsCallback.of("function(selectInfo) { return selectInfo.start.getDay() !== 0; }"));
 
-// Scheduler: custom resource label
-scheduler.setOption(SchedulerOption.RESOURCE_LABEL_CONTENT,
-    JsCallback.of("function(arg) { return { html: '<b>' + arg.resource.title + '</b>' }; }"));
+// Scheduler: custom resource name in resource time grid / day grid headers
+scheduler.options().setResourceDayHeaderContent(JsCallback.of("function(info) { return { html: '<b>' + info.resource.title + '</b>' }; }"));
 
-// Entry custom properties (accessible in JS callbacks)
-entry.setCustomProperty("priority", "high");
-entry.setCustomProperty("department", "Engineering");
+// Callback inside a map value: it is sent as a callback, not as text
+calendar.options().setButtons(Map.of("refresh", Map.<String, Object>of(
+    "text", "Refresh",
+    "click", JsCallback.of("function(ev) { console.log('refresh clicked'); }"))));
+
+// One hook of another family: content of the "+more" link
+calendar.options().setMoreLinkContent(JsCallback.of("function(info) { return info.isNarrow ? info.numericText : info.longText; }"));
+
+// Entry extended props (accessible in JS callbacks as event.extendedProps.priority etc.)
+entry.setExtendedProp("priority", "high");
+entry.setExtendedProp("department", "Engineering");
 ```
 
 ---
@@ -56,20 +62,16 @@ In addition to constraint callbacks, the addon supports entry rendering hooks vi
 
 ```java
 // Custom entry content (e.g., HTML rendering)
-calendar.setOption(Option.ENTRY_CONTENT,
-    JsCallback.of("function(arg) { return { html: '<b>' + arg.event.title + '</b>' }; }"));
+calendar.options().setEntryContent(JsCallback.of("function(arg) { return { html: '<b>' + arg.event.title + '</b>' }; }"));
 
-// CSS class names based on entry properties
-calendar.setOption(Option.ENTRY_CLASS_NAMES,
-    JsCallback.of("function(arg) { if (arg.event.extendedProps.isUrgent) return ['urgent']; }"));
+// CSS class names based on entry properties (one space-separated string, or a plain string without callback)
+calendar.options().setEntryClass(JsCallback.of("function(arg) { return arg.event.extendedProps.isUrgent ? 'urgent' : ''; }"));
 
 // Post-render setup (e.g., tooltips)
-calendar.setOption(Option.ENTRY_DID_MOUNT,
-    JsCallback.of("function(arg) { arg.el.title = arg.event.title; }"));
+calendar.options().setEntryDidMount(JsCallback.of("function(arg) { arg.el.title = arg.event.title; }"));
 
 // Cleanup before removal
-calendar.setOption(Option.ENTRY_WILL_UNMOUNT,
-    JsCallback.of("function(arg) { /* cleanup */ }"));
+calendar.options().setEntryWillUnmount(JsCallback.of("function(arg) { /* cleanup */ }"));
 ```
 
 ---
@@ -80,20 +82,27 @@ calendar.setOption(Option.ENTRY_WILL_UNMOUNT,
 |----|------|
 | BR-01 | `JsCallback.of(string)` wraps a JS function for client-side execution |
 | BR-02 | JS callbacks use `new Function()` intentionally for dynamic evaluation |
-| BR-03 | Custom properties set via `setCustomProperty` are available as `event.extendedProps` in JS |
-| BR-04 | Entry render hooks: `ENTRY_CONTENT`, `ENTRY_CLASS_NAMES`, `ENTRY_DID_MOUNT`, `ENTRY_WILL_UNMOUNT` |
-| BR-05 | Scheduler render hooks: `RESOURCE_LABEL_CONTENT`, `RESOURCE_LABEL_CLASS_NAMES`, `RESOURCE_LABEL_DID_MOUNT`, `RESOURCE_LANE_CONTENT`, etc. |
+| BR-03 | Extended props set via `setExtendedProp` are sent as the entry's `extendedProps` and are available as `event.extendedProps.<key>` in every entry callback, including the FullCalendar 7 split class hooks (`eventInnerClass`, `eventTitleClass`, …). No other key of the entry JSON lands in `extendedProps`, so none can overwrite an extended prop |
+| BR-04 | Entry render hooks: `entryContent`, `entryClass`, `entryDidMount`, `entryWillUnmount`. They do not apply to background entries. Class options take a class name string or a callback returning one; FullCalendar 7 drops arrays. |
+| BR-05 | Scheduler render hooks: `resourceCell*` (resource area cells, timeline views; also fires for group cells, then `info.resource` is absent), `resourceDayHeader*` (resource headers in resource time grid / day grid views), `resourceLane*` with `resourceLaneTopContent` / `resourceLaneBottomContent`, `resourceGroupHeader*` (the group value is `info.fieldValue`), `resourceColumnHeader*`, etc. Class hooks take a class name string or a callback returning one. |
 | BR-06 | Callbacks must be synchronous (no async/await) |
-| BR-07 | Native DOM event listeners registered via `addEntryNativeEventListener(eventName, jsCode)` are automatically merged into `ENTRY_DID_MOUNT`. Example: `calendar.addEntryNativeEventListener("click", "console.log('clicked', e.target)")` registers a browser `click` handler on each entry's DOM element. |
+| BR-07 | Native DOM event listeners registered via `addEntryNativeEventListener(eventName, jsCode)` are automatically merged into `entryDidMount`. Example: `calendar.addEntryNativeEventListener("click", "console.log('clicked', e.target)")` registers a browser `click` handler on each entry's DOM element. |
+| BR-08 | Render hook families with a field each (`*Class`, `*InnerClass` where FullCalendar has one, `*Content`, `*DidMount`, `*WillUnmount`): block, row, column, list-item and background entries, "+more" links, the more-link popover, day cells, day headers, day rows and lanes, slot headers, tables, list days, single months, toolbar and buttons, now indicator, week numbers, no-entries message, and in the scheduler resource cells, headers, lanes, groups, expander, rows and the timeline. Which options exist and what each hook's `info` holds is in the Javadoc of `ViewOptions` / `SchedulerViewOptions` (and `CalendarOptions` for the calendar-wide ones). Not every hook has all four variants, and a few take a class name string only (no callback) |
+| BR-09 | A `JsCallback` nested in a `Map` or `Collection` option value is sent as a callback, set before and after attach. Earlier versions sent it as text |
+| BR-10 | Options without a field (listeners the add-on wires itself, entry and resource data, plugins/locales/views, custom-view-only keys, framework-integration internals) are listed with reasons in `OptionCompletenessTest`. They can still be set with `options().setRawOption(String, …)` |
+| BR-11 | The calendar merges the automatic entry id (`setAutoProvideEntryIdOnClient`, on by default), the `entryDidMount` callback and the native listeners into one function. It calls the id snippet and then the callback, each with `this` and all arguments, and registers the native listeners last. So the callback may have any function form (also an arrow function with an expression body) and can override the entry id. The library mounts drag previews too, so the callback and the listeners run for them, while the entry id is left out |
 
 ---
 
 ## Acceptance Criteria
 
-- [ ] `ENTRY_ALLOW` callback can accept/reject drops
-- [ ] `SELECT_ALLOW` callback can accept/reject selections
-- [ ] Custom properties are accessible in JS callbacks via `extendedProps`
+- [ ] `entryAllow` callback can accept/reject drops
+- [ ] `selectAllow` callback can accept/reject selections
+- [x] Extended props are accessible in JS callbacks via `extendedProps` (`entry-properties.spec.js`)
 - [ ] Scheduler render hooks customize resource rendering
+- [x] A representative hook of each new entry family and of the toolbar reaches the client and runs (`fc7-options.spec.js`). Day, slot and list-day hooks are covered by `display-options.spec.js`
+- [x] A `JsCallback` inside the `buttons` map runs on click
+- [x] An `entryDidMount` arrow function with a block or an expression body runs, the entry id and the native listeners are still set, and the callback can override the id (`entry-did-mount-forms.spec.js`)
 - [ ] Invalid JS does not crash the calendar — graceful degradation *(manual verification)*
 
 ---
@@ -103,9 +112,15 @@ calendar.setOption(Option.ENTRY_WILL_UNMOUNT,
 ### Unit Tests
 - [ ] `JsCallbackTest` — JsCallback construction, serialization
 - [ ] `InteractionCallbacksTest` — callback options
+- `TypedOptionValuesTest` — nested `JsCallback` values in map and collection options
+- `OptionCompletenessTest` (addon-scheduler) — every FullCalendar option and render hook has a field, or is left out with a reason
+- `SchedulerOptionFieldsStaticTest` — the scheduler option fields carry the library option names
 
 ### E2E Tests
 - [ ] `interaction-callbacks.spec.js` — callback behavior
+- [ ] `display-options.spec.js` (Render Hook Callbacks) — day cell, day header, inline week number and all-day header hooks (class, content, did-mount); a plain `eventClass` string set at runtime
+- [x] `entry-did-mount-forms.spec.js`: `entryDidMount` in each function form, merged with the entry id and the native listeners
+- [x] `fc7-options.spec.js`: block, row, column, list-item and background entry classes, background entry content and did-mount, toolbar and button classes, `buttons` click callbacks set before and after attach
 
 ---
 
@@ -114,3 +129,4 @@ calendar.setOption(Option.ENTRY_WILL_UNMOUNT,
 - [eventAllow](https://fullcalendar.io/docs/eventAllow)
 - [selectAllow](https://fullcalendar.io/docs/selectAllow)
 - [Render Hooks](https://fullcalendar.io/docs/content-injection)
+- [buttons](https://fullcalendar.io/docs/buttons)

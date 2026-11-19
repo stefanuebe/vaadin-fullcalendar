@@ -16,6 +16,7 @@
  */
 package org.vaadin.stefan.fullcalendar;
 
+import lombok.Getter;
 import lombok.ToString;
 import tools.jackson.databind.node.ObjectNode;
 
@@ -28,6 +29,21 @@ import tools.jackson.databind.node.ObjectNode;
 public abstract class EntryChangedEvent extends EntryDataEvent {
 
     /**
+     * Whether {@link #applyChangesOnEntry()} has been called on this event.
+     * Used by the auto-revert mechanism to determine if the client-side change
+     * should be reverted.
+     */
+    @Getter
+    private boolean changesApplied;
+
+    /**
+     * Whether a revert check has been scheduled via {@code beforeClientResponse}
+     * for this event instance. Prevents duplicate scheduling when multiple
+     * listeners are registered for the same event type.
+     */
+    private boolean revertCheckScheduled;
+
+    /**
      * New instance. Awaits the changed data object.
      * @param source source component
      * @param fromClient is from client
@@ -37,5 +53,50 @@ public abstract class EntryChangedEvent extends EntryDataEvent {
         super(source, fromClient, jsonObject);
     }
 
+    /**
+     * Applies the contained changes on the referring entry and returns it.
+     * @see Entry#updateFromJson(tools.jackson.databind.node.ObjectNode)
+     * @return entry
+     */
+    public Entry applyChangesOnEntry() {
+        Entry entry = getEntry();
+        entry.updateFromJson(getJsonObject());
+        this.changesApplied = true;
+        return entry;
+    }
+
+    /**
+     * Returns a new {@link Entry} instance with the changes from this event applied on top of the
+     * original entry. The original entry stored in {@link #getEntry()} is not modified.
+     * <p>
+     * This is the standard way to inspect "the entry as it would look after applying the change"
+     * without touching server-side state — useful for validation before calling
+     * {@link #applyChangesOnEntry()} or for rendering a dialog preview.
+     *
+     * @param <R> return type
+     * @return a new entry reflecting the pending change
+     * @since 7.2.0
+     */
+    @Override
+    @SuppressWarnings("removal")
+    public <R extends Entry> R getChangesAsEntry() {
+        return getDetailsAsEntry();
+    }
+
+    /**
+     * Returns whether a revert check has already been scheduled for this event.
+     * Package-private — used by {@link FullCalendar} auto-revert logic.
+     */
+    boolean isRevertCheckScheduled() {
+        return revertCheckScheduled;
+    }
+
+    /**
+     * Marks that a revert check has been scheduled for this event.
+     * Package-private — used by {@link FullCalendar} auto-revert logic.
+     */
+    void markRevertCheckScheduled() {
+        this.revertCheckScheduled = true;
+    }
 
 }

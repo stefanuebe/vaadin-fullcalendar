@@ -1,6 +1,6 @@
-# UC-014: Client-Side Event Sources
+# UC-014: Remote Entry Sources
 
-**As a** Vaadin application developer, **I want to** add client-side event sources **so that** the calendar can load entries from external feeds (JSON, Google Calendar, iCal) without server roundtrips.
+**As a** Vaadin application developer, **I want to** add remote entry sources **so that** the calendar can load entries from external feeds (JSON, Google Calendar, iCal) without server roundtrips.
 
 **Status:** Implemented
 **Date:** 2026-03-21
@@ -10,18 +10,18 @@
 ## Scope
 
 **Addon module:** addon
-**Related Options:** `Option.EXTERNAL_EVENT_SOURCE_START_PARAM`, `Option.EXTERNAL_EVENT_SOURCE_END_PARAM`, `Option.EXTERNAL_EVENT_SOURCE_TIME_ZONE_PARAM`, `Option.EXTERNAL_EVENT_SOURCE_GOOGLE_CALENDAR_API_KEY`
-**Related Events:** `EventSourceFailureEvent`, `ExternalEntryDroppedEvent`, `ExternalEntryResizedEvent`
+**Related Options:** `startParam`, `endParam`, `timeZoneParam`, `googleCalendarApiKey`
+**Related Events:** `RemoteEntrySourceFailureEvent`, `RemoteEntryDroppedEvent`, `RemoteEntryResizedEvent`, `RemoteEntryClickedEvent` and the other `RemoteEntry…Event`s
 
 ---
 
 ## User-Facing Behavior
 
-- JSON Feed: calendar fetches entries from a REST endpoint (FC adds start/end query params)
+- JSON Feed: calendar fetches entries from a REST endpoint (FullCalendar adds start/end query params)
 - Google Calendar: displays events from a Google Calendar (requires API key)
 - iCalendar: loads events from an .ics URL
-- Client-side entries are read-only by default; DnD/resize can be enabled per source
-- If a source fails to load, `EventSourceFailureEvent` fires
+- Entries of remote entry sources are read-only by default; DnD/resize can be enabled per source
+- If a source fails to load, `RemoteEntrySourceFailureEvent` fires
 
 ---
 
@@ -29,32 +29,33 @@
 
 ```java
 // JSON feed
-JsonFeedEventSource json = new JsonFeedEventSource("https://api.example.com/events");
+JsonFeedEntrySource json = new JsonFeedEntrySource("https://api.example.com/events");
 json.withEditable(true); // allow DnD
-calendar.addClientSideEventSource(json);
+calendar.addRemoteEntrySource(json);
 
 // Google Calendar
-GoogleCalendarEventSource google = new GoogleCalendarEventSource("calId@gmail.com");
+GoogleCalendarEntrySource google = new GoogleCalendarEntrySource("calId@gmail.com");
 google.withApiKey("YOUR_KEY");
-calendar.addClientSideEventSource(google);
+calendar.addRemoteEntrySource(google);
 
 // iCalendar
-ICalendarEventSource ical = new ICalendarEventSource("https://example.com/cal.ics");
-calendar.addClientSideEventSource(ical);
+ICalendarEntrySource ical = new ICalendarEntrySource("https://example.com/cal.ics");
+calendar.addRemoteEntrySource(ical);
 
 // Remove source — two patterns:
 // 1. Via Registration (preferred when you have the reference)
-Registration reg = calendar.addClientSideEventSource(json);
+Registration reg = calendar.addRemoteEntrySource(json);
 reg.remove();
 // 2. Via source ID (when Registration reference is not available)
-calendar.removeClientSideEventSource(json.getId());
+calendar.removeRemoteEntrySource(json.getId());
 
-// Handle DnD of external entries
-calendar.addExternalEntryDroppedListener(event -> { ... });
-calendar.addExternalEntryResizedListener(event -> { ... });
+// Handle DnD of entry source entries
+calendar.addRemoteEntryDroppedListener(event -> { ... });
+calendar.addRemoteEntryResizedListener(event -> { ... });
+calendar.addRemoteEntryClickedListener(event -> { ... }); // also mouse enter/leave, drag/resize start/stop, leave
 
 // Handle source failures
-calendar.addEventSourceFailureListener(event -> { ... });
+calendar.addRemoteEntrySourceFailureListener(event -> { ... });
 ```
 
 ---
@@ -63,12 +64,12 @@ calendar.addEventSourceFailureListener(event -> { ... });
 
 | ID | Rule |
 |----|------|
-| BR-01 | Client-side entries are read-only by default (`editable = false`) |
-| BR-02 | `withEditable(true)` enables DnD/resize for entries from that source |
-| BR-03 | External entries fire `ExternalEntryDroppedEvent` / `ExternalEntryResizedEvent` (not server-managed counterparts) |
+| BR-01 | Whether the entries of a source can be dragged and resized follows the calendar's `editable` option |
+| BR-02 | `withEditable`, `withStartEditable` and `withDurationEditable` override it for the entries of that source |
+| BR-03 | Entry source entries fire `RemoteEntry…Event`s instead of the entry events of the entry provider: clicked, mouse enter/leave, drag start/stop, dropped, resize start/stop, resized, leave. `getEntry().getId()` is the id the entry has in its source. The client routes an event to the remote name when the entry id is not among the entries the server sent |
 | BR-04 | JSON feed receives `start`, `end`, `timeZone` query parameters (configurable) |
 | BR-05 | Google Calendar requires an API key (per-source or global) |
-| BR-06 | Source failures fire `EventSourceFailureEvent` |
+| BR-06 | Source failures fire `RemoteEntrySourceFailureEvent`. A callback set with `withFailure` runs first |
 
 ---
 
@@ -77,10 +78,11 @@ calendar.addEventSourceFailureListener(event -> { ... });
 - [ ] JSON feed loads and displays entries
 - [ ] Google Calendar entries display (with valid API key)
 - [ ] iCalendar entries display
-- [ ] Client-side entries are read-only by default
-- [ ] `withEditable(true)` enables DnD for source entries
-- [ ] `ExternalEntryDroppedEvent` fires on DnD of external entries
-- [ ] `EventSourceFailureEvent` fires on load failure
+- [ ] Entries of remote entry sources follow the calendar's `editable` option
+- [ ] `withEditable(…)` overrides it for the entries of a source
+- [x] A click, the mouse, drag and resize start/stop on an entry of a source fire the `RemoteEntry…Event`s, not the entry events (#456)
+- [ ] `RemoteEntryDroppedEvent` fires on DnD of entry source entries
+- [x] `RemoteEntrySourceFailureEvent` fires on load failure, and the `withFailure` callback runs as well (#275)
 - [ ] Removing a source removes its entries from display
 
 ---
@@ -88,10 +90,11 @@ calendar.addEventSourceFailureListener(event -> { ... });
 ## Tests
 
 ### Unit Tests
-- [ ] `EventSourcesTest` — source construction and properties
+- [x] `EventSourcesTest`: source construction and properties, drop / resize events and the other `RemoteEntry…Event`s reach their listeners
 
 ### E2E Tests
-- [ ] `event-sources.spec.js` — event source loading
+- [x] `event-sources.spec.js` — load failure reaches the server listener and the `withFailure` callback
+- [x] `remote-entry-events.spec.js` — click, mouse, drag and resize of an entry of a JSON feed fire the `RemoteEntry…Event`s, a click on a server entry still the `EntryClickedEvent`
 
 ---
 

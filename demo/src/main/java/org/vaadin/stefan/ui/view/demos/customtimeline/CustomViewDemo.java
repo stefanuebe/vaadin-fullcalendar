@@ -29,12 +29,12 @@ public class CustomViewDemo extends AbstractSchedulerView {
 //        initialOptions.put("views", views);
 
         FullCalendarScheduler calendar = new FullCalendarScheduler();
-        calendar.setOption(FullCalendarScheduler.SchedulerOption.LICENSE_KEY, Scheduler.GPL_V3_LICENSE_KEY);
+        calendar.options().setSchedulerLicenseKey(Scheduler.AGPL_V3_LICENSE_KEY);
         calendar.setCustomCalendarViews(calendarView);
-        calendar.setLocale(UI.getCurrent().getLocale());
+        calendar.options().setLocale(UI.getCurrent().getLocale());
 
         List<Entry> entries = EntryService.createRandomInstance().getEntries();
-        calendar.getEntryProvider().asInMemory().addEntries(entries);
+        calendar.getEntryProvider().asInMemory().getItems().addAll(entries);
 
         return calendar;
     }
@@ -59,6 +59,5 @@ public class CustomViewDemo extends AbstractSchedulerView {
     protected boolean isToolbarViewChangeable() {
         return false;
     }
-
 
 }

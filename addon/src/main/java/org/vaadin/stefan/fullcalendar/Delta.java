@@ -24,37 +24,22 @@ import lombok.ToString;
 import tools.jackson.databind.node.ObjectNode;
 
 import java.time.*;
+import java.time.temporal.ChronoUnit;
 import java.util.concurrent.TimeUnit;
 
 /**
- * Represents a delta between two times. A delta can contain negative values if the first date is later than the second one.
+ * Represents a delta between two times, as days and time. A delta can contain negative values if the first date is
+ * later than the second one.
  * <p>
- * <b>Note on {@code years} and {@code months} (see issue #191):</b> FullCalendar JS emits drop/resize
- * deltas as {@code {years, months, days, milliseconds}}, but in practice the client always
- * normalises the year/month portion into {@code days}. Dragging an entry across several months
- * produces, for example, {@code days: 31} rather than {@code months: 1}. The {@code years} and
- * {@code months} fields on this class therefore remain zero for every real FC-originated delta
- * and are present only for historical / manually-constructed instances. The corresponding
- * getters are {@code @Deprecated(since = "7.2.0")}; downstream code that only needs to react
- * to drag/drop changes can rely on {@link #getDays()} alone.
+ * A delta has no years or months part. In practice FullCalendar reports the date part of a drop or resize delta in
+ * days, for example {@code days: 31} for an entry dragged by one month. A span of months also has no fixed length in
+ * days.
  */
 @Getter
 @ToString
 @EqualsAndHashCode
 public class Delta {
 
-    /**
-     * The delta's years part. FC-originated deltas are normalised so this is always zero in
-     * practice — see class-level Javadoc.
-     */
-    @Getter(lombok.AccessLevel.NONE)
-    private final int years;
-    /**
-     * The delta's months part. FC-originated deltas are normalised so this is always zero in
-     * practice — see class-level Javadoc.
-     */
-    @Getter(lombok.AccessLevel.NONE)
-    private final int months;
     /**
      * The delta's days part.
      */
@@ -74,17 +59,13 @@ public class Delta {
 
     /**
      * Creates a new instance.
-     * @param years years delta
-     * @param months months delta
      * @param days days delta
      * @param hours hours delta
      * @param minutes minutes delta
      * @param seconds seconds delta
      */
     @Builder
-    public Delta(int years, int months, int days, int hours, int minutes, int seconds) {
-        this.years = years;
-        this.months = months;
+    public Delta(int days, int hours, int minutes, int seconds) {
         this.days = days;
         this.hours = hours;
         this.minutes = minutes;
@@ -92,52 +73,12 @@ public class Delta {
     }
 
     /**
-     * Returns the years component of this delta.
-     *
-     * @return years
-     * @deprecated since 7.2.0 — FullCalendar never produces a non-zero {@code years} component for
-     *             drop/resize events. Retained for backward compatibility with manually-constructed
-     *             {@code Delta} instances. See class-level Javadoc for details.
-     */
-    @Deprecated(since = "7.2.0")
-    public int getYears() {
-        return years;
-    }
-
-    /**
-     * Returns the months component of this delta.
-     *
-     * @return months
-     * @deprecated since 7.2.0 — FullCalendar never produces a non-zero {@code months} component for
-     *             drop/resize events. Retained for backward compatibility with manually-constructed
-     *             {@code Delta} instances. See class-level Javadoc for details.
-     */
-    @Deprecated(since = "7.2.0")
-    public int getMonths() {
-        return months;
-    }
-
-    /**
-     * @deprecated Since this is just a simple comparison, this method should not be used anymore.
-     * @param name
-     * @param current
-     * @param lessThanThis
-     */
-    @Deprecated
-    static void assertLessThan(String name, int current, int lessThanThis) {
-        if (current >= lessThanThis) {
-            throw new IllegalArgumentException("Value'" + name + "' must be less than or equal to '" + lessThanThis + "' (as absolute) but was '" + current + "'!");
-        }
-    }
-
-    /**
-     * Parses the given json object.
+     * Parses the given json object. A {@code years} or {@code months} value in it is ignored, because in practice
+     * FullCalendar sends both as zero.
      * @param jsonObject json object
      * @return delta
      */
     public static Delta fromJson(ObjectNode jsonObject) {
-        int years = jsonObject.get("years").asInt();
-        int months = jsonObject.get("months").asInt();
         int days = jsonObject.get("days").asInt();
 
         // new 4.x way
@@ -149,25 +90,31 @@ public class Delta {
             remainingMS -= TimeUnit.MINUTES.toMillis(minutes);
             int seconds = (int) TimeUnit.MILLISECONDS.toSeconds(remainingMS);
 
-            return new Delta(years, months, days, hours, minutes, seconds);
+            return new Delta(days, hours, minutes, seconds);
         }
 
         // old 3.9 way
         int hours = jsonObject.get("hours").asInt();
         int minutes = jsonObject.get("minutes").asInt();
         int seconds = jsonObject.get("seconds").asInt();
-        return new Delta(years, months, days, hours, minutes, seconds);
+        return new Delta(days, hours, minutes, seconds);
     }
 
+    /**
+     * Creates the delta that moves {@code deltaFrom} to {@code deltaTo}, so that {@code applyOn(deltaFrom)} returns
+     * {@code deltaTo}. The span is truncated to whole seconds, so this holds exactly only when both date times have the
+     * same fraction of a second.
+     *
+     * @param deltaFrom date time the delta starts at
+     * @param deltaTo date time the delta ends at
+     * @return delta between both date times
+     * @throws NullPointerException when null is passed
+     * @throws ArithmeticException when the span has more days than an int holds
+     */
     public static Delta fromLocalDates(LocalDateTime deltaFrom, LocalDateTime deltaTo) {
-        return new Delta(
-                deltaTo.getYear() - deltaFrom.getYear(),
-                deltaTo.getMonthValue() - deltaFrom.getMonthValue(),
-                deltaTo.getDayOfMonth() - deltaFrom.getDayOfMonth(),
-                deltaTo.getHour() - deltaFrom.getHour(),
-                deltaTo.getMinute() - deltaFrom.getMinute(),
-                deltaTo.getSecond() - deltaFrom.getSecond()
-        );
+        Duration span = Duration.ofSeconds(ChronoUnit.SECONDS.between(deltaFrom, deltaTo));
+        return new Delta(Math.toIntExact(span.toDays()), span.toHoursPart(), span.toMinutesPart(),
+                span.toSecondsPart());
     }
 
     /**
@@ -178,7 +125,7 @@ public class Delta {
      * @throws NullPointerException when null is passed
      */
     public LocalDateTime applyOn(LocalDateTime dateTime) {
-        return dateTime.plusYears(years).plusMonths(months).plusDays(days).plusHours(hours).plusMinutes(minutes).plusSeconds(seconds);
+        return dateTime.plusDays(days).plusHours(hours).plusMinutes(minutes).plusSeconds(seconds);
     }
 
     /**
@@ -193,7 +140,7 @@ public class Delta {
      * @since 7.2.0
      */
     public LocalDateTime subtractFrom(LocalDateTime dateTime) {
-        return dateTime.minusYears(years).minusMonths(months).minusDays(days).minusHours(hours).minusMinutes(minutes).minusSeconds(seconds);
+        return dateTime.minusDays(days).minusHours(hours).minusMinutes(minutes).minusSeconds(seconds);
     }
 
     /**
@@ -206,7 +153,7 @@ public class Delta {
      * @since 7.2.0
      */
     public LocalDate subtractFrom(LocalDate date) {
-        return date.minusYears(years).minusMonths(months).minusDays(days);
+        return date.minusDays(days);
     }
 
     /**
@@ -231,7 +178,7 @@ public class Delta {
      * @throws NullPointerException when null is passed
      */
     public LocalDate applyOn(LocalDate date) {
-        return date.plusYears(years).plusMonths(months).plusDays(days);
+        return date.plusDays(days);
     }
 
     /**

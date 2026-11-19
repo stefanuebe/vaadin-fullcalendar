@@ -4,7 +4,12 @@ import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.select.Select;
+import com.vaadin.flow.router.AfterNavigationEvent;
+import com.vaadin.flow.router.AfterNavigationObserver;
+import com.vaadin.flow.router.Location;
+import com.vaadin.flow.router.QueryParameters;
 import com.vaadin.flow.router.Route;
+import org.vaadin.stefan.AppTheme;
 import org.vaadin.stefan.fullcalendar.*;
 import org.vaadin.stefan.fullcalendar.dataprovider.InMemoryEntryProvider;
 
@@ -20,10 +25,12 @@ import java.util.Collections;
  * Provides a full calendar with pre-loaded entries, toolbar, and entry dialog.
  */
 @Route("")
-public class PlaygroundView extends VerticalLayout {
+public class PlaygroundView extends VerticalLayout implements AfterNavigationObserver {
 
     private final FullCalendar calendar;
     private final InMemoryEntryProvider<Entry> entryProvider;
+    private final Select<String> themeSelect;
+    private final Select<String> modeSelect;
 
     public PlaygroundView() {
         setSizeFull();
@@ -32,24 +39,24 @@ public class PlaygroundView extends VerticalLayout {
         HorizontalLayout headerBar = new HorizontalLayout();
         headerBar.setAlignItems(Alignment.CENTER);
 
-        Select<String> themeSelect = new Select<>();
-        themeSelect.setItems("AURA", "LUMO", "MATERIAL");
-        themeSelect.setValue("AURA");
+        themeSelect = new Select<>();
+        themeSelect.setItems("LUMO", "AURA");
+        themeSelect.setValue("LUMO");
         themeSelect.setLabel("Theme");
+        themeSelect.addValueChangeListener(e -> {
+            if (e.isFromClient()) {
+                navigateWith(AppTheme.THEME_PARAMETER, e.getValue());
+            }
+        });
         headerBar.add(themeSelect);
 
-        Select<String> modeSelect = new Select<>();
+        modeSelect = new Select<>();
         modeSelect.setItems("SYSTEM", "DARK", "LIGHT");
         modeSelect.setValue("SYSTEM");
         modeSelect.setLabel("Mode");
         modeSelect.addValueChangeListener(e -> {
-            String val = e.getValue();
-            if (val != null && UI.getCurrent() != null) {
-                switch (val) {
-                    case "DARK" -> UI.getCurrent().getPage().executeJs("document.documentElement.setAttribute('theme', 'dark')");
-                    case "LIGHT" -> UI.getCurrent().getPage().executeJs("document.documentElement.setAttribute('theme', 'light')");
-                    default -> UI.getCurrent().getPage().executeJs("document.documentElement.removeAttribute('theme')");
-                }
+            if (e.isFromClient()) {
+                navigateWith(AppTheme.SCHEME_PARAMETER, e.getValue());
             }
         });
         headerBar.add(modeSelect);
@@ -58,11 +65,12 @@ public class PlaygroundView extends VerticalLayout {
 
         // --- Calendar ---
         calendar = new FullCalendar();
-        calendar.setOption(FullCalendar.Option.MAX_ENTRIES_PER_DAY, 3);
-        calendar.addThemeVariants(FullCalendarVariant.VAADIN);
-        calendar.setOption(FullCalendar.Option.WEEK_NUMBERS, true);
-        calendar.setOption(FullCalendar.Option.SELECTABLE, true);
-        calendar.setLocale(Locale.ENGLISH);
+
+        FullCalendarOptions options = calendar.options();
+        options.setDayMaxEntries(3);
+        options.setWeekNumbers(true);
+        options.setSelectable(true);
+        options.setLocale(Locale.ENGLISH);
 
         // --- Entry provider with pre-loaded entries ---
         entryProvider = new InMemoryEntryProvider<>();
@@ -91,13 +99,27 @@ public class PlaygroundView extends VerticalLayout {
         setHorizontalComponentAlignment(Alignment.STRETCH, calendar);
     }
 
+    @Override
+    public void afterNavigation(AfterNavigationEvent event) {
+        QueryParameters parameters = event.getLocation().getQueryParameters();
+        themeSelect.setValue(parameters.getSingleParameter(AppTheme.THEME_PARAMETER).map(String::toUpperCase).orElse("LUMO"));
+        modeSelect.setValue(parameters.getSingleParameter(AppTheme.SCHEME_PARAMETER).map(String::toUpperCase).orElse("SYSTEM"));
+    }
+
+    /** Navigates to this view again with the parameter changed, so that {@link AppTheme} applies it. */
+    private void navigateWith(String parameter, String value) {
+        UI ui = UI.getCurrent();
+        Location location = ui.getActiveViewLocation();
+        ui.navigate(location.getPath(), location.getQueryParameters().merging(parameter, value.toLowerCase()));
+    }
+
     private void createInitialEntries() {
         // "Meeting" — timed entry for today
         Entry meeting = new Entry();
         meeting.setTitle("Meeting");
         meeting.setStart(LocalDate.now().atTime(10, 0));
         meeting.setEnd(LocalDate.now().atTime(11, 0));
-        entryProvider.addEntry(meeting);
+        entryProvider.getItems().add(meeting);
 
         // "Short trip" — all-day, multi-day
         Entry shortTrip = new Entry();
@@ -106,7 +128,7 @@ public class PlaygroundView extends VerticalLayout {
         shortTrip.setEnd(LocalDate.now().plusDays(5));
         shortTrip.setAllDay(true);
         shortTrip.setColor("green");
-        entryProvider.addEntry(shortTrip);
+        entryProvider.getItems().add(shortTrip);
 
         // "This special holiday" — all-day, 1 day
         Entry holiday = new Entry();
@@ -114,7 +136,7 @@ public class PlaygroundView extends VerticalLayout {
         holiday.setStart(LocalDate.now().plusDays(4));
         holiday.setAllDay(true);
         holiday.setColor("gray");
-        entryProvider.addEntry(holiday);
+        entryProvider.getItems().add(holiday);
 
         // "sunday event" — recurring weekly on Sundays (exact title, no year prefix!)
         Entry sundayEvent = new Entry();
@@ -124,7 +146,7 @@ public class PlaygroundView extends VerticalLayout {
         sundayEvent.setRecurringEndDate(LocalDate.now().withDayOfYear(1).plusYears(1));
         sundayEvent.setRecurringStartTime(LocalTime.of(9, 0));
         sundayEvent.setRecurringEndTime(LocalTime.of(10, 0));
-        entryProvider.addEntry(sundayEvent);
+        entryProvider.getItems().add(sundayEvent);
 
         // "Multi 1" through "Multi 5" — ALL on day 12 for "+more" link
         for (int i = 1; i <= 5; i++) {
@@ -133,7 +155,7 @@ public class PlaygroundView extends VerticalLayout {
             multi.setStart(LocalDate.now().withDayOfMonth(12));
             multi.setEnd(LocalDate.now().withDayOfMonth(12).plusDays(3));
             multi.setAllDay(true);
-            entryProvider.addEntry(multi);
+            entryProvider.getItems().add(multi);
         }
     }
 
@@ -149,7 +171,6 @@ public class PlaygroundView extends VerticalLayout {
         entry.setStart(event.getStart());
         entry.setEnd(event.getEnd());
         entry.setAllDay(event.isAllDay());
-        entry.setCalendar(event.getSource());
 
         PlaygroundDialog dialog = new PlaygroundDialog(entry, true);
         dialog.setSaveConsumer(e -> onEntriesCreated(Collections.singletonList(e)));
@@ -167,16 +188,16 @@ public class PlaygroundView extends VerticalLayout {
     }
 
     private void onEntriesCreated(Collection<Entry> entries) {
-        entryProvider.addEntries(entries);
+        entryProvider.getItems().addAll(entries);
         entryProvider.refreshAll();
     }
 
     private void onEntriesRemoved(Collection<Entry> entries) {
         if (entries.isEmpty()) {
             // "Remove all entries" — clear everything
-            entryProvider.removeAllEntries();
+            entryProvider.getItems().clear();
         } else {
-            entryProvider.removeEntries(entries);
+            entryProvider.getItems().removeAll(entries);
         }
         entryProvider.refreshAll();
     }

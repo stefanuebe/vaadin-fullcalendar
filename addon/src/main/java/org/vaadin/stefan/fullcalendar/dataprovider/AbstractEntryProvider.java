@@ -2,9 +2,7 @@ package org.vaadin.stefan.fullcalendar.dataprovider;
 
 import com.vaadin.flow.function.SerializableConsumer;
 import com.vaadin.flow.shared.Registration;
-import lombok.Getter;
 import org.vaadin.stefan.fullcalendar.Entry;
-import org.vaadin.stefan.fullcalendar.FullCalendar;
 import org.vaadin.stefan.fullcalendar.dataprovider.EntriesChangeEvent.EntriesChangeListener;
 import org.vaadin.stefan.fullcalendar.dataprovider.EntryRefreshEvent.EntryRefreshListener;
 
@@ -18,9 +16,6 @@ import java.util.function.Consumer;
 public abstract class AbstractEntryProvider<T extends Entry> implements EntryProvider<T> {
 
     private final Map<Class<?>, List<SerializableConsumer<?>>> listeners = new HashMap<>();
-
-    @Getter
-    private FullCalendar calendar;
 
     @Override
     public void refreshAll() {
@@ -74,21 +69,5 @@ public abstract class AbstractEntryProvider<T extends Entry> implements EntryPro
                         consumer.accept(event);
                     }
                 });
-    }
-
-    /**
-     * Sets the calendar. Throws an exception, when there is already a calendar set and it is not the
-     * same instance as the given one.
-     *
-     * @param calendar calendar to set
-     * @throws UnsupportedOperationException when setting another calendar
-     */
-    @Override
-    public void setCalendar(FullCalendar calendar) {
-        if (this.calendar != null && calendar != null && this.calendar != calendar) {
-            throw new UnsupportedOperationException("Calendar must be set only once. Please create a new instance instead.");
-        }
-
-        this.calendar = calendar;
     }
 }

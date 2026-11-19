@@ -26,19 +26,20 @@ import tools.jackson.databind.node.ObjectNode;
 import java.util.Optional;
 
 /**
- * Fires when an external element carrying event data ({@code data-event} attribute) has been dropped
- * onto the calendar and FullCalendar has created a new entry from it.
+ * Fires when FullCalendar has created a new entry from a drop: a registered {@link Draggable} dropped onto
+ * the calendar, or an entry dragged in from another calendar. A {@link Draggable} without entry data creates no
+ * entry, so its drop fires only a {@link DropEvent}.
  * <br><br>
  * The {@link #getEntry()} method returns a freshly constructed {@link Entry} populated from the data
  * passed by the client. This entry is <em>not</em> added to the calendar's entry provider automatically;
  * the application must do this explicitly if it wants to persist the received entry
- * (e.g. via {@link org.vaadin.stefan.fullcalendar.dataprovider.InMemoryEntryProvider#addEntry(Entry)}).
+ * (e.g. via {@link org.vaadin.stefan.fullcalendar.dataprovider.InMemoryEntryProvider#getItems()} and
+ * {@link org.vaadin.stefan.fullcalendar.dataprovider.EntryProvider#refreshAll()}).
  * <br><br>
  * If the dropped element was registered via {@link FullCalendar#addDraggable(Draggable)},
  * {@link #getDraggable()} provides access to the original Draggable (component + entry template).
  * <br><br>
- * Note: {@link DropEvent} fires for <em>all</em> external drops (including non-event elements), while
- * this event fires only when the dropped element produced a new calendar entry.
+ * Note: {@link DropEvent} fires for the same drops. Add the received entry in one of the two listeners only.
  * <br><br>
  * Client side name: eventReceive
  * @see DropEvent
@@ -52,6 +53,9 @@ public class EntryReceiveEvent extends ComponentEvent<FullCalendar> {
     /**
      * The newly created entry, constructed from the data reported by the client.
      * This entry is not tracked by the calendar's entry provider.
+     * <p>
+     * <b>Please note</b> that the entry has no {@link RRule}, even when the draggable's entry data has one. Use
+     * {@link #getDraggable()} and {@link Draggable#getEntryData()} to get it.
      */
     private final Entry entry;
 

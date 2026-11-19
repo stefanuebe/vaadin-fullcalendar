@@ -1,5 +1,6 @@
 package org.vaadin.stefan.ui.view.testviews;
 
+import org.vaadin.stefan.fullcalendar.option.JsCallback;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.Paragraph;
@@ -117,17 +118,16 @@ public class InteractionCallbacksTestView extends VerticalLayout {
         add(counters);
 
         FullCalendar calendar = new FullCalendar();
-        calendar.addThemeVariants(FullCalendarVariant.VAADIN);
 
         // Fix the date for reproducible tests
-        calendar.setLocale(Locale.UK); // Monday-start week, so 2025-03-03 is first visible day
-        calendar.setOption("initialDate", LocalDate.of(2025, 3, 3).toString());
-        calendar.setOption("initialView", CalendarViewImpl.TIME_GRID_WEEK.getClientSideValue());
-        calendar.setOption(FullCalendar.Option.EDITABLE, true);
-        calendar.setOption(FullCalendar.Option.SELECTABLE, true);
-        calendar.setOption(FullCalendar.Option.DROPPABLE, true);
-        calendar.setOption("unselectAuto", true);
-        calendar.setOption("selectMirror", true);
+        calendar.options().setLocale(Locale.UK); // Monday-start week, so 2025-03-03 is first visible day
+        calendar.options().setInitialDate(LocalDate.of(2025, 3, 3));
+        calendar.options().setInitialView(CalendarViewImpl.TIME_GRID_WEEK);
+        calendar.options().setEditable(true);
+        calendar.options().setSelectable(true);
+        calendar.options().setDroppable(true);
+        calendar.options().setUnselectAuto(true);
+        calendar.options().setSelectMirror(true);
 
         // Add some timed entries so drag/resize can be tested
         InMemoryEntryProvider<Entry> provider = new InMemoryEntryProvider<>();
@@ -136,13 +136,13 @@ public class InteractionCallbacksTestView extends VerticalLayout {
         draggable.setTitle("Drag Me");
         draggable.setStart(LocalDateTime.of(2025, 3, 3, 9, 0));
         draggable.setEnd(LocalDateTime.of(2025, 3, 3, 10, 0));
-        provider.addEntry(draggable);
+        provider.getItems().add(draggable);
 
         Entry resizable = new Entry();
         resizable.setTitle("Resize Me");
         resizable.setStart(LocalDateTime.of(2025, 3, 4, 10, 0));
         resizable.setEnd(LocalDateTime.of(2025, 3, 4, 11, 0));
-        provider.addEntry(resizable);
+        provider.getItems().add(resizable);
 
         calendar.setEntryProvider(provider);
         provider.refreshAll();
@@ -205,11 +205,11 @@ public class InteractionCallbacksTestView extends VerticalLayout {
         });
 
         // selectAllow: deny selections before 2025-03-01
-        calendar.setOption(FullCalendar.Option.SELECT_ALLOW,
+        calendar.options().setSelectAllow(
                 JsCallback.of("function(selectInfo) { return selectInfo.start >= new Date(2025, 2, 1); }"));
 
         // eventAllow: prevent drops onto Monday 2025-03-03 (used for the Playwright deny test)
-        calendar.setOption(FullCalendar.Option.ENTRY_ALLOW,
+        calendar.options().setEntryAllow(
                 JsCallback.of("function(dropInfo, draggedEvent) { " +
                 "  var d = dropInfo.start; " +
                 "  return !(d.getFullYear() === 2025 && d.getMonth() === 2 && d.getDate() === 3); " +

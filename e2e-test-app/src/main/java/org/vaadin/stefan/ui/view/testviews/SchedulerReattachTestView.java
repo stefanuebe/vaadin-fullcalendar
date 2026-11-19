@@ -1,5 +1,6 @@
 package org.vaadin.stefan.ui.view.testviews;
 
+import org.vaadin.stefan.fullcalendar.option.ResourceColumn;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.Paragraph;
@@ -35,16 +36,16 @@ public class SchedulerReattachTestView extends VerticalLayout {
 
         // Build the scheduler calendar
         FullCalendarScheduler calendar = new FullCalendarScheduler();
-        calendar.setOption(FullCalendarScheduler.SchedulerOption.LICENSE_KEY, Scheduler.DEVELOPER_LICENSE_KEY);
+        calendar.options().setSchedulerLicenseKey(Scheduler.DEVELOPER_LICENSE_KEY);
 
         calendar.getElement().setAttribute("data-testid", "calendar");
 
-        calendar.setOption("initialDate", LocalDate.of(2025, 3, 3).toString());
+        calendar.options().setInitialDate(LocalDate.of(2025, 3, 3));
         calendar.changeView(SchedulerView.RESOURCE_TIMELINE_WEEK);
 
-        calendar.setResourceAreaColumns(
-                new ResourceAreaColumn("title", "Resource Name")
-        );
+        calendar.options().setResourceColumns(List.of(
+                new ResourceColumn("title", "Resource Name")
+        ));
 
         // Resources
         Resource r1 = new Resource("r1", "Alice", "blue");
@@ -66,7 +67,7 @@ public class SchedulerReattachTestView extends VerticalLayout {
         bobTask.setEnd(LocalDateTime.of(2025, 3, 4, 15, 0));
         bobTask.addResources(r2);
 
-        provider.addEntries(aliceTask, bobTask);
+        provider.getItems().addAll(List.of(aliceTask, bobTask));
         calendar.setEntryProvider(provider);
 
         // Detach/reattach button

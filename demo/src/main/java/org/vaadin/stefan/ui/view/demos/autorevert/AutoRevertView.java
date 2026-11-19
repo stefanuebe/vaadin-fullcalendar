@@ -7,7 +7,7 @@ import com.vaadin.flow.router.Route;
 import com.vaadin.flow.signals.Signal;
 import com.vaadin.flow.signals.local.ValueSignal;
 import org.vaadin.stefan.fullcalendar.Entry;
-import org.vaadin.stefan.fullcalendar.EntryDataEvent;
+import org.vaadin.stefan.fullcalendar.EntryChangedEvent;
 import org.vaadin.stefan.fullcalendar.EntryDroppedEvent;
 import org.vaadin.stefan.fullcalendar.EntryResizedEvent;
 import org.vaadin.stefan.fullcalendar.FullCalendar;
@@ -40,8 +40,8 @@ public class AutoRevertView extends AbstractCalendarView {
     protected FullCalendar createCalendar(ObjectNode defaultInitialOptions) {
         FullCalendar calendar = new FullCalendar(defaultInitialOptions);
         ((InMemoryEntryProvider<Entry>) calendar.getEntryProvider())
-                .addEntries(EntryService.createSimpleInstance().getEntries());
-        calendar.setOption(FullCalendar.Option.MAX_ENTRIES_PER_DAY, 3);
+                .getItems().addAll(EntryService.createSimpleInstance().getEntries());
+        calendar.options().setDayMaxEntries(3);
         return calendar;
     }
 
@@ -86,7 +86,7 @@ public class AutoRevertView extends AbstractCalendarView {
                 + "after each interaction.";
     }
 
-    private void handleEvent(EntryDataEvent event) {
+    private void handleEvent(EntryChangedEvent event) {
         // autoApply is lazily initialised in postConstruct; drop/resize can only fire after
         // the component is attached and the user interacts, so this check is purely defensive.
         if (autoApply != null && autoApply.peek()) {

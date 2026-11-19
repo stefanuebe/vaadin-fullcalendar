@@ -1,0 +1,5 @@
+/* An application's color override, unlayered. It is loaded before the forma theme, which the browser loads
+   only when a calendar selects it, and must still win over forma's default palette. */
+:root {
+    --fc-forma-background: rgb(1, 2, 3);
+}

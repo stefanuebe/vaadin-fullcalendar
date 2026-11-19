@@ -25,12 +25,11 @@ import tools.jackson.databind.node.ObjectNode;
  * Fires when a calendar entry is dragged from this calendar to another calendar instance.
  * This is the counterpart to {@link EntryReceiveEvent} on the receiving calendar.
  * <br><br>
- * This event requires that multiple FullCalendar instances have been configured for inter-calendar drag:
- * call {@link FullCalendar#setEditable(boolean) setEditable(true)} on the source calendar and
- * {@link FullCalendar#setDroppable(boolean) setDroppable(true)} on the target calendar.
- * @see <a href="https://fullcalendar.io/docs/Calendar-addEvent-and-eventReceive">FullCalendar inter-calendar drag documentation</a>
+ * This event requires inter-calendar drag between FullCalendar instances. Call {@code options().setEditable(true)}
+ * on both calendars and {@code options().setDroppable(true)} on the target calendar.
  * <br><br>
  * Client side name: eventLeave
+ * @see <a href="https://fullcalendar.io/docs/other-calendar-dragging">FullCalendar inter-calendar drag documentation</a>
  */
 @DomEvent("eventLeave")
 @ToString(callSuper = true)

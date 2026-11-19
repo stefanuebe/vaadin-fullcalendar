@@ -117,14 +117,13 @@ public class ListenerDataTestView extends VerticalLayout {
 
         // --- Calendar ---
         FullCalendar calendar = new FullCalendar();
-        calendar.addThemeVariants(FullCalendarVariant.VAADIN);
-        calendar.setLocale(Locale.ENGLISH);
-        calendar.setOption("initialDate", LocalDate.of(2025, 3, 1).toString());
-        calendar.setOption("initialView", CalendarViewImpl.DAY_GRID_MONTH.getClientSideValue());
-        calendar.setOption(FullCalendar.Option.DAY_MAX_EVENT_ROWS, 2); // triggers +more link
-        calendar.setOption(FullCalendar.Option.NAV_LINKS, true);
-        calendar.setOption(FullCalendar.Option.SELECTABLE, true);
-        calendar.setOption(FullCalendar.Option.WEEK_NUMBERS, true);
+        calendar.options().setLocale(Locale.ENGLISH);
+        calendar.options().setInitialDate(LocalDate.of(2025, 3, 1));
+        calendar.options().setInitialView(CalendarViewImpl.DAY_GRID_MONTH);
+        calendar.options().setDayMaxEntryRows(2); // triggers +more link
+        calendar.options().setNavLinks(true);
+        calendar.options().setSelectable(true);
+        calendar.options().setWeekNumbers(true);
 
         // --- Entries ---
         InMemoryEntryProvider<Entry> provider = new InMemoryEntryProvider<>();
@@ -134,14 +133,14 @@ public class ListenerDataTestView extends VerticalLayout {
         clickable.setTitle("Clickable Event");
         clickable.setStart(LocalDate.of(2025, 3, 5).atStartOfDay());
         clickable.setAllDay(true);
-        provider.addEntry(clickable);
+        provider.getItems().add(clickable);
 
         // Hover entry for mouse enter/leave testing
         Entry hoverable = new Entry();
         hoverable.setTitle("Hover Me");
         hoverable.setStart(LocalDate.of(2025, 3, 7).atStartOfDay());
         hoverable.setAllDay(true);
-        provider.addEntry(hoverable);
+        provider.getItems().add(hoverable);
 
         // 5 entries on March 10 to trigger +more link (with dayMaxEventRows=2)
         for (int i = 1; i <= 5; i++) {
@@ -149,7 +148,7 @@ public class ListenerDataTestView extends VerticalLayout {
             overflow.setTitle("Overflow " + i);
             overflow.setStart(LocalDate.of(2025, 3, 10).atStartOfDay());
             overflow.setAllDay(true);
-            provider.addEntry(overflow);
+            provider.getItems().add(overflow);
         }
 
         calendar.setEntryProvider(provider);

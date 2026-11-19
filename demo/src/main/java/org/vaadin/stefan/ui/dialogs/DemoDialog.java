@@ -19,11 +19,14 @@ import com.vaadin.flow.function.SerializableConsumer;
 import lombok.Setter;
 import org.vaadin.stefan.fullcalendar.Delta;
 import org.vaadin.stefan.fullcalendar.Entry;
+import org.vaadin.stefan.fullcalendar.FullCalendar;
 import org.vaadin.stefan.fullcalendar.Resource;
 import org.vaadin.stefan.fullcalendar.ResourceEntry;
 import org.vaadin.stefan.fullcalendar.Scheduler;
+import org.vaadin.stefan.fullcalendar.option.Timezone;
 
 import java.time.DayOfWeek;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.TextStyle;
@@ -50,19 +53,25 @@ public class DemoDialog extends Dialog {
     private final Binder<Entry> binder;
     private boolean recurring;
     private final Entry entry;
+    private final Timezone timezone;
     private boolean resetPeriodOnAllDayChange;
     private boolean anyTimeHasChangedByUser;
 
-    public DemoDialog(Entry entry, boolean newInstance) {
+    public DemoDialog(FullCalendar calendar, Entry entry, boolean newInstance) {
         this.entry = entry;
+        this.timezone = calendar.options().getTimeZone();
         this.resetPeriodOnAllDayChange = entry.isAllDay();
 
         // tmp entry is a copy. we will use its start and end to represent either the start/end or the recurring start/end
         this.tmpEntry = entry.copyAsType(entry.getClass());
 
         this.recurring = entry.isRecurring();
-        tmpEntry.setStart(recurring ? entry.getRecurringStart() : entry.getStartWithOffset());
-        tmpEntry.setEnd(recurring ? entry.getRecurringEnd() : entry.getEndWithOffset());
+        tmpEntry.setStart(recurring
+                ? combine(entry.getRecurringStartDate(), entry.getRecurringStartTimeAsLocalTime())
+                : entry.getStartWithOffset(timezone));
+        tmpEntry.setEnd(recurring
+                ? combine(entry.getRecurringEndDate(), entry.getRecurringEndTimeAsLocalTime())
+                : entry.getEndWithOffset(timezone));
 
         setCloseOnEsc(true);
         setCloseOnOutsideClick(true);
@@ -99,10 +108,7 @@ public class DemoDialog extends Dialog {
 
         // Resource field — only populated and shown for ResourceEntry on a Scheduler calendar (#164)
         MultiSelectComboBox<Resource> fieldResources = null;
-        Scheduler scheduler = entry.getCalendar()
-                .filter(c -> c instanceof Scheduler)
-                .map(c -> (Scheduler) c)
-                .orElse(null);
+        Scheduler scheduler = calendar instanceof Scheduler s ? s : null;
         if (entry instanceof ResourceEntry && scheduler != null) {
             fieldResources = new MultiSelectComboBox<>("Resources");
             fieldResources.setItems(scheduler.getResources());
@@ -145,7 +151,6 @@ public class DemoDialog extends Dialog {
 
         fieldRecurring.addValueChangeListener(event -> onRecurringChanged(event.getValue()));
 
-
         // init binder
 
         binder = new Binder<>(Entry.class);
@@ -157,7 +162,8 @@ public class DemoDialog extends Dialog {
 
         // optional fields
         binder.bind(fieldColor, Entry::getColor, Entry::setColor);
-        binder.bind(fieldDescription, Entry::getDescription, Entry::setDescription);
+        binder.bind(fieldDescription, item -> item.<String>getExtendedProp("description", null),
+                (item, value) -> item.setExtendedProp("description", value));
         binder.bind(fieldAllDay, Entry::isAllDay, Entry::setAllDay);
         binder.bind(fieldRecurring, item -> this.recurring, (item, value) -> this.recurring = value);
         binder.bind(fieldRDays, Entry::getRecurringDaysOfWeek, Entry::setRecurringDaysOfWeek);
@@ -185,7 +191,6 @@ public class DemoDialog extends Dialog {
             LocalDateTime oldStart = event.getOldValue();
             LocalDateTime newStart = event.getValue();
             LocalDateTime end = fieldEnd.getValue();
-
 
             if (oldStart != null && newStart != null && end != null) {
                 Delta delta = Delta.fromLocalDates(oldStart, newStart);
@@ -276,19 +281,32 @@ public class DemoDialog extends Dialog {
             if (recurring) {
                 entry.clearStart();
                 entry.clearEnd();
-                entry.setRecurringStart(tmpEntry.getStart());
-                entry.setRecurringEnd(tmpEntry.getEnd());
+                LocalDateTime start = tmpEntry.getStart();
+                LocalDateTime end = tmpEntry.getEnd();
+                entry.setRecurringStartDate(start != null ? start.toLocalDate() : null);
+                entry.setRecurringStartTime(start != null ? start.toLocalTime() : null);
+                entry.setRecurringEndDate(end != null ? end.toLocalDate() : null);
+                entry.setRecurringEndTime(end != null ? end.toLocalTime() : null);
             } else {
-                entry.setStartWithOffset(tmpEntry.getStart());
-                entry.setEndWithOffset(tmpEntry.getEnd());
+                entry.setStartWithOffset(tmpEntry.getStart(), timezone);
+                entry.setEndWithOffset(tmpEntry.getEnd(), timezone);
                 entry.setRecurringDaysOfWeek(); // remove the DoW
-                entry.clearRecurringStart();
-                entry.clearRecurringEnd();
+                entry.setRecurringStartDate(null);
+                entry.setRecurringStartTime((LocalTime) null);
+                entry.setRecurringEndDate(null);
+                entry.setRecurringEndTime((LocalTime) null);
             }
 
             onSaveConsumer.accept(this.entry);
             close();
         }
+    }
+
+    /**
+     * The dialog edits the recurring date and time in one picker, while the entry keeps them apart.
+     */
+    private static LocalDateTime combine(LocalDate date, LocalTime time) {
+        return date != null ? date.atTime(time != null ? time : LocalTime.MIDNIGHT) : null;
     }
 
     protected void onRemove() {
@@ -311,7 +329,6 @@ public class DemoDialog extends Dialog {
             fieldEnd.setLabel("End");
             fieldRDays.getElement().removeFromParent();
         }
-
 
         fieldRDays.setVisible(recurring);
     }

@@ -1,5 +1,6 @@
 package org.vaadin.stefan.fullcalendar;
 
+import org.vaadin.stefan.fullcalendar.option.Timezone;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.when;
 
@@ -36,7 +37,7 @@ public class TimeslotsSelectedEventTest {
 	void setup()
 	{
 		// client side of full-calendar runs in Europe/Berlin
-		when(calendar.getTimezone()).thenReturn(berlinTimezone);
+		when(calendar.getTimezoneForOffsets()).thenReturn(berlinTimezone);
 		
 		// UTC
 		startUTC = LocalDateTime.of(2000, 1, 1, 16, 0);

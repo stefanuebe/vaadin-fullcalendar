@@ -129,7 +129,7 @@ test.describe('Calendar Stress Tests', () => {
     });
 
     test('should handle right-click on empty calendar area', async ({ page }) => {
-      const calendar = page.locator('.fc-daygrid-body');
+      const calendar = page.locator('.fc-view');
       await calendar.click({ button: 'right' });
       await page.waitForTimeout(500);
 

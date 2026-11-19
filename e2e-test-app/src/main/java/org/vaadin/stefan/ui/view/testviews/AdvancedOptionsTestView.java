@@ -8,15 +8,12 @@ import org.vaadin.stefan.fullcalendar.CalendarViewImpl;
 import org.vaadin.stefan.fullcalendar.Entry;
 import org.vaadin.stefan.fullcalendar.FullCalendar;
 import org.vaadin.stefan.fullcalendar.dataprovider.InMemoryEntryProvider;
-import org.vaadin.stefan.fullcalendar.model.Header;
-import org.vaadin.stefan.fullcalendar.model.HeaderFooterItem;
-import org.vaadin.stefan.fullcalendar.model.HeaderFooterPart;
-import org.vaadin.stefan.fullcalendar.model.HeaderFooterPartPosition;
+import org.vaadin.stefan.fullcalendar.option.ConstraintValue;
+import org.vaadin.stefan.fullcalendar.option.ToolbarValue;
 import org.vaadin.stefan.ui.layouts.TestLayout;
 import org.vaadin.stefan.ui.menu.MenuItem;
 
 import java.time.LocalDate;
-import java.util.List;
 
 /**
  * Test view for advanced and niche options.
@@ -25,6 +22,7 @@ import java.util.List;
  * <ul>
  *   <li>Calendar renders in dayGridMonth view</li>
  *   <li>View-specific option (dayMaxEventRows=2 for dayGrid only) truncates events in month view</li>
+ *   <li>Header and footer toolbar set as maps, including a view button</li>
  * </ul>
  * <p>
  * Route: /test/advanced-options
@@ -46,30 +44,25 @@ public class AdvancedOptionsTestView extends VerticalLayout {
         FullCalendar calendar = new FullCalendar();
         calendar.getElement().setAttribute("data-testid", "calendar");
 
-        // Enable native FC toolbar (default is false in the web component)
-        var left = new HeaderFooterPart(HeaderFooterPartPosition.START);
-        left.addItem(HeaderFooterItem.BUTTON_PREVIOUS);
-        left.addItem(HeaderFooterItem.BUTTON_NEXT);
-        left.addItem(HeaderFooterItem.BUTTON_TODAY);
-        var center = new HeaderFooterPart(HeaderFooterPartPosition.CENTER);
-        center.addItem(HeaderFooterItem.TITLE);
-        var right = new HeaderFooterPart(HeaderFooterPartPosition.END);
-        calendar.setOption(FullCalendar.Option.HEADER_TOOLBAR, new Header(List.of(left, center, right)));
-        calendar.setOption("initialDate", LocalDate.of(2025, 3, 1).toString());
-        calendar.setOption("initialView", CalendarViewImpl.DAY_GRID_MONTH.getClientSideValue());
+        // Enable native FC toolbars (default is false in the web component), with a view button
+        calendar.options().setHeaderToolbar(ToolbarValue.ofStartEnd(
+                "prev,next today", "title", "dayGridMonth,timeGridWeek"));
+        calendar.options().setFooterToolbar(ToolbarValue.ofStartEnd("", "prevYear,nextYear", ""));
+        calendar.options().setInitialDate(LocalDate.of(2025, 3, 1));
+        calendar.options().setInitialView(CalendarViewImpl.DAY_GRID_MONTH);
 
         // dateAlignment --------------------------------------------------------
         // Aligning to "month" is the default for dayGridMonth; this just exercises the setter.
-        calendar.setOption(FullCalendar.Option.DATE_ALIGNMENT, "month");
+        calendar.options().setDateAlignment("month");
 
         // View-specific option ------------------------------------------------
-        // Limit displayed event rows to 2 only in the dayGrid view family (not in other views).
+        // Limit displayed event rows to 2 only in the month view (not in other views).
         // With 5 events on 2025-03-05 this guarantees a "+N more" link in month view.
-        calendar.setViewSpecificOption("dayGrid", FullCalendar.Option.DAY_MAX_EVENT_ROWS, 2);
+        calendar.options().view(CalendarViewImpl.DAY_GRID_MONTH).setDayMaxEntryRows(2);
 
         // eventConstraint -------------------------------------------------------
         // Constrain drag-and-drop to business hours (does not affect rendering, exercises setter).
-        calendar.setOption(FullCalendar.Option.ENTRY_CONSTRAINT, "businessHours");
+        calendar.options().setEntryConstraint(ConstraintValue.BUSINESS_HOURS);
 
         // --- Entry provider --------------------------------------------------------------
         InMemoryEntryProvider<Entry> provider = new InMemoryEntryProvider<>();
@@ -80,7 +73,7 @@ public class AdvancedOptionsTestView extends VerticalLayout {
             e.setTitle("Event " + i);
             e.setStart(LocalDate.of(2025, 3, 5));
             e.setAllDay(true);
-            provider.addEntry(e);
+            provider.getItems().add(e);
         }
 
         calendar.setEntryProvider(provider);

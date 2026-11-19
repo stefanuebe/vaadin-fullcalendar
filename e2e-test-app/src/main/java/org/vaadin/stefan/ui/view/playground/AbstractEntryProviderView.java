@@ -26,10 +26,9 @@ public abstract class AbstractEntryProviderView extends VerticalLayout {
 
         calendar = new FullCalendar();
         calendar.setEntryProvider(entryProvider);
-        calendar.setOption(FullCalendar.Option.MAX_ENTRIES_PER_DAY, 3);
-        calendar.addThemeVariants(FullCalendarVariant.VAADIN);
-        calendar.setOption(FullCalendar.Option.WEEK_NUMBERS, true);
-        calendar.setOption(FullCalendar.Option.SELECTABLE, true);
+        calendar.options().setDayMaxEntries(3);
+        calendar.options().setWeekNumbers(true);
+        calendar.options().setSelectable(true);
 
         // --- Toolbar ---
         PlaygroundToolbar toolbar = new PlaygroundToolbar(
@@ -81,7 +80,6 @@ public abstract class AbstractEntryProviderView extends VerticalLayout {
         entry.setStart(event.getStart());
         entry.setEnd(event.getEnd());
         entry.setAllDay(event.isAllDay());
-        entry.setCalendar(event.getSource());
 
         PlaygroundDialog dialog = new PlaygroundDialog(entry, true);
         dialog.setSaveConsumer(e -> onEntriesCreated(Collections.singletonList(e)));

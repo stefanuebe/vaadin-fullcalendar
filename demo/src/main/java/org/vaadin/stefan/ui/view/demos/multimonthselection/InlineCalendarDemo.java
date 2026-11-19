@@ -1,5 +1,6 @@
 package org.vaadin.stefan.ui.view.demos.multimonthselection;
 
+import org.vaadin.stefan.fullcalendar.option.DisplayMode;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.dependency.JsModule;
 import com.vaadin.flow.component.dependency.StyleSheet;
@@ -21,7 +22,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import static org.vaadin.stefan.fullcalendar.FullCalendar.Option.*;
 
 /**
  * @author Stefan Uebe
@@ -38,11 +38,11 @@ public class InlineCalendarDemo extends VerticalLayout {
         setAlignItems(Alignment.STRETCH);
 
         FullCalendar calendar = new FullCalendar();
-        calendar.setLocale(UI.getCurrent().getLocale());
+        calendar.options().setLocale(UI.getCurrent().getLocale());
         calendar.addClassName("inline-calendar");
 
         // activate cross month selection
-        calendar.setOption(SELECTABLE, false); // important
+        calendar.options().setSelectable(false); // important
         calendar.addAttachListener(event -> // refire things, when reattached
             calendar.getElement()
                 .executeJs("window.Vaadin.Flow.multiMonthCrossSelectionUtils.register(this.calendar)")
@@ -68,7 +68,7 @@ public class InlineCalendarDemo extends VerticalLayout {
             int days = Period.between(start.toLocalDate(), end.toLocalDate()).getDays();
             if (days == map.size()) {
                 // unmark all days that are covered by the event period
-                entryProvider.removeEntries(map.values());
+                entryProvider.getItems().removeAll(map.values());
                 entryProvider.refreshAll();
             } else {
                 // iterate over the event period and create an entry for each day, that is not in the map
@@ -83,7 +83,7 @@ public class InlineCalendarDemo extends VerticalLayout {
                         entry.setEnd(date.plusDays(1).atStartOfDay());
                         entry.setAllDay(true);
                         entry.setDisplayMode(DisplayMode.BACKGROUND);
-                        entryProvider.addEntry(entry);
+                        entryProvider.getItems().add(entry);
                     }
 
                     date = date.plusDays(1);

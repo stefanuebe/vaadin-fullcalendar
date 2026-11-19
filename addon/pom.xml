@@ -5,7 +5,7 @@
 
     <groupId>org.vaadin.stefan</groupId>
     <artifactId>fullcalendar2</artifactId>
-    <version>7.2.3</version>
+    <version>8.0.0</version>
     <packaging>jar</packaging>
 
     <name>FullCalendar for Flow</name>
@@ -39,10 +39,10 @@
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <maven.compiler.release>21</maven.compiler.release>
 
-        <vaadin.version>25.0.0</vaadin.version>
+        <vaadin.version>25.3.0</vaadin.version>
         <apache.commons-text.version>1.14.0</apache.commons-text.version>
         <lombok.version>1.18.42</lombok.version>
-        <junit.version>5.10.0</junit.version>
+        <junit.version>6.0.3</junit.version>
         <mockito.version>5.23.0</mockito.version>
 
         <plugin.version.maven-compiler>3.14.1</plugin.version.maven-compiler>
@@ -97,6 +97,7 @@
                  test classpath to exercise real component serialization (see SerializationTest). -->
             <groupId>jakarta.servlet</groupId>
             <artifactId>jakarta.servlet-api</artifactId>
+            <version>6.1.0</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -109,6 +110,13 @@
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-engine</artifactId>
             <version>${junit.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <!-- Browserless tests: server-side component tests with a Vaadin context, no browser.
+                 Free since Vaadin 25.1, needs no commercial key. -->
+            <groupId>com.vaadin</groupId>
+            <artifactId>browserless-test-junit6</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -175,8 +183,8 @@
                             <targetClasses>
                                 <param>org.vaadin.stefan.fullcalendar.Entry</param>
                                 <param>org.vaadin.stefan.fullcalendar.RRule</param>
-                                <param>org.vaadin.stefan.fullcalendar.BusinessHours</param>
-                                <param>org.vaadin.stefan.fullcalendar.DisplayMode</param>
+                                <param>org.vaadin.stefan.fullcalendar.option.BusinessHours</param>
+                                <param>org.vaadin.stefan.fullcalendar.option.DisplayMode</param>
                                 <param>org.vaadin.stefan.fullcalendar.Delta</param>
                                 <param>org.vaadin.stefan.fullcalendar.FullCalendar</param>
                                 <param>org.vaadin.stefan.fullcalendar.dataprovider.InMemoryEntryProvider</param>

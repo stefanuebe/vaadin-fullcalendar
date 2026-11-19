@@ -20,7 +20,15 @@ import lombok.Getter;
 
 /**
  * Definition of header and footer positions.
+ *
+ * @deprecated set the toolbar with {@link org.vaadin.stefan.fullcalendar.FullCalendarOptions#setHeaderToolbar(org.vaadin.stefan.fullcalendar.option.ToolbarValue)} or
+ * {@link org.vaadin.stefan.fullcalendar.FullCalendarOptions#setFooterToolbar(org.vaadin.stefan.fullcalendar.option.ToolbarValue)} and a
+ * {@link org.vaadin.stefan.fullcalendar.option.ToolbarValue}, for example
+ * {@code ToolbarValue.ofStartEnd("prev,next today", "title", "dayGridMonth,timeGridWeek")}.
+ * {@link org.vaadin.stefan.fullcalendar.option.NativeToolbarParts} has constants for the positions and the built-in buttons.
+ * This model knows only some of the buttons. View and custom buttons cannot be expressed with it, therefore it is deprecated.
  */
+@Deprecated(since = "8.0.0", forRemoval = true)
 @Getter
 public enum HeaderFooterPartPosition {
 	START("start"),

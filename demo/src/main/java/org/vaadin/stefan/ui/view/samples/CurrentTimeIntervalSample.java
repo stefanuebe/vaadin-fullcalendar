@@ -30,7 +30,7 @@ public class CurrentTimeIntervalSample extends AbstractSample {
 
         /*
          * The view rendered listener is called when the view has been rendererd on client side
-         * and FC is aware of the current shown interval. Might be accessible more directly in
+         * and FullCalendar is aware of the current shown interval. Might be accessible more directly in
          * future.
          */
         calendar.addDatesRenderedListener(event -> {

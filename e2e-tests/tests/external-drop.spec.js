@@ -29,7 +29,7 @@ base.describe('External Drop — Draggable API', () => {
         await expect(page.locator('#drop-count')).toHaveText('0');
 
         const dragEl = page.locator('#external-draggable');
-        const targetCell = page.locator('.fc-daygrid-day[data-date="2025-03-12"] .fc-daygrid-day-frame');
+        const targetCell = page.locator('.fc-daygrid-day[data-date="2025-03-12"]');
 
         const srcBox = await dragEl.boundingBox();
         const tgtBox = await targetCell.boundingBox();
@@ -53,5 +53,11 @@ base.describe('External Drop — Draggable API', () => {
         // Verify typed access via Draggable API
         await expect(page.locator('#drop-component')).toHaveText('external-draggable', { timeout: 5000 });
         await expect(page.locator('#drop-entry')).toHaveText('External Task', { timeout: 5000 });
+
+        // the dropped and the received entry carry the extended props of the dragged entry data
+        await expect(page.locator('#drop-extended-prop')).toHaveText('high', { timeout: 5000 });
+        await expect(page.locator('#receive-extended-prop')).toHaveText('high', { timeout: 5000 });
+        // the dragged entry data has no display mode, so the received entry has none either and follows the calendar
+        await expect(page.locator('#receive-display-mode')).toHaveText('null', { timeout: 5000 });
     });
 });

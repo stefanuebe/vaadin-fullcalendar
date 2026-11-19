@@ -35,7 +35,7 @@ public abstract class AbstractEntryProviderDemo extends AbstractCalendarView {
 
         FullCalendar calendar = new FullCalendar(defaultInitialOptions);
         calendar.setEntryProvider(entryProvider);
-        calendar.setOption(FullCalendar.Option.MAX_ENTRIES_PER_DAY, 3);
+        calendar.options().setDayMaxEntries(3);
         return calendar;
     }
 
@@ -60,8 +60,7 @@ public abstract class AbstractEntryProviderDemo extends AbstractCalendarView {
         entry.setAllDay(event.isAllDay());
 
         entry.setColor("green");
-        entry.setCalendar(event.getSource());
-        DemoDialog dialog = new DemoDialog(entry, true);
+        DemoDialog dialog = new DemoDialog(event.getSource(), entry, true);
         dialog.setSaveConsumer(e -> onEntriesCreated(Collections.singletonList(e)));
         dialog.open();
     }
@@ -70,7 +69,7 @@ public abstract class AbstractEntryProviderDemo extends AbstractCalendarView {
 
     @Override
     protected void onEntryClick(EntryClickedEvent event) {
-        DemoDialog dialog = new DemoDialog(event.getEntry(), false);
+        DemoDialog dialog = new DemoDialog(event.getSource(), event.getEntry(), false);
         dialog.setSaveConsumer(this::onEntryChanged);
         dialog.setDeleteConsumer(e -> onEntriesRemoved(Collections.singletonList(e)));
         dialog.open();
