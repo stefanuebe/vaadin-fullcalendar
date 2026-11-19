@@ -1,5 +1,6 @@
 package org.vaadin.stefan.fullcalendar;
 
+import com.vaadin.flow.component.ComponentEventListener;
 import com.vaadin.flow.dom.DomEvent;
 import com.vaadin.flow.internal.nodefeature.ElementListenerMap;
 import com.vaadin.flow.shared.Registration;
@@ -11,6 +12,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -328,6 +330,31 @@ public class EventSourcesTest {
         assertEquals("my-feed", received.get(0).getSourceId());
         // the delta of one day is applied in reverse for the old end
         assertEquals(received.get(0).getEntry().getEnd().minusDays(1), received.get(0).getOldEnd());
+    }
+
+    @Test
+    void remoteEntryEvents_reachTheirListeners() {
+        // the client side names are the ones full-calendar.ts dispatches for an entry the server does not know
+        assertRemoteEventReachesListener("externalEntryClick", calendar::addRemoteEntryClickedListener);
+        assertRemoteEventReachesListener("externalEntryMouseEnter", calendar::addRemoteEntryMouseEnterListener);
+        assertRemoteEventReachesListener("externalEntryMouseLeave", calendar::addRemoteEntryMouseLeaveListener);
+        assertRemoteEventReachesListener("externalEntryDragStart", calendar::addRemoteEntryDragStartListener);
+        assertRemoteEventReachesListener("externalEntryDragStop", calendar::addRemoteEntryDragStopListener);
+        assertRemoteEventReachesListener("externalEntryResizeStart", calendar::addRemoteEntryResizeStartListener);
+        assertRemoteEventReachesListener("externalEntryResizeStop", calendar::addRemoteEntryResizeStopListener);
+        assertRemoteEventReachesListener("externalEntryLeave", calendar::addRemoteEntryLeaveListener);
+    }
+
+    private <T extends RemoteEntryEvent> void assertRemoteEventReachesListener(
+            String eventName, Function<ComponentEventListener<T>, Registration> addListener) {
+        List<T> received = new ArrayList<>();
+        addListener.apply(received::add);
+
+        fireEntrySourceDomEvent(eventName);
+
+        assertEquals(1, received.size(), eventName);
+        assertEquals("ext-1", received.get(0).getEntry().getId(), eventName);
+        assertEquals("my-feed", received.get(0).getSourceId(), eventName);
     }
 
     /**

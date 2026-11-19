@@ -1747,6 +1747,111 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
     }
 
     /**
+     * Registers a listener for when an entry from an entry source ({@link RemoteEntrySource}) is clicked.
+     * Fires instead of {@link EntryClickedEvent}, which fires for the entries of the entry provider only.
+     *
+     * @param listener listener
+     * @return registration to remove the listener
+     * @throws NullPointerException when null is passed
+     */
+    public Registration addRemoteEntryClickedListener(ComponentEventListener<RemoteEntryClickedEvent> listener) {
+        Objects.requireNonNull(listener);
+        return addListener(RemoteEntryClickedEvent.class, listener);
+    }
+
+    /**
+     * Registers a listener for when an entry from an entry source ({@link RemoteEntrySource}) is entered by the mouse pointer.
+     * Fires instead of {@link EntryMouseEnterEvent}, which fires for the entries of the entry provider only.
+     *
+     * @param listener listener
+     * @return registration to remove the listener
+     * @throws NullPointerException when null is passed
+     */
+    public Registration addRemoteEntryMouseEnterListener(ComponentEventListener<RemoteEntryMouseEnterEvent> listener) {
+        Objects.requireNonNull(listener);
+        return addListener(RemoteEntryMouseEnterEvent.class, listener);
+    }
+
+    /**
+     * Registers a listener for when an entry from an entry source ({@link RemoteEntrySource}) is left by the mouse pointer.
+     * Fires instead of {@link EntryMouseLeaveEvent}, which fires for the entries of the entry provider only.
+     *
+     * @param listener listener
+     * @return registration to remove the listener
+     * @throws NullPointerException when null is passed
+     */
+    public Registration addRemoteEntryMouseLeaveListener(ComponentEventListener<RemoteEntryMouseLeaveEvent> listener) {
+        Objects.requireNonNull(listener);
+        return addListener(RemoteEntryMouseLeaveEvent.class, listener);
+    }
+
+    /**
+     * Registers a listener for when an entry from an entry source ({@link RemoteEntrySource}) starts being dragged.
+     * Fires instead of {@link EntryDragStartEvent}, which fires for the entries of the entry provider only.
+     *
+     * @param listener listener
+     * @return registration to remove the listener
+     * @throws NullPointerException when null is passed
+     */
+    public Registration addRemoteEntryDragStartListener(ComponentEventListener<RemoteEntryDragStartEvent> listener) {
+        Objects.requireNonNull(listener);
+        return addListener(RemoteEntryDragStartEvent.class, listener);
+    }
+
+    /**
+     * Registers a listener for when an entry from an entry source ({@link RemoteEntrySource}) stops being dragged.
+     * Fires instead of {@link EntryDragStopEvent}, which fires for the entries of the entry provider only.
+     *
+     * @param listener listener
+     * @return registration to remove the listener
+     * @throws NullPointerException when null is passed
+     */
+    public Registration addRemoteEntryDragStopListener(ComponentEventListener<RemoteEntryDragStopEvent> listener) {
+        Objects.requireNonNull(listener);
+        return addListener(RemoteEntryDragStopEvent.class, listener);
+    }
+
+    /**
+     * Registers a listener for when an entry from an entry source ({@link RemoteEntrySource}) starts being resized.
+     * Fires instead of {@link EntryResizeStartEvent}, which fires for the entries of the entry provider only.
+     *
+     * @param listener listener
+     * @return registration to remove the listener
+     * @throws NullPointerException when null is passed
+     */
+    public Registration addRemoteEntryResizeStartListener(ComponentEventListener<RemoteEntryResizeStartEvent> listener) {
+        Objects.requireNonNull(listener);
+        return addListener(RemoteEntryResizeStartEvent.class, listener);
+    }
+
+    /**
+     * Registers a listener for when an entry from an entry source ({@link RemoteEntrySource}) stops being resized.
+     * Fires instead of {@link EntryResizeStopEvent}, which fires for the entries of the entry provider only.
+     *
+     * @param listener listener
+     * @return registration to remove the listener
+     * @throws NullPointerException when null is passed
+     */
+    public Registration addRemoteEntryResizeStopListener(ComponentEventListener<RemoteEntryResizeStopEvent> listener) {
+        Objects.requireNonNull(listener);
+        return addListener(RemoteEntryResizeStopEvent.class, listener);
+    }
+
+    /**
+     * Registers a listener for when an entry from an entry source ({@link RemoteEntrySource}) is dragged from this
+     * calendar onto another calendar.
+     * Fires instead of {@link EntryLeaveEvent}, which fires for the entries of the entry provider only.
+     *
+     * @param listener listener
+     * @return registration to remove the listener
+     * @throws NullPointerException when null is passed
+     */
+    public Registration addRemoteEntryLeaveListener(ComponentEventListener<RemoteEntryLeaveEvent> listener) {
+        Objects.requireNonNull(listener);
+        return addListener(RemoteEntryLeaveEvent.class, listener);
+    }
+
+    /**
      * Enables prefetching of entries of adjacent time ranges (enabled by default).
      * <p></p>
      * Prefetching means, that entries of adjacent periods are also fetched. For instance, when the current view is

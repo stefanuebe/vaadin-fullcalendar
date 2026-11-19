@@ -74,6 +74,19 @@ const resolvedThemes = new Map<string, PluginInput>([['vaadin', vaadinTheme]]);
 // the drag. Shared by all calendars, because an element registered on one calendar can be dropped on another.
 const lastDragEventData = new WeakMap<HTMLElement, any>();
 
+// The client side names of the entry events and of their counterparts for the entries of a remote entry source.
+// Drop and resize are routed in addEventHandlersToOptions on their own.
+const REMOTE_ENTRY_EVENT_NAMES: Record<string, string> = {
+    eventClick: 'externalEntryClick',
+    eventMouseEnter: 'externalEntryMouseEnter',
+    eventMouseLeave: 'externalEntryMouseLeave',
+    eventDragStart: 'externalEntryDragStart',
+    eventDragStop: 'externalEntryDragStop',
+    eventResizeStart: 'externalEntryResizeStart',
+    eventResizeStop: 'externalEntryResizeStop',
+    eventLeave: 'externalEntryLeave',
+};
+
 /**
  * Recursively walks a value and evaluates any JsCallback markers.
  * A JsCallback marker is an object with a {@code __jsCallback} string property.
@@ -350,19 +363,22 @@ export class FullCalendar extends HTMLElement {
                 let event = eventInfo.event;
                 return {
                     id: event.id, // we keep this for backward compatibility, but not used by us on server side
-                    data: this.convertToEventData(event)
+                    data: this.convertToEventData(event),
+                    sourceId: event.source?.id ?? null,
                 }
             },
             eventMouseEnter: (eventInfo: any) => {
                 let event = eventInfo.event;
                 return {
-                    data: this.convertToEventData(event)
+                    data: this.convertToEventData(event),
+                    sourceId: event.source?.id ?? null,
                 }
             },
             eventMouseLeave: (eventInfo: any) => {
                 let event = eventInfo.event;
                 return {
-                    data: this.convertToEventData(event)
+                    data: this.convertToEventData(event),
+                    sourceId: event.source?.id ?? null,
                 }
             },
             eventResize: (eventInfo: any) => {
@@ -428,16 +444,16 @@ export class FullCalendar extends HTMLElement {
 
             // Drag/resize lifecycle events
             eventDragStart: (eventInfo: any) => {
-                return {data: this.convertToEventData(eventInfo.event)};
+                return {data: this.convertToEventData(eventInfo.event), sourceId: eventInfo.event?.source?.id ?? null};
             },
             eventDragStop: (eventInfo: any) => {
-                return {data: this.convertToEventData(eventInfo.event)};
+                return {data: this.convertToEventData(eventInfo.event), sourceId: eventInfo.event?.source?.id ?? null};
             },
             eventResizeStart: (eventInfo: any) => {
-                return {data: this.convertToEventData(eventInfo.event)};
+                return {data: this.convertToEventData(eventInfo.event), sourceId: eventInfo.event?.source?.id ?? null};
             },
             eventResizeStop: (eventInfo: any) => {
-                return {data: this.convertToEventData(eventInfo.event)};
+                return {data: this.convertToEventData(eventInfo.event), sourceId: eventInfo.event?.source?.id ?? null};
             },
 
             // Unselect
@@ -481,7 +497,7 @@ export class FullCalendar extends HTMLElement {
                 };
             },
             eventLeave: (eventInfo: any) => {
-                return {data: this.convertToEventData(eventInfo.event)};
+                return {data: this.convertToEventData(eventInfo.event), sourceId: eventInfo.event?.source?.id ?? null};
             }
 
         };
@@ -590,7 +606,11 @@ export class FullCalendar extends HTMLElement {
                     options[eventName] = (eventInfo: any) => {
                         const eventDetails = events[eventName](eventInfo);
                         if (eventDetails) {
-                            this.dispatchEvent(new CustomEvent(eventName, {
+                            // An entry of a remote entry source is not known on the server, so its events go out under a
+                            // name of their own, which the RemoteEntry...Event classes listen to.
+                            const remoteName = REMOTE_ENTRY_EVENT_NAMES[eventName];
+                            const isRemote = remoteName && eventInfo.event && !this.serverEntryIds.has(eventInfo.event.id);
+                            this.dispatchEvent(new CustomEvent(isRemote ? remoteName : eventName, {
                                 detail: eventDetails
                             }));
 
