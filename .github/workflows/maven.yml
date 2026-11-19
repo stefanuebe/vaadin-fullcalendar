@@ -7,7 +7,7 @@ on:
 jobs:
   build:
 
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04 # Playwright of e2e-tests has no Chromium for newer Ubuntu releases yet
 
     steps:
     - uses: actions/checkout@v4
