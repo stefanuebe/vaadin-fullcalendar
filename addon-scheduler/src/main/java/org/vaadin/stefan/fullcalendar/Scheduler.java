@@ -37,7 +37,7 @@ public interface Scheduler {
      * non-commercial license key.
      * <br><br>
      * For more details visit
-     * <a href="https://fullcalendar.io/scheduler/license">https://fullcalendar.io/scheduler/license</a>
+     * <a href="https://fullcalendar.io/license">https://fullcalendar.io/license</a>
      */
     public static final String DEVELOPER_LICENSE_KEY = "CC-Attribution-NonCommercial-NoDerivatives";
 
@@ -45,7 +45,7 @@ public interface Scheduler {
      * Constant for the non-commercial creative commons license.
      * <br><br>
      * For more details visit
-     * <a href="https://fullcalendar.io/scheduler/license">https://fullcalendar.io/scheduler/license</a>
+     * <a href="https://fullcalendar.io/license">https://fullcalendar.io/license</a>
      */
     public static final String NON_COMMERCIAL_CREATIVE_COMMONS_LICENSE_KEY = "CC-Attribution-NonCommercial-NoDerivatives";
     
@@ -54,7 +54,7 @@ public interface Scheduler {
      * and AGPLv3 compliant.
      * <br><br>
      * For more details visit
-     * <a href="https://fullcalendar.io/scheduler/license">https://fullcalendar.io/scheduler/license</a>
+     * <a href="https://fullcalendar.io/license">https://fullcalendar.io/license</a>
      */
     public static final String AGPL_V3_LICENSE_KEY = "AGPL-My-Frontend-And-Backend-Are-Open-Source";
 
