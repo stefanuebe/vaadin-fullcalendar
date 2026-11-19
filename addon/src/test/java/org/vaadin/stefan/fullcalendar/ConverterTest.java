@@ -20,6 +20,7 @@ import org.vaadin.stefan.fullcalendar.option.HeaderAlign;
 import org.vaadin.stefan.fullcalendar.option.HeaderAlignValue;
 import org.vaadin.stefan.fullcalendar.option.HeightValue;
 import org.vaadin.stefan.fullcalendar.option.JsCallback;
+import org.vaadin.stefan.fullcalendar.option.ListDayFormatValue;
 import org.vaadin.stefan.fullcalendar.option.ListTextValue;
 import org.vaadin.stefan.fullcalendar.option.InitialDateValue;
 import org.vaadin.stefan.fullcalendar.option.LocaleValue;
@@ -225,6 +226,9 @@ class ConverterTest {
             Map.entry(HeaderAlignValue.class, new ValueType(HeaderAlignValueConverter.class, forms(
                     HeaderAlign.START, "start", HeaderAlign.CENTER, "center", HeaderAlign.END, "end",
                     CALLBACK, CALLBACK.toMarkerJson()))),
+            Map.entry(ListDayFormatValue.class, new ValueType(ListDayFormatValueConverter.class, forms(
+                    DateFormat.of(Map.of("weekday", "long")), JsonFactory.createObject().put("weekday", "long"),
+                    CALLBACK, CALLBACK.toMarkerJson(), ListDayFormatValue.NONE, false))),
             Map.entry(SlotHeaderFormatValue.class, new ValueType(SlotHeaderFormatValueConverter.class, forms(
                     DateFormat.of(Map.of("hour", "numeric")), JsonFactory.createObject().put("hour", "numeric"),
                     CALLBACK, CALLBACK.toMarkerJson(),
@@ -621,6 +625,10 @@ class ConverterTest {
                 .toServerModel(JsonFactory.createObject().put("code", 5), null));
         assertThrows(IllegalArgumentException.class,
                 () -> new StickyValueConverter().toServerModel(JsonFactory.createArray(), null));
+        assertThrows(IllegalArgumentException.class,
+                () -> new ListDayFormatValueConverter().toServerModel(JsonUtils.toJsonNode(true), null));
+        assertThrows(IllegalArgumentException.class,
+                () -> new ListDayFormatValueConverter().toServerModel(JsonUtils.toJsonNode("MMM d"), null));
         assertThrows(IllegalArgumentException.class,
                 () -> new SlotHeaderFormatValueConverter().toServerModel(JsonUtils.toJsonNode(true), null));
         assertThrows(IllegalArgumentException.class,
