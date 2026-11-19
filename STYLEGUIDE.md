@@ -186,7 +186,9 @@ commit messages and issues.
   when it loads, start a new paragraph: a `<p>` in Javadoc, a blank line
   elsewhere. A summary sentence followed by one long block is hard to scan. Not
   one block on what `entryClass` does and when it is applied, but a `<p>` before
-  the part on when it is applied.
+  the part on when it is applied. A sentence on what the page or section covers
+  ("This page explains …") is a paragraph of its own, not the tail of the
+  paragraph that explains the topic.
 - **No lists of constants or methods inside a sentence.** Up to three names fit
   in a sentence. More go into a bullet list or a table, or are left out with a
   pointer to the Javadoc when no reader needs the full list. Not "hooks for
