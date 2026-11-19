@@ -27,6 +27,7 @@ import org.vaadin.stefan.fullcalendar.option.HeaderAlign;
 import org.vaadin.stefan.fullcalendar.option.HeaderAlignValue;
 import org.vaadin.stefan.fullcalendar.option.HeightValue;
 import org.vaadin.stefan.fullcalendar.option.JsCallback;
+import org.vaadin.stefan.fullcalendar.option.ListDayFormatValue;
 import org.vaadin.stefan.fullcalendar.option.ListTextValue;
 import org.vaadin.stefan.fullcalendar.option.NowValue;
 import org.vaadin.stefan.fullcalendar.option.OverlapValue;
@@ -623,6 +624,7 @@ public class TypedOptionsSyncTest extends BrowserlessTest {
             Map.entry(MoreLinkClickValue.class, Set.of(String.class, CalendarView.class)),
             Map.entry(OverlapValue.class, Set.of(boolean.class)),
             Map.entry(DateFormatValue.class, Set.of(Map.class)),
+            Map.entry(ListDayFormatValue.class, Set.of(Map.class)),
             Map.entry(SlotHeaderFormatValue.class, Set.of(Map.class)),
             Map.entry(ListTextValue.class, Set.of(String.class)),
             Map.entry(HeightValue.class, Set.of(int.class, String.class)),

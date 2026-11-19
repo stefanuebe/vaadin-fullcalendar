@@ -5,6 +5,7 @@ import org.vaadin.stefan.fullcalendar.option.DateRange;
 import org.vaadin.stefan.fullcalendar.option.EntryLimitValue;
 import org.vaadin.stefan.fullcalendar.option.HeaderAlign;
 import org.vaadin.stefan.fullcalendar.option.JsCallback;
+import org.vaadin.stefan.fullcalendar.option.ListDayFormatValue;
 import org.vaadin.stefan.fullcalendar.option.MoreLinkClickValue;
 import org.vaadin.stefan.fullcalendar.option.NativeToolbarButtonDisplay;
 import org.vaadin.stefan.fullcalendar.option.NativeToolbarParts;
@@ -213,6 +214,28 @@ public class TypedOptionValuesTest extends BrowserlessTest {
         none.options().setDayMaxEntries(NoneValue.NONE);
         assertTrue(initialClientValue(none, "dayMaxEvents").isBoolean());
         assertFalse(initialClientValue(none, "dayMaxEvents").booleanValue());
+    }
+
+    // -------------------------------------------------------------------------
+    // List day format: false hides the text
+    // -------------------------------------------------------------------------
+
+    @Test
+    void listDayFormat_none_reachesTheClientAsFalse() {
+        calendar.options().setListDayFormat(ListDayFormatValue.NONE);
+        calendar.options().view(CalendarViewImpl.LIST_WEEK).setListDayAltFormat(ListDayFormatValue.NONE);
+
+        assertFalse(initialClientValue("listDayFormat").booleanValue());
+        assertTrue(initialClientValue("listDayFormat").isBoolean());
+        JsonNode listWeek = initialClientValue("views").get(CalendarViewImpl.LIST_WEEK.getClientSideValue());
+        assertTrue(listWeek.get("listDayAltFormat").isBoolean());
+        assertFalse(listWeek.get("listDayAltFormat").booleanValue());
+    }
+
+    @Test
+    void listDayFormat_format_reachesTheClientAsObject() {
+        calendar.options().setListDayFormat(Map.of("weekday", "short"));
+        assertEquals("short", initialClientValue("listDayFormat").get("weekday").asString());
     }
 
     // -------------------------------------------------------------------------

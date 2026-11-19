@@ -30,6 +30,7 @@ import org.vaadin.stefan.fullcalendar.converters.CalendarDurationConverter;
 import org.vaadin.stefan.fullcalendar.converters.EntryLimitValueConverter;
 import org.vaadin.stefan.fullcalendar.converters.HeaderAlignValueConverter;
 import org.vaadin.stefan.fullcalendar.converters.HeightValueConverter;
+import org.vaadin.stefan.fullcalendar.converters.ListDayFormatValueConverter;
 import org.vaadin.stefan.fullcalendar.converters.NowValueConverter;
 import org.vaadin.stefan.fullcalendar.converters.OrderValueConverter;
 import org.vaadin.stefan.fullcalendar.converters.OverlapValueConverter;
@@ -55,6 +56,7 @@ import org.vaadin.stefan.fullcalendar.option.EntryLimitValue;
 import org.vaadin.stefan.fullcalendar.option.HeaderAlignValue;
 import org.vaadin.stefan.fullcalendar.option.HeightValue;
 import org.vaadin.stefan.fullcalendar.option.JsCallback;
+import org.vaadin.stefan.fullcalendar.option.ListDayFormatValue;
 import org.vaadin.stefan.fullcalendar.option.NativeToolbarButtonDisplay;
 import org.vaadin.stefan.fullcalendar.option.NowValue;
 import org.vaadin.stefan.fullcalendar.option.Order;
@@ -6273,8 +6275,8 @@ class ViewOptions implements Serializable {
     }
 
     /**
-     * Format of the text on the right side of the day headings in list views. The library docs also name {@code false}
-     * to hide the text, which the used library version ignores.
+     * Format of the text on the right side of the day headings in list views. {@link ListDayFormatValue#NONE} hides the
+     * text.
      * <p>
      * A callback gets an {@code info} object with {@code date}, {@code start}, {@code end} and more, and returns the
      * text. The library docs speak of a date instead of the info object, but the used library version passes the info
@@ -6286,8 +6288,8 @@ class ViewOptions implements Serializable {
      *
      * @see <a href="https://fullcalendar.io/docs/listDayAltFormat">listDayAltFormat</a>
      */
-    @JsonConverter(DateFormatValueConverter.class)
-    private DateFormatValue listDayAltFormat;
+    @JsonConverter(ListDayFormatValueConverter.class)
+    private ListDayFormatValue listDayAltFormat;
 
     /**
      * Sets a format from its properties, see {@link #getListDayAltFormat()}.
@@ -6303,13 +6305,13 @@ class ViewOptions implements Serializable {
      *
      * @param value the format or callback, or null to remove the option
      */
-    public void setListDayAltFormat(DateFormatValue value) {
+    public void setListDayAltFormat(ListDayFormatValue value) {
         this.listDayAltFormat = value;
     }
 
     /**
-     * Format of the text on the left side of the day headings in list views. The library docs also name {@code false}
-     * to hide the text, which the used library version ignores.
+     * Format of the text on the left side of the day headings in list views. {@link ListDayFormatValue#NONE} hides the
+     * text.
      * <p>
      * A callback gets an {@code info} object with {@code date}, {@code start}, {@code end} and more, and returns the
      * text. The library docs speak of a date instead of the info object, but the used library version passes the info
@@ -6321,8 +6323,8 @@ class ViewOptions implements Serializable {
      *
      * @see <a href="https://fullcalendar.io/docs/listDayFormat">listDayFormat</a>
      */
-    @JsonConverter(DateFormatValueConverter.class)
-    private DateFormatValue listDayFormat;
+    @JsonConverter(ListDayFormatValueConverter.class)
+    private ListDayFormatValue listDayFormat;
 
     /**
      * Sets a format from its properties, see {@link #getListDayFormat()}.
@@ -6338,7 +6340,7 @@ class ViewOptions implements Serializable {
      *
      * @param value the format or callback, or null to remove the option
      */
-    public void setListDayFormat(DateFormatValue value) {
+    public void setListDayFormat(ListDayFormatValue value) {
         this.listDayFormat = value;
     }
 
