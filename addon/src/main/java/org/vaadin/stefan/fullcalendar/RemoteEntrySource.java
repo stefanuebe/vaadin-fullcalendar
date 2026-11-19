@@ -29,12 +29,13 @@ import java.util.UUID;
  * fetch entries directly in the browser — they do NOT go through the server-side {@link org.vaadin.stefan.fullcalendar.dataprovider.EntryProvider}.
  * <br><br>
  * Entries fetched by these sources are NOT accessible as Java {@link Entry} objects on the server side.
- * If editable drag/drop is enabled (opt-in via {@link #withEditable(boolean)}), dropped or resized entries
+ * If the entries are editable, dropped or resized entries
  * from these sources fire {@link RemoteEntryDroppedEvent} / {@link RemoteEntryResizedEvent} instead of
  * the normal entry events.
  * <br><br>
- * All remote entry sources default to {@code editable = false} (read-only). Call {@link #withEditable(boolean) withEditable(true)}
- * to opt in to drag/drop, then handle persistence yourself in the corresponding server-side events.
+ * Whether the entries of a source can be dragged and resized follows the calendar's {@code editable} option, unless
+ * the source sets its own value with {@link #withEditable(boolean)}. Handle persistence yourself in the corresponding
+ * server-side events.
  *
  * @param <S> concrete subtype for fluent chaining
  */
@@ -64,8 +65,7 @@ public abstract class RemoteEntrySource<S extends RemoteEntrySource<S>> implemen
 
     /**
      * Whether entries from this source can be dragged and resized.
-     * {@code null} means "use the calendar default", which the addon overrides to {@code false}
-     * for all remote entry sources. Set to {@code true} explicitly to opt in to drag/drop.
+     * {@code null} means "use the calendar's {@code editable} option".
      */
     private Boolean editable;
 
@@ -185,8 +185,8 @@ public abstract class RemoteEntrySource<S extends RemoteEntrySource<S>> implemen
     }
 
     /**
-     * Sets whether entries from this source can be dragged and resized. Defaults to {@code false} (read-only).
-     * Set to {@code true} to opt in to drag/drop, then handle persistence in
+     * Sets whether entries from this source can be dragged and resized. Without it, the calendar's {@code editable}
+     * option applies. Handle persistence in
      * {@link FullCalendar#addRemoteEntryDroppedListener} / {@link FullCalendar#addRemoteEntryResizedListener}.
      *
      * @param editable editable flag

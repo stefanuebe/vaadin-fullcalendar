@@ -33,8 +33,8 @@ import java.time.LocalDateTime;
  * The {@link #getEntry()} method returns a <em>transient</em> data carrier. NOT owned by any EntryProvider.
  * Use {@link #getOldEnd()} to get the end time before the resize.
  * <br><br>
- * Resize of entry source entries is opt-in. Set {@code withEditable(true)} or
- * {@code withDurationEditable(true)} on the {@link RemoteEntrySource} to enable it.
+ * By default, entries of a source can be resized when the calendar is editable ({@code setOption(Option.EDITABLE, true)}).
+ * {@code withEditable(…)} or {@code withDurationEditable(…)} on a {@link RemoteEntrySource} override it.
  * <br><br>
  * Client side name: externalEntryResize
  */

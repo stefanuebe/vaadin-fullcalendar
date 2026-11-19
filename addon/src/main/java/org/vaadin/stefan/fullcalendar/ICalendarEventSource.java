@@ -27,7 +27,8 @@ import java.util.Objects;
  * Requires the {@code @fullcalendar/icalendar} and {@code ical.js} npm packages. The URL must be accessible
  * from the browser (CORS headers are required for cross-origin feeds).
  * <br><br>
- * iCalendar is a read-only format — drag/drop should remain disabled (the default).
+ * iCalendar is a read-only format. When the calendar's entries are editable, call {@code withEditable(false)} on the
+ * source, so the user cannot drag entries the feed would not keep.
  * <br><br>
  * Example:
  * <pre>
