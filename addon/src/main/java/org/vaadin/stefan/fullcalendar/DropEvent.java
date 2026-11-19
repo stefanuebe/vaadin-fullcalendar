@@ -20,6 +20,8 @@ import com.vaadin.flow.component.DomEvent;
 import com.vaadin.flow.component.EventData;
 import lombok.Getter;
 import lombok.ToString;
+import org.vaadin.stefan.fullcalendar.converters.ConstraintValueConverter;
+import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.json.JsonMapper;
 import tools.jackson.databind.node.ObjectNode;
 
@@ -75,7 +77,19 @@ public class DropEvent extends DateTimeEvent {
 
         createdEntry = new Entry();
         if (draggedElData != null) {
-            createdEntry.updateAllFromJson((ObjectNode) JsonMapper.shared().readTree(draggedElData), false);
+            ObjectNode data = (ObjectNode) JsonMapper.shared().readTree(draggedElData);
+            // The entry data may come from a callback of your own. The library takes constraints there that a
+            // ConstraintValue cannot hold, such as windows with different resources, so such a constraint is skipped
+            // instead of failing the whole drop.
+            JsonNode constraint = data.remove("constraint");
+            createdEntry.updateAllFromJson(data, false);
+            if (constraint != null && !constraint.isNull()) {
+                try {
+                    createdEntry.setConstraint(new ConstraintValueConverter().toServerModel(constraint, createdEntry));
+                } catch (IllegalArgumentException e) {
+                    // not representable, the created entry has no constraint
+                }
+            }
         } else {
             LocalDateTime start = getDateTime();
             createdEntry.setAllDay(allDay);

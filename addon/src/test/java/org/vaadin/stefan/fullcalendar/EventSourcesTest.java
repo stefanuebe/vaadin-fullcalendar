@@ -6,8 +6,12 @@ import com.vaadin.flow.internal.nodefeature.ElementListenerMap;
 import com.vaadin.flow.shared.Registration;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.vaadin.stefan.fullcalendar.converters.ConstraintValueConverter;
+import org.vaadin.stefan.fullcalendar.option.ConstraintValue;
+import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.node.ObjectNode;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -67,6 +71,31 @@ public class EventSourcesTest {
         JsonFeedEntrySource source = new JsonFeedEntrySource("/api/events");
         ObjectNode json = source.toJson();
         assertEquals("/api/events", json.get("url").asString());
+    }
+
+    @Test
+    void remoteEntrySource_constraintValue_sendsTheJsonOfTheCalendarOption() {
+        ConstraintValue constraint = ConstraintValue.ofWindows(ConstraintValue.Window.span(
+                LocalDateTime.of(2025, 3, 10, 9, 0), LocalDateTime.of(2025, 3, 10, 17, 0))).withResources("room-a");
+        // the converter of the calendar option is the reference, the library reads both the same way
+        JsonNode expected = new ConstraintValueConverter().toClientModel(constraint, null);
+
+        JsonFeedEntrySource source = new JsonFeedEntrySource("/api/events").withConstraint(constraint);
+
+        assertEquals(constraint, source.getConstraint());
+        assertEquals(expected, source.toJson().get("constraint"));
+    }
+
+    @Test
+    @SuppressWarnings("removal")
+    void remoteEntrySource_deprecatedStringConstraint_setsTheMatchingConstraintValue() {
+        assertEquals(ConstraintValue.BUSINESS_HOURS,
+                new JsonFeedEntrySource("/api/events").withConstraint("businessHours").getConstraint());
+        assertEquals(ConstraintValue.ofGroupId("myGroup"),
+                new JsonFeedEntrySource("/api/events").withConstraint("myGroup").getConstraint());
+        assertEquals("myGroup",
+                new JsonFeedEntrySource("/api/events").withConstraint("myGroup").toJson().get("constraint").asString());
+        assertNull(new JsonFeedEntrySource("/api/events").withConstraint("myGroup").withConstraint("  ").getConstraint());
     }
 
     @Test

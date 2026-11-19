@@ -17,6 +17,7 @@
 package org.vaadin.stefan.fullcalendar;
 
 import org.vaadin.stefan.fullcalendar.option.BusinessHours;
+import org.vaadin.stefan.fullcalendar.option.ConstraintValue;
 import org.vaadin.stefan.fullcalendar.option.DisplayMode;
 import org.vaadin.stefan.fullcalendar.option.ExtendedLocalTime;
 import org.vaadin.stefan.fullcalendar.option.Timezone;
@@ -119,9 +120,9 @@ public class Entry implements Serializable {
     private Boolean startEditable;
     private Boolean durationEditable;
     private String color;
-    @Getter(AccessLevel.NONE)
     @lombok.Setter(AccessLevel.NONE)
-    private Object constraint;
+    @JsonConverter(ConstraintValueConverter.class)
+    private ConstraintValue constraint;
     private String contrastColor;
     private Boolean overlap;
 
@@ -970,23 +971,44 @@ public class Entry implements Serializable {
     }
 
     /**
-     * Returns the current constraint value. This may be a {@code String} (groupId or {@code "businessHours"})
-     * or a {@link BusinessHours} JSON representation ({@code ObjectNode}).
+     * Returns where the entry may be dragged or resized, or {@code null} when the entry has no constraint of its own.
      *
-     * @return constraint value, or {@code null} if unset
+     * @return the constraint, or {@code null}
+     * @see #setConstraint(ConstraintValue)
      */
-    public Object getConstraint() {
+    public ConstraintValue getConstraint() {
         return constraint;
     }
 
     /**
-     * Sets the entry constraint to a groupId or the literal {@code "businessHours"}.
-     * Null or empty string resets the constraint to FullCalendar's default.
+     * Limits where the user can drag or resize this entry, for example to the entries of a group, the business hours
+     * of the calendar, windows of time or resources. It applies in addition to the constraint of the calendar
+     * ({@code options().setEntryConstraint(…)}) and of the entry's {@link RemoteEntrySource}. The value takes the
+     * same forms as the constraint of the calendar.
+     *
+     * @param constraint the constraint, or {@code null} to remove it
+     * @see <a href="https://fullcalendar.io/docs/eventConstraint">eventConstraint</a>
+     */
+    public void setConstraint(ConstraintValue constraint) {
+        this.constraint = constraint;
+    }
+
+    /**
+     * Sets the entry constraint to a group id or the literal {@code "businessHours"}.
+     * Null or a blank string removes the constraint.
      *
      * @param constraint constraint string
+     * @deprecated use {@link #setConstraint(ConstraintValue)} with {@link ConstraintValue#ofGroupId(String)} or
+     * {@link ConstraintValue#BUSINESS_HOURS}.
      */
+    @Deprecated(since = "8.0.0", forRemoval = true)
     public void setConstraint(String constraint) {
-        this.constraint = StringUtils.trimToNull(constraint);
+        String trimmed = StringUtils.trimToNull(constraint);
+        if (trimmed == null) {
+            this.constraint = null;
+        } else {
+            this.constraint = trimmed.equals("businessHours") ? ConstraintValue.BUSINESS_HOURS : ConstraintValue.ofGroupId(trimmed);
+        }
     }
 
     /**
@@ -995,19 +1017,21 @@ public class Entry implements Serializable {
      *
      * @param hours business hours defining the allowed time window
      * @throws NullPointerException when null is passed
-     * @see #setConstraint(String)
-     * @see #setConstraintToBusinessHours()
+     * @deprecated use {@link #setConstraint(ConstraintValue)} with {@link ConstraintValue#ofWindows(BusinessHours...)}.
      */
+    @Deprecated(since = "8.0.0", forRemoval = true)
     public void setConstraint(BusinessHours hours) {
-        this.constraint = Objects.requireNonNull(hours).toJson();
+        this.constraint = ConstraintValue.ofWindows(Objects.requireNonNull(hours));
     }
 
     /**
      * Sets the entry's constraint to business hours, meaning the entry can only be placed during business hours.
-     * Equivalent to {@code setConstraint("businessHours")}.
+     *
+     * @deprecated use {@link #setConstraint(ConstraintValue)} with {@link ConstraintValue#BUSINESS_HOURS}.
      */
+    @Deprecated(since = "8.0.0", forRemoval = true)
     public void setConstraintToBusinessHours() {
-        this.constraint = "businessHours";
+        this.constraint = ConstraintValue.BUSINESS_HOURS;
     }
 
     /**
