@@ -2356,7 +2356,7 @@ class ViewOptions implements Serializable {
      *   <dt>Default</dt>   <dd>library: no classes.</dd>
      *   <dt>Callback</dt>  <dd>{@code function(info)}.<br>
      *                          {@code info} has only {@code event}, {@code timeText}, {@code isNarrow}, {@code isShort}
-     *                          and {@code resource} (resource views), see the library docs.</dd>
+     *                          and {@code resource} (resource views).</dd>
      *   <dt>Returns</dt>   <dd>the class names as a string.</dd>
      * </dl>
      * <pre>{@code
@@ -2407,7 +2407,7 @@ class ViewOptions implements Serializable {
      *   <dt>Default</dt>   <dd>library: no classes.</dd>
      *   <dt>Callback</dt>  <dd>{@code function(info)}.<br>
      *                          {@code info} has only {@code event}, {@code timeText}, {@code isNarrow}, {@code isShort}
-     *                          and {@code resource} (resource views), see the library docs.</dd>
+     *                          and {@code resource} (resource views).</dd>
      *   <dt>Returns</dt>   <dd>the class names as a string.</dd>
      * </dl>
      * <pre>{@code
@@ -2662,7 +2662,7 @@ class ViewOptions implements Serializable {
      *   <dt>Default</dt>   <dd>library: no classes.</dd>
      *   <dt>Callback</dt>  <dd>{@code function(info)}.<br>
      *                          {@code info} has only {@code event}, {@code timeText}, {@code isNarrow}, {@code isShort}
-     *                          and {@code resource} (resource views), see the library docs.</dd>
+     *                          and {@code resource} (resource views).</dd>
      *   <dt>Returns</dt>   <dd>the class names as a string.</dd>
      * </dl>
      * <pre>{@code
@@ -2713,7 +2713,7 @@ class ViewOptions implements Serializable {
      *   <dt>Default</dt>   <dd>library: no classes.</dd>
      *   <dt>Callback</dt>  <dd>{@code function(info)}.<br>
      *                          {@code info} has only {@code event}, {@code timeText}, {@code isNarrow}, {@code isShort}
-     *                          and {@code resource} (resource views), see the library docs.</dd>
+     *                          and {@code resource} (resource views).</dd>
      *   <dt>Returns</dt>   <dd>the class names as a string.</dd>
      * </dl>
      * <pre>{@code
@@ -3072,7 +3072,7 @@ class ViewOptions implements Serializable {
      *   <dt>Default</dt>   <dd>library: no classes.</dd>
      *   <dt>Callback</dt>  <dd>{@code function(info)}.<br>
      *                          {@code info} has only {@code event}, {@code timeText}, {@code isNarrow}, {@code isShort}
-     *                          and {@code resource} (resource views), see the library docs.</dd>
+     *                          and {@code resource} (resource views).</dd>
      *   <dt>Returns</dt>   <dd>the class names as a string.</dd>
      * </dl>
      * <pre>{@code
@@ -3124,7 +3124,7 @@ class ViewOptions implements Serializable {
      *   <dt>Default</dt>   <dd>library: no classes.</dd>
      *   <dt>Callback</dt>  <dd>{@code function(info)}.<br>
      *                          {@code info} has only {@code event}, {@code timeText}, {@code isNarrow}, {@code isShort}
-     *                          and {@code resource} (resource views), see the library docs.</dd>
+     *                          and {@code resource} (resource views).</dd>
      *   <dt>Returns</dt>   <dd>the class names as a string.</dd>
      * </dl>
      * <pre>{@code
@@ -6916,8 +6916,8 @@ class ViewOptions implements Serializable {
      *                          A negative number throws an {@link IllegalArgumentException}.
      *                          <p>{@link #setContentHeight(String)}: a CSS length, as
      *                          {@link HeightValue#ofCss(String)}.<br>
-     *                          {@code "auto"} throws an {@link IllegalArgumentException}, use
-     *                          {@link HeightValue#AUTO}.</dd>
+     *                          {@code "auto"} throws an {@link IllegalArgumentException}.<br>
+     *                          Use {@link HeightValue#AUTO} instead.</dd>
      *   <dt>Default</dt>   <dd>library: no value, then the calendar height follows the
      *                          {@link #getAspectRatio() aspect ratio}, as long as no {@code height} is set.
      *                          <p>add-on: sets {@code height} to the full height by default.<br>
@@ -7566,7 +7566,7 @@ class ViewOptions implements Serializable {
      * <p>
      * The library docs show the default for views with several day columns as the short weekday with month and day, and
      * for views with one day column as the long weekday only. The used library version leaves out the month and shows
-     * the day number in both. The forma theme of the library sets the long weekday for month views.
+     * the day number in both. The Forma theme of the library sets the long weekday for month views.
      * <p>
      * The getter returns null while the option is not set. Then the library default applies.
      * <dl>
