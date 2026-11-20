@@ -103,8 +103,9 @@ public class FullCalendarScheduler extends FullCalendar implements Scheduler {
      * {@link FullCalendarOptions#getRawOption(String)} returns them, but the field getters of {@link #options()}
      * do not.
      * <br><br>
-     * The time zone ({@code timeZone}) goes into {@link FullCalendarOptions#getTimeZone()}, see
-     * {@link FullCalendar#FullCalendar(ObjectNode)}.
+     * An initial option wins over the field with the same key, and the entries of {@code views} become custom views.
+     * The time zone ({@code timeZone}) goes into {@link FullCalendarOptions#getTimeZone()}. See
+     * {@link FullCalendar#FullCalendar(ObjectNode)} for both.
      *
      * @see <a href="https://fullcalendar.io/docs">FullCalendar documentation</a>
      *
