@@ -170,7 +170,8 @@
                     <plugin>
                         <!-- The sources jar holds the delomboked sources. The getters and setters Lombok generates
                              are real methods there, with the Javadoc of their field. Without them, an IDE shows no
-                             Javadoc for a generated method unless the using project has Lombok itself (#481). -->
+                             Javadoc for a generated method unless the using project has Lombok itself (#481).
+                             Keep in sync with the same block in addon/pom.xml. -->
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-antrun-plugin</artifactId>
                         <version>${plugin.version.maven-antrun}</version>
@@ -197,6 +198,11 @@
                                         <copy todir="${project.build.directory}/delombok">
                                             <fileset dir="${basedir}/src/main/resources"/>
                                         </copy>
+                                        <!-- Delombok writes the methods of @Delegate without Javadoc. -->
+                                        <java sourcefile="${project.basedir}/../build-tools/DelegateJavadoc.java"
+                                              fork="true" failonerror="true">
+                                            <arg value="${project.build.directory}/delombok"/>
+                                        </java>
                                     </target>
                                 </configuration>
                             </execution>
@@ -230,6 +236,7 @@
                                 <configuration>
                                     <classifier>sources</classifier>
                                     <classesDirectory>${project.build.directory}/delombok</classesDirectory>
+                                    <!-- Without the manifest entries of the main jar, the sources jar is no Vaadin add-on. -->
                                     <archive combine.self="override"/>
                                 </configuration>
                             </execution>
