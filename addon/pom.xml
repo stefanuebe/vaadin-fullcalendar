@@ -266,8 +266,8 @@
                                         <copy todir="${project.build.directory}/delombok">
                                             <fileset dir="${basedir}/src/main/resources"/>
                                         </copy>
-                                        <!-- Delombok writes the methods of @Delegate without Javadoc. -->
-                                        <java sourcefile="${project.basedir}/../build-tools/DelegateJavadoc.java"
+                                        <!-- Completes the Javadoc of hand-written option setters and of the methods of @Delegate. -->
+                                        <java sourcefile="${project.basedir}/../build-tools/SourcesJavadoc.java"
                                               fork="true" failonerror="true">
                                             <arg value="${project.build.directory}/delombok"/>
                                         </java>
