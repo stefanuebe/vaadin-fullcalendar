@@ -19,7 +19,8 @@ import java.util.stream.Stream;
  */
 @Getter
 @AllArgsConstructor
-@RequiredArgsConstructor
+// not @RequiredArgsConstructor: with @Builder.Default, allDay counts as required and would replace the no-args constructor
+@NoArgsConstructor
 @Builder
 public class EntryQuery {
 
@@ -28,11 +29,11 @@ public class EntryQuery {
     private LocalDateTime end;
 
     @NonNull
+    @Builder.Default
     private AllDay allDay = AllDay.BOTH;
 
     public EntryQuery(LocalDateTime start, LocalDateTime end) {
-        this.start = start;
-        this.end = end;
+        this(start, end, AllDay.BOTH);
     }
 
     public EntryQuery(Instant start, Instant end) {
