@@ -39,11 +39,13 @@ import java.util.stream.Stream;
  * <p>
  * Then it completes the hand-written option setters. They only say what they set and refer to the getter, such as
  * {@code Sets whether dragged or resized entries may overlap entries, see {@link #getEntryOverlap()}.} The repository
- * keeps one text per option, on the field, which Lombok copies to the getter. This tool drops the reference and adds
- * the getter's description, so the setter explains the option itself (ticket #483).
+ * keeps one text per option, on the field, which Lombok copies to the getter. A setter marks where the option's
+ * description goes with the placeholder {@link #PLACEHOLDER}. This tool puts the getter's description there and drops
+ * the reference to the getter, so the setter explains the option itself (ticket #483).
  * <p>
  * Run with the delombok output folder as the only argument: {@code java SourcesJavadoc.java target/delombok}. It
- * edits the files in place and fails when a delegating method or a setter finds no Javadoc to copy.
+ * edits the files in place and fails when a delegating method or a setter finds no Javadoc to copy, or when a
+ * placeholder stays.
  */
 public class SourcesJavadoc {
 
@@ -60,12 +62,15 @@ public class SourcesJavadoc {
             "(?m)^(?<javadoc> {4}/\\*\\*(?:(?!\\*/)[\\s\\S])*\\*/)\\n(?:\\s*@[\\w.]+(?:\\([^)]*\\))?\\n)*"
                     + "\\s*public [^\\n(=]*? (?<name>\\w+)\\((?<parameters>[^)]*)\\)");
 
+    /** The line in a setter's Javadoc that the getter's description replaces. */
+    private static final String PLACEHOLDER =
+            "<!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->";
+
     /**
-     * The reference to the getter in the first paragraph of a setter, without the final period:
-     * {@code , see {@link #getX()}}, {@code . See {@link #getX()}} or {@code  (see {@link #getX()})}.
+     * The reference to a getter, without the final period: {@code , see {@link #getX()}},
+     * {@code . See {@link #getX()}} or {@code  (see {@link #getX()})}. {@code %s} stands for the getter's name.
      */
-    private static final Pattern GETTER_REFERENCE = Pattern.compile(
-            "(?:,|\\.|\\s*\\()\\s*[Ss]ee\\s+\\{@link #(?<getter>get\\w+)\\(\\)}\\)?(?=\\.)");
+    private static final String GETTER_REFERENCE = "(?:,|\\.|\\s*\\()\\s*[Ss]ee\\s+\\{@link #%s\\(\\)}\\)?(?=\\.)";
 
     private static final Pattern IMPORT = Pattern.compile("(?m)^import [\\w.]+(?:\\.\\*)?;$");
 
@@ -139,52 +144,56 @@ public class SourcesJavadoc {
     }
 
     /**
-     * Replaces the reference to the getter in the first paragraph of each setter by the getter's description and
-     * returns how many setters it completed. A reference to the getter of another option stays.
+     * Replaces the placeholder of each setter by the description of its getter, drops the setter's reference to the
+     * getter and returns how many setters it completed.
      */
     private static int completeSetterJavadoc(Map<String, Path> filesByType) throws IOException {
         List<String> missing = new ArrayList<>();
         int completed = 0;
         for (Path file : filesByType.values()) {
             String source = Files.readString(file);
+            if (!source.contains(PLACEHOLDER)) {
+                continue;
+            }
+
             StringBuilder result = new StringBuilder();
             int last = 0;
-            Map<String, String> javadocs = null;
+            // A placeholder that no setter replaces fails the build, unless the setter is already in missing.
+            int placeholdersLeft = 0;
+            Map<String, String> javadocs = javadocsBySignature(source);
             Matcher methods = DOCUMENTED_METHOD.matcher(source);
             while (methods.find()) {
                 String name = methods.group("name");
-                if (!name.startsWith("set")) {
-                    continue;
-                }
-
                 List<String> setter = javadocLines(methods.group("javadoc"));
-                int firstParagraphEnd = paragraphEnd(setter);
-                Matcher reference = GETTER_REFERENCE.matcher(String.join("\n", setter.subList(0, firstParagraphEnd)));
-                if (!reference.find() || !reference.group("getter").equals("get" + name.substring(3))) {
+                if (!name.startsWith("set") || !setter.contains(PLACEHOLDER)) {
                     continue;
                 }
 
-                if (javadocs == null) {
-                    javadocs = javadocsBySignature(source);
-                }
-                String getter = javadocs.get(signature(reference.group("getter"), ""));
+                String getterName = "get" + name.substring(3);
+                String getter = javadocs.get(signature(getterName, ""));
                 List<String> getterLines = getter == null ? List.of() : javadocLines(getter);
-                if (description(getterLines).isEmpty()) {
+                String setterText = String.join("\n", setter.subList(0, setter.indexOf(PLACEHOLDER)));
+                String withoutReference = setterText.replaceFirst(String.format(GETTER_REFERENCE, getterName), "");
+                if (description(getterLines).isEmpty() || withoutReference.contains("#" + getterName + "()")) {
                     missing.add(file.getFileName() + ": " + name + "(" + methods.group("parameters") + ")");
+                    placeholdersLeft--;
                     continue;
                 }
 
-                List<String> firstParagraph = List.of(reference.replaceFirst("").split("\n"));
                 result.append(source, last, methods.start("javadoc"))
-                        .append(withGetterDescription(setter, firstParagraphEnd, firstParagraph, getterLines));
+                        .append(withGetterDescription(setter, withoutReference, getterLines));
                 last = methods.end("javadoc");
                 completed++;
             }
-            if (last > 0) {
-                Files.writeString(file, result.append(source.substring(last)));
+            result.append(source.substring(last));
+            placeholdersLeft += result.toString().split(Pattern.quote(PLACEHOLDER), -1).length - 1;
+            if (placeholdersLeft > 0) {
+                missing.add(file.getFileName() + ": a placeholder outside a setter with a getter");
             }
+            Files.writeString(file, result);
         }
-        failOnMissing("No getter Javadoc found for these setters", missing);
+        failOnMissing("Setter Javadoc not completed. The getter has no Javadoc, the setter refers to it in another form"
+                + " than \", see {@link #getX()}.\", or a placeholder is outside such a setter", missing);
 
         return completed;
     }
@@ -197,30 +206,28 @@ public class SourcesJavadoc {
     }
 
     /**
-     * The setter's Javadoc with the reference dropped from its first paragraph, then the getter's description, then
-     * the setter's tags and the getter's {@code @see} tags.
+     * The setter's Javadoc with the getter's description in place of the placeholder, set apart from the setter's text
+     * by a line and the heading "Option description", and with the getter's {@code @see} tags after the setter's
+     * tags. {@code setterText} is the setter's text before the placeholder, without the reference to the getter.
      */
-    private static String withGetterDescription(List<String> setter, int firstParagraphEnd,
-            List<String> firstParagraph, List<String> getter) {
-        int setterTags = tagStart(setter);
-        List<String> lines = new ArrayList<>(firstParagraph);
-        lines.addAll(setter.subList(firstParagraphEnd, setterTags));
+    private static String withGetterDescription(List<String> setter, String setterText, List<String> getter) {
+        int placeholder = setter.indexOf(PLACEHOLDER);
+        List<String> lines = new ArrayList<>(List.of(setterText.split("\n", -1)));
         stripTrailingBlankLines(lines);
         if (!lines.isEmpty()) {
+            lines.add("<hr>");
+            lines.add("<b>Option description</b>");
             lines.add("<p>");
         }
         lines.addAll(description(getter));
-        List<String> tags = new ArrayList<>(setter.subList(setterTags, setter.size()));
+        lines.addAll(setter.subList(placeholder + 1, setter.size()));
+        stripTrailingBlankLines(lines);
         boolean see = false;
         for (String line : getter.subList(tagStart(getter), getter.size())) {
             see = line.startsWith("@") ? line.startsWith("@see ") && !setter.contains(line) : see;
             if (see) {
-                tags.add(line);
+                lines.add(line);
             }
-        }
-        if (!tags.isEmpty()) {
-            lines.add("");
-            lines.addAll(tags);
         }
         StringBuilder javadoc = new StringBuilder("    /**\n");
         lines.forEach(line -> javadoc.append(line.isEmpty() ? "     *" : "     * " + line).append('\n'));
@@ -251,17 +258,6 @@ public class SourcesJavadoc {
         }
 
         return result;
-    }
-
-    /** The index of the line that ends the first paragraph: a blank line, a block tag or a tag. */
-    private static int paragraphEnd(List<String> lines) {
-        for (int i = 0; i < lines.size(); i++) {
-            if (lines.get(i).isBlank() || lines.get(i).matches("(?:<p>|<dl>|<pre>|<ul>|@).*")) {
-                return i;
-            }
-        }
-
-        return lines.size();
     }
 
     /** The index of the first tag line, or the number of lines when there is none. */
