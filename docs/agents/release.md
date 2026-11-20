@@ -17,11 +17,15 @@ the next snapshot line up. This applies to every release (patch, minor or major)
    takes master's pom values over the historical `v-herd-version` commit. The tree
    must show the released version in all poms and in `ADDON_VERSION`, so
    `git diff <version> HEAD` comes back empty. Prepare the merge but don't push it.
-7. The maintainer pushes master, the tag and `v-herd-demo` together and runs the
-   release build. Pushing them in one go avoids a ping-pong between the branches.
+7. Check whether the wiki repo (`wiki/`) has a local branch for this version, such as
+   `8.0.1` for a patch or `8.1` for a minor. If it has, merge it into the wiki
+   `master` and tell the maintainer which branch was merged and what it brings. The
+   wiki branch holds the docs of the version, which go live only with the release.
+8. The maintainer pushes master, the tag, `v-herd-demo` and the wiki `master`
+   together and runs the release build. Pushing them in one go avoids a ping-pong between the branches.
    Never push a tag without the maintainer's confirmation, because tags are public
    the moment they reach the remote and can't be rewritten cleanly.
-8. Back on master, bump to the next snapshot (usually the next patch, e.g.
+9. Back on master, bump to the next snapshot (usually the next patch, e.g.
    `7.2.1 → 7.2.2-SNAPSHOT`) in the poms and in `ADDON_VERSION`. Commit as
    `Bump to <next>-SNAPSHOT`.
 
