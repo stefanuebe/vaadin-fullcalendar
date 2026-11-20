@@ -29,9 +29,19 @@ import java.util.Objects;
 
 /**
  * The value of an option, an entry or a remote entry source that limits where entries can be dragged, resized or
- * selected: the entries of a group, the business hours of the calendar, windows of time (recurring business hours,
- * windows defined by an {@link RRule} and fixed spans), or resources. A {@code switch} over it needs no {@code default}
- * branch.
+ * selected. A {@code switch} over it needs no {@code default} branch.
+ * <dl>
+ *   <dt><b>Forms</b></dt> <dd>{@link #ofGroupId(String)}: the entries of a group.
+ *                             <p>{@link #BUSINESS_HOURS}: the business hours of the calendar.
+ *                             <p>{@link #ofWindows(BusinessHours...)}: recurring business hours.
+ *                             <p>{@link #ofWindows(Window...)}: windows of time of any kind, built with
+ *                             {@link Window#ofRRule(RRule)}, {@link Window#ofRRule(RRule, Duration)},
+ *                             {@link Window#span(LocalDate, LocalDate)} or
+ *                             {@link Window#span(LocalDateTime, LocalDateTime)}.
+ *                             <p>{@link #ofResources(String...)}: resources, scheduler only.
+ *                             <p>{@link Windows#withResources(String...)}: windows of time limited to resources,
+ *                             scheduler only.</dd>
+ * </dl>
  * <p>
  * A sealed type rather than one Java type, because the library takes a string, which is a group id or the keyword
  * {@code "businessHours"}, as well as objects.

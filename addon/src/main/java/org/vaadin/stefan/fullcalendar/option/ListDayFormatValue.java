@@ -19,10 +19,16 @@ package org.vaadin.stefan.fullcalendar.option;
 import java.io.Serializable;
 
 /**
- * The value of {@code listDayFormat} and {@code listDayAltFormat}, which format the day headings of list views: a
- * {@link DateFormat}, a {@link JsCallback} that returns the text, or {@link #NONE} to show no text. A sealed type
- * rather than a {@link DateFormatValue}, because these options also take {@code false}. A {@code switch} over it needs
- * no {@code default} branch.
+ * The value of {@code listDayFormat} and {@code listDayAltFormat}, which format the day headings of list views. A
+ * {@code switch} over it needs no {@code default} branch.
+ * <dl>
+ *   <dt><b>Forms</b></dt> <dd>{@link DateFormat}: the properties of a format object, such as {@code weekday} or
+ *                             {@code month}.
+ *                             <p>{@link #NONE}: no text.
+ *                             <p>{@link JsCallback}: a function that returns the text.</dd>
+ * </dl>
+ * <p>
+ * A sealed type rather than a {@link DateFormatValue}, because these options also take {@code false}.
  */
 public sealed interface ListDayFormatValue extends NoneValue, Serializable
         permits DateFormat, JsCallback, NoneValue.None {

@@ -23,8 +23,12 @@ import java.time.LocalDateTime;
 import java.util.Objects;
 
 /**
- * The value of the option that sets the date the calendar shows when it is created: a date, or a date and time. A
- * {@code switch} over it needs no {@code default} branch.
+ * The value of the option that sets the date the calendar shows when it is created. A {@code switch} over it needs no
+ * {@code default} branch.
+ * <dl>
+ *   <dt><b>Forms</b></dt> <dd>{@link #ofDay(LocalDate)}: a date.
+ *                             <p>{@link #ofDateTime(LocalDateTime)}: a date and time, read as UTC.</dd>
+ * </dl>
  * <p>
  * A sealed type rather than one Java type, because the library takes a date or a date and time.
  * <p>

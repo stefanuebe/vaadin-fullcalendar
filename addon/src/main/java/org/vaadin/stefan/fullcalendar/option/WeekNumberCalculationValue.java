@@ -19,9 +19,13 @@ package org.vaadin.stefan.fullcalendar.option;
 import java.io.Serializable;
 
 /**
- * The value of the option that sets how week numbers are calculated: a {@link WeekNumberCalculation} or a
- * {@link JsCallback} that gets a date and returns its week number. A {@code switch} over it needs no {@code default}
+ * The value of the option that sets how week numbers are calculated. A {@code switch} over it needs no {@code default}
  * branch.
+ * <dl>
+ *   <dt><b>Forms</b></dt> <dd>{@link WeekNumberCalculation#LOCAL}: the calculation of the locale.
+ *                             <p>{@link WeekNumberCalculation#ISO}: ISO 8601 week numbers.
+ *                             <p>{@link JsCallback}: a function that gets a date and returns its week number.</dd>
+ * </dl>
  * <p>
  * A sealed type rather than one Java type, because the library takes a value or a function.
  */

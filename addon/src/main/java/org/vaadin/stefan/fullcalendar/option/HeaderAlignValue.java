@@ -19,8 +19,13 @@ package org.vaadin.stefan.fullcalendar.option;
 import java.io.Serializable;
 
 /**
- * The value of an option that aligns header text: a {@link HeaderAlign} or a {@link JsCallback} that returns
- * {@code "start"}, {@code "center"} or {@code "end"}. A {@code switch} over it needs no {@code default} branch.
+ * The value of an option that aligns header text. A {@code switch} over it needs no {@code default} branch.
+ * <dl>
+ *   <dt><b>Forms</b></dt> <dd>{@link HeaderAlign#START}, {@link HeaderAlign#CENTER} or {@link HeaderAlign#END}: a fixed
+ *                             alignment.
+ *                             <p>{@link JsCallback}: a function that returns {@code "start"}, {@code "center"} or
+ *                             {@code "end"}.</dd>
+ * </dl>
  * <p>
  * A sealed type rather than one Java type, because the library takes a value or a function.
  */

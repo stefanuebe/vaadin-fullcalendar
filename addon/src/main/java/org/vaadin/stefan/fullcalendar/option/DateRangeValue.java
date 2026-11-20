@@ -19,9 +19,17 @@ package org.vaadin.stefan.fullcalendar.option;
 import java.io.Serializable;
 
 /**
- * The value of an option that takes a range of dates, such as {@code validRange}: a {@link DateRange} or a
- * {@link JsCallback} that returns an object with {@code start} and {@code end}. A {@code switch} over it needs no
+ * The value of an option that takes a range of dates, such as {@code validRange}. A {@code switch} over it needs no
  * {@code default} branch.
+ * <dl>
+ *   <dt><b>Forms</b></dt> <dd>{@link DateRange}: a range of dates with an exclusive end.<br>
+ *                             An option may allow an open range, see
+ *                             {@link DateRange#withOpenEnd(java.time.LocalDate)} and
+ *                             {@link DateRange#withOpenStart(java.time.LocalDate)}.<br>
+ *                             The Javadoc of the option says whether it does.
+ *                             <p>{@link JsCallback}: a function that returns an object with {@code start} and
+ *                             {@code end}.</dd>
+ * </dl>
  * <p>
  * A sealed type rather than one Java type, because the library takes a value or a function.
  */

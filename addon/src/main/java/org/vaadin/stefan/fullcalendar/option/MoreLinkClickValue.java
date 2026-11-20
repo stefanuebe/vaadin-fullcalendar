@@ -21,8 +21,15 @@ import org.vaadin.stefan.fullcalendar.ClientSideValue;
 import java.io.Serializable;
 
 /**
- * What happens when the user clicks a "+N more" link: an {@link Action}, a {@link ViewName} to go to, or a
- * {@link JsCallback} that runs instead. A {@code switch} over it needs no {@code default} branch.
+ * What happens when the user clicks a "+N more" link. A {@code switch} over it needs no {@code default} branch.
+ * <dl>
+ *   <dt><b>Forms</b></dt> <dd>{@link Action#POPUP}: a popover with all entries of the day.
+ *                             <p>{@link Action#DAY}: a day view, as the views of the header toolbar determine.
+ *                             <p>{@link Action#WEEK}: a week view, as the views of the header toolbar determine.
+ *                             <p>{@link Action#NOTHING}: no popover, the view type stays.
+ *                             <p>{@link ViewName}: the view to go to.
+ *                             <p>{@link JsCallback}: a function that runs instead.</dd>
+ * </dl>
  * <p>
  * A sealed type rather than one Java type, because the library takes a fixed action, any view name or a function.
  */

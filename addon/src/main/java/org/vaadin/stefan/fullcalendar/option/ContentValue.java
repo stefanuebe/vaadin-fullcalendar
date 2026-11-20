@@ -20,9 +20,13 @@ import java.io.Serializable;
 import java.util.Objects;
 
 /**
- * The value of a render hook that sets the content of an element: a text, HTML, or a {@link JsCallback} that returns
- * it. Render hooks such as {@code allDayHeaderContent} take it. A {@code switch} over it needs no {@code default}
- * branch.
+ * The value of a render hook that sets the content of an element. Render hooks such as {@code allDayHeaderContent} take
+ * it. A {@code switch} over it needs no {@code default} branch.
+ * <dl>
+ *   <dt><b>Forms</b></dt> <dd>{@link TextContent}: shown as text.
+ *                             <p>{@link #ofHtml(String)}: HTML, not escaped.
+ *                             <p>{@link JsCallback}: a function that returns the content.</dd>
+ * </dl>
  * <p>
  * A sealed type rather than one Java type, because the library takes a value or a function, and a text as well as
  * HTML.

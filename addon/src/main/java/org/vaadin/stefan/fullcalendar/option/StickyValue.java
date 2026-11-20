@@ -20,8 +20,13 @@ import java.io.Serializable;
 import java.util.Objects;
 
 /**
- * The value of an option that makes headers sticky: not sticky, sticky at the edge, or sticky at an offset from the
- * edge. A {@code switch} over it needs no {@code default} branch.
+ * The value of an option that makes headers sticky. A {@code switch} over it needs no {@code default} branch.
+ * <dl>
+ *   <dt><b>Forms</b></dt> <dd>{@link #STICKY}: sticky at the edge.
+ *                             <p>{@link #NOT_STICKY}: not sticky.
+ *                             <p>{@link #of(String)}: sticky at an offset from the edge, as a CSS length, such as
+ *                             {@code "2em"} or {@code "10px"}.</dd>
+ * </dl>
  * <p>
  * The library takes the offset as a number or a string and uses it as a CSS length, where a number means pixels. So
  * one string form covers both: {@code of("10px")} for a number of pixels.

@@ -21,10 +21,17 @@ import java.util.List;
 import java.util.Objects;
 
 /**
- * The value of {@code slotHeaderFormat}: a {@link DateFormat}, a {@link JsCallback} that returns the text, or
- * {@link Tiers}, one format per header row of a timeline view. A sealed type rather than a {@link DateFormatValue},
- * because only this option takes a list, and the other format options would accept it otherwise. A {@code switch}
- * over it needs no {@code default} branch.
+ * The value of {@code slotHeaderFormat}. A {@code switch} over it needs no {@code default} branch.
+ * <dl>
+ *   <dt><b>Forms</b></dt> <dd>{@link DateFormat}: the properties of a format object, such as {@code hour} or
+ *                             {@code minute}.
+ *                             <p>{@link JsCallback}: a function that returns the text.
+ *                             <p>{@link #of(DateFormatValue...)}: {@link Tiers}, one format per header row of a
+ *                             timeline view, scheduler only.</dd>
+ * </dl>
+ * <p>
+ * A sealed type rather than a {@link DateFormatValue}, because only this option takes a list, and the other format
+ * options would accept it otherwise.
  */
 public sealed interface SlotHeaderFormatValue extends Serializable permits DateFormat, JsCallback,
         SlotHeaderFormatValue.Tiers {
