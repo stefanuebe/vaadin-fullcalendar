@@ -30,6 +30,38 @@ class EntryQueryTest {
     }
 
     @Test
+    void builderWithoutAllDay_usesBoth() {
+        EntryQuery query = EntryQuery.builder().start(LocalDateTime.of(2026, 1, 1, 0, 0)).build();
+        assertEquals(EntryQuery.AllDay.BOTH, query.getAllDay());
+    }
+
+    @Test
+    void builderWithAllDay_keepsIt() {
+        EntryQuery query = EntryQuery.builder().allDay(EntryQuery.AllDay.ALL_DAY_ONLY).build();
+        assertEquals(EntryQuery.AllDay.ALL_DAY_ONLY, query.getAllDay());
+    }
+
+    @Test
+    void constructorWithoutAllDay_usesBoth() {
+        LocalDateTime start = LocalDateTime.of(2026, 1, 1, 0, 0);
+        LocalDateTime end = LocalDateTime.of(2026, 1, 2, 0, 0);
+        EntryQuery query = new EntryQuery(start, end);
+        assertEquals(start, query.getStart());
+        assertEquals(end, query.getEnd());
+        assertEquals(EntryQuery.AllDay.BOTH, query.getAllDay());
+    }
+
+    @Test
+    void noArgsConstructor_usesBoth() {
+        assertEquals(EntryQuery.AllDay.BOTH, new EntryQuery().getAllDay());
+    }
+
+    @Test
+    void builderWithNullAllDay_throwsNullPointerException() {
+        assertThrows(NullPointerException.class, () -> EntryQuery.builder().allDay(null).build());
+    }
+
+    @Test
     void recurringWithoutDates_alwaysMatches() {
         Entry entry = recurring();
         assertTrue(matches(entry, LocalDateTime.of(1990, 1, 1, 0, 0), LocalDateTime.of(1990, 1, 2, 0, 0)));
