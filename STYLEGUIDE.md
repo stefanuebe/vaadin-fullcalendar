@@ -210,6 +210,9 @@ value is for, the list follows it, and the reasons for the shape of the type com
 below the list. A `JsCallback` form says what the function returns, because the
 type has no `JsCallback` row. The type names the same forms as the `Forms` row of
 every option field of that type, though the field may describe them for its option.
+A change to the forms of a value type (a new or removed constant, factory method or
+permitted class) updates the type's list and the `Forms` row of every option field of
+that type in the same change.
 
 ```java
 /**
