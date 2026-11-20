@@ -19,8 +19,11 @@ package org.vaadin.stefan.fullcalendar.option;
 import java.io.Serializable;
 
 /**
- * The value of an option that takes a width: in pixels or as a percentage. A {@code switch} over it needs no
- * {@code default} branch.
+ * The value of an option that takes a width. A {@code switch} over it needs no {@code default} branch.
+ * <dl>
+ *   <dt><b>Forms</b></dt> <dd>{@link #ofPixels(int)}: pixels.
+ *                             <p>{@link #ofPercent(double)}: a percentage.</dd>
+ * </dl>
  * <p>
  * A sealed type rather than one Java type, because the library takes a number of pixels as well as a string with
  * {@code %}. The library reads no other CSS units here and ignores such a string, so they have no form. It shares no

@@ -77,6 +77,11 @@ public abstract class AbstractOptions implements Serializable {
     /**
      * Returns the raw option with the given name, in the JSON form the client gets. The JSON is a deep copy, so
      * changing it does not change the option. For a large value, such as a long list, the copy costs time.
+     * <p></p>
+     * On the options of a {@link FullCalendar}, this includes the initial options passed to
+     * {@link FullCalendar#FullCalendar(tools.jackson.databind.node.ObjectNode)}. The exceptions are
+     * {@code timeZone}, which {@link FullCalendarOptions#getTimeZone()} returns, and {@code views}, whose entries
+     * become custom views. The other field getters do not return initial options.
      *
      * @param option the option's name in the FullCalendar library
      * @return a copy of the option's JSON, or empty when it is not set

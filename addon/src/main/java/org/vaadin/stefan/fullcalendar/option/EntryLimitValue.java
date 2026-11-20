@@ -19,8 +19,13 @@ package org.vaadin.stefan.fullcalendar.option;
 import java.io.Serializable;
 
 /**
- * The value of an option that limits the entries shown in a day cell: no limit ({@link #NONE}), as many as fit into
- * the cell's height, or a number. A {@code switch} over it needs no {@code default} branch.
+ * The value of an option that limits the entries shown in a day cell. A {@code switch} over it needs no {@code default}
+ * branch.
+ * <dl>
+ *   <dt><b>Forms</b></dt> <dd>{@link #of(int)}: a fixed number.
+ *                             <p>{@link #CELL_HEIGHT}: as many as fit into the height of the cell.
+ *                             <p>{@link #NONE}: no limit.</dd>
+ * </dl>
  * <p>
  * A sealed type rather than an {@code Integer}, because the library takes a boolean as well as a number.
  * <p>

@@ -2,7 +2,6 @@ package org.vaadin.stefan.ui.view;
 
 import org.vaadin.stefan.fullcalendar.option.CalendarLocale;
 import org.vaadin.stefan.fullcalendar.option.DateRange;
-import org.vaadin.stefan.fullcalendar.option.LocaleValue;
 import org.vaadin.stefan.fullcalendar.option.Timezone;
 import com.vaadin.flow.component.*;
 import com.vaadin.flow.component.button.Button;
@@ -468,7 +467,7 @@ public class CalendarViewToolbar extends HorizontalLayout { // TODO use ToolbarL
 
     void updateIntervalLabel(HasText intervalLabel, CalendarView view, LocalDate intervalStart) {
         String text = "--";
-        Locale locale = getCalendarLocale(calendar);
+        Locale locale = calendar.options().getLocale().locale();
 
         if (view instanceof HasIntervalLabel intervalLabelView) {
             text = intervalLabelView.formatIntervalLabel(intervalStart, locale);
@@ -521,17 +520,6 @@ public class CalendarViewToolbar extends HorizontalLayout { // TODO use ToolbarL
         }
 
         intervalLabel.setText(text);
-    }
-
-    /**
-     * Returns the locale the calendar shows its texts in, which is the one set with the locale option, not the
-     * Vaadin locale of the component.
-     */
-    public static Locale getCalendarLocale(FullCalendar calendar) {
-        return switch (calendar.options().getLocale()) {
-            case LocaleValue.Code code -> code.locale();
-            case LocaleValue.Custom custom -> custom.locale();
-        };
     }
 
     /**

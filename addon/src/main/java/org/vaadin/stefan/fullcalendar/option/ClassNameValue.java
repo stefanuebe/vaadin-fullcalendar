@@ -19,8 +19,11 @@ package org.vaadin.stefan.fullcalendar.option;
 import java.io.Serializable;
 
 /**
- * The value of an option that takes CSS class names: fixed class names or a {@link JsCallback} that returns them. A
- * {@code switch} over it needs no {@code default} branch.
+ * The value of an option that takes CSS class names. A {@code switch} over it needs no {@code default} branch.
+ * <dl>
+ *   <dt><b>Forms</b></dt> <dd>{@link ClassName}: fixed class names.
+ *                             <p>{@link JsCallback}: a function that returns the class names.</dd>
+ * </dl>
  * <p>
  * A sealed type rather than one Java type, because the library takes a value or a function.
  */

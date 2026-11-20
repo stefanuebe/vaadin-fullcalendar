@@ -9,7 +9,6 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import org.vaadin.stefan.fullcalendar.option.CalendarLocale;
 import org.vaadin.stefan.fullcalendar.FullCalendar;
 import org.vaadin.stefan.fullcalendar.option.Timezone;
-import org.vaadin.stefan.ui.view.CalendarViewToolbar;
 
 import java.time.ZoneId;
 import java.util.Arrays;
@@ -37,7 +36,7 @@ public class SettingsDialog extends Dialog {
         List<Locale> items = Arrays.asList(CalendarLocale.getAvailableLocales());
         ComboBox<Locale> comboBoxLocales = new ComboBox<>("Locale");
         comboBoxLocales.setItems(items);
-        comboBoxLocales.setValue(CalendarViewToolbar.getCalendarLocale(calendar));
+        comboBoxLocales.setValue(calendar.options().getLocale().locale());
         comboBoxLocales.addValueChangeListener(event -> {
             Locale value = event.getValue();
             Locale newLocale = value != null ? value : CalendarLocale.getDefaultLocale();

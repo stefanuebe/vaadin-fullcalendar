@@ -19,9 +19,14 @@ package org.vaadin.stefan.fullcalendar.option;
 import java.io.Serializable;
 
 /**
- * The value of the list button text: a text, or {@link #NONE} to show buttons named by duration, such as "Week" or
- * "Month", instead of a list button. A sealed type rather than a {@code String}, because the library also takes
- * {@code false}. A {@code switch} over it needs no {@code default} branch.
+ * The value of the list button text. A {@code switch} over it needs no {@code default} branch.
+ * <dl>
+ *   <dt><b>Forms</b></dt> <dd>{@link TextContent}: shown as text.
+ *                             <p>{@link #NONE}: buttons named by duration, such as "Week" or "Month", instead of a list
+ *                             button.</dd>
+ * </dl>
+ * <p>
+ * A sealed type rather than a {@code String}, because the library also takes {@code false}.
  */
 public sealed interface ListTextValue extends NoneValue, Serializable permits TextContent, NoneValue.None {
 }

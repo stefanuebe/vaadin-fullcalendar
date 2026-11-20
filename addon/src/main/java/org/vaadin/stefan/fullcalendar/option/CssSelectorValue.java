@@ -19,8 +19,11 @@ package org.vaadin.stefan.fullcalendar.option;
 import java.io.Serializable;
 
 /**
- * The value of an option that matches elements: a {@link CssSelector} or a {@link JsCallback} that decides per element.
- * A {@code switch} over it needs no {@code default} branch.
+ * The value of an option that matches elements. A {@code switch} over it needs no {@code default} branch.
+ * <dl>
+ *   <dt><b>Forms</b></dt> <dd>{@link CssSelector}: a CSS selector the element must match.
+ *                             <p>{@link JsCallback}: a function that decides per element and returns a boolean.</dd>
+ * </dl>
  * <p>
  * A sealed type rather than one Java type, because the library takes a value or a function.
  */

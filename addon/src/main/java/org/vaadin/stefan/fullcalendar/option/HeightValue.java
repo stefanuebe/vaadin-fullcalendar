@@ -20,8 +20,12 @@ import java.io.Serializable;
 import java.util.Objects;
 
 /**
- * The value of an option that takes a height: in pixels, as a CSS length, or {@code "auto"}. A {@code switch} over it
- * needs no {@code default} branch.
+ * The value of an option that takes a height. A {@code switch} over it needs no {@code default} branch.
+ * <dl>
+ *   <dt><b>Forms</b></dt> <dd>{@link #ofPixels(int)}: exact pixels.
+ *                             <p>{@link #ofCss(String)}: a CSS length, such as {@code "50vh"}.
+ *                             <p>{@link #AUTO}: the keyword {@code "auto"}.</dd>
+ * </dl>
  * <p>
  * A sealed type rather than one Java type, because the forms differ in kind: a number, a string, and the keyword
  * {@code "auto"}, which the library treats apart from other strings.

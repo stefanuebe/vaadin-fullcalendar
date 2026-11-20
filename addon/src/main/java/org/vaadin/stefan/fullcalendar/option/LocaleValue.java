@@ -22,9 +22,12 @@ import java.util.Map;
 import java.util.Objects;
 
 /**
- * The value of the option that sets the language and the regional formats of the calendar: a locale the library
- * brings, or a custom locale with its own texts and formats. A {@code switch} over it needs no {@code default}
- * branch.
+ * The value of the option that sets the language and the regional formats of the calendar. A {@code switch} over it
+ * needs no {@code default} branch.
+ * <dl>
+ *   <dt><b>Forms</b></dt> <dd>{@link #of(Locale)}: a locale the library brings, see {@link CalendarLocale}.
+ *                             <p>{@link #ofCustom(Locale, Map)}: a custom locale with its own texts and formats.</dd>
+ * </dl>
  * <p>
  * A sealed type rather than one Java type, because the library takes a locale code or a locale object with a
  * {@code code} and its own options.
@@ -63,6 +66,13 @@ public sealed interface LocaleValue extends Serializable permits LocaleValue.Cod
     static LocaleValue ofCustom(Locale locale, Map<String, Object> options) {
         return new Custom(locale, options);
     }
+
+    /**
+     * Returns the locale of this value, whether it is a locale the library brings or a custom one.
+     *
+     * @return the locale
+     */
+    Locale locale();
 
     /**
      * A locale the library brings.

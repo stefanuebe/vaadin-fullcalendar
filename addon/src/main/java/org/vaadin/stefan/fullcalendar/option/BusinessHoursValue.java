@@ -21,8 +21,12 @@ import java.util.List;
 import java.util.Objects;
 
 /**
- * The value of the business hours option: none ({@link #NONE}), the library's default business hours (Monday to
- * Friday, 9am to 5pm) or own {@link BusinessHours}. A {@code switch} over it needs no {@code default} branch.
+ * The value of the business hours option. A {@code switch} over it needs no {@code default} branch.
+ * <dl>
+ *   <dt><b>Forms</b></dt> <dd>{@link #DEFAULT}: the library's default business hours, Monday to Friday, 9am to 5pm.
+ *                             <p>{@link #of(BusinessHours...)}: own hours, at least one {@link BusinessHours}.
+ *                             <p>{@link #NONE}: no business hours.</dd>
+ * </dl>
  * <p>
  * No business hours is the library's default, so {@link #NONE} is only needed to turn calendar-wide business hours
  * off for a single view.

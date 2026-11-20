@@ -23,8 +23,14 @@ import java.time.LocalDateTime;
 import java.util.Objects;
 
 /**
- * The value of the option that sets the current date of the calendar: a date, a date and time, or a {@link JsCallback}
- * that returns a date. A {@code switch} over it needs no {@code default} branch.
+ * The value of the option that sets the current date of the calendar. A {@code switch} over it needs no {@code default}
+ * branch.
+ * <dl>
+ *   <dt><b>Forms</b></dt> <dd>{@link #ofDay(LocalDate)}: a date.
+ *                             <p>{@link #ofDateTime(LocalDateTime)}: a date and time, read as UTC like the start and
+ *                             end of entries.
+ *                             <p>{@link JsCallback}: a function that returns a date.</dd>
+ * </dl>
  * <p>
  * A sealed type rather than one Java type, because the library takes a date, a date and time, or a function.
  * <p>

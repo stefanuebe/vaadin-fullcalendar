@@ -19,8 +19,12 @@ package org.vaadin.stefan.fullcalendar.option;
 import java.io.Serializable;
 
 /**
- * The value of an option that formats dates: a {@link DateFormat} or a {@link JsCallback} that returns the text. A
- * {@code switch} over it needs no {@code default} branch.
+ * The value of an option that formats dates. A {@code switch} over it needs no {@code default} branch.
+ * <dl>
+ *   <dt><b>Forms</b></dt> <dd>{@link DateFormat}: the properties of a format object, such as {@code month} or
+ *                             {@code day}.
+ *                             <p>{@link JsCallback}: a function that returns the text.</dd>
+ * </dl>
  * <p>
  * The library also takes a format string, but only with a formatting plugin, which the add-on does not load. So there
  * is no string form.

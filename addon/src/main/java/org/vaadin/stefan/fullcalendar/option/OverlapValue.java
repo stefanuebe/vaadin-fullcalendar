@@ -19,8 +19,13 @@ package org.vaadin.stefan.fullcalendar.option;
 import java.io.Serializable;
 
 /**
- * The value of an option that says whether entries may overlap: an {@link Overlap} or a {@link JsCallback} that
- * decides per entry and returns a boolean. A {@code switch} over it needs no {@code default} branch.
+ * The value of an option that says whether entries may overlap. A {@code switch} over it needs no {@code default}
+ * branch.
+ * <dl>
+ *   <dt><b>Forms</b></dt> <dd>{@link Overlap#ALLOWED}: the overlap is allowed.
+ *                             <p>{@link Overlap#FORBIDDEN}: the overlap is forbidden.
+ *                             <p>{@link JsCallback}: a function that decides per entry and returns a boolean.</dd>
+ * </dl>
  * <p>
  * A sealed type rather than one Java type, because the library takes a value or a function.
  */

@@ -19,9 +19,14 @@ package org.vaadin.stefan.fullcalendar.option;
 import java.io.Serializable;
 
 /**
- * The value of an option that sorts items, such as the entries that share a time or the resources: an {@link Order},
- * which lists properties and compare functions, or one {@link JsCallback} that compares two items. A {@code switch}
+ * The value of an option that sorts items, such as the entries that share a time or the resources. A {@code switch}
  * over it needs no {@code default} branch.
+ * <dl>
+ *   <dt><b>Forms</b></dt> <dd>{@link Order}: a list of sort keys.<br>
+ *                             Each is a property name, ascending or descending, or a compare {@link JsCallback}.
+ *                             <p>{@link JsCallback}: one function that compares two items and returns a negative
+ *                             number, zero or a positive number.</dd>
+ * </dl>
  * <p>
  * A sealed type rather than one Java type, because the library takes a value or a function.
  */

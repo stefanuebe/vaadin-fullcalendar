@@ -19,8 +19,12 @@ package org.vaadin.stefan.fullcalendar.option;
 import java.io.Serializable;
 
 /**
- * The value of an option that sets a text, such as a hint for screen readers or the text of the "more" link: a text
- * or a {@link JsCallback} that returns it. A {@code switch} over it needs no {@code default} branch.
+ * The value of an option that sets a text, such as a hint for screen readers or the text of the "more" link. A
+ * {@code switch} over it needs no {@code default} branch.
+ * <dl>
+ *   <dt><b>Forms</b></dt> <dd>{@link TextContent}: shown as text.
+ *                             <p>{@link JsCallback}: a function that returns the text.</dd>
+ * </dl>
  * <p>
  * A sealed type rather than one Java type, because the library takes a value or a function. It is no
  * {@link ContentValue}, because the library sets these texts as text only and takes no HTML for them.

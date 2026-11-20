@@ -5,7 +5,7 @@
 
     <groupId>org.vaadin.stefan</groupId>
     <artifactId>fullcalendar2</artifactId>
-    <version>8.0.0</version>
+    <version>8.0.1</version>
     <packaging>jar</packaging>
 
     <name>FullCalendar for Flow</name>
@@ -48,7 +48,7 @@
         <plugin.version.maven-compiler>3.14.1</plugin.version.maven-compiler>
         <plugin.version.maven-surefire>3.5.4</plugin.version.maven-surefire>
         <plugin.version.maven-failsafe>3.5.4</plugin.version.maven-failsafe>
-        <plugin.version.maven-source>3.4.0</plugin.version.maven-source>
+        <plugin.version.maven-antrun>3.2.0</plugin.version.maven-antrun>
         <plugin.version.maven-jar>3.5.0</plugin.version.maven-jar>
         <plugin.version.maven-assembly>3.8.0</plugin.version.maven-assembly>
     </properties>
@@ -236,14 +236,43 @@
                         </executions>
                     </plugin>
                     <plugin>
+                        <!-- The sources jar holds the delomboked sources. The getters and setters Lombok generates
+                             are real methods there, with the Javadoc of their field. Without them, an IDE shows no
+                             Javadoc for a generated method unless the using project has Lombok itself (#481).
+                             Keep in sync with the same block in addon-scheduler/pom.xml. -->
                         <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-source-plugin</artifactId>
-                        <version>${plugin.version.maven-source}</version>
+                        <artifactId>maven-antrun-plugin</artifactId>
+                        <version>${plugin.version.maven-antrun}</version>
                         <executions>
                             <execution>
-                                <id>attach-sources</id>
-                                <phase>verify</phase>
-                                <goals><goal>jar-no-fork</goal></goals>
+                                <id>delombok</id>
+                                <phase>prepare-package</phase>
+                                <goals><goal>run</goal></goals>
+                                <configuration>
+                                    <target>
+                                        <delete dir="${project.build.directory}/delombok"/>
+                                        <property name="delombok.classpath" refid="maven.compile.classpath"/>
+                                        <java classname="lombok.launch.Main" classpathref="maven.compile.classpath"
+                                              fork="true" failonerror="true">
+                                            <arg value="delombok"/>
+                                            <arg value="${project.build.sourceDirectory}"/>
+                                            <arg value="-d"/>
+                                            <arg value="${project.build.directory}/delombok"/>
+                                            <arg value="-c"/>
+                                            <arg value="${delombok.classpath}"/>
+                                            <arg value="-f"/>
+                                            <arg value="pretty"/>
+                                        </java>
+                                        <copy todir="${project.build.directory}/delombok">
+                                            <fileset dir="${basedir}/src/main/resources"/>
+                                        </copy>
+                                        <!-- Completes the Javadoc of hand-written option setters and of the methods of @Delegate. -->
+                                        <java sourcefile="${project.basedir}/../build-tools/SourcesJavadoc.java"
+                                              fork="true" failonerror="true">
+                                            <arg value="${project.build.directory}/delombok"/>
+                                        </java>
+                                    </target>
+                                </configuration>
                             </execution>
                         </executions>
                     </plugin>
@@ -268,6 +297,18 @@
                                 <exclude>rebel.xml</exclude>
                             </excludes>
                         </configuration>
+                        <executions>
+                            <execution>
+                                <id>delomboked-sources</id>
+                                <goals><goal>jar</goal></goals>
+                                <configuration>
+                                    <classifier>sources</classifier>
+                                    <classesDirectory>${project.build.directory}/delombok</classesDirectory>
+                                    <!-- Without the manifest entries of the main jar, the sources jar is no Vaadin add-on. -->
+                                    <archive combine.self="override"/>
+                                </configuration>
+                            </execution>
+                        </executions>
                     </plugin>
                 </plugins>
             </build>

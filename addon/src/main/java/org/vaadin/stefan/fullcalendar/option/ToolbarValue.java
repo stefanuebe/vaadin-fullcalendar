@@ -20,8 +20,13 @@ import java.io.Serializable;
 import java.util.Objects;
 
 /**
- * The value of the toolbar options {@code headerToolbar} and {@code footerToolbar}: the three sections of the toolbar,
- * or {@link #NONE} for no toolbar. A {@code switch} over it needs no {@code default} branch.
+ * The value of the toolbar options {@code headerToolbar} and {@code footerToolbar}. A {@code switch} over it needs no
+ * {@code default} branch.
+ * <dl>
+ *   <dt><b>Forms</b></dt> <dd>{@link #ofStartEnd(String, String, String)}: start, center and end section.
+ *                             <p>{@link #ofLeftRight(String, String, String)}: left, center and right section.
+ *                             <p>{@link #NONE}: no toolbar.</dd>
+ * </dl>
  * <p>
  * Each section is a string of names. Names separated by a comma are shown adjacent, names separated by a space with a
  * small gap. A name is one of {@link NativeToolbarParts}, a view name such as {@code "dayGridMonth"}, or the name of a
