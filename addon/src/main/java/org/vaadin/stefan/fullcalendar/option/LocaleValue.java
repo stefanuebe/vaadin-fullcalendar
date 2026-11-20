@@ -65,6 +65,13 @@ public sealed interface LocaleValue extends Serializable permits LocaleValue.Cod
     }
 
     /**
+     * Returns the locale of this value, whether it is a locale the library brings or a custom one.
+     *
+     * @return the locale
+     */
+    Locale locale();
+
+    /**
      * A locale the library brings.
      *
      * @param locale the locale
