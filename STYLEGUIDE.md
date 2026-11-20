@@ -149,11 +149,16 @@ The rows, in this order. A row that does not apply is left out.
 
 | Row | Content |
 |---|---|
-| `Forms` | Every form the value-type setter accepts, as `{@link}` to the constants, factory methods or classes, and `JsCallback` where it is one. Nested forms name the top level with the parts in parentheses. A form that takes effect with the scheduler only gets "(scheduler only)". |
-| `Shortcuts` | Every other setter of the field, one per line (`<br>`), each with the form it produces. A restriction goes with its shortcut. Overlapping shortcuts are all listed. |
+| `Forms` | Every form the value-type setter accepts, as `{@link}` to the constant, factory method or class, followed by a colon and a short description: `{@link ClassName}: class names.` `JsCallback` where it is one ("a function, see Callback"). Nested forms name the parts in the description. A form that takes effect with the scheduler only says "scheduler only". |
+| `Shortcuts` | Every other setter of the field, each with the form it produces. A restriction goes with its shortcut. Overlapping shortcuts are all listed. |
 | `Default` | Who sets it and what it is: "library: …", and "add-on: …" where the add-on sets a value of its own or another option changes the effect. |
 | `Callback` | Only with `JsCallback` as a form: the signature and what the arguments hold. |
 | `Returns` | Only with `JsCallback` as a form: what the callback returns. |
+
+Inside a `<dd>`, every entry (a form, a shortcut, the library and the add-on
+default) starts its own paragraph with `<p>`, except the first. Every sentence ends
+with a period, and every sentence but the last of an entry ends with `<br>`, so each
+sentence starts on its own line. A long list reads at a glance that way.
 
 The sample shows the simplest way for the common case, a shortcut where there is
 one, plus each form only the value-type setter reaches, such as
@@ -163,12 +168,15 @@ one, plus each form only the value-type setter reaches, such as
 /**
  * Whether dragged or resized entries may overlap other entries.
  * <dl>
- *   <dt>Forms</dt>     <dd>{@link Overlap#ALLOWED}, {@link Overlap#FORBIDDEN}, or a {@link JsCallback}</dd>
+ *   <dt>Forms</dt>     <dd>{@link Overlap#ALLOWED}: entries may overlap.
+ *                          <p>{@link Overlap#FORBIDDEN}: entries may not overlap.
+ *                          <p>{@link JsCallback}: a function, see Callback.</dd>
  *   <dt>Shortcuts</dt> <dd>{@link #setEntryOverlap(boolean)}: {@code true} = {@link Overlap#ALLOWED},
- *                          {@code false} = {@link Overlap#FORBIDDEN}</dd>
- *   <dt>Default</dt>   <dd>library: {@code true}</dd>
- *   <dt>Callback</dt>  <dd>{@code function(stillEvent, movingEvent)}</dd>
- *   <dt>Returns</dt>   <dd>{@code true} to allow the overlap</dd>
+ *                          {@code false} = {@link Overlap#FORBIDDEN}.</dd>
+ *   <dt>Default</dt>   <dd>library: {@code true}.</dd>
+ *   <dt>Callback</dt>  <dd>{@code function(stillEvent, movingEvent)}, the entry underneath and the entry being
+ *                          moved.</dd>
+ *   <dt>Returns</dt>   <dd>{@code true} to allow the overlap.</dd>
  * </dl>
  * <pre>{@code
  * calendar.options().setEntryOverlap(false);

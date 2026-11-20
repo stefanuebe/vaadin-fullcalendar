@@ -93,10 +93,11 @@ class CalendarOptions implements Serializable {
      * <p>
      * The getter returns null while the option is not set. Then the library default applies.
      * <dl>
-     *   <dt>Forms</dt>     <dd>{@link ToolbarValue#ofStartEnd(String, String, String)} (start, center and end section),
-     *                          {@link ToolbarValue#ofLeftRight(String, String, String)} (left, center and right
-     *                          section), or {@link ToolbarValue#NONE}</dd>
-     *   <dt>Default</dt>   <dd>library: {@link ToolbarValue#NONE}, no toolbar</dd>
+     *   <dt>Forms</dt>     <dd>{@link ToolbarValue#ofStartEnd(String, String, String)}: start, center and end section.
+     *                          <p>{@link ToolbarValue#ofLeftRight(String, String, String)}: left, center and right
+     *                          section.
+     *                          <p>{@link ToolbarValue#NONE}: no toolbar.</dd>
+     *   <dt>Default</dt>   <dd>library: {@link ToolbarValue#NONE}, no toolbar.</dd>
      * </dl>
      * <pre>{@code
      * calendar.options().setFooterToolbar(ToolbarValue.ofStartEnd("prev,next", "title", "today"));
@@ -117,11 +118,12 @@ class CalendarOptions implements Serializable {
      * The getter returns {@link ToolbarValue#NONE} until another value is set. Null removes the option. The getter then
      * returns null and the library default applies.
      * <dl>
-     *   <dt>Forms</dt>     <dd>{@link ToolbarValue#ofStartEnd(String, String, String)} (start, center and end section),
-     *                          {@link ToolbarValue#ofLeftRight(String, String, String)} (left, center and right
-     *                          section), or {@link ToolbarValue#NONE}</dd>
-     *   <dt>Default</dt>   <dd>library: {@link ToolbarValue#NONE}, no toolbar<br>
-     *                          add-on: {@link ToolbarValue#NONE}</dd>
+     *   <dt>Forms</dt>     <dd>{@link ToolbarValue#ofStartEnd(String, String, String)}: start, center and end section.
+     *                          <p>{@link ToolbarValue#ofLeftRight(String, String, String)}: left, center and right
+     *                          section.
+     *                          <p>{@link ToolbarValue#NONE}: no toolbar.</dd>
+     *   <dt>Default</dt>   <dd>library: {@link ToolbarValue#NONE}, no toolbar.
+     *                          <p>add-on: {@link ToolbarValue#NONE}.</dd>
      * </dl>
      * <pre>{@code
      * calendar.options().setHeaderToolbar(ToolbarValue.ofStartEnd("prev,next today", "title", "dayGridMonth"));
@@ -144,12 +146,12 @@ class CalendarOptions implements Serializable {
      * <p>
      * The getter returns null while the option is not set. Then the library default applies.
      * <dl>
-     *   <dt>Forms</dt>     <dd>{@link InitialDateValue#ofDay(LocalDate) ofDay} (a date),
-     *                          {@link InitialDateValue#ofDateTime(LocalDateTime) ofDateTime} (a date and time, read as
-     *                          UTC)</dd>
-     *   <dt>Shortcuts</dt> <dd>{@link #setInitialDate(LocalDate)}: a date, as {@code ofDay}<br>
-     *                          {@link #setInitialDate(LocalDateTime)}: a date and time, as {@code ofDateTime}</dd>
-     *   <dt>Default</dt>   <dd>library: the current date</dd>
+     *   <dt>Forms</dt>     <dd>{@link InitialDateValue#ofDay(LocalDate)}: a date.
+     *                          <p>{@link InitialDateValue#ofDateTime(LocalDateTime)}: a date and time, read as
+     *                          UTC.</dd>
+     *   <dt>Shortcuts</dt> <dd>{@link #setInitialDate(LocalDate)}: a date, as {@code ofDay}.
+     *                          <p>{@link #setInitialDate(LocalDateTime)}: a date and time, as {@code ofDateTime}.</dd>
+     *   <dt>Default</dt>   <dd>library: the current date.</dd>
      * </dl>
      * <pre>{@code
      * calendar.options().setInitialDate(LocalDate.of(2026, 1, 15));
@@ -204,13 +206,14 @@ class CalendarOptions implements Serializable {
      * The getter returns the {@link LocaleValue} of {@link CalendarLocale#getDefaultLocale()} until another locale is
      * set.
      * <dl>
-     *   <dt>Forms</dt>     <dd>{@link LocaleValue#of(Locale)} (a locale the library brings),
-     *                          {@link LocaleValue#ofCustom(Locale, Map)} (a custom locale with its own options)</dd>
+     *   <dt>Forms</dt>     <dd>{@link LocaleValue#of(Locale)}: a locale the library brings.
+     *                          <p>{@link LocaleValue#ofCustom(Locale, Map)}: a custom locale with its own options.</dd>
      *   <dt>Shortcuts</dt> <dd>{@link #setLocale(Locale)}: a locale the library brings, as
-     *                          {@code LocaleValue.of(Locale)}</dd>
-     *   <dt>Default</dt>   <dd>library: the first locale it is given, or English without one<br>
-     *                          add-on: {@link CalendarLocale#getDefaultLocale()}. The add-on gives the library every
-     *                          locale and always sets one, so the library default does not apply.</dd>
+     *                          {@code LocaleValue.of(Locale)}.</dd>
+     *   <dt>Default</dt>   <dd>library: the first locale it is given, or English without one.
+     *                          <p>add-on: {@link CalendarLocale#getDefaultLocale()}.<br>
+     *                          The add-on gives the library every locale and always sets one, so the library default
+     *                          does not apply.</dd>
      * </dl>
      * <pre>{@code
      * calendar.options().setLocale(Locale.GERMAN);
@@ -301,18 +304,19 @@ class CalendarOptions implements Serializable {
      * <p>
      * The getter returns null while the option is not set. Then the library default applies.
      * <dl>
-     *   <dt>Forms</dt>     <dd>{@link ClassName}, or a {@link JsCallback}</dd>
+     *   <dt>Forms</dt>     <dd>{@link ClassName}: class names.
+     *                          <p>{@link JsCallback}: a function, see Callback.</dd>
      *   <dt>Shortcuts</dt> <dd>{@link #setViewClass(String)}: class names separated by spaces, as
-     *                          {@link ClassName}</dd>
-     *   <dt>Default</dt>   <dd>library: no classes<br>
-     *                          add-on: stable classes {@code fc-view}, one per view type, such as
-     *                          {@code fc-dayGridMonth-view}, and one per view family, such as {@code fc-daygrid}.
+     *                          {@link ClassName}.</dd>
+     *   <dt>Default</dt>   <dd>library: no classes.
+     *                          <p>add-on: stable classes {@code fc-view}, one per view type, such as
+     *                          {@code fc-dayGridMonth-view}, and one per view family, such as {@code fc-daygrid}.<br>
      *                          Classes set here are added to them.</dd>
-     *   <dt>Callback</dt>  <dd>{@code function(info)}, called whenever the view changes. {@code info} has
-     *                          {@code view}, {@code borderlessX}, {@code borderlessTop}, {@code borderlessBottom},
-     *                          {@code options} (with {@code headerToolbar} and {@code footerToolbar}) and
-     *                          {@code isHeightAuto}.</dd>
-     *   <dt>Returns</dt>   <dd>the class names as a string</dd>
+     *   <dt>Callback</dt>  <dd>{@code function(info)}, called whenever the view changes.<br>
+     *                          {@code info} has {@code view}, {@code borderlessX}, {@code borderlessTop},
+     *                          {@code borderlessBottom}, {@code options} (with {@code headerToolbar} and
+     *                          {@code footerToolbar}) and {@code isHeightAuto}.</dd>
+     *   <dt>Returns</dt>   <dd>the class names as a string.</dd>
      * </dl>
      * <pre>{@code
      * calendar.options().setViewClass("my-view");
@@ -437,11 +441,12 @@ class CalendarOptions implements Serializable {
      * <p>
      * The getter returns null while the option is not set. Then the library default applies.
      * <dl>
-     *   <dt>Forms</dt>     <dd>{@link WeekNumberCalculation#LOCAL} (the calculation of the locale),
-     *                          {@link WeekNumberCalculation#ISO}, or a {@link JsCallback}</dd>
-     *   <dt>Default</dt>   <dd>library: {@link WeekNumberCalculation#LOCAL}</dd>
-     *   <dt>Callback</dt>  <dd>{@code function(date)}, the date as a JavaScript {@code Date}</dd>
-     *   <dt>Returns</dt>   <dd>the week number as an integer</dd>
+     *   <dt>Forms</dt>     <dd>{@link WeekNumberCalculation#LOCAL}: the calculation of the locale.
+     *                          <p>{@link WeekNumberCalculation#ISO}: ISO 8601 week numbers.
+     *                          <p>{@link JsCallback}: a function, see Callback.</dd>
+     *   <dt>Default</dt>   <dd>library: {@link WeekNumberCalculation#LOCAL}.</dd>
+     *   <dt>Callback</dt>  <dd>{@code function(date)}, the date as a JavaScript {@code Date}.</dd>
+     *   <dt>Returns</dt>   <dd>the week number as an integer.</dd>
      * </dl>
      * <pre>{@code
      * calendar.options().setWeekNumberCalculation(WeekNumberCalculation.ISO);
@@ -482,26 +487,29 @@ class CalendarOptions implements Serializable {
      * <p>
      * The getter returns null while the option is not set. Then the library default applies.
      * <dl>
-     *   <dt>Forms</dt>     <dd>{@link ConstraintValue#ofGroupId(String)} (the entries of a group),
-     *                          {@link ConstraintValue#BUSINESS_HOURS} (the business hours of the calendar),
-     *                          {@link ConstraintValue#ofWindows(BusinessHours...)} or
-     *                          {@link ConstraintValue#ofWindows(ConstraintValue.Window...)} (windows of time: recurring
-     *                          {@link BusinessHours},
-     *                          {@link ConstraintValue.Window#ofRRule(RRule) windows defined by an RRule}, also
-     *                          {@link ConstraintValue.Window#ofRRule(RRule, java.time.Duration) with a duration}, and
-     *                          {@link ConstraintValue.Window#span(LocalDate, LocalDate) fixed spans of days} or
-     *                          {@link ConstraintValue.Window#span(LocalDateTime, LocalDateTime) of date and time}),
-     *                          {@link ConstraintValue#ofResources(String...)} (resources, scheduler only),
-     *                          {@link ConstraintValue.Windows#withResources(String...)} (windows of time limited to
-     *                          resources, scheduler only)</dd>
-     *   <dt>Shortcuts</dt> <dd>{@link #setEntryConstraint(String)}: a group id, as {@code ofGroupId}. The id
-     *                          {@code "businessHours"} throws an {@link IllegalArgumentException}. Use
-     *                          {@link ConstraintValue#BUSINESS_HOURS}<br>
-     *                          {@link #setEntryConstraint(BusinessHours...)}: recurring windows, as {@code ofWindows}.
-     *                          No window throws an {@link IllegalArgumentException}<br>
-     *                          {@link #setEntryConstraint(ConstraintValue.Window...)}: windows of time of any kind, as
-     *                          {@code ofWindows}. No window throws an {@link IllegalArgumentException}</dd>
-     *   <dt>Default</dt>   <dd>library: none, dragging and resizing are not limited</dd>
+     *   <dt>Forms</dt>     <dd>{@link ConstraintValue#ofGroupId(String)}: the entries of a group.
+     *                          <p>{@link ConstraintValue#BUSINESS_HOURS}: the business hours of the calendar.
+     *                          <p>{@link ConstraintValue#ofWindows(BusinessHours...)}: recurring business hours.
+     *                          <p>{@link ConstraintValue#ofWindows(ConstraintValue.Window...)}: windows of time of
+     *                          any kind, built with
+     *                          {@link ConstraintValue.Window#ofRRule(RRule)},
+     *                          {@link ConstraintValue.Window#ofRRule(RRule, java.time.Duration)},
+     *                          {@link ConstraintValue.Window#span(LocalDate, LocalDate)} or
+     *                          {@link ConstraintValue.Window#span(LocalDateTime, LocalDateTime)}.
+     *                          <p>{@link ConstraintValue#ofResources(String...)}: resources, scheduler only.
+     *                          <p>{@link ConstraintValue.Windows#withResources(String...)}: windows of time limited
+     *                          to resources, scheduler only.</dd>
+     *   <dt>Shortcuts</dt> <dd>{@link #setEntryConstraint(String)}: a group id, as {@code ofGroupId}.<br>
+     *                          The id {@code "businessHours"} throws an {@link IllegalArgumentException}.<br>
+     *                          Use {@link ConstraintValue#BUSINESS_HOURS} instead.
+     *                          <p>{@link #setEntryConstraint(BusinessHours...)}: recurring windows, as
+     *                          {@code ofWindows}.<br>
+     *                          No window throws an {@link IllegalArgumentException}.
+     *                          <p>{@link #setEntryConstraint(ConstraintValue.Window...)}: windows of time of any
+     *                          kind, as {@code ofWindows}.<br>
+     *                          No window throws an {@link IllegalArgumentException}.</dd>
+     *   <dt>Default</dt>   <dd>library: none.<br>
+     *                          Dragging and resizing are not limited.</dd>
      * </dl>
      * <pre>{@code
      * calendar.options().setEntryConstraint("groupA");
@@ -628,17 +636,21 @@ class CalendarOptions implements Serializable {
      * <p>
      * The getter returns null while the option is not set. Then the library default applies.
      * <dl>
-     *   <dt>Forms</dt>     <dd>{@link MoreLinkClickValue.Action#POPUP} (a popover with all entries of the day),
-     *                          {@link MoreLinkClickValue.Action#DAY} (a day view, as the views of the header toolbar
-     *                          determine), {@link MoreLinkClickValue.Action#WEEK} (a week view, as the views of the
-     *                          header toolbar determine), {@link MoreLinkClickValue.Action#NOTHING} (no popover, the
-     *                          view type stays), a {@link ViewName} (the view to go to), or a {@link JsCallback}</dd>
-     *   <dt>Shortcuts</dt> <dd>{@link #setMoreLinkClick(String)}: a client-side view name, as {@link ViewName}<br>
-     *                          {@link #setMoreLinkClick(CalendarView)}: a view, as {@link ViewName}</dd>
-     *   <dt>Default</dt>   <dd>library: {@link MoreLinkClickValue.Action#POPUP}</dd>
-     *   <dt>Callback</dt>  <dd>{@code function(info)}. {@code info} has {@code date}, {@code allDay},
-     *                          {@code allSegs}, {@code hiddenSegs}, {@code jsEvent} and {@code view}.</dd>
-     *   <dt>Returns</dt>   <dd>an action or a view name as a string, which then applies</dd>
+     *   <dt>Forms</dt>     <dd>{@link MoreLinkClickValue.Action#POPUP}: a popover with all entries of the day.
+     *                          <p>{@link MoreLinkClickValue.Action#DAY}: a day view, as the views of the header toolbar
+     *                          determine.
+     *                          <p>{@link MoreLinkClickValue.Action#WEEK}: a week view, as the views of the header
+     *                          toolbar determine.
+     *                          <p>{@link MoreLinkClickValue.Action#NOTHING}: no popover, the view type stays.
+     *                          <p>{@link ViewName}: the view to go to.
+     *                          <p>{@link JsCallback}: a function, see Callback.</dd>
+     *   <dt>Shortcuts</dt> <dd>{@link #setMoreLinkClick(String)}: a client-side view name, as {@link ViewName}.
+     *                          <p>{@link #setMoreLinkClick(CalendarView)}: a view, as {@link ViewName}.</dd>
+     *   <dt>Default</dt>   <dd>library: {@link MoreLinkClickValue.Action#POPUP}.</dd>
+     *   <dt>Callback</dt>  <dd>{@code function(info)}.<br>
+     *                          {@code info} has {@code date}, {@code allDay}, {@code allSegs}, {@code hiddenSegs},
+     *                          {@code jsEvent} and {@code view}.</dd>
+     *   <dt>Returns</dt>   <dd>an action or a view name as a string, which then applies.</dd>
      * </dl>
      * <pre>{@code
      * calendar.options().setMoreLinkClick(CalendarViewImpl.TIME_GRID_DAY);
@@ -698,26 +710,27 @@ class CalendarOptions implements Serializable {
      * <p>
      * The getter returns null while the option is not set. Then the library default applies.
      * <dl>
-     *   <dt>Forms</dt>     <dd>{@link ConstraintValue#ofGroupId(String)} (the entries of a group),
-     *                          {@link ConstraintValue#BUSINESS_HOURS} (the business hours of the calendar),
-     *                          {@link ConstraintValue#ofWindows(BusinessHours...)} or
-     *                          {@link ConstraintValue#ofWindows(ConstraintValue.Window...)} (windows of time: recurring
-     *                          {@link BusinessHours},
-     *                          {@link ConstraintValue.Window#ofRRule(RRule) windows defined by an RRule}, also
-     *                          {@link ConstraintValue.Window#ofRRule(RRule, java.time.Duration) with a duration}, and
-     *                          {@link ConstraintValue.Window#span(LocalDate, LocalDate) fixed spans of days} or
-     *                          {@link ConstraintValue.Window#span(LocalDateTime, LocalDateTime) of date and time}),
-     *                          {@link ConstraintValue#ofResources(String...)} (resources, scheduler only),
-     *                          {@link ConstraintValue.Windows#withResources(String...)} (windows of time limited to
-     *                          resources, scheduler only)</dd>
-     *   <dt>Shortcuts</dt> <dd>{@link #setSelectConstraint(String)}: a group id, as {@code ofGroupId}. The id
-     *                          {@code "businessHours"} throws an {@link IllegalArgumentException}. Use
-     *                          {@link ConstraintValue#BUSINESS_HOURS}<br>
-     *                          {@link #setSelectConstraint(BusinessHours...)}: recurring windows, as {@code ofWindows}.
-     *                          No window throws an {@link IllegalArgumentException}<br>
-     *                          {@link #setSelectConstraint(ConstraintValue.Window...)}: windows of time of any kind, as
-     *                          {@code ofWindows}. No window throws an {@link IllegalArgumentException}</dd>
-     *   <dt>Default</dt>   <dd>library: none, the selection is not limited to windows of time</dd>
+     *   <dt>Forms</dt>     <dd>{@link ConstraintValue#ofGroupId(String)}: the entries of a group.
+     *                          <p>{@link ConstraintValue#BUSINESS_HOURS}: the business hours of the calendar.
+     *                          <p>{@link ConstraintValue#ofWindows(BusinessHours...)}: recurring business hours.
+     *                          <p>{@link ConstraintValue#ofWindows(ConstraintValue.Window...)}: windows of time of any
+     *                          kind, built with {@link ConstraintValue.Window#ofRRule(RRule)},
+     *                          {@link ConstraintValue.Window#ofRRule(RRule, java.time.Duration)},
+     *                          {@link ConstraintValue.Window#span(LocalDate, LocalDate)} or
+     *                          {@link ConstraintValue.Window#span(LocalDateTime, LocalDateTime)}.
+     *                          <p>{@link ConstraintValue#ofResources(String...)}: resources, scheduler only.
+     *                          <p>{@link ConstraintValue.Windows#withResources(String...)}: windows of time limited to
+     *                          resources, scheduler only.</dd>
+     *   <dt>Shortcuts</dt> <dd>{@link #setSelectConstraint(String)}: a group id, as {@code ofGroupId}.<br>
+     *                          The id {@code "businessHours"} throws an {@link IllegalArgumentException}.<br>
+     *                          Use {@link ConstraintValue#BUSINESS_HOURS}.
+     *                          <p>{@link #setSelectConstraint(BusinessHours...)}: recurring windows, as
+     *                          {@code ofWindows}.<br>
+     *                          No window throws an {@link IllegalArgumentException}.
+     *                          <p>{@link #setSelectConstraint(ConstraintValue.Window...)}: windows of time of any kind,
+     *                          as {@code ofWindows}.<br>
+     *                          No window throws an {@link IllegalArgumentException}.</dd>
+     *   <dt>Default</dt>   <dd>library: none, the selection is not limited to windows of time.</dd>
      * </dl>
      * <pre>{@code
      * calendar.options().setSelectConstraint("groupA");
@@ -780,14 +793,17 @@ class CalendarOptions implements Serializable {
      * <p>
      * The getter returns null while the option is not set. Then the library default applies.
      * <dl>
-     *   <dt>Forms</dt>     <dd>{@link ClassName}, or a {@link JsCallback}</dd>
+     *   <dt>Forms</dt>     <dd>{@link ClassName}: class names.
+     *                          <p>{@link JsCallback}: a function, see Callback.</dd>
      *   <dt>Shortcuts</dt> <dd>{@link #setClassName(String)}: class names separated by spaces, as
-     *                          {@link ClassName}</dd>
-     *   <dt>Default</dt>   <dd>library: no classes<br>
-     *                          add-on: the stable class {@code fc}. Classes set here are added to it.</dd>
-     *   <dt>Callback</dt>  <dd>{@code function(info)}. {@code info} has {@code borderlessX}, {@code borderlessTop} and
+     *                          {@link ClassName}.</dd>
+     *   <dt>Default</dt>   <dd>library: no classes.
+     *                          <p>add-on: the stable class {@code fc}.<br>
+     *                          Classes set here are added to it.</dd>
+     *   <dt>Callback</dt>  <dd>{@code function(info)}.<br>
+     *                          {@code info} has {@code borderlessX}, {@code borderlessTop} and
      *                          {@code borderlessBottom}.</dd>
-     *   <dt>Returns</dt>   <dd>the class names as a string</dd>
+     *   <dt>Returns</dt>   <dd>the class names as a string.</dd>
      * </dl>
      * <pre>{@code
      * calendar.options().setClassName("my-calendar");
@@ -867,10 +883,11 @@ class CalendarOptions implements Serializable {
      * <p>
      * The getter returns null while the option is not set. Then the library default applies.
      * <dl>
-     *   <dt>Forms</dt>     <dd>{@link TextContent} (shown as text), or {@link ListTextValue#NONE} (buttons named by
-     *                          duration, such as "Week" or "Month", instead of a "List" button)</dd>
-     *   <dt>Shortcuts</dt> <dd>{@link #setListText(String)}: a text, as {@link TextContent}</dd>
-     *   <dt>Default</dt>   <dd>library: the text of the locale, "List" in English</dd>
+     *   <dt>Forms</dt>     <dd>{@link TextContent}: shown as text.
+     *                          <p>{@link ListTextValue#NONE}: buttons named by duration, such as "Week" or "Month",
+     *                          instead of a "List" button.</dd>
+     *   <dt>Shortcuts</dt> <dd>{@link #setListText(String)}: a text, as {@link TextContent}.</dd>
+     *   <dt>Default</dt>   <dd>library: the text of the locale, "List" in English.</dd>
      * </dl>
      * <pre>{@code
      * calendar.options().setListText("Agenda");
@@ -920,13 +937,14 @@ class CalendarOptions implements Serializable {
      * <p>
      * The getter returns null while the option is not set. Then the library default applies.
      * <dl>
-     *   <dt>Forms</dt>     <dd>{@link TextContent} (shown as text), or a {@link JsCallback}</dd>
-     *   <dt>Shortcuts</dt> <dd>{@link #setNextHint(String)}: a text, as {@link TextContent}</dd>
-     *   <dt>Default</dt>   <dd>library: the hint of the locale, "Next $0" in English</dd>
-     *   <dt>Callback</dt>  <dd>{@code function(unitText, unitName)}. {@code unitText} is the localized text of the
-     *                          unit, {@code unitName} the unit name in English, such as {@code 'day'}, {@code 'week'}
-     *                          or {@code 'month'}.</dd>
-     *   <dt>Returns</dt>   <dd>the text</dd>
+     *   <dt>Forms</dt>     <dd>{@link TextContent}: shown as text.
+     *                          <p>{@link JsCallback}: a function, see Callback.</dd>
+     *   <dt>Shortcuts</dt> <dd>{@link #setNextHint(String)}: a text, as {@link TextContent}.</dd>
+     *   <dt>Default</dt>   <dd>library: the hint of the locale, "Next $0" in English.</dd>
+     *   <dt>Callback</dt>  <dd>{@code function(unitText, unitName)}.<br>
+     *                          {@code unitText} is the localized text of the unit, {@code unitName} the unit name in
+     *                          English, such as {@code 'day'}, {@code 'week'} or {@code 'month'}.</dd>
+     *   <dt>Returns</dt>   <dd>the text.</dd>
      * </dl>
      * <pre>{@code
      * calendar.options().setNextHint("Next $0");
@@ -989,13 +1007,14 @@ class CalendarOptions implements Serializable {
      * <p>
      * The getter returns null while the option is not set. Then the library default applies.
      * <dl>
-     *   <dt>Forms</dt>     <dd>{@link TextContent} (shown as text), or a {@link JsCallback}</dd>
-     *   <dt>Shortcuts</dt> <dd>{@link #setPrevHint(String)}: a text, as {@link TextContent}</dd>
-     *   <dt>Default</dt>   <dd>library: the hint of the locale, "Previous $0" in English</dd>
-     *   <dt>Callback</dt>  <dd>{@code function(unitText, unitName)}. {@code unitText} is the localized text of the
-     *                          unit, {@code unitName} the unit name in English, such as {@code 'day'}, {@code 'week'}
-     *                          or {@code 'month'}.</dd>
-     *   <dt>Returns</dt>   <dd>the text</dd>
+     *   <dt>Forms</dt>     <dd>{@link TextContent}: shown as text.
+     *                          <p>{@link JsCallback}: a function, see Callback.</dd>
+     *   <dt>Shortcuts</dt> <dd>{@link #setPrevHint(String)}: a text, as {@link TextContent}.</dd>
+     *   <dt>Default</dt>   <dd>library: the hint of the locale, "Previous $0" in English.</dd>
+     *   <dt>Callback</dt>  <dd>{@code function(unitText, unitName)}.<br>
+     *                          {@code unitText} is the localized text of the unit, {@code unitName} the unit name in
+     *                          English, such as {@code 'day'}, {@code 'week'} or {@code 'month'}.</dd>
+     *   <dt>Returns</dt>   <dd>the text.</dd>
      * </dl>
      * <pre>{@code
      * calendar.options().setPrevHint("Previous $0");
@@ -1057,14 +1076,15 @@ class CalendarOptions implements Serializable {
      * <p>
      * The getter returns null while the option is not set. Then the library default applies.
      * <dl>
-     *   <dt>Forms</dt>     <dd>{@link TextContent} (shown as text), or a {@link JsCallback}</dd>
-     *   <dt>Shortcuts</dt> <dd>{@link #setTodayHint(String)}: a text, as {@link TextContent}</dd>
-     *   <dt>Default</dt>   <dd>library: the hint of the locale. In English, "Today" for the unit day and "This $0"
-     *                          otherwise, such as "This week"</dd>
-     *   <dt>Callback</dt>  <dd>{@code function(unitText, unitName)}. {@code unitText} is the localized text of the
-     *                          unit, {@code unitName} the unit name in English, such as {@code 'day'}, {@code 'week'}
-     *                          or {@code 'month'}.</dd>
-     *   <dt>Returns</dt>   <dd>the text</dd>
+     *   <dt>Forms</dt>     <dd>{@link TextContent}: shown as text.
+     *                          <p>{@link JsCallback}: a function, see Callback.</dd>
+     *   <dt>Shortcuts</dt> <dd>{@link #setTodayHint(String)}: a text, as {@link TextContent}.</dd>
+     *   <dt>Default</dt>   <dd>library: the hint of the locale.<br>
+     *                          In English, "Today" for the unit day and "This $0" otherwise, such as "This week".</dd>
+     *   <dt>Callback</dt>  <dd>{@code function(unitText, unitName)}.<br>
+     *                          {@code unitText} is the localized text of the unit, {@code unitName} the unit name in
+     *                          English, such as {@code 'day'}, {@code 'week'} or {@code 'month'}.</dd>
+     *   <dt>Returns</dt>   <dd>the text.</dd>
      * </dl>
      * <pre>{@code
      * calendar.options().setTodayHint("Go to $0");
@@ -1113,12 +1133,14 @@ class CalendarOptions implements Serializable {
      * <p>
      * The getter returns null while the option is not set. Then the library default applies.
      * <dl>
-     *   <dt>Forms</dt>     <dd>{@link TextContent} (shown as text), or a {@link JsCallback}</dd>
-     *   <dt>Shortcuts</dt> <dd>{@link #setViewHint(String)}: a text, as {@link TextContent}</dd>
-     *   <dt>Default</dt>   <dd>library: the hint of the locale, "$0 view" in English</dd>
-     *   <dt>Callback</dt>  <dd>{@code function(buttonText, viewName)}. {@code buttonText} is the localized button text,
-     *                          {@code viewName} the button name from the toolbar, such as {@code 'listWeek'}.</dd>
-     *   <dt>Returns</dt>   <dd>the text</dd>
+     *   <dt>Forms</dt>     <dd>{@link TextContent}: shown as text.
+     *                          <p>{@link JsCallback}: a function, see Callback.</dd>
+     *   <dt>Shortcuts</dt> <dd>{@link #setViewHint(String)}: a text, as {@link TextContent}.</dd>
+     *   <dt>Default</dt>   <dd>library: the hint of the locale, "$0 view" in English.</dd>
+     *   <dt>Callback</dt>  <dd>{@code function(buttonText, viewName)}.<br>
+     *                          {@code buttonText} is the localized button text, {@code viewName} the button name from
+     *                          the toolbar, such as {@code 'listWeek'}.</dd>
+     *   <dt>Returns</dt>   <dd>the text.</dd>
      * </dl>
      * <pre>{@code
      * calendar.options().setViewHint("Show $0");
