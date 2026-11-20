@@ -137,6 +137,46 @@ Anything written here becomes a rule a reviewer can cite.
   - `RRule` keeps its prefix-less chaining methods, named after the iCalendar RRULE
     properties (`dtstart`, `count`, `interval`).
 
+### Option Javadoc
+
+An option field whose type is a value type (a `*Value` interface in the `option`
+package) carries a definition list in its Javadoc, so every option reads the same.
+The list goes into the field's Javadoc, because Lombok copies it into the getter and
+the setters point to the getter. Prose on what the option does stays above the
+list, a sample goes below it. What the list says is not repeated in the prose.
+
+The rows, in this order. A row that does not apply is left out.
+
+| Row | Content |
+|---|---|
+| `Forms` | Every form the value-type setter accepts, as `{@link}` to the constants, factory methods or classes, and `JsCallback` where it is one. Nested forms name the top level with the parts in parentheses. A form that takes effect with the scheduler only gets "(scheduler only)". |
+| `Shortcuts` | Every other setter of the field, one per line (`<br>`), each with the form it produces. A restriction goes with its shortcut. Overlapping shortcuts are all listed. |
+| `Default` | Who sets it and what it is: "library: …", and "add-on: …" where the add-on sets a value of its own or another option changes the effect. |
+| `Callback` | Only with `JsCallback` as a form: the signature and what the arguments hold. |
+| `Returns` | Only with `JsCallback` as a form: what the callback returns. |
+
+The sample shows the simplest way for the common case, a shortcut where there is
+one, plus each form only the value-type setter reaches, such as
+`HeightValue.AUTO` or a `JsCallback`. No sample when every form is obvious.
+
+```java
+/**
+ * Whether dragged or resized entries may overlap other entries.
+ * <dl>
+ *   <dt>Forms</dt>     <dd>{@link Overlap#ALLOWED}, {@link Overlap#FORBIDDEN}, or a {@link JsCallback}</dd>
+ *   <dt>Shortcuts</dt> <dd>{@link #setEntryOverlap(boolean)}: {@code true} = {@link Overlap#ALLOWED},
+ *                          {@code false} = {@link Overlap#FORBIDDEN}</dd>
+ *   <dt>Default</dt>   <dd>library: {@code true}</dd>
+ *   <dt>Callback</dt>  <dd>{@code function(stillEvent, movingEvent)}</dd>
+ *   <dt>Returns</dt>   <dd>{@code true} to allow the overlap</dd>
+ * </dl>
+ * <pre>{@code
+ * calendar.options().setEntryOverlap(false);
+ * calendar.options().setEntryOverlap(JsCallback.of("(still, moving) => still.allDay && moving.allDay"));
+ * }</pre>
+ */
+```
+
 ### Vaadin / UI conventions
 
 Prefer official Vaadin API over custom workarounds or DOM manipulation. Verify

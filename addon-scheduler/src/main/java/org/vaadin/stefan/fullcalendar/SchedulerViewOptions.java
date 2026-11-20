@@ -29,6 +29,7 @@ import org.vaadin.stefan.fullcalendar.option.ClassName;
 import org.vaadin.stefan.fullcalendar.option.ClassNameValue;
 import org.vaadin.stefan.fullcalendar.option.ContentValue;
 import org.vaadin.stefan.fullcalendar.option.EntryPrintLayout;
+import org.vaadin.stefan.fullcalendar.option.HeaderAlign;
 import org.vaadin.stefan.fullcalendar.option.HeaderAlignValue;
 import org.vaadin.stefan.fullcalendar.option.JsCallback;
 import org.vaadin.stefan.fullcalendar.option.Order;
@@ -77,16 +78,32 @@ class SchedulerViewOptions extends ViewOptions {
     private Boolean resourcesInitiallyExpanded;
 
     /**
-     * The order of the resource list. The library default is {@code "id,title"}.
+     * The order of the resource list.
      * <p>
-     * It takes a list of resource property names, where a leading {@code -} sorts descending, a mix with compare
-     * functions ({@link Order}), or a single {@link JsCallback} that compares two resources. Each name is one property
-     * name, so a name cannot hold a comma. A compare function gets two plain objects, not resource API objects. They
-     * hold the resource fields with the extended properties merged in, so a function reads {@code a.rank}, not
-     * {@code a.extendedProps.rank}. The library docs describe only the string form. The list and function forms come
-     * from the library code.
+     * The two plain objects of a compare function hold the resource fields with the extended properties merged in,
+     * so a function reads {@code a.rank}, not {@code a.extendedProps.rank}.
      * <p>
-     * The getter returns null while the option is not set; then the library default applies.
+     * The library docs describe only the string form. The list and function forms come from the library code.
+     * <p>
+     * The getter returns null while the option is not set. Then the library default applies.
+     * <dl>
+     *   <dt>Forms</dt>     <dd>{@link Order} (a list of sort keys, each a resource property name, ascending or
+     *                          descending, or a compare {@link JsCallback}), or a single {@link JsCallback} that
+     *                          compares two resources</dd>
+     *   <dt>Shortcuts</dt> <dd>{@link #setResourceOrder(String...)}: resource property names, a leading
+     *                          {@code -} sorts descending, as {@link Order}, at least one, none empty or
+     *                          containing a comma<br>
+     *                          {@link #setResourceOrder(Order.Key...)}: sort keys that may mix properties and
+     *                          compare functions, as {@link Order}, at least one</dd>
+     *   <dt>Default</dt>   <dd>library: {@code "id,title"}</dd>
+     *   <dt>Callback</dt>  <dd>{@code function(a, b)}, two resources as plain objects</dd>
+     *   <dt>Returns</dt>   <dd>a negative number, zero or a positive number</dd>
+     * </dl>
+     * <pre>{@code
+     * calendar.options().setResourceOrder("title");
+     * calendar.options().setResourceOrder("-type", "title");
+     * calendar.options().setResourceOrder(JsCallback.of("(a, b) => a.rank - b.rank"));
+     * }</pre>
      *
      * @see <a href="https://fullcalendar.io/docs/resourceOrder">resourceOrder</a>
      */
@@ -160,12 +177,20 @@ class SchedulerViewOptions extends ViewOptions {
      * ({@code resourceTimeGrid} and {@code resourceDayGrid}). In a left-to-right locale, start means left and end
      * means right.
      * <p>
-     * A callback gets an {@code info} object with {@code level} (the header row), {@code isNarrow} and
-     * {@code inPopover}. It returns {@code "start"}, {@code "center"} or {@code "end"}.
-     * <p>
-     * The library default is decided by the theme.
-     * <p>
-     * The getter returns null while the option is not set; then the library default applies.
+     * The getter returns null while the option is not set. Then the library default applies.
+     * <dl>
+     *   <dt>Forms</dt>     <dd>{@link HeaderAlign#START}, {@link HeaderAlign#CENTER}, {@link HeaderAlign#END}, or a
+     *                          {@link JsCallback}</dd>
+     *   <dt>Default</dt>   <dd>library: decided by the theme</dd>
+     *   <dt>Callback</dt>  <dd>{@code function(info)}. {@code info} has only {@code level} (the header row),
+     *                          {@code isNarrow} and {@code inPopover}, which is never true for a resource
+     *                          header.</dd>
+     *   <dt>Returns</dt>   <dd>{@code "start"}, {@code "center"} or {@code "end"}</dd>
+     * </dl>
+     * <pre>{@code
+     * calendar.options().setResourceDayHeaderAlign(HeaderAlign.END);
+     * calendar.options().setResourceDayHeaderAlign(JsCallback.of("info => info.isNarrow ? 'center' : 'start'"));
+     * }</pre>
      *
      * @see <a href="https://fullcalendar.io/docs/resource-day-header-render-hooks">resourceDayHeaderAlign</a>
      */
@@ -173,11 +198,19 @@ class SchedulerViewOptions extends ViewOptions {
     private HeaderAlignValue resourceDayHeaderAlign;
 
     /**
-     * The width of the area that contains the list of resources, in pixels or as a percentage.
+     * The width of the area that contains the list of resources.
      * <p>
-     * The library default is {@code "30%"} in the resource timeline views.
-     * <p>
-     * The getter returns null while the option is not set; then the library default applies.
+     * The getter returns null while the option is not set. Then the library default applies.
+     * <dl>
+     *   <dt>Forms</dt>     <dd>{@link WidthValue#ofPixels(int)}, {@link WidthValue#ofPercent(double)}</dd>
+     *   <dt>Shortcuts</dt> <dd>{@link #setResourceColumnsWidth(int)}: pixels, as {@link WidthValue#ofPixels(int)}, not
+     *                          negative</dd>
+     *   <dt>Default</dt>   <dd>library: {@code "30%"} in the resource timeline views</dd>
+     * </dl>
+     * <pre>{@code
+     * calendar.options().setResourceColumnsWidth(200);
+     * calendar.options().setResourceColumnsWidth(WidthValue.ofPercent(25));
+     * }</pre>
      *
      * @see <a href="https://fullcalendar.io/docs/resourceColumnsWidth">resourceColumnsWidth</a>
      */
@@ -351,17 +384,27 @@ class SchedulerViewOptions extends ViewOptions {
      * CSS classes for the cells of the resource area in the timeline view. Each cell shows one column field, the
      * resource title or a column of {@code resourceColumns}.
      * <p>
-     * The hook also runs for the cells of a group column (a resource column with {@code group} set), whose
-     * {@code info} holds only {@code fieldValue} and {@code view}. The group rows of {@code resourceGroupField} use
-     * the {@code resourceGroupHeader…} options instead.
+     * The hook also runs for the cells of a group column (a resource column with {@code group} set). The group rows
+     * of {@code resourceGroupField} use the {@code resourceGroupHeader…} options instead.
      * <p>
-     * A callback gets an {@code info} object with {@code resource} (absent in group columns), {@code field},
-     * {@code fieldValue} and more, see the library docs. It returns the class names as a string.
-     * <p>
-     * The library default is no classes. A theme can set classes of its own, and the classes set here are added to
-     * them.
-     * <p>
-     * The getter returns null while the option is not set; then the library default applies.
+     * The getter returns null while the option is not set. Then the library default applies.
+     * <dl>
+     *   <dt>Forms</dt>     <dd>{@link ClassName}, or a {@link JsCallback}</dd>
+     *   <dt>Shortcuts</dt> <dd>{@link #setResourceCellClass(String)}: class names separated by spaces, as
+     *                          {@link ClassName}</dd>
+     *   <dt>Default</dt>   <dd>library: no classes, a theme can set classes of its own<br>
+     *                          add-on: the stable classes {@code fc-datagrid-cell} and {@code fc-resource}.
+     *                          Classes set here are added to them.</dd>
+     *   <dt>Callback</dt>  <dd>{@code function(info)}. {@code info} has {@code resource} (not in group columns),
+     *                          {@code field}, {@code fieldValue} and {@code view}. In group columns it has only
+     *                          {@code fieldValue} and {@code view}.</dd>
+     *   <dt>Returns</dt>   <dd>the class names as a string</dd>
+     * </dl>
+     * <pre>{@code
+     * calendar.options().setResourceCellClass("my-class");
+     * calendar.options().setResourceCellClass(
+     *         JsCallback.of("info => info.field === 'title' ? 'my-title-cell' : ''"));
+     * }</pre>
      *
      * @see <a href="https://fullcalendar.io/docs/resource-cell-render-hooks">resourceCellClass</a>
      */
@@ -390,16 +433,29 @@ class SchedulerViewOptions extends ViewOptions {
      * Custom content for the cells of the resource area in the timeline view. Branch on {@code info.field} to change
      * the title cell only.
      * <p>
-     * A callback gets an {@code info} object with {@code resource} (absent in group columns), {@code field},
-     * {@code fieldValue} and more, see the library docs. It returns a text, or {@code {html: '...'}} or
-     * {@code {domNodes: [...]}}.
-     * <p>
      * The cell content of a resource column replaces it in that column. A callback of the column falls back to this
      * one by returning {@code true}.
      * <p>
-     * The library default is the value of the column field as text.
+     * The hook also runs for the cells of a group column (a resource column with {@code group} set). The group rows
+     * of {@code resourceGroupField} use the {@code resourceGroupHeader…} options instead.
      * <p>
-     * The getter returns null while the option is not set; then the library default applies.
+     * The getter returns null while the option is not set. Then the library default applies.
+     * <dl>
+     *   <dt>Forms</dt>     <dd>{@link TextContent} (shown as text), {@link ContentValue#ofHtml(String) HTML} (not
+     *                          escaped), or a {@link JsCallback}</dd>
+     *   <dt>Shortcuts</dt> <dd>{@link #setResourceCellContent(String)}: a text, as {@link TextContent}</dd>
+     *   <dt>Default</dt>   <dd>library: the value of the column field as text</dd>
+     *   <dt>Callback</dt>  <dd>{@code function(info)}. {@code info} has {@code resource} (not in group columns),
+     *                          {@code field}, {@code fieldValue} and {@code view}. In group columns it has only
+     *                          {@code fieldValue} and {@code view}.</dd>
+     *   <dt>Returns</dt>   <dd>a text, {@code {html: '...'}} or {@code {domNodes: [...]}}</dd>
+     * </dl>
+     * <pre>{@code
+     * calendar.options().setResourceCellContent("Name");
+     * calendar.options().setResourceCellContent(ContentValue.ofHtml("<b>Name</b>"));
+     * calendar.options().setResourceCellContent(
+     *         JsCallback.of("info => info.field === 'title' ? '* ' + info.fieldValue : info.fieldValue"));
+     * }</pre>
      *
      * @see <a href="https://fullcalendar.io/docs/resource-cell-render-hooks">resourceCellContent</a>
      */
@@ -444,17 +500,27 @@ class SchedulerViewOptions extends ViewOptions {
      * CSS classes for the inner wrapper of a cell of the resource area in the timeline view. The inner wrapper holds
      * the content and is useful for adjusting padding.
      * <p>
-     * The hook also runs for the cells of a group column (a resource column with {@code group} set), whose
-     * {@code info} holds only {@code fieldValue} and {@code view}. The group rows of {@code resourceGroupField} use
-     * the {@code resourceGroupHeader…} options instead.
+     * The hook also runs for the cells of a group column (a resource column with {@code group} set). The group rows
+     * of {@code resourceGroupField} use the {@code resourceGroupHeader…} options instead.
      * <p>
-     * A callback gets an {@code info} object with {@code resource} (absent in group columns), {@code field},
-     * {@code fieldValue} and more, see the library docs. It returns the class names as a string.
-     * <p>
-     * The library default is no classes. A theme can set classes of its own, and the classes set here are added to
-     * them.
-     * <p>
-     * The getter returns null while the option is not set; then the library default applies.
+     * The getter returns null while the option is not set. Then the library default applies.
+     * <dl>
+     *   <dt>Forms</dt>     <dd>{@link ClassName}, or a {@link JsCallback}</dd>
+     *   <dt>Shortcuts</dt> <dd>{@link #setResourceCellInnerClass(String)}: class names separated by spaces, as
+     *                          {@link ClassName}</dd>
+     *   <dt>Default</dt>   <dd>library: no classes, a theme can set classes of its own<br>
+     *                          add-on: the stable class {@code fc-datagrid-cell-cushion}. Classes set here are
+     *                          added to it.</dd>
+     *   <dt>Callback</dt>  <dd>{@code function(info)}. {@code info} has {@code resource} (not in group columns),
+     *                          {@code field}, {@code fieldValue} and {@code view}. In group columns it has only
+     *                          {@code fieldValue} and {@code view}.</dd>
+     *   <dt>Returns</dt>   <dd>the class names as a string</dd>
+     * </dl>
+     * <pre>{@code
+     * calendar.options().setResourceCellInnerClass("my-class");
+     * calendar.options().setResourceCellInnerClass(
+     *         JsCallback.of("info => info.field === 'title' ? 'my-title-cell' : ''"));
+     * }</pre>
      *
      * @see <a href="https://fullcalendar.io/docs/resource-cell-render-hooks">resourceCellInnerClass</a>
      */
@@ -510,16 +576,29 @@ class SchedulerViewOptions extends ViewOptions {
     private String resourceColumnDividerClass;
 
     /**
-     * CSS classes for the resource column header, shown above the resource data in the timeline view.
+     * CSS classes for the resource column header, shown above the resource data in the timeline view. With resource
+     * columns set (see {@link FullCalendarSchedulerOptions#setResourceColumns(java.util.List)}), they apply to the
+     * header of every column.
      * <p>
-     * A callback gets an {@code info} object with {@code view}. The library docs do not list it, but the used library
-     * version passes it. It returns the class names as a
-     * string.
+     * A theme can set classes of its own, and the classes set here are added to them.
      * <p>
-     * The library default is no classes. A theme can set classes of its own, and the classes set here are added to
-     * them.
-     * <p>
-     * The getter returns null while the option is not set; then the library default applies.
+     * The getter returns null while the option is not set. Then the library default applies.
+     * <dl>
+     *   <dt>Forms</dt>     <dd>{@link ClassName}, or a {@link JsCallback}</dd>
+     *   <dt>Shortcuts</dt> <dd>{@link #setResourceColumnHeaderClass(String)}: class names separated by spaces, as
+     *                          {@link ClassName}</dd>
+     *   <dt>Default</dt>   <dd>library: no classes<br>
+     *                          add-on: the stable class {@code fc-datagrid-cell}.
+     *                          Classes set here are added to it.</dd>
+     *   <dt>Callback</dt>  <dd>{@code function(info)}. {@code info} has {@code view}. The library docs do not list it,
+     *                          but the used library version passes it.</dd>
+     *   <dt>Returns</dt>   <dd>the class names as a string</dd>
+     * </dl>
+     * <pre>{@code
+     * calendar.options().setResourceColumnHeaderClass("my-class");
+     * calendar.options().setResourceColumnHeaderClass(
+     *         JsCallback.of("info => info.view.type.startsWith('resourceTimeline') ? 'my-header' : ''"));
+     * }</pre>
      *
      * @see <a href="https://fullcalendar.io/docs/resource-column-header-render-hooks">resourceColumnHeaderClass</a>
      */
@@ -550,13 +629,22 @@ class SchedulerViewOptions extends ViewOptions {
      * With {@code resourceColumns} set, it is shown as a header above all columns, and it is the content of a column
      * header whose column has no header content of its own.
      * <p>
-     * A callback gets an {@code info} object with {@code view}. The library docs do not list it, but the used library
-     * version passes it. It returns a text, or
-     * {@code {html: '...'}} or {@code {domNodes: [...]}}.
-     * <p>
-     * The library default is the text "Resources", shown while no resource columns are set.
-     * <p>
-     * The getter returns null while the option is not set; then the library default applies.
+     * The getter returns null while the option is not set. Then the library default applies.
+     * <dl>
+     *   <dt>Forms</dt>     <dd>{@link TextContent} (shown as text), {@link ContentValue#ofHtml(String) HTML} (not
+     *                          escaped), or a {@link JsCallback}</dd>
+     *   <dt>Shortcuts</dt> <dd>{@link #setResourceColumnHeaderContent(String)}: a text, as {@link TextContent}</dd>
+     *   <dt>Default</dt>   <dd>library: the text "Resources", shown while no resource columns are set</dd>
+     *   <dt>Callback</dt>  <dd>{@code function(info)}. {@code info} has {@code view}. The library docs do not list it,
+     *                          but the used library version passes it.</dd>
+     *   <dt>Returns</dt>   <dd>a text, {@code {html: '...'}} or {@code {domNodes: [...]}}</dd>
+     * </dl>
+     * <pre>{@code
+     * calendar.options().setResourceColumnHeaderContent("Name");
+     * calendar.options().setResourceColumnHeaderContent(ContentValue.ofHtml("<b>Name</b>"));
+     * calendar.options().setResourceColumnHeaderContent(
+     *         JsCallback.of("info => 'Rooms'"));
+     * }</pre>
      *
      * @see <a href="https://fullcalendar.io/docs/resource-column-header-render-hooks">resourceColumnHeaderContent</a>
      */
@@ -599,16 +687,29 @@ class SchedulerViewOptions extends ViewOptions {
 
     /**
      * CSS classes for the inner wrapper of the resource column header in the timeline view. The resource column header
-     * is the header above the resource data.
+     * is the header above the resource data. With resource columns set (see
+     * {@link FullCalendarSchedulerOptions#setResourceColumns(java.util.List)}), they apply to the inner wrapper of
+     * every column header.
      * <p>
-     * A callback gets an {@code info} object with {@code view}. The library docs do not list it, but the used library
-     * version passes it. It returns the class names as a
-     * string.
+     * A theme can set classes of its own, and the classes set here are added to them.
      * <p>
-     * The library default is no classes. A theme can set classes of its own, and the classes set here are added to
-     * them.
-     * <p>
-     * The getter returns null while the option is not set; then the library default applies.
+     * The getter returns null while the option is not set. Then the library default applies.
+     * <dl>
+     *   <dt>Forms</dt>     <dd>{@link ClassName}, or a {@link JsCallback}</dd>
+     *   <dt>Shortcuts</dt> <dd>{@link #setResourceColumnHeaderInnerClass(String)}: class names separated by spaces, as
+     *                          {@link ClassName}</dd>
+     *   <dt>Default</dt>   <dd>library: no classes<br>
+     *                          add-on: the stable class {@code fc-datagrid-cell-cushion}.
+     *                          Classes set here are added to it.</dd>
+     *   <dt>Callback</dt>  <dd>{@code function(info)}. {@code info} has {@code view}. The library docs do not list it,
+     *                          but the used library version passes it.</dd>
+     *   <dt>Returns</dt>   <dd>the class names as a string</dd>
+     * </dl>
+     * <pre>{@code
+     * calendar.options().setResourceColumnHeaderInnerClass("my-class");
+     * calendar.options().setResourceColumnHeaderInnerClass(
+     *         JsCallback.of("info => info.view.type.startsWith('resourceTimeline') ? 'my-header' : ''"));
+     * }</pre>
      *
      * @see <a href="https://fullcalendar.io/docs/resource-column-header-render-hooks">
      *     resourceColumnHeaderInnerClass</a>
@@ -655,14 +756,23 @@ class SchedulerViewOptions extends ViewOptions {
      * CSS classes for the handle the user drags to resize a resource column in the timeline view. The handle sits at
      * the end edge of every column header except the last one and is not rendered when printing.
      * <p>
-     * A callback gets an {@code info} object with {@code view}. The library docs do not list it, but the used library
-     * version passes it. It returns the class names as a
-     * string.
+     * A theme can set classes of its own, and the classes set here are added to them.
      * <p>
-     * The library default is no classes. A theme can set classes of its own, and the classes set here are added to
-     * them.
-     * <p>
-     * The getter returns null while the option is not set; then the library default applies.
+     * The getter returns null while the option is not set. Then the library default applies.
+     * <dl>
+     *   <dt>Forms</dt>     <dd>{@link ClassName}, or a {@link JsCallback}</dd>
+     *   <dt>Shortcuts</dt> <dd>{@link #setResourceColumnResizerClass(String)}: class names separated by spaces, as
+     *                          {@link ClassName}</dd>
+     *   <dt>Default</dt>   <dd>library: no classes</dd>
+     *   <dt>Callback</dt>  <dd>{@code function(info)}. {@code info} has {@code view}. The library docs do not list it,
+     *                          but the used library version passes it.</dd>
+     *   <dt>Returns</dt>   <dd>the class names as a string</dd>
+     * </dl>
+     * <pre>{@code
+     * calendar.options().setResourceColumnResizerClass("my-class");
+     * calendar.options().setResourceColumnResizerClass(
+     *         JsCallback.of("info => info.view.type.startsWith('resourceTimeline') ? 'my-resizer' : ''"));
+     * }</pre>
      *
      * @see <a href="https://fullcalendar.io/docs/resource-column-header-render-hooks">resourceColumnResizerClass</a>
      */
@@ -691,13 +801,26 @@ class SchedulerViewOptions extends ViewOptions {
      * CSS classes for the column header cells that show the resource names in the vertical resource views
      * ({@code resourceTimeGrid} and {@code resourceDayGrid}).
      * <p>
-     * A callback gets an {@code info} object with {@code resource}, {@code text}, {@code level} and more, see the
-     * library docs. It returns the class names as a string.
+     * A theme can set classes of its own, and the classes set here are added to them.
      * <p>
-     * The library default is no classes. A theme can set classes of its own, and the classes set here are added to
-     * them.
-     * <p>
-     * The getter returns null while the option is not set; then the library default applies.
+     * The getter returns null while the option is not set. Then the library default applies.
+     * <dl>
+     *   <dt>Forms</dt>     <dd>{@link ClassName}, or a {@link JsCallback}</dd>
+     *   <dt>Shortcuts</dt> <dd>{@link #setResourceDayHeaderClass(String)}: class names separated by spaces, as
+     *                          {@link ClassName}</dd>
+     *   <dt>Default</dt>   <dd>library: no classes<br>
+     *                          add-on: the stable class {@code fc-resource}.
+     *                          Classes set here are added to it.</dd>
+     *   <dt>Callback</dt>  <dd>{@code function(info)}. {@code info} has {@code resource}, {@code text}, {@code level},
+     *                          {@code view}, {@code isDisabled}, {@code isNarrow} and {@code isMajor}. When the column
+     *                          is scoped to a date, it also has {@code date}, {@code dow}, {@code isOther},
+     *                          {@code isToday}, {@code isPast} and {@code isFuture}.</dd>
+     *   <dt>Returns</dt>   <dd>the class names as a string</dd>
+     * </dl>
+     * <pre>{@code
+     * calendar.options().setResourceDayHeaderClass("my-resource-header");
+     * calendar.options().setResourceDayHeaderClass(JsCallback.of("info => info.isToday ? 'my-today' : ''"));
+     * }</pre>
      *
      * @see <a href="https://fullcalendar.io/docs/resource-day-header-render-hooks">resourceDayHeaderClass</a>
      */
@@ -726,12 +849,23 @@ class SchedulerViewOptions extends ViewOptions {
      * Custom content for the column header cells that show the resource names in the vertical resource views
      * ({@code resourceTimeGrid} and {@code resourceDayGrid}).
      * <p>
-     * A callback gets an {@code info} object with {@code resource}, {@code text}, {@code level} and more, see the
-     * library docs. It returns a text, or {@code {html: '...'}} or {@code {domNodes: [...]}}.
-     * <p>
-     * The library default is the title of the resource as text, or its id when it has no title.
-     * <p>
-     * The getter returns null while the option is not set; then the library default applies.
+     * The getter returns null while the option is not set. Then the library default applies.
+     * <dl>
+     *   <dt>Forms</dt>     <dd>{@link TextContent} (shown as text), {@link ContentValue#ofHtml(String) HTML} (not
+     *                          escaped), or a {@link JsCallback}</dd>
+     *   <dt>Shortcuts</dt> <dd>{@link #setResourceDayHeaderContent(String)}: a text, as {@link TextContent}</dd>
+     *   <dt>Default</dt>   <dd>library: the title of the resource as text, or its id when it has no title</dd>
+     *   <dt>Callback</dt>  <dd>{@code function(info)}. {@code info} has {@code resource}, {@code text}, {@code level},
+     *                          {@code view}, {@code isDisabled}, {@code isNarrow} and {@code isMajor}. When the column
+     *                          is scoped to a date, it also has {@code date}, {@code dow}, {@code isOther},
+     *                          {@code isToday}, {@code isPast} and {@code isFuture}.</dd>
+     *   <dt>Returns</dt>   <dd>a text, {@code {html: '...'}} or {@code {domNodes: [...]}}</dd>
+     * </dl>
+     * <pre>{@code
+     * calendar.options().setResourceDayHeaderContent("Resource");
+     * calendar.options().setResourceDayHeaderContent(ContentValue.ofHtml("<b>Resource</b>"));
+     * calendar.options().setResourceDayHeaderContent(JsCallback.of("info => info.text.toUpperCase()"));
+     * }</pre>
      *
      * @see <a href="https://fullcalendar.io/docs/resource-day-header-render-hooks">resourceDayHeaderContent</a>
      */
@@ -775,13 +909,24 @@ class SchedulerViewOptions extends ViewOptions {
      * CSS classes for the inner wrapper of the resource day header cells in the vertical resource views
      * ({@code resourceTimeGrid} and {@code resourceDayGrid}). The inner wrapper is useful for adjusting padding.
      * <p>
-     * A callback gets an {@code info} object with {@code resource}, {@code text}, {@code level} and more, see the
-     * library docs. It returns the class names as a string.
+     * A theme can set classes of its own, and the classes set here are added to them.
      * <p>
-     * The library default is no classes. A theme can set classes of its own, and the classes set here are added to
-     * them.
-     * <p>
-     * The getter returns null while the option is not set; then the library default applies.
+     * The getter returns null while the option is not set. Then the library default applies.
+     * <dl>
+     *   <dt>Forms</dt>     <dd>{@link ClassName}, or a {@link JsCallback}</dd>
+     *   <dt>Shortcuts</dt> <dd>{@link #setResourceDayHeaderInnerClass(String)}: class names separated by spaces, as
+     *                          {@link ClassName}</dd>
+     *   <dt>Default</dt>   <dd>library: no classes</dd>
+     *   <dt>Callback</dt>  <dd>{@code function(info)}. {@code info} has {@code resource}, {@code text}, {@code level},
+     *                          {@code view}, {@code isDisabled}, {@code isNarrow} and {@code isMajor}. When the column
+     *                          is scoped to a date, it also has {@code date}, {@code dow}, {@code isOther},
+     *                          {@code isToday}, {@code isPast} and {@code isFuture}.</dd>
+     *   <dt>Returns</dt>   <dd>the class names as a string</dd>
+     * </dl>
+     * <pre>{@code
+     * calendar.options().setResourceDayHeaderInnerClass("my-header-inner");
+     * calendar.options().setResourceDayHeaderInnerClass(JsCallback.of("info => info.isToday ? 'my-today' : ''"));
+     * }</pre>
      *
      * @see <a href="https://fullcalendar.io/docs/resource-day-header-render-hooks">resourceDayHeaderInnerClass</a>
      */
@@ -825,12 +970,21 @@ class SchedulerViewOptions extends ViewOptions {
      * CSS classes for the expand/collapse toggle in front of expandable resource rows in the hierarchical timeline
      * view.
      * <p>
-     * A callback gets an {@code info} object with {@code isExpanded}. It returns the class names as a string.
+     * A theme can set classes of its own, and the classes set here are added to them.
      * <p>
-     * The library default is no classes. A theme can set classes of its own, and the classes set here are added to
-     * them.
-     * <p>
-     * The getter returns null while the option is not set; then the library default applies.
+     * The getter returns null while the option is not set. Then the library default applies.
+     * <dl>
+     *   <dt>Forms</dt>     <dd>{@link ClassName}, or a {@link JsCallback}</dd>
+     *   <dt>Shortcuts</dt> <dd>{@link #setResourceExpanderClass(String)}: class names separated by spaces, as
+     *                          {@link ClassName}</dd>
+     *   <dt>Default</dt>   <dd>library: no classes</dd>
+     *   <dt>Callback</dt>  <dd>{@code function(info)}. {@code info} has {@code isExpanded}.</dd>
+     *   <dt>Returns</dt>   <dd>the class names as a string</dd>
+     * </dl>
+     * <pre>{@code
+     * calendar.options().setResourceExpanderClass("my-expander");
+     * calendar.options().setResourceExpanderClass(JsCallback.of("info => info.isExpanded ? 'my-open' : 'my-closed'"));
+     * }</pre>
      *
      * @see <a href="https://fullcalendar.io/docs/resource-expander-render-hooks">resourceExpanderClass</a>
      */
@@ -859,13 +1013,22 @@ class SchedulerViewOptions extends ViewOptions {
      * Custom content for the expand/collapse toggle in front of expandable resource rows in the hierarchical timeline
      * view. The content is inserted inside the toggle, typically as an icon, and is hidden from assistive technology.
      * <p>
-     * A callback gets an {@code info} object with {@code isExpanded}. It returns a text, or {@code {html: '...'}} or
-     * {@code {domNodes: [...]}}.
+     * Content set here takes the place of the content of the active theme.
      * <p>
-     * The library default is no content, but the active theme sets an icon for it. Content set here takes the place of
-     * the theme's content.
-     * <p>
-     * The getter returns null while the option is not set; then the library default applies.
+     * The getter returns null while the option is not set. Then the library default applies.
+     * <dl>
+     *   <dt>Forms</dt>     <dd>{@link TextContent} (shown as text), {@link ContentValue#ofHtml(String) HTML} (not
+     *                          escaped), or a {@link JsCallback}</dd>
+     *   <dt>Shortcuts</dt> <dd>{@link #setResourceExpanderContent(String)}: a text, as {@link TextContent}</dd>
+     *   <dt>Default</dt>   <dd>library: no content, but the active theme sets an icon for it</dd>
+     *   <dt>Callback</dt>  <dd>{@code function(info)}. {@code info} has {@code isExpanded}.</dd>
+     *   <dt>Returns</dt>   <dd>a text, {@code {html: '...'}} or {@code {domNodes: [...]}}</dd>
+     * </dl>
+     * <pre>{@code
+     * calendar.options().setResourceExpanderContent("+");
+     * calendar.options().setResourceExpanderContent(ContentValue.ofHtml("<b>+</b>"));
+     * calendar.options().setResourceExpanderContent(JsCallback.of("info => info.isExpanded ? '-' : '+'"));
+     * }</pre>
      *
      * @see <a href="https://fullcalendar.io/docs/resource-expander-render-hooks">resourceExpanderContent</a>
      */
@@ -897,13 +1060,23 @@ class SchedulerViewOptions extends ViewOptions {
      * The library ignores this option while a resource column is marked as a group column ({@code resourceColumns}).
      * The hooks of that column apply then. The library docs do not say this.
      * <p>
-     * A callback gets an {@code info} object with {@code fieldValue} and {@code view}. It returns the class names as a
-     * string.
+     * A theme can set classes of its own, and the classes set here are added to them.
      * <p>
-     * The library default is no classes. A theme can set classes of its own, and the classes set here are added to
-     * them.
-     * <p>
-     * The getter returns null while the option is not set; then the library default applies.
+     * The getter returns null while the option is not set. Then the library default applies.
+     * <dl>
+     *   <dt>Forms</dt>     <dd>{@link ClassName}, or a {@link JsCallback}</dd>
+     *   <dt>Shortcuts</dt> <dd>{@link #setResourceGroupHeaderClass(String)}: class names separated by spaces, as
+     *                          {@link ClassName}</dd>
+     *   <dt>Default</dt>   <dd>library: no classes<br>
+     *                          add-on: the stable classes {@code fc-datagrid-cell} and {@code fc-resource-group}.
+     *                          Classes set here are added to them.</dd>
+     *   <dt>Callback</dt>  <dd>{@code function(info)}. {@code info} has {@code fieldValue} and {@code view}.</dd>
+     *   <dt>Returns</dt>   <dd>the class names as a string</dd>
+     * </dl>
+     * <pre>{@code
+     * calendar.options().setResourceGroupHeaderClass("my-group-header");
+     * calendar.options().setResourceGroupHeaderClass(JsCallback.of("i => i.fieldValue == 'A' ? 'my-group' : ''"));
+     * }</pre>
      *
      * @see <a href="https://fullcalendar.io/docs/resource-group-header-render-hooks">resourceGroupHeaderClass</a>
      */
@@ -935,12 +1108,20 @@ class SchedulerViewOptions extends ViewOptions {
      * The library ignores this option while a resource column is marked as a group column ({@code resourceColumns}).
      * The hooks of that column apply then. The library docs do not say this.
      * <p>
-     * A callback gets an {@code info} object with {@code fieldValue} and {@code view}. It returns a text, or
-     * {@code {html: '...'}} or {@code {domNodes: [...]}}.
-     * <p>
-     * The library default is the value of the group field, or a non-breaking space when it is empty.
-     * <p>
-     * The getter returns null while the option is not set; then the library default applies.
+     * The getter returns null while the option is not set. Then the library default applies.
+     * <dl>
+     *   <dt>Forms</dt>     <dd>{@link TextContent} (shown as text), {@link ContentValue#ofHtml(String) HTML} (not
+     *                          escaped), or a {@link JsCallback}</dd>
+     *   <dt>Shortcuts</dt> <dd>{@link #setResourceGroupHeaderContent(String)}: a text, as {@link TextContent}</dd>
+     *   <dt>Default</dt>   <dd>library: the value of the group field, or a non-breaking space when it is empty</dd>
+     *   <dt>Callback</dt>  <dd>{@code function(info)}. {@code info} has {@code fieldValue} and {@code view}.</dd>
+     *   <dt>Returns</dt>   <dd>a text, {@code {html: '...'}} or {@code {domNodes: [...]}}</dd>
+     * </dl>
+     * <pre>{@code
+     * calendar.options().setResourceGroupHeaderContent("Group");
+     * calendar.options().setResourceGroupHeaderContent(ContentValue.ofHtml("<b>Group</b>"));
+     * calendar.options().setResourceGroupHeaderContent(JsCallback.of("info => 'Group ' + info.fieldValue"));
+     * }</pre>
      *
      * @see <a href="https://fullcalendar.io/docs/resource-group-header-render-hooks">resourceGroupHeaderContent</a>
      */
@@ -990,13 +1171,23 @@ class SchedulerViewOptions extends ViewOptions {
      * The library ignores this option while a resource column is marked as a group column ({@code resourceColumns}).
      * The hooks of that column apply then. The library docs do not say this.
      * <p>
-     * A callback gets an {@code info} object with {@code fieldValue} and {@code view}. It returns the class names as a
-     * string.
+     * A theme can set classes of its own, and the classes set here are added to them.
      * <p>
-     * The library default is no classes. A theme can set classes of its own, and the classes set here are added to
-     * them.
-     * <p>
-     * The getter returns null while the option is not set; then the library default applies.
+     * The getter returns null while the option is not set. Then the library default applies.
+     * <dl>
+     *   <dt>Forms</dt>     <dd>{@link ClassName}, or a {@link JsCallback}</dd>
+     *   <dt>Shortcuts</dt> <dd>{@link #setResourceGroupHeaderInnerClass(String)}: class names separated by spaces, as
+     *                          {@link ClassName}</dd>
+     *   <dt>Default</dt>   <dd>library: no classes<br>
+     *                          add-on: the stable class {@code fc-datagrid-cell-cushion}.
+     *                          Classes set here are added to it.</dd>
+     *   <dt>Callback</dt>  <dd>{@code function(info)}. {@code info} has {@code fieldValue} and {@code view}.</dd>
+     *   <dt>Returns</dt>   <dd>the class names as a string</dd>
+     * </dl>
+     * <pre>{@code
+     * calendar.options().setResourceGroupHeaderInnerClass("my-group-inner");
+     * calendar.options().setResourceGroupHeaderInnerClass(JsCallback.of("i => i.fieldValue == 'A' ? 'my-group' : ''"));
+     * }</pre>
      *
      * @see <a href="https://fullcalendar.io/docs/resource-group-header-render-hooks">resourceGroupHeaderInnerClass</a>
      */
@@ -1040,19 +1231,29 @@ class SchedulerViewOptions extends ViewOptions {
     private JsCallback resourceGroupHeaderWillUnmount;
 
     /**
-     * CSS classes for the resource group lane, the horizontal area of a group along the time slots in the
-     * resource timeline view.
+     * CSS classes for the resource group lane, the horizontal area of a group along the time slots in the resource
+     * timeline view.
      * <p>
      * While a resource column is marked as a group column ({@code resourceColumns}), the library renders no group
      * lanes, so this option has no effect. The library docs do not say this.
      * <p>
-     * A callback gets an {@code info} object with {@code fieldValue} and {@code view}. It returns the class names as a
-     * string.
+     * A theme can set classes of its own, and the classes set here are added to them.
      * <p>
-     * The library default is no classes. A theme can set classes of its own, and the classes set here are added to
-     * them.
-     * <p>
-     * The getter returns null while the option is not set; then the library default applies.
+     * The getter returns null while the option is not set. Then the library default applies.
+     * <dl>
+     *   <dt>Forms</dt>     <dd>{@link ClassName}, or a {@link JsCallback}</dd>
+     *   <dt>Shortcuts</dt> <dd>{@link #setResourceGroupLaneClass(String)}: class names separated by spaces, as
+     *                          {@link ClassName}</dd>
+     *   <dt>Default</dt>   <dd>library: no classes<br>
+     *                          add-on: the stable classes {@code fc-timeline-lane} and {@code fc-resource-group}.
+     *                          Classes set here are added to them.</dd>
+     *   <dt>Callback</dt>  <dd>{@code function(info)}. {@code info} has {@code fieldValue} and {@code view}.</dd>
+     *   <dt>Returns</dt>   <dd>the class names as a string</dd>
+     * </dl>
+     * <pre>{@code
+     * calendar.options().setResourceGroupLaneClass("my-group-lane");
+     * calendar.options().setResourceGroupLaneClass(JsCallback.of("i => i.fieldValue == 'A' ? 'my-group' : ''"));
+     * }</pre>
      *
      * @see <a href="https://fullcalendar.io/docs/resource-group-lane-render-hooks">resourceGroupLaneClass</a>
      */
@@ -1078,18 +1279,26 @@ class SchedulerViewOptions extends ViewOptions {
     }
 
     /**
-     * Custom content for the resource group lane, the horizontal area of a group along the time slots in the
-     * resource timeline view.
+     * Custom content for the resource group lane, the horizontal area of a group along the time slots in the resource
+     * timeline view.
      * <p>
      * While a resource column is marked as a group column ({@code resourceColumns}), the library renders no group
      * lanes, so this option has no effect. The library docs do not say this.
      * <p>
-     * A callback gets an {@code info} object with {@code fieldValue} and {@code view}. It returns a text, or
-     * {@code {html: '...'}} or {@code {domNodes: [...]}}.
-     * <p>
-     * The library default is no content.
-     * <p>
-     * The getter returns null while the option is not set; then the library default applies.
+     * The getter returns null while the option is not set. Then the library default applies.
+     * <dl>
+     *   <dt>Forms</dt>     <dd>{@link TextContent} (shown as text), {@link ContentValue#ofHtml(String) HTML} (not
+     *                          escaped), or a {@link JsCallback}</dd>
+     *   <dt>Shortcuts</dt> <dd>{@link #setResourceGroupLaneContent(String)}: a text, as {@link TextContent}</dd>
+     *   <dt>Default</dt>   <dd>library: no content</dd>
+     *   <dt>Callback</dt>  <dd>{@code function(info)}. {@code info} has {@code fieldValue} and {@code view}.</dd>
+     *   <dt>Returns</dt>   <dd>a text, {@code {html: '...'}} or {@code {domNodes: [...]}}</dd>
+     * </dl>
+     * <pre>{@code
+     * calendar.options().setResourceGroupLaneContent("Lane");
+     * calendar.options().setResourceGroupLaneContent(ContentValue.ofHtml("<b>Lane</b>"));
+     * calendar.options().setResourceGroupLaneContent(JsCallback.of("info => 'Group ' + info.fieldValue"));
+     * }</pre>
      *
      * @see <a href="https://fullcalendar.io/docs/resource-group-lane-render-hooks">resourceGroupLaneContent</a>
      */
@@ -1139,13 +1348,21 @@ class SchedulerViewOptions extends ViewOptions {
      * While a resource column is marked as a group column ({@code resourceColumns}), the library renders no group
      * lanes, so this option has no effect. The library docs do not say this.
      * <p>
-     * A callback gets an {@code info} object with {@code fieldValue} and {@code view}. It returns the class names as a
-     * string.
+     * A theme can set classes of its own, and the classes set here are added to them.
      * <p>
-     * The library default is no classes. A theme can set classes of its own, and the classes set here are added to
-     * them.
-     * <p>
-     * The getter returns null while the option is not set; then the library default applies.
+     * The getter returns null while the option is not set. Then the library default applies.
+     * <dl>
+     *   <dt>Forms</dt>     <dd>{@link ClassName}, or a {@link JsCallback}</dd>
+     *   <dt>Shortcuts</dt> <dd>{@link #setResourceGroupLaneInnerClass(String)}: class names separated by spaces, as
+     *                          {@link ClassName}</dd>
+     *   <dt>Default</dt>   <dd>library: no classes</dd>
+     *   <dt>Callback</dt>  <dd>{@code function(info)}. {@code info} has {@code fieldValue} and {@code view}.</dd>
+     *   <dt>Returns</dt>   <dd>the class names as a string</dd>
+     * </dl>
+     * <pre>{@code
+     * calendar.options().setResourceGroupLaneInnerClass("my-lane-inner");
+     * calendar.options().setResourceGroupLaneInnerClass(JsCallback.of("i => i.fieldValue == 'A' ? 'my-group' : ''"));
+     * }</pre>
      *
      * @see <a href="https://fullcalendar.io/docs/resource-group-lane-render-hooks">resourceGroupLaneInnerClass</a>
      */
@@ -1219,13 +1436,22 @@ class SchedulerViewOptions extends ViewOptions {
     /**
      * CSS classes for the element below the entries of a resource lane.
      * <p>
-     * A callback gets an {@code info} object with {@code resource} and {@code options}, which holds only
-     * {@code eventOverlap}. The library docs list {@code resource} only. It returns the class names as a string.
+     * A theme can set classes of its own, and the classes set here are added to them.
      * <p>
-     * The library default is no classes. A theme can set classes of its own, and the classes set here are added to
-     * them.
-     * <p>
-     * The getter returns null while the option is not set; then the library default applies.
+     * The getter returns null while the option is not set. Then the library default applies.
+     * <dl>
+     *   <dt>Forms</dt>     <dd>{@link ClassName}, or a {@link JsCallback}</dd>
+     *   <dt>Shortcuts</dt> <dd>{@link #setResourceLaneBottomClass(String)}: class names separated by spaces, as
+     *                          {@link ClassName}</dd>
+     *   <dt>Default</dt>   <dd>library: no classes</dd>
+     *   <dt>Callback</dt>  <dd>{@code function(info)}. {@code info} has {@code resource} and {@code options}, which
+     *                          holds only {@code eventOverlap}. The library docs list {@code resource} only.</dd>
+     *   <dt>Returns</dt>   <dd>the class names as a string</dd>
+     * </dl>
+     * <pre>{@code
+     * calendar.options().setResourceLaneBottomClass("my-lane-bottom");
+     * calendar.options().setResourceLaneBottomClass(JsCallback.of("info => info.resource.id == 'a' ? 'my-lane' : ''"));
+     * }</pre>
      *
      * @see <a href="https://fullcalendar.io/docs/resource-lane-render-hooks">resourceLaneBottomClass</a>
      */
@@ -1253,13 +1479,21 @@ class SchedulerViewOptions extends ViewOptions {
     /**
      * Content inserted at the bottom of a resource lane, below its entries.
      * <p>
-     * A callback gets an {@code info} object with {@code resource} and {@code options}, which holds only
-     * {@code eventOverlap}. The library docs list {@code resource} only. It returns a text, or {@code {html: '...'}} or
-     * {@code {domNodes: [...]}}.
-     * <p>
-     * The library default is no content.
-     * <p>
-     * The getter returns null while the option is not set; then the library default applies.
+     * The getter returns null while the option is not set. Then the library default applies.
+     * <dl>
+     *   <dt>Forms</dt>     <dd>{@link TextContent} (shown as text), {@link ContentValue#ofHtml(String) HTML} (not
+     *                          escaped), or a {@link JsCallback}</dd>
+     *   <dt>Shortcuts</dt> <dd>{@link #setResourceLaneBottomContent(String)}: a text, as {@link TextContent}</dd>
+     *   <dt>Default</dt>   <dd>library: no content</dd>
+     *   <dt>Callback</dt>  <dd>{@code function(info)}. {@code info} has {@code resource} and {@code options}, which
+     *                          holds only {@code eventOverlap}. The library docs list {@code resource} only.</dd>
+     *   <dt>Returns</dt>   <dd>a text, {@code {html: '...'}} or {@code {domNodes: [...]}}</dd>
+     * </dl>
+     * <pre>{@code
+     * calendar.options().setResourceLaneBottomContent("Bottom");
+     * calendar.options().setResourceLaneBottomContent(ContentValue.ofHtml("<b>Bottom</b>"));
+     * calendar.options().setResourceLaneBottomContent(JsCallback.of("info => info.resource.title"));
+     * }</pre>
      *
      * @see <a href="https://fullcalendar.io/docs/resource-lane-render-hooks">resourceLaneBottomContent</a>
      */
@@ -1288,13 +1522,24 @@ class SchedulerViewOptions extends ViewOptions {
      * CSS classes for a resource lane. A resource lane runs horizontally across the timeline slots of a resource in the
      * resource timeline view.
      * <p>
-     * A callback gets an {@code info} object with {@code resource} and {@code options}, which holds only
-     * {@code eventOverlap}. The library docs list {@code resource} only. It returns the class names as a string.
+     * A theme can set classes of its own, and the classes set here are added to them.
      * <p>
-     * The library default is no classes. A theme can set classes of its own, and the classes set here are added to
-     * them.
-     * <p>
-     * The getter returns null while the option is not set; then the library default applies.
+     * The getter returns null while the option is not set. Then the library default applies.
+     * <dl>
+     *   <dt>Forms</dt>     <dd>{@link ClassName}, or a {@link JsCallback}</dd>
+     *   <dt>Shortcuts</dt> <dd>{@link #setResourceLaneClass(String)}: class names separated by spaces, as
+     *                          {@link ClassName}</dd>
+     *   <dt>Default</dt>   <dd>library: no classes<br>
+     *                          add-on: the stable classes {@code fc-timeline-lane} and {@code fc-resource}.
+     *                          Classes set here are added to them.</dd>
+     *   <dt>Callback</dt>  <dd>{@code function(info)}. {@code info} has {@code resource} and {@code options}, which
+     *                          holds only {@code eventOverlap}. The library docs list {@code resource} only.</dd>
+     *   <dt>Returns</dt>   <dd>the class names as a string</dd>
+     * </dl>
+     * <pre>{@code
+     * calendar.options().setResourceLaneClass("my-lane");
+     * calendar.options().setResourceLaneClass(JsCallback.of("info => info.resource.id == 'a' ? 'my-lane' : ''"));
+     * }</pre>
      *
      * @see <a href="https://fullcalendar.io/docs/resource-lane-render-hooks">resourceLaneClass</a>
      */
@@ -1338,13 +1583,22 @@ class SchedulerViewOptions extends ViewOptions {
     /**
      * CSS classes for the element above the entries of a resource lane.
      * <p>
-     * A callback gets an {@code info} object with {@code resource} and {@code options}, which holds only
-     * {@code eventOverlap}. The library docs list {@code resource} only. It returns the class names as a string.
+     * A theme can set classes of its own, and the classes set here are added to them.
      * <p>
-     * The library default is no classes. A theme can set classes of its own, and the classes set here are added to
-     * them.
-     * <p>
-     * The getter returns null while the option is not set; then the library default applies.
+     * The getter returns null while the option is not set. Then the library default applies.
+     * <dl>
+     *   <dt>Forms</dt>     <dd>{@link ClassName}, or a {@link JsCallback}</dd>
+     *   <dt>Shortcuts</dt> <dd>{@link #setResourceLaneTopClass(String)}: class names separated by spaces, as
+     *                          {@link ClassName}</dd>
+     *   <dt>Default</dt>   <dd>library: no classes</dd>
+     *   <dt>Callback</dt>  <dd>{@code function(info)}. {@code info} has {@code resource} and {@code options}, which
+     *                          holds only {@code eventOverlap}. The library docs list {@code resource} only.</dd>
+     *   <dt>Returns</dt>   <dd>the class names as a string</dd>
+     * </dl>
+     * <pre>{@code
+     * calendar.options().setResourceLaneTopClass("my-lane-top");
+     * calendar.options().setResourceLaneTopClass(JsCallback.of("info => info.resource.id == 'a' ? 'my-lane' : ''"));
+     * }</pre>
      *
      * @see <a href="https://fullcalendar.io/docs/resource-lane-render-hooks">resourceLaneTopClass</a>
      */
@@ -1372,13 +1626,21 @@ class SchedulerViewOptions extends ViewOptions {
     /**
      * Content inserted at the top of a resource lane, above its entries.
      * <p>
-     * A callback gets an {@code info} object with {@code resource} and {@code options}, which holds only
-     * {@code eventOverlap}. The library docs list {@code resource} only. It returns a text, or {@code {html: '...'}} or
-     * {@code {domNodes: [...]}}.
-     * <p>
-     * The library default is no content.
-     * <p>
-     * The getter returns null while the option is not set; then the library default applies.
+     * The getter returns null while the option is not set. Then the library default applies.
+     * <dl>
+     *   <dt>Forms</dt>     <dd>{@link TextContent} (shown as text), {@link ContentValue#ofHtml(String) HTML} (not
+     *                          escaped), or a {@link JsCallback}</dd>
+     *   <dt>Shortcuts</dt> <dd>{@link #setResourceLaneTopContent(String)}: a text, as {@link TextContent}</dd>
+     *   <dt>Default</dt>   <dd>library: no content</dd>
+     *   <dt>Callback</dt>  <dd>{@code function(info)}. {@code info} has {@code resource} and {@code options}, which
+     *                          holds only {@code eventOverlap}. The library docs list {@code resource} only.</dd>
+     *   <dt>Returns</dt>   <dd>a text, {@code {html: '...'}} or {@code {domNodes: [...]}}</dd>
+     * </dl>
+     * <pre>{@code
+     * calendar.options().setResourceLaneTopContent("Top");
+     * calendar.options().setResourceLaneTopContent(ContentValue.ofHtml("<b>Top</b>"));
+     * calendar.options().setResourceLaneTopContent(JsCallback.of("info => info.resource.title"));
+     * }</pre>
      *
      * @see <a href="https://fullcalendar.io/docs/resource-lane-render-hooks">resourceLaneTopContent</a>
      */

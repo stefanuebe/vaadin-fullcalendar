@@ -54,6 +54,7 @@ import org.vaadin.stefan.fullcalendar.option.TextValue;
 import org.vaadin.stefan.fullcalendar.option.Timezone;
 import org.vaadin.stefan.fullcalendar.option.ToolbarValue;
 import org.vaadin.stefan.fullcalendar.option.ViewName;
+import org.vaadin.stefan.fullcalendar.option.WeekNumberCalculation;
 import org.vaadin.stefan.fullcalendar.option.WeekNumberCalculationValue;
 
 import java.io.Serializable;
@@ -90,7 +91,17 @@ class CalendarOptions implements Serializable {
     /**
      * The library's built-in toolbar below the calendar, see {@link ToolbarValue} for its sections.
      * <p>
-     * The getter returns null while the option is not set; then the library default, no toolbar, applies.
+     * The getter returns null while the option is not set. Then the library default applies.
+     * <dl>
+     *   <dt>Forms</dt>     <dd>{@link ToolbarValue#ofStartEnd(String, String, String)} (start, center and end section),
+     *                          {@link ToolbarValue#ofLeftRight(String, String, String)} (left, center and right
+     *                          section), or {@link ToolbarValue#NONE}</dd>
+     *   <dt>Default</dt>   <dd>library: {@link ToolbarValue#NONE}, no toolbar</dd>
+     * </dl>
+     * <pre>{@code
+     * calendar.options().setFooterToolbar(ToolbarValue.ofStartEnd("prev,next", "title", "today"));
+     * calendar.options().setFooterToolbar(ToolbarValue.NONE);
+     * }</pre>
      *
      * @see <a href="https://fullcalendar.io/docs/footerToolbar">footerToolbar</a>
      */
@@ -100,9 +111,22 @@ class CalendarOptions implements Serializable {
     /**
      * The library's built-in toolbar above the calendar, see {@link ToolbarValue} for its sections.
      * <p>
-     * The initial value is {@link ToolbarValue#NONE}, because navigation belongs to Vaadin components. The library's
-     * toolbar navigates on the client, and the server learns of it only through events such as the
-     * {@link DatesRenderedEvent}. Null removes the option. The library's default, no toolbar, then applies.
+     * The add-on switches the toolbar off, because navigation belongs to Vaadin components. The library's toolbar
+     * navigates on the client, and the server learns of it only through events such as the {@link DatesRenderedEvent}.
+     * <p>
+     * The getter returns {@link ToolbarValue#NONE} until another value is set. Null removes the option. The getter then
+     * returns null and the library default applies.
+     * <dl>
+     *   <dt>Forms</dt>     <dd>{@link ToolbarValue#ofStartEnd(String, String, String)} (start, center and end section),
+     *                          {@link ToolbarValue#ofLeftRight(String, String, String)} (left, center and right
+     *                          section), or {@link ToolbarValue#NONE}</dd>
+     *   <dt>Default</dt>   <dd>library: {@link ToolbarValue#NONE}, no toolbar<br>
+     *                          add-on: {@link ToolbarValue#NONE}</dd>
+     * </dl>
+     * <pre>{@code
+     * calendar.options().setHeaderToolbar(ToolbarValue.ofStartEnd("prev,next today", "title", "dayGridMonth"));
+     * calendar.options().setHeaderToolbar(ToolbarValue.NONE);
+     * }</pre>
      *
      * @see <a href="https://fullcalendar.io/docs/headerToolbar">headerToolbar</a>
      */
@@ -118,8 +142,19 @@ class CalendarOptions implements Serializable {
      * <p>
      * It has no effect on a calendar the browser already shows. Use {@link FullCalendar#gotoDate(LocalDate)} instead.
      * <p>
-     * The library default is the current date. The getter returns null while the option is not set; then the library
-     * default applies.
+     * The getter returns null while the option is not set. Then the library default applies.
+     * <dl>
+     *   <dt>Forms</dt>     <dd>{@link InitialDateValue#ofDay(LocalDate) ofDay} (a date),
+     *                          {@link InitialDateValue#ofDateTime(LocalDateTime) ofDateTime} (a date and time, read as
+     *                          UTC)</dd>
+     *   <dt>Shortcuts</dt> <dd>{@link #setInitialDate(LocalDate)}: a date, as {@code ofDay}<br>
+     *                          {@link #setInitialDate(LocalDateTime)}: a date and time, as {@code ofDateTime}</dd>
+     *   <dt>Default</dt>   <dd>library: the current date</dd>
+     * </dl>
+     * <pre>{@code
+     * calendar.options().setInitialDate(LocalDate.of(2026, 1, 15));
+     * calendar.options().setInitialDate(LocalDateTime.of(2026, 1, 15, 8, 0));
+     * }</pre>
      *
      * @see FullCalendar#gotoDate(LocalDate)
      * @see <a href="https://fullcalendar.io/docs/initialDate">initialDate</a>
@@ -156,18 +191,31 @@ class CalendarOptions implements Serializable {
 
     /**
      * The language and the regional formats of the calendar, such as the texts, the first day of the week and the date
-     * formats: a locale the library brings ({@link LocaleValue#of(Locale)}), or a custom locale with its own options
-     * ({@link LocaleValue#ofCustom(Locale, Map)}).
+     * formats.
      * <p>
      * The library also takes a list of codes and uses the first one it brings. The field leaves it out, because the
      * calendar registers every locale of the library and {@link CalendarLocale} lists them, so the fallback can be
      * chosen on the server.
      * <p>
-     * The library default is the first locale it is given, or English without one. The add-on gives it every locale and
-     * always sets one, so that default does not apply. The initial value is {@link CalendarLocale#getDefaultLocale()}.
-     * The calendar always has a locale, so it cannot be removed. This option is independent of the Vaadin locale of the
-     * UI. To follow the UI locale, set this option in a view that implements
-     * {@link com.vaadin.flow.i18n.LocaleChangeObserver}.
+     * This option is independent of the Vaadin locale of the UI. To follow the UI locale, set this option in a view
+     * that implements {@link com.vaadin.flow.i18n.LocaleChangeObserver}.
+     * <p>
+     * The calendar always has a locale, so it cannot be removed. Passing null throws a {@link NullPointerException}.
+     * The getter returns the {@link LocaleValue} of {@link CalendarLocale#getDefaultLocale()} until another locale is
+     * set.
+     * <dl>
+     *   <dt>Forms</dt>     <dd>{@link LocaleValue#of(Locale)} (a locale the library brings),
+     *                          {@link LocaleValue#ofCustom(Locale, Map)} (a custom locale with its own options)</dd>
+     *   <dt>Shortcuts</dt> <dd>{@link #setLocale(Locale)}: a locale the library brings, as
+     *                          {@code LocaleValue.of(Locale)}</dd>
+     *   <dt>Default</dt>   <dd>library: the first locale it is given, or English without one<br>
+     *                          add-on: {@link CalendarLocale#getDefaultLocale()}. The add-on gives the library every
+     *                          locale and always sets one, so the library default does not apply.</dd>
+     * </dl>
+     * <pre>{@code
+     * calendar.options().setLocale(Locale.GERMAN);
+     * calendar.options().setLocale(LocaleValue.ofCustom(Locale.GERMAN, Map.of("todayText", "Heute")));
+     * }</pre>
      *
      * @see <a href="https://fullcalendar.io/docs/locale">locale</a>
      */
@@ -247,15 +295,29 @@ class CalendarOptions implements Serializable {
     // Render hooks: view, toolbar, buttons, single month
 
     /**
-     * CSS classes for the root element of the view. A callback runs whenever the view changes.
+     * CSS classes for the root element of the view.
      * <p>
-     * It gets an {@code info} object with {@code view} and more, see the library docs. It returns the class names as a
-     * string.
+     * A theme can set classes of its own, and the classes set here are added to them.
      * <p>
-     * The library default is no classes. A theme can set classes of its own, and the classes set here are added to
-     * them.
-     * <p>
-     * The getter returns null while the option is not set; then the library default applies.
+     * The getter returns null while the option is not set. Then the library default applies.
+     * <dl>
+     *   <dt>Forms</dt>     <dd>{@link ClassName}, or a {@link JsCallback}</dd>
+     *   <dt>Shortcuts</dt> <dd>{@link #setViewClass(String)}: class names separated by spaces, as
+     *                          {@link ClassName}</dd>
+     *   <dt>Default</dt>   <dd>library: no classes<br>
+     *                          add-on: stable classes {@code fc-view}, one per view type, such as
+     *                          {@code fc-dayGridMonth-view}, and one per view family, such as {@code fc-daygrid}.
+     *                          Classes set here are added to them.</dd>
+     *   <dt>Callback</dt>  <dd>{@code function(info)}, called whenever the view changes. {@code info} has
+     *                          {@code view}, {@code borderlessX}, {@code borderlessTop}, {@code borderlessBottom},
+     *                          {@code options} (with {@code headerToolbar} and {@code footerToolbar}) and
+     *                          {@code isHeightAuto}.</dd>
+     *   <dt>Returns</dt>   <dd>the class names as a string</dd>
+     * </dl>
+     * <pre>{@code
+     * calendar.options().setViewClass("my-view");
+     * calendar.options().setViewClass(JsCallback.of("info => info.view.type.startsWith('list') ? 'my-list' : ''"));
+     * }</pre>
      *
      * @see <a href="https://fullcalendar.io/docs/view-render-hooks">viewClass</a>
      */
@@ -370,12 +432,21 @@ class CalendarOptions implements Serializable {
     }
 
     /**
-     * How the week numbers are calculated: by the locale, by ISO 8601 (which also makes Monday the default first day of
-     * the week), or by a callback that gets a date and returns its week number.
+     * How the week numbers are calculated. {@link WeekNumberCalculation#ISO} follows ISO 8601 and also makes Monday the
+     * default first day of the week.
      * <p>
-     * The library default is {@code "local"}, the calculation of the locale.
-     * <p>
-     * The getter returns null while the option is not set; then the library default applies.
+     * The getter returns null while the option is not set. Then the library default applies.
+     * <dl>
+     *   <dt>Forms</dt>     <dd>{@link WeekNumberCalculation#LOCAL} (the calculation of the locale),
+     *                          {@link WeekNumberCalculation#ISO}, or a {@link JsCallback}</dd>
+     *   <dt>Default</dt>   <dd>library: {@link WeekNumberCalculation#LOCAL}</dd>
+     *   <dt>Callback</dt>  <dd>{@code function(date)}, the date as a JavaScript {@code Date}</dd>
+     *   <dt>Returns</dt>   <dd>the week number as an integer</dd>
+     * </dl>
+     * <pre>{@code
+     * calendar.options().setWeekNumberCalculation(WeekNumberCalculation.ISO);
+     * calendar.options().setWeekNumberCalculation(JsCallback.of("date => Math.ceil(date.getDate() / 7)"));
+     * }</pre>
      *
      * @see <a href="https://fullcalendar.io/docs/weekNumberCalculation">weekNumberCalculation</a>
      */
@@ -404,13 +475,42 @@ class CalendarOptions implements Serializable {
     private JsCallback entryAllow;
 
     /**
-     * Limits entry dragging and resizing to the entries of a group, to the business hours of the calendar, or to
-     * windows of time. A window is recurring business hours, a window defined by an {@link RRule} or a fixed span. With
-     * the scheduler, it also limits them to resources, see {@link ConstraintValue#ofResources(String...)} and
-     * {@link ConstraintValue.Windows#withResources(String...)}.
+     * Limits entry dragging and resizing to certain windows of time.
      * <p>
-     * The library has no default for this option. Without a value, dragging and resizing are not limited. The getter
-     * returns null while the option is not set; then the library default applies.
+     * A dragged or resized entry must lie fully inside the limit. For a group, that means inside at least one of its
+     * entries.
+     * <p>
+     * The getter returns null while the option is not set. Then the library default applies.
+     * <dl>
+     *   <dt>Forms</dt>     <dd>{@link ConstraintValue#ofGroupId(String)} (the entries of a group),
+     *                          {@link ConstraintValue#BUSINESS_HOURS} (the business hours of the calendar),
+     *                          {@link ConstraintValue#ofWindows(BusinessHours...)} or
+     *                          {@link ConstraintValue#ofWindows(ConstraintValue.Window...)} (windows of time: recurring
+     *                          {@link BusinessHours},
+     *                          {@link ConstraintValue.Window#ofRRule(RRule) windows defined by an RRule}, also
+     *                          {@link ConstraintValue.Window#ofRRule(RRule, java.time.Duration) with a duration}, and
+     *                          {@link ConstraintValue.Window#span(LocalDate, LocalDate) fixed spans of days} or
+     *                          {@link ConstraintValue.Window#span(LocalDateTime, LocalDateTime) of date and time}),
+     *                          {@link ConstraintValue#ofResources(String...)} (resources, scheduler only),
+     *                          {@link ConstraintValue.Windows#withResources(String...)} (windows of time limited to
+     *                          resources, scheduler only)</dd>
+     *   <dt>Shortcuts</dt> <dd>{@link #setEntryConstraint(String)}: a group id, as {@code ofGroupId}. The id
+     *                          {@code "businessHours"} throws an {@link IllegalArgumentException}. Use
+     *                          {@link ConstraintValue#BUSINESS_HOURS}<br>
+     *                          {@link #setEntryConstraint(BusinessHours...)}: recurring windows, as {@code ofWindows}.
+     *                          No window throws an {@link IllegalArgumentException}<br>
+     *                          {@link #setEntryConstraint(ConstraintValue.Window...)}: windows of time of any kind, as
+     *                          {@code ofWindows}. No window throws an {@link IllegalArgumentException}</dd>
+     *   <dt>Default</dt>   <dd>library: none, dragging and resizing are not limited</dd>
+     * </dl>
+     * <pre>{@code
+     * calendar.options().setEntryConstraint("groupA");
+     * calendar.options().setEntryConstraint(BusinessHours.businessWeek().start(9).end(17));
+     * calendar.options().setEntryConstraint(ConstraintValue.BUSINESS_HOURS);
+     * calendar.options().setEntryConstraint(ConstraintValue.ofResources("a", "b")); // scheduler only
+     * calendar.options().setEntryConstraint(
+     *         ConstraintValue.ofWindows(BusinessHours.businessWeek()).withResources("a")); // scheduler only
+     * }</pre>
      *
      * @see <a href="https://fullcalendar.io/docs/eventConstraint">eventConstraint</a>
      */
@@ -521,16 +621,30 @@ class CalendarOptions implements Serializable {
     private JsCallback navLinkWeekClick;
 
     /**
-     * What happens when the user clicks a "+N more" link, which the entry limits create: an action such as
-     * {@link MoreLinkClickValue.Action#POPUP}, a view to go to, or a callback. The library default is the popover.
-     * <p>
-     * A callback gets an {@code info} object with {@code date}, {@code allSegs}, {@code jsEvent} and more, see the
-     * library docs. It can return an action or a view name, which then applies.
+     * What happens when the user clicks a "+N more" link, which the entry limits create.
      * <p>
      * The calendar has its own callback for this option, which sends the {@link MoreLinkClickedEvent}, and applies this
      * value after it. The server gets the event with every value, also with a raw option.
      * <p>
-     * The getter returns null while the option is not set; then the library default applies.
+     * The getter returns null while the option is not set. Then the library default applies.
+     * <dl>
+     *   <dt>Forms</dt>     <dd>{@link MoreLinkClickValue.Action#POPUP} (a popover with all entries of the day),
+     *                          {@link MoreLinkClickValue.Action#DAY} (a day view, as the views of the header toolbar
+     *                          determine), {@link MoreLinkClickValue.Action#WEEK} (a week view, as the views of the
+     *                          header toolbar determine), {@link MoreLinkClickValue.Action#NOTHING} (no popover, the
+     *                          view type stays), a {@link ViewName} (the view to go to), or a {@link JsCallback}</dd>
+     *   <dt>Shortcuts</dt> <dd>{@link #setMoreLinkClick(String)}: a client-side view name, as {@link ViewName}<br>
+     *                          {@link #setMoreLinkClick(CalendarView)}: a view, as {@link ViewName}</dd>
+     *   <dt>Default</dt>   <dd>library: {@link MoreLinkClickValue.Action#POPUP}</dd>
+     *   <dt>Callback</dt>  <dd>{@code function(info)}. {@code info} has {@code date}, {@code allDay},
+     *                          {@code allSegs}, {@code hiddenSegs}, {@code jsEvent} and {@code view}.</dd>
+     *   <dt>Returns</dt>   <dd>an action or a view name as a string, which then applies</dd>
+     * </dl>
+     * <pre>{@code
+     * calendar.options().setMoreLinkClick(CalendarViewImpl.TIME_GRID_DAY);
+     * calendar.options().setMoreLinkClick(MoreLinkClickValue.Action.WEEK);
+     * calendar.options().setMoreLinkClick(JsCallback.of("info => info.date.getDay() === 0 ? 'week' : 'popover'"));
+     * }</pre>
      *
      * @see <a href="https://fullcalendar.io/docs/moreLinkClick">moreLinkClick</a>
      */
@@ -580,12 +694,39 @@ class CalendarOptions implements Serializable {
     private JsCallback selectAllow;
 
     /**
-     * Limits where the user can select to certain windows of time. It takes the same values as
-     * {@link #getEntryConstraint()} and applies when selecting is enabled.
+     * Limits where the user can select to certain windows of time. It applies when selecting is enabled.
      * <p>
-     * The library has no default. Without a value, the selection is not limited to windows of time.
-     * <p>
-     * The getter returns null while the option is not set; then the library default applies.
+     * The getter returns null while the option is not set. Then the library default applies.
+     * <dl>
+     *   <dt>Forms</dt>     <dd>{@link ConstraintValue#ofGroupId(String)} (the entries of a group),
+     *                          {@link ConstraintValue#BUSINESS_HOURS} (the business hours of the calendar),
+     *                          {@link ConstraintValue#ofWindows(BusinessHours...)} or
+     *                          {@link ConstraintValue#ofWindows(ConstraintValue.Window...)} (windows of time: recurring
+     *                          {@link BusinessHours},
+     *                          {@link ConstraintValue.Window#ofRRule(RRule) windows defined by an RRule}, also
+     *                          {@link ConstraintValue.Window#ofRRule(RRule, java.time.Duration) with a duration}, and
+     *                          {@link ConstraintValue.Window#span(LocalDate, LocalDate) fixed spans of days} or
+     *                          {@link ConstraintValue.Window#span(LocalDateTime, LocalDateTime) of date and time}),
+     *                          {@link ConstraintValue#ofResources(String...)} (resources, scheduler only),
+     *                          {@link ConstraintValue.Windows#withResources(String...)} (windows of time limited to
+     *                          resources, scheduler only)</dd>
+     *   <dt>Shortcuts</dt> <dd>{@link #setSelectConstraint(String)}: a group id, as {@code ofGroupId}. The id
+     *                          {@code "businessHours"} throws an {@link IllegalArgumentException}. Use
+     *                          {@link ConstraintValue#BUSINESS_HOURS}<br>
+     *                          {@link #setSelectConstraint(BusinessHours...)}: recurring windows, as {@code ofWindows}.
+     *                          No window throws an {@link IllegalArgumentException}<br>
+     *                          {@link #setSelectConstraint(ConstraintValue.Window...)}: windows of time of any kind, as
+     *                          {@code ofWindows}. No window throws an {@link IllegalArgumentException}</dd>
+     *   <dt>Default</dt>   <dd>library: none, the selection is not limited to windows of time</dd>
+     * </dl>
+     * <pre>{@code
+     * calendar.options().setSelectConstraint("groupA");
+     * calendar.options().setSelectConstraint(BusinessHours.businessWeek().start(9).end(17));
+     * calendar.options().setSelectConstraint(ConstraintValue.BUSINESS_HOURS);
+     * calendar.options().setSelectConstraint(ConstraintValue.ofResources("a", "b")); // scheduler only
+     * calendar.options().setSelectConstraint(
+     *         ConstraintValue.ofWindows(BusinessHours.businessWeek()).withResources("a")); // scheduler only
+     * }</pre>
      *
      * @see <a href="https://fullcalendar.io/docs/selectConstraint">selectConstraint</a>
      */
@@ -633,15 +774,25 @@ class CalendarOptions implements Serializable {
     // Entry display and layout
 
     /**
-     * CSS classes for the root element of the calendar. FullCalendar adds them to the classes the add-on sets there.
+     * CSS classes for the root element of the calendar.
      * <p>
-     * A callback gets an {@code info} object with {@code borderlessX}, {@code borderlessTop} and
-     * {@code borderlessBottom}. It returns the class names as a string.
+     * A theme can set classes of its own, and the classes set here are added to them.
      * <p>
-     * The library default is no classes. A theme can set classes of its own, and the classes set here are added to
-     * them.
-     * <p>
-     * The getter returns null while the option is not set; then the library default applies.
+     * The getter returns null while the option is not set. Then the library default applies.
+     * <dl>
+     *   <dt>Forms</dt>     <dd>{@link ClassName}, or a {@link JsCallback}</dd>
+     *   <dt>Shortcuts</dt> <dd>{@link #setClassName(String)}: class names separated by spaces, as
+     *                          {@link ClassName}</dd>
+     *   <dt>Default</dt>   <dd>library: no classes<br>
+     *                          add-on: the stable class {@code fc}. Classes set here are added to it.</dd>
+     *   <dt>Callback</dt>  <dd>{@code function(info)}. {@code info} has {@code borderlessX}, {@code borderlessTop} and
+     *                          {@code borderlessBottom}.</dd>
+     *   <dt>Returns</dt>   <dd>the class names as a string</dd>
+     * </dl>
+     * <pre>{@code
+     * calendar.options().setClassName("my-calendar");
+     * calendar.options().setClassName(JsCallback.of("info => info.borderlessX ? 'my-borderless' : 'my-calendar'"));
+     * }</pre>
      *
      * @see <a href="https://fullcalendar.io/docs/className">className</a>
      */
@@ -712,11 +863,19 @@ class CalendarOptions implements Serializable {
     private String dayText;
 
     /**
-     * Text of the list view button of the built-in toolbar, or {@link ListTextValue#NONE} to show buttons named by
-     * duration, such as "Week" or "Month", instead of a "List" button.
+     * Text of the list view button of the built-in toolbar.
      * <p>
-     * The library default is the text of the locale, "List" in English. The getter returns null while the option is not
-     * set; then the library default applies.
+     * The getter returns null while the option is not set. Then the library default applies.
+     * <dl>
+     *   <dt>Forms</dt>     <dd>{@link TextContent} (shown as text), or {@link ListTextValue#NONE} (buttons named by
+     *                          duration, such as "Week" or "Month", instead of a "List" button)</dd>
+     *   <dt>Shortcuts</dt> <dd>{@link #setListText(String)}: a text, as {@link TextContent}</dd>
+     *   <dt>Default</dt>   <dd>library: the text of the locale, "List" in English</dd>
+     * </dl>
+     * <pre>{@code
+     * calendar.options().setListText("Agenda");
+     * calendar.options().setListText(ListTextValue.NONE);
+     * }</pre>
      *
      * @see <a href="https://fullcalendar.io/docs/list-view">listText (List view: Toolbar Buttons)</a>
      */
@@ -753,16 +912,26 @@ class CalendarOptions implements Serializable {
     private String monthText;
 
     /**
-     * Accessible label ({@code aria-label}) of the "next" button in the built-in toolbar. It also labels the
-     * "next year" button. For that button, the placeholder stands for the year text and the unit id is {@code 'year'}.
+     * Accessible label ({@code aria-label}) of the "next" button in the built-in toolbar. It also labels the "next
+     * year" button. For that button, the placeholder stands for the year text and the unit name is {@code 'year'}.
      * <p>
-     * A text may use {@code $0} as placeholder for the localized unit text, such as "week". A callback gets the
-     * localized unit text and a canonical unit id such as {@code 'day'}, {@code 'week'} or {@code 'month'}. It returns
-     * the text.
+     * A text may use {@code $0} as placeholder for the localized unit text, such as "week", and {@code $1} for the
+     * unit name in English, such as {@code week}.
      * <p>
-     * The library default is the hint of the locale, "Next $0" in English.
-     * <p>
-     * The getter returns null while the option is not set; then the library default applies.
+     * The getter returns null while the option is not set. Then the library default applies.
+     * <dl>
+     *   <dt>Forms</dt>     <dd>{@link TextContent} (shown as text), or a {@link JsCallback}</dd>
+     *   <dt>Shortcuts</dt> <dd>{@link #setNextHint(String)}: a text, as {@link TextContent}</dd>
+     *   <dt>Default</dt>   <dd>library: the hint of the locale, "Next $0" in English</dd>
+     *   <dt>Callback</dt>  <dd>{@code function(unitText, unitName)}. {@code unitText} is the localized text of the
+     *                          unit, {@code unitName} the unit name in English, such as {@code 'day'}, {@code 'week'}
+     *                          or {@code 'month'}.</dd>
+     *   <dt>Returns</dt>   <dd>the text</dd>
+     * </dl>
+     * <pre>{@code
+     * calendar.options().setNextHint("Next $0");
+     * calendar.options().setNextHint(JsCallback.of("(unit, name) => 'Go forward one ' + unit"));
+     * }</pre>
      *
      * @see <a href="https://fullcalendar.io/docs/locale">nextHint</a>
      */
@@ -812,17 +981,26 @@ class CalendarOptions implements Serializable {
     private String nextYearText;
 
     /**
-     * Accessible label ({@code aria-label}) of the "prev" button in the built-in toolbar. It also labels the
-     * "previous year" button. For that button, the placeholder stands for the year text and the unit id is
-     * {@code 'year'}.
+     * Accessible label ({@code aria-label}) of the "prev" button in the built-in toolbar. It also labels the "previous
+     * year" button. For that button, the placeholder stands for the year text and the unit name is {@code 'year'}.
      * <p>
-     * A text may use {@code $0} as placeholder for the localized unit text, such as "week". A callback gets the
-     * localized unit text and a canonical unit id such as {@code 'day'}, {@code 'week'} or {@code 'month'}. It returns
-     * the text.
+     * A text may use {@code $0} as placeholder for the localized unit text, such as "week", and {@code $1} for the
+     * unit name in English, such as {@code week}.
      * <p>
-     * The library default is the hint of the locale, "Previous $0" in English.
-     * <p>
-     * The getter returns null while the option is not set; then the library default applies.
+     * The getter returns null while the option is not set. Then the library default applies.
+     * <dl>
+     *   <dt>Forms</dt>     <dd>{@link TextContent} (shown as text), or a {@link JsCallback}</dd>
+     *   <dt>Shortcuts</dt> <dd>{@link #setPrevHint(String)}: a text, as {@link TextContent}</dd>
+     *   <dt>Default</dt>   <dd>library: the hint of the locale, "Previous $0" in English</dd>
+     *   <dt>Callback</dt>  <dd>{@code function(unitText, unitName)}. {@code unitText} is the localized text of the
+     *                          unit, {@code unitName} the unit name in English, such as {@code 'day'}, {@code 'week'}
+     *                          or {@code 'month'}.</dd>
+     *   <dt>Returns</dt>   <dd>the text</dd>
+     * </dl>
+     * <pre>{@code
+     * calendar.options().setPrevHint("Previous $0");
+     * calendar.options().setPrevHint(JsCallback.of("(unit, name) => 'Go back one ' + unit"));
+     * }</pre>
      *
      * @see <a href="https://fullcalendar.io/docs/locale">prevHint</a>
      */
@@ -874,14 +1052,24 @@ class CalendarOptions implements Serializable {
     /**
      * Accessible label ({@code aria-label}) of the "today" button in the built-in toolbar.
      * <p>
-     * A text may use {@code $0} as placeholder for the localized unit text, such as "week". A callback gets the
-     * localized unit text and a canonical unit id such as {@code 'day'}, {@code 'week'} or {@code 'month'}. It returns
-     * the text.
+     * A text may use {@code $0} as placeholder for the localized unit text, such as "week", and {@code $1} for the
+     * unit name in English, such as {@code week}.
      * <p>
-     * The library default is the text of the locale (English: "Today" for the unit day, otherwise "This" and the unit
-     * text, such as "This week").
-     * <p>
-     * The getter returns null while the option is not set; then the library default applies.
+     * The getter returns null while the option is not set. Then the library default applies.
+     * <dl>
+     *   <dt>Forms</dt>     <dd>{@link TextContent} (shown as text), or a {@link JsCallback}</dd>
+     *   <dt>Shortcuts</dt> <dd>{@link #setTodayHint(String)}: a text, as {@link TextContent}</dd>
+     *   <dt>Default</dt>   <dd>library: the hint of the locale. In English, "Today" for the unit day and "This $0"
+     *                          otherwise, such as "This week"</dd>
+     *   <dt>Callback</dt>  <dd>{@code function(unitText, unitName)}. {@code unitText} is the localized text of the
+     *                          unit, {@code unitName} the unit name in English, such as {@code 'day'}, {@code 'week'}
+     *                          or {@code 'month'}.</dd>
+     *   <dt>Returns</dt>   <dd>the text</dd>
+     * </dl>
+     * <pre>{@code
+     * calendar.options().setTodayHint("Go to $0");
+     * calendar.options().setTodayHint(JsCallback.of("(unit, name) => name === 'day' ? 'Today' : 'This ' + unit"));
+     * }</pre>
      *
      * @see <a href="https://fullcalendar.io/docs/locale">todayHint</a>
      */
@@ -921,12 +1109,21 @@ class CalendarOptions implements Serializable {
      * Accessible label ({@code aria-label}) for the view buttons of the built-in toolbar that have no hint of their
      * own.
      * <p>
-     * A text may use {@code $0} as placeholder for the localized button text, such as "$0 view". A callback gets the
-     * localized button text and the button name from the toolbar, such as {@code 'listWeek'}, and returns the text.
+     * A text may use {@code $0} as placeholder for the localized button text, such as "$0 view".
      * <p>
-     * The library default is the text of the locale (English: "$0 view").
-     * <p>
-     * The getter returns null while the option is not set; then the library default applies.
+     * The getter returns null while the option is not set. Then the library default applies.
+     * <dl>
+     *   <dt>Forms</dt>     <dd>{@link TextContent} (shown as text), or a {@link JsCallback}</dd>
+     *   <dt>Shortcuts</dt> <dd>{@link #setViewHint(String)}: a text, as {@link TextContent}</dd>
+     *   <dt>Default</dt>   <dd>library: the hint of the locale, "$0 view" in English</dd>
+     *   <dt>Callback</dt>  <dd>{@code function(buttonText, viewName)}. {@code buttonText} is the localized button text,
+     *                          {@code viewName} the button name from the toolbar, such as {@code 'listWeek'}.</dd>
+     *   <dt>Returns</dt>   <dd>the text</dd>
+     * </dl>
+     * <pre>{@code
+     * calendar.options().setViewHint("Show $0");
+     * calendar.options().setViewHint(JsCallback.of("(text, name) => name === 'listWeek' ? 'Agenda view' : text"));
+     * }</pre>
      *
      * @see <a href="https://fullcalendar.io/docs/hints">viewHint</a>
      */

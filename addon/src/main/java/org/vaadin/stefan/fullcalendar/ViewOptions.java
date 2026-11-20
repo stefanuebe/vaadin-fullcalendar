@@ -53,6 +53,7 @@ import org.vaadin.stefan.fullcalendar.option.DateRange;
 import org.vaadin.stefan.fullcalendar.option.DateRangeValue;
 import org.vaadin.stefan.fullcalendar.option.CalendarDuration;
 import org.vaadin.stefan.fullcalendar.option.EntryLimitValue;
+import org.vaadin.stefan.fullcalendar.option.HeaderAlign;
 import org.vaadin.stefan.fullcalendar.option.HeaderAlignValue;
 import org.vaadin.stefan.fullcalendar.option.HeightValue;
 import org.vaadin.stefan.fullcalendar.option.JsCallback;
@@ -121,13 +122,25 @@ class ViewOptions implements Serializable {
      * CSS classes for day cells in day grid views (including the all-day section of time grid views) and the body of
      * the "+N more" popover. Time grid day columns use {@code dayLaneClass} instead.
      * <p>
-     * A callback gets an {@code info} object with {@code date}, {@code text}, {@code isPast}, {@code isFuture},
-     * {@code isToday}, {@code isOther} and more, see the library docs. It returns the class names as a string.
+     * A theme can set classes of its own, and the classes set here are added to them.
      * <p>
-     * The library default is no classes. A theme can set classes of its own, and the classes set here are added to
-     * them.
-     * <p>
-     * The getter returns null while the option is not set; then the library default applies.
+     * The getter returns null while the option is not set. Then the library default applies.
+     * <dl>
+     *   <dt>Forms</dt>     <dd>{@link ClassName}, or a {@link JsCallback}</dd>
+     *   <dt>Shortcuts</dt> <dd>{@link #setDayCellClass(String)}: class names separated by spaces, as
+     *                          {@link ClassName}</dd>
+     *   <dt>Default</dt>   <dd>library: no classes<br>
+     *                          add-on: stable classes such as {@code fc-daygrid-day} and {@code fc-day-today}, and
+     *                          {@code fc-popover-body} in the popover. Classes set here are added to them.</dd>
+     *   <dt>Callback</dt>  <dd>{@code function(info)}. {@code info} has {@code date}, {@code text}, {@code isPast},
+     *                          {@code isFuture}, {@code isToday}, {@code isOther} and more.
+     *                          See the library docs.</dd>
+     *   <dt>Returns</dt>   <dd>the class names as a string</dd>
+     * </dl>
+     * <pre>{@code
+     * calendar.options().setDayCellClass("my-day");
+     * calendar.options().setDayCellClass(JsCallback.of("info => info.isToday ? 'my-today' : ''"));
+     * }</pre>
      *
      * @see <a href="https://fullcalendar.io/docs/day-cell-render-hooks">dayCellClass</a>
      */
@@ -153,13 +166,23 @@ class ViewOptions implements Serializable {
     }
 
     /**
-     * Content for the cell in the header area of time grid views that labels the all-day section. The library default
-     * is the locale's text for the all-day section ("All-day" in English).
+     * Content for the cell in the header area of time grid views that labels the all-day section.
      * <p>
-     * A callback gets an {@code info} object with {@code text}, {@code isNarrow} and {@code view}. It returns a text,
-     * or {@code {html: '...'}} or {@code {domNodes: [...]}}.
-     * <p>
-     * The getter returns null while the option is not set; then the library default applies.
+     * The getter returns null while the option is not set. Then the library default applies.
+     * <dl>
+     *   <dt>Forms</dt>     <dd>{@link TextContent} (shown as text), {@link ContentValue#ofHtml(String) HTML} (not
+     *                          escaped), or a {@link JsCallback}</dd>
+     *   <dt>Shortcuts</dt> <dd>{@link #setAllDayHeaderContent(String)}: a text, as {@link TextContent}</dd>
+     *   <dt>Default</dt>   <dd>library: the text of the locale for the all-day section, "All-day" in English</dd>
+     *   <dt>Callback</dt>  <dd>{@code function(info)}. {@code info} has {@code text}, {@code isNarrow} and
+     *                          {@code view}.</dd>
+     *   <dt>Returns</dt>   <dd>a text, {@code {html: '...'}} or {@code {domNodes: [...]}}</dd>
+     * </dl>
+     * <pre>{@code
+     * calendar.options().setAllDayHeaderContent("Whole day");
+     * calendar.options().setAllDayHeaderContent(ContentValue.ofHtml("<b>All day</b>"));
+     * calendar.options().setAllDayHeaderContent(JsCallback.of("info => info.isNarrow ? 'All' : info.text"));
+     * }</pre>
      *
      * @see <a href="https://fullcalendar.io/docs/all-day-header-render-hooks">allDayHeaderContent</a>
      */
@@ -186,14 +209,23 @@ class ViewOptions implements Serializable {
 
     /**
      * Horizontal text alignment of the day header cells in day grid and time grid views, and in the header of the entry
-     * popover. In a left-to-right locale, start means left and end means right. The library default is {@code "start"},
-     * but a theme can change it. The theme of the add-on builds on the classic theme of the library, which centers the
-     * text outside the popover.
+     * popover. In a left-to-right locale, start means left and end means right.
      * <p>
-     * A callback gets an {@code info} object with {@code level}, {@code inPopover} and {@code isNarrow}. It returns
-     * {@code "start"}, {@code "center"} or {@code "end"}.
-     * <p>
-     * The getter returns null while the option is not set; then the library default applies.
+     * The getter returns null while the option is not set. Then the library default applies.
+     * <dl>
+     *   <dt>Forms</dt>     <dd>{@link HeaderAlign#START}, {@link HeaderAlign#CENTER}, {@link HeaderAlign#END}, or a
+     *                          {@link JsCallback}</dd>
+     *   <dt>Default</dt>   <dd>library: {@link HeaderAlign#START}. A theme can change it.<br>
+     *                          add-on: the theme of the add-on builds on the classic theme of the library, which
+     *                          centers the text outside the popover.</dd>
+     *   <dt>Callback</dt>  <dd>{@code function(info)}. {@code info} has {@code level}, {@code inPopover} and
+     *                          {@code isNarrow}.</dd>
+     *   <dt>Returns</dt>   <dd>{@code "start"}, {@code "center"} or {@code "end"}</dd>
+     * </dl>
+     * <pre>{@code
+     * calendar.options().setDayHeaderAlign(HeaderAlign.END);
+     * calendar.options().setDayHeaderAlign(JsCallback.of("info => info.inPopover ? 'start' : 'center'"));
+     * }</pre>
      *
      * @see <a href="https://fullcalendar.io/docs/day-header-render-hooks">dayHeaderAlign</a>
      */
@@ -217,13 +249,24 @@ class ViewOptions implements Serializable {
     /**
      * CSS classes for the cell in the header area of time grid views that labels the all-day section.
      * <p>
-     * A callback gets an {@code info} object with {@code text}, {@code isNarrow} and {@code view}, see the library
-     * docs. It returns the class names as a string.
+     * A theme can set classes of its own, and the classes set here are added to them.
      * <p>
-     * The library default is no classes. A theme can set classes of its own, and the classes set here are added to
-     * them.
-     * <p>
-     * The getter returns null while the option is not set; then the library default applies.
+     * The getter returns null while the option is not set. Then the library default applies.
+     * <dl>
+     *   <dt>Forms</dt>     <dd>{@link ClassName}, or a {@link JsCallback}</dd>
+     *   <dt>Shortcuts</dt> <dd>{@link #setAllDayHeaderClass(String)}: class names separated by spaces, as
+     *                          {@link ClassName}</dd>
+     *   <dt>Default</dt>   <dd>library: no classes<br>
+     *                          add-on: the stable class {@code fc-timegrid-axis}.
+     *                          Classes set here are added to it.</dd>
+     *   <dt>Callback</dt>  <dd>{@code function(info)}. {@code info} has {@code text}, {@code isNarrow} and
+     *                          {@code view}.</dd>
+     *   <dt>Returns</dt>   <dd>the class names as a string</dd>
+     * </dl>
+     * <pre>{@code
+     * calendar.options().setAllDayHeaderClass("my-all-day");
+     * calendar.options().setAllDayHeaderClass(JsCallback.of("info => info.isNarrow ? 'my-narrow' : ''"));
+     * }</pre>
      *
      * @see <a href="https://fullcalendar.io/docs/all-day-header-render-hooks">allDayHeaderClass</a>
      */
@@ -268,13 +311,22 @@ class ViewOptions implements Serializable {
      * CSS classes for the inner wrapper of the cell in the header area of time grid views that labels the all-day
      * section. Useful for adjusting padding.
      * <p>
-     * A callback gets an {@code info} object with {@code text}, {@code isNarrow} and {@code view}, see the library
-     * docs. It returns the class names as a string.
+     * A theme can set classes of its own, and the classes set here are added to them.
      * <p>
-     * The library default is no classes. A theme can set classes of its own, and the classes set here are added to
-     * them.
-     * <p>
-     * The getter returns null while the option is not set; then the library default applies.
+     * The getter returns null while the option is not set. Then the library default applies.
+     * <dl>
+     *   <dt>Forms</dt>     <dd>{@link ClassName}, or a {@link JsCallback}</dd>
+     *   <dt>Shortcuts</dt> <dd>{@link #setAllDayHeaderInnerClass(String)}: class names separated by spaces, as
+     *                          {@link ClassName}</dd>
+     *   <dt>Default</dt>   <dd>library: no classes</dd>
+     *   <dt>Callback</dt>  <dd>{@code function(info)}. {@code info} has {@code text}, {@code isNarrow} and
+     *                          {@code view}.</dd>
+     *   <dt>Returns</dt>   <dd>the class names as a string</dd>
+     * </dl>
+     * <pre>{@code
+     * calendar.options().setAllDayHeaderInnerClass("my-all-day-inner");
+     * calendar.options().setAllDayHeaderInnerClass(JsCallback.of("info => info.isNarrow ? 'my-narrow-inner' : ''"));
+     * }</pre>
      *
      * @see <a href="https://fullcalendar.io/docs/all-day-header-render-hooks">allDayHeaderInnerClass</a>
      */
@@ -321,13 +373,22 @@ class ViewOptions implements Serializable {
      * CSS classes for the bottom area of a day cell in day grid views and in the all-day section of time grid views.
      * This is where the more-link appears.
      * <p>
-     * A callback gets an {@code info} object with {@code date}, {@code text}, {@code isToday} and more, see the library
-     * docs. It returns the class names as a string.
+     * A theme can set classes of its own, and the classes set here are added to them.
      * <p>
-     * The library default is no classes. A theme can set classes of its own, and the classes set here are added to
-     * them.
-     * <p>
-     * The getter returns null while the option is not set; then the library default applies.
+     * The getter returns null while the option is not set. Then the library default applies.
+     * <dl>
+     *   <dt>Forms</dt>     <dd>{@link ClassName}, or a {@link JsCallback}</dd>
+     *   <dt>Shortcuts</dt> <dd>{@link #setDayCellBottomClass(String)}: class names separated by spaces, as
+     *                          {@link ClassName}</dd>
+     *   <dt>Default</dt>   <dd>library: no classes</dd>
+     *   <dt>Callback</dt>  <dd>{@code function(info)}. {@code info} has {@code date}, {@code text}, {@code isToday} and
+     *                          more. See the library docs.</dd>
+     *   <dt>Returns</dt>   <dd>the class names as a string</dd>
+     * </dl>
+     * <pre>{@code
+     * calendar.options().setDayCellBottomClass("my-day-bottom");
+     * calendar.options().setDayCellBottomClass(JsCallback.of("info => info.isToday ? 'my-today-bottom' : ''"));
+     * }</pre>
      *
      * @see <a href="https://fullcalendar.io/docs/day-cell-render-hooks">dayCellBottomClass</a>
      */
@@ -368,16 +429,27 @@ class ViewOptions implements Serializable {
     private JsCallback dayCellDidMount;
 
     /**
-     * CSS classes for the middle area of a day cell in day grid views and in the all-day section of time grid views.
-     * This is where the entries appear.
+     * CSS classes for the middle area of a day cell in day grid views and in the all-day section of time grid views,
+     * and for the body of the entry popover. This is where the entries appear.
      * <p>
-     * A callback gets an {@code info} object with {@code date}, {@code text}, {@code isToday} and more, see the library
-     * docs. It returns the class names as a string.
+     * A theme can set classes of its own, and the classes set here are added to them.
      * <p>
-     * The library default is no classes. A theme can set classes of its own, and the classes set here are added to
-     * them.
-     * <p>
-     * The getter returns null while the option is not set; then the library default applies.
+     * The getter returns null while the option is not set. Then the library default applies.
+     * <dl>
+     *   <dt>Forms</dt>     <dd>{@link ClassName}, or a {@link JsCallback}</dd>
+     *   <dt>Shortcuts</dt> <dd>{@link #setDayCellInnerClass(String)}: class names separated by spaces, as
+     *                          {@link ClassName}</dd>
+     *   <dt>Default</dt>   <dd>library: no classes<br>
+     *                          add-on: the stable class {@code fc-daygrid-day-events}.
+     *                          Classes set here are added to it.</dd>
+     *   <dt>Callback</dt>  <dd>{@code function(info)}. {@code info} has {@code date}, {@code text}, {@code isToday} and
+     *                          more. See the library docs.</dd>
+     *   <dt>Returns</dt>   <dd>the class names as a string</dd>
+     * </dl>
+     * <pre>{@code
+     * calendar.options().setDayCellInnerClass("my-day-inner");
+     * calendar.options().setDayCellInnerClass(JsCallback.of("info => info.isToday ? 'my-today-inner' : ''"));
+     * }</pre>
      *
      * @see <a href="https://fullcalendar.io/docs/day-cell-render-hooks">dayCellInnerClass</a>
      */
@@ -406,13 +478,24 @@ class ViewOptions implements Serializable {
      * CSS classes for the top area of a day cell in day grid views and in the all-day section of time grid views. This
      * is where the day number appears.
      * <p>
-     * A callback gets an {@code info} object with {@code date}, {@code text}, {@code isToday} and more, see the library
-     * docs. It returns the class names as a string.
+     * A theme can set classes of its own, and the classes set here are added to them.
      * <p>
-     * The library default is no classes. A theme can set classes of its own, and the classes set here are added to
-     * them.
-     * <p>
-     * The getter returns null while the option is not set; then the library default applies.
+     * The getter returns null while the option is not set. Then the library default applies.
+     * <dl>
+     *   <dt>Forms</dt>     <dd>{@link ClassName}, or a {@link JsCallback}</dd>
+     *   <dt>Shortcuts</dt> <dd>{@link #setDayCellTopClass(String)}: class names separated by spaces, as
+     *                          {@link ClassName}</dd>
+     *   <dt>Default</dt>   <dd>library: no classes<br>
+     *                          add-on: the stable class {@code fc-daygrid-day-top}.
+     *                          Classes set here are added to it.</dd>
+     *   <dt>Callback</dt>  <dd>{@code function(info)}. {@code info} has {@code date}, {@code text}, {@code isToday}
+     *                          and more. See the library docs.</dd>
+     *   <dt>Returns</dt>   <dd>the class names as a string</dd>
+     * </dl>
+     * <pre>{@code
+     * calendar.options().setDayCellTopClass("my-day-top");
+     * calendar.options().setDayCellTopClass(JsCallback.of("info => info.isToday ? 'my-today-top' : ''"));
+     * }</pre>
      *
      * @see <a href="https://fullcalendar.io/docs/day-cell-render-hooks">dayCellTopClass</a>
      */
@@ -443,15 +526,24 @@ class ViewOptions implements Serializable {
      * The generated content is inserted inside the inner-most wrapper of the day cell. It does not replace the cell
      * element itself.
      * <p>
-     * A callback gets an {@code info} object with {@code date}, {@code text}, {@code isToday} and more, see the library
-     * docs. It returns a text, or {@code {html: '...'}} or {@code {domNodes: [...]}}.
-     * <p>
      * The cells show no day number in the all-day section of time grid views and in day grid views of a single row, so
      * this option has no effect there.
      * <p>
-     * The library default is the day number text.
-     * <p>
-     * The getter returns null while the option is not set; then the library default applies.
+     * The getter returns null while the option is not set. Then the library default applies.
+     * <dl>
+     *   <dt>Forms</dt>     <dd>{@link TextContent} (shown as text), {@link ContentValue#ofHtml(String) HTML} (not
+     *                          escaped), or a {@link JsCallback}</dd>
+     *   <dt>Shortcuts</dt> <dd>{@link #setDayCellTopContent(String)}: a text, as {@link TextContent}</dd>
+     *   <dt>Default</dt>   <dd>library: the day number text</dd>
+     *   <dt>Callback</dt>  <dd>{@code function(info)}. {@code info} has {@code date}, {@code text}, {@code isToday}
+     *                          and more. See the library docs.</dd>
+     *   <dt>Returns</dt>   <dd>a text, {@code {html: '...'}} or {@code {domNodes: [...]}}</dd>
+     * </dl>
+     * <pre>{@code
+     * calendar.options().setDayCellTopContent("Day");
+     * calendar.options().setDayCellTopContent(ContentValue.ofHtml("<b>1</b>"));
+     * calendar.options().setDayCellTopContent(JsCallback.of("info => info.isToday ? 'Today' : info.text"));
+     * }</pre>
      *
      * @see <a href="https://fullcalendar.io/docs/day-cell-render-hooks">dayCellTopContent</a>
      */
@@ -480,16 +572,26 @@ class ViewOptions implements Serializable {
      * CSS classes for the inner wrapper of the top area of a day cell (see {@link #getDayCellTopClass()}). This wrapper
      * may be a nav link.
      * <p>
-     * A callback gets an {@code info} object with {@code date}, {@code text}, {@code isToday} and more, see the library
-     * docs. It returns the class names as a string.
-     * <p>
      * The cells show no day number in the all-day section of time grid views and in day grid views of a single row, so
      * this option has no effect there.
      * <p>
-     * The library default is no classes. A theme can set classes of its own, and the classes set here are added to
-     * them.
+     * A theme can set classes of its own, and the classes set here are added to them.
      * <p>
-     * The getter returns null while the option is not set; then the library default applies.
+     * The getter returns null while the option is not set. Then the library default applies.
+     * <dl>
+     *   <dt>Forms</dt>     <dd>{@link ClassName}, or a {@link JsCallback}</dd>
+     *   <dt>Shortcuts</dt> <dd>{@link #setDayCellTopInnerClass(String)}: class names separated by spaces, as
+     *                          {@link ClassName}</dd>
+     *   <dt>Default</dt>   <dd>library: no classes<br>add-on: the stable class {@code fc-daygrid-day-number}.
+     *                          Classes set here are added to it.</dd>
+     *   <dt>Callback</dt>  <dd>{@code function(info)}. {@code info} has {@code date}, {@code text}, {@code isToday} and
+     *                          more, see the library docs.</dd>
+     *   <dt>Returns</dt>   <dd>the class names as a string</dd>
+     * </dl>
+     * <pre>{@code
+     * calendar.options().setDayCellTopInnerClass("my-class");
+     * calendar.options().setDayCellTopInnerClass(JsCallback.of("info => info.isToday ? 'my-today-inner' : ''"));
+     * }</pre>
      *
      * @see <a href="https://fullcalendar.io/docs/day-cell-render-hooks">dayCellTopInnerClass</a>
      */
@@ -535,13 +637,23 @@ class ViewOptions implements Serializable {
      * CSS classes for day header cells (above the day cells in day grid and time grid views) and the header of the
      * entry popover.
      * <p>
-     * A callback gets an {@code info} object with {@code date}, {@code text}, {@code isToday} and more, see the library
-     * docs. It returns the class names as a string.
+     * A theme can set classes of its own, and the classes set here are added to them.
      * <p>
-     * The library default is no classes. A theme can set classes of its own, and the classes set here are added to
-     * them.
-     * <p>
-     * The getter returns null while the option is not set; then the library default applies.
+     * The getter returns null while the option is not set. Then the library default applies.
+     * <dl>
+     *   <dt>Forms</dt>     <dd>{@link ClassName}, or a {@link JsCallback}</dd>
+     *   <dt>Shortcuts</dt> <dd>{@link #setDayHeaderClass(String)}: class names separated by spaces, as
+     *                          {@link ClassName}</dd>
+     *   <dt>Default</dt>   <dd>library: no classes<br>add-on: stable classes such as {@code fc-col-header-cell}
+     *                          and {@code fc-day-today}. Classes set here are added to them.</dd>
+     *   <dt>Callback</dt>  <dd>{@code function(info)}. {@code info} has {@code date}, {@code text}, {@code isToday} and
+     *                          more, see the library docs.</dd>
+     *   <dt>Returns</dt>   <dd>the class names as a string</dd>
+     * </dl>
+     * <pre>{@code
+     * calendar.options().setDayHeaderClass("my-class");
+     * calendar.options().setDayHeaderClass(JsCallback.of("info => info.isToday ? 'my-today-header' : ''"));
+     * }</pre>
      *
      * @see <a href="https://fullcalendar.io/docs/day-header-render-hooks">dayHeaderClass</a>
      */
@@ -572,11 +684,22 @@ class ViewOptions implements Serializable {
      * The generated content is inserted inside the inner-most wrapper of the day header cell. It does not replace the
      * element itself.
      * <p>
-     * A callback gets an {@code info} object with {@code date}, {@code text}, {@code isToday} and more, see the library
-     * docs. It returns a text, or {@code {html: '...'}} or {@code {domNodes: [...]}}.
-     * <p>
-     * The library has no default for this option. The Vaadin theme sets no content here. Some stock themes do. The
-     * getter returns null while the option is not set; then the library default applies.
+     * The getter returns null while the option is not set. Then the library default applies.
+     * <dl>
+     *   <dt>Forms</dt>     <dd>{@link TextContent} (shown as text), {@link ContentValue#ofHtml(String) HTML} (not
+     *                          escaped), or a {@link JsCallback}</dd>
+     *   <dt>Shortcuts</dt> <dd>{@link #setDayHeaderContent(String)}: a text, as {@link TextContent}</dd>
+     *   <dt>Default</dt>   <dd>library: the formatted date text. Some stock themes set content of their own.<br>
+     *                          add-on: the Vaadin theme sets no content</dd>
+     *   <dt>Callback</dt>  <dd>{@code function(info)}. {@code info} has {@code date}, {@code text}, {@code isToday} and
+     *                          more, see the library docs.</dd>
+     *   <dt>Returns</dt>   <dd>a text, {@code {html: '...'}} or {@code {domNodes: [...]}}</dd>
+     * </dl>
+     * <pre>{@code
+     * calendar.options().setDayHeaderContent("Text");
+     * calendar.options().setDayHeaderContent(ContentValue.ofHtml("<b>Text</b>"));
+     * calendar.options().setDayHeaderContent(JsCallback.of("info => info.isToday ? 'Today' : info.text"));
+     * }</pre>
      *
      * @see <a href="https://fullcalendar.io/docs/day-header-render-hooks">dayHeaderContent</a>
      */
@@ -619,14 +742,24 @@ class ViewOptions implements Serializable {
     /**
      * CSS classes for the divider line beneath the day header cells in day grid, time grid and multi-month views.
      * <p>
-     * A callback gets an {@code info} object with {@code isSticky}, {@code multiMonthColumns} and {@code options}, see
-     * the library docs. It returns the class names as a string. The library docs say that {@code options} is the
-     * calendar options object. The used library version passes only {@code allDaySlot} in it.
+     * A theme can set classes of its own, and the classes set here are added to them.
      * <p>
-     * The library default is no classes. A theme can set classes of its own, and the classes set here are added to
-     * them.
-     * <p>
-     * The getter returns null while the option is not set; then the library default applies.
+     * The getter returns null while the option is not set. Then the library default applies.
+     * <dl>
+     *   <dt>Forms</dt>     <dd>{@link ClassName}, or a {@link JsCallback}</dd>
+     *   <dt>Shortcuts</dt> <dd>{@link #setDayHeaderDividerClass(String)}: class names separated by spaces, as
+     *                          {@link ClassName}</dd>
+     *   <dt>Default</dt>   <dd>library: no classes</dd>
+     *   <dt>Callback</dt>  <dd>{@code function(info)}. {@code info} has {@code isSticky}, {@code multiMonthColumns} and
+     *                          {@code options}, see the library docs. The library docs say that {@code options} is the
+     *                          calendar options object. The used library version passes only {@code allDaySlot} in
+     *                          it.</dd>
+     *   <dt>Returns</dt>   <dd>the class names as a string</dd>
+     * </dl>
+     * <pre>{@code
+     * calendar.options().setDayHeaderDividerClass("my-class");
+     * calendar.options().setDayHeaderDividerClass(JsCallback.of("info => info.isSticky ? 'my-sticky-divider' : ''"));
+     * }</pre>
      *
      * @see <a href="https://fullcalendar.io/docs/day-header-divider-render-hooks">dayHeaderDividerClass</a>
      */
@@ -652,16 +785,27 @@ class ViewOptions implements Serializable {
     }
 
     /**
-     * CSS classes for the inner wrapper of the day header cells in day grid and time grid views. This wrapper may be a
-     * nav link.
+     * CSS classes for the inner wrapper of the day header cells in day grid and time grid views, and in the header of
+     * the entry popover. This wrapper may be a nav link.
      * <p>
-     * A callback gets an {@code info} object with {@code date}, {@code text}, {@code isToday} and more, see the library
-     * docs. It returns the class names as a string.
+     * A theme can set classes of its own, and the classes set here are added to them.
      * <p>
-     * The library default is no classes. A theme can set classes of its own, and the classes set here are added to
-     * them.
-     * <p>
-     * The getter returns null while the option is not set; then the library default applies.
+     * The getter returns null while the option is not set. Then the library default applies.
+     * <dl>
+     *   <dt>Forms</dt>     <dd>{@link ClassName}, or a {@link JsCallback}</dd>
+     *   <dt>Shortcuts</dt> <dd>{@link #setDayHeaderInnerClass(String)}: class names separated by spaces, as
+     *                          {@link ClassName}</dd>
+     *   <dt>Default</dt>   <dd>library: no classes<br>add-on: the stable class
+     *                          {@code fc-col-header-cell-cushion}, in the header of the entry popover
+     *                          {@code fc-popover-title}. Classes set here are added to it.</dd>
+     *   <dt>Callback</dt>  <dd>{@code function(info)}. {@code info} has {@code date}, {@code text}, {@code isToday} and
+     *                          more, see the library docs.</dd>
+     *   <dt>Returns</dt>   <dd>the class names as a string</dd>
+     * </dl>
+     * <pre>{@code
+     * calendar.options().setDayHeaderInnerClass("my-class");
+     * calendar.options().setDayHeaderInnerClass(JsCallback.of("info => info.isToday ? 'my-today-inner' : ''"));
+     * }</pre>
      *
      * @see <a href="https://fullcalendar.io/docs/day-header-render-hooks">dayHeaderInnerClass</a>
      */
@@ -719,13 +863,23 @@ class ViewOptions implements Serializable {
     /**
      * CSS classes for day lanes, the columns of time slots of a day in time grid views.
      * <p>
-     * A callback gets an {@code info} object with {@code date}, {@code isToday}, {@code isNarrow} and more, see the
-     * library docs. It returns the class names as a string.
+     * A theme can set classes of its own, and the classes set here are added to them.
      * <p>
-     * The library default is no classes. A theme can set classes of its own, and the classes set here are added to
-     * them.
-     * <p>
-     * The getter returns null while the option is not set; then the library default applies.
+     * The getter returns null while the option is not set. Then the library default applies.
+     * <dl>
+     *   <dt>Forms</dt>     <dd>{@link ClassName}, or a {@link JsCallback}</dd>
+     *   <dt>Shortcuts</dt> <dd>{@link #setDayLaneClass(String)}: class names separated by spaces, as
+     *                          {@link ClassName}</dd>
+     *   <dt>Default</dt>   <dd>library: no classes<br>add-on: stable classes such as {@code fc-timegrid-col} and
+     *                          {@code fc-day-today}. Classes set here are added to them.</dd>
+     *   <dt>Callback</dt>  <dd>{@code function(info)}. {@code info} has {@code date}, {@code isToday}, {@code isNarrow}
+     *                          and more, see the library docs.</dd>
+     *   <dt>Returns</dt>   <dd>the class names as a string</dd>
+     * </dl>
+     * <pre>{@code
+     * calendar.options().setDayLaneClass("my-class");
+     * calendar.options().setDayLaneClass(JsCallback.of("info => info.isToday ? 'my-today-lane' : ''"));
+     * }</pre>
      *
      * @see <a href="https://fullcalendar.io/docs/day-lane-render-hooks">dayLaneClass</a>
      */
@@ -768,13 +922,22 @@ class ViewOptions implements Serializable {
     /**
      * CSS classes for the inner wrapper of a day lane. Useful for adjusting padding.
      * <p>
-     * A callback gets an {@code info} object with {@code date}, {@code isToday}, {@code isNarrow} and more, see the
-     * library docs. It returns the class names as a string.
+     * A theme can set classes of its own, and the classes set here are added to them.
      * <p>
-     * The library default is no classes. A theme can set classes of its own, and the classes set here are added to
-     * them.
-     * <p>
-     * The getter returns null while the option is not set; then the library default applies.
+     * The getter returns null while the option is not set. Then the library default applies.
+     * <dl>
+     *   <dt>Forms</dt>     <dd>{@link ClassName}, or a {@link JsCallback}</dd>
+     *   <dt>Shortcuts</dt> <dd>{@link #setDayLaneInnerClass(String)}: class names separated by spaces, as
+     *                          {@link ClassName}</dd>
+     *   <dt>Default</dt>   <dd>library: no classes</dd>
+     *   <dt>Callback</dt>  <dd>{@code function(info)}. {@code info} has {@code date}, {@code isToday}, {@code isNarrow}
+     *                          and more, see the library docs.</dd>
+     *   <dt>Returns</dt>   <dd>the class names as a string</dd>
+     * </dl>
+     * <pre>{@code
+     * calendar.options().setDayLaneInnerClass("my-class");
+     * calendar.options().setDayLaneInnerClass(JsCallback.of("info => info.isNarrow ? 'my-narrow-lane' : ''"));
+     * }</pre>
      *
      * @see <a href="https://fullcalendar.io/docs/day-lane-render-hooks">dayLaneInnerClass</a>
      */
@@ -833,13 +996,22 @@ class ViewOptions implements Serializable {
      * to offset the scrollbar width of the timed section, and in resource timeline views where the resource rows do not
      * fill the full height.
      * <p>
-     * A callback gets an {@code info} object with {@code inTableHeader}, see the library docs. It returns the class
-     * names as a string.
+     * A theme can set classes of its own, and the classes set here are added to them.
      * <p>
-     * The library default is no classes. A theme can set classes of its own, and the classes set here are added to
-     * them.
-     * <p>
-     * The getter returns null while the option is not set; then the library default applies.
+     * The getter returns null while the option is not set. Then the library default applies.
+     * <dl>
+     *   <dt>Forms</dt>     <dd>{@link ClassName}, or a {@link JsCallback}</dd>
+     *   <dt>Shortcuts</dt> <dd>{@link #setFillerClass(String)}: class names separated by spaces, as
+     *                          {@link ClassName}</dd>
+     *   <dt>Default</dt>   <dd>library: no classes</dd>
+     *   <dt>Callback</dt>  <dd>{@code function(info)}. {@code info} has {@code inTableHeader}, see the library
+     *                          docs.</dd>
+     *   <dt>Returns</dt>   <dd>the class names as a string</dd>
+     * </dl>
+     * <pre>{@code
+     * calendar.options().setFillerClass("my-class");
+     * calendar.options().setFillerClass(JsCallback.of("info => info.inTableHeader ? 'my-header-filler' : ''"));
+     * }</pre>
      *
      * @see <a href="https://fullcalendar.io/docs/filler-render-hooks">fillerClass</a>
      */
@@ -897,13 +1069,23 @@ class ViewOptions implements Serializable {
     /**
      * CSS classes for the week number shown inline in day grid cells.
      * <p>
-     * A callback gets an {@code info} object with {@code num}, {@code text}, {@code textParts} and more, see the
-     * library docs. It returns the class names as a string.
+     * A theme can set classes of its own, and the classes set here are added to them.
      * <p>
-     * The library default is no classes. A theme can set classes of its own, and the classes set here are added to
-     * them.
-     * <p>
-     * The getter returns null while the option is not set; then the library default applies.
+     * The getter returns null while the option is not set. Then the library default applies.
+     * <dl>
+     *   <dt>Forms</dt>     <dd>{@link ClassName}, or a {@link JsCallback}</dd>
+     *   <dt>Shortcuts</dt> <dd>{@link #setInlineWeekNumberClass(String)}: class names separated by spaces, as
+     *                          {@link ClassName}</dd>
+     *   <dt>Default</dt>   <dd>library: no classes<br>add-on: the stable class {@code fc-daygrid-week-number}.
+     *                          Classes set here are added to it.</dd>
+     *   <dt>Callback</dt>  <dd>{@code function(info)}. {@code info} has {@code num}, {@code text},
+     *                          {@code textParts}, {@code date}, {@code isNarrow} and {@code hasNavLink}.</dd>
+     *   <dt>Returns</dt>   <dd>the class names as a string</dd>
+     * </dl>
+     * <pre>{@code
+     * calendar.options().setInlineWeekNumberClass("my-class");
+     * calendar.options().setInlineWeekNumberClass(JsCallback.of("info => info.num % 2 === 0 ? 'my-even-week' : ''"));
+     * }</pre>
      *
      * @see <a href="https://fullcalendar.io/docs/inline-week-number-render-hooks">inlineWeekNumberClass</a>
      */
@@ -931,11 +1113,21 @@ class ViewOptions implements Serializable {
     /**
      * Custom content for the week number shown inline in day grid cells.
      * <p>
-     * A callback gets an {@code info} object with {@code num}, {@code text}, {@code textParts} and more, see the
-     * library docs. It returns a text, or {@code {html: '...'}} or {@code {domNodes: [...]}}.
-     * <p>
-     * The library default is the library's own week number text. The getter returns null while the option is not set;
-     * then the library default applies.
+     * The getter returns null while the option is not set. Then the library default applies.
+     * <dl>
+     *   <dt>Forms</dt>     <dd>{@link TextContent} (shown as text), {@link ContentValue#ofHtml(String) HTML} (not
+     *                          escaped), or a {@link JsCallback}</dd>
+     *   <dt>Shortcuts</dt> <dd>{@link #setInlineWeekNumberContent(String)}: a text, as {@link TextContent}</dd>
+     *   <dt>Default</dt>   <dd>library: the library's own week number text</dd>
+     *   <dt>Callback</dt>  <dd>{@code function(info)}. {@code info} has {@code num}, {@code text},
+     *                          {@code textParts}, {@code date}, {@code isNarrow} and {@code hasNavLink}.</dd>
+     *   <dt>Returns</dt>   <dd>a text, {@code {html: '...'}} or {@code {domNodes: [...]}}</dd>
+     * </dl>
+     * <pre>{@code
+     * calendar.options().setInlineWeekNumberContent("Text");
+     * calendar.options().setInlineWeekNumberContent(ContentValue.ofHtml("<b>Text</b>"));
+     * calendar.options().setInlineWeekNumberContent(JsCallback.of("info => 'Week ' + info.num"));
+     * }</pre>
      *
      * @see <a href="https://fullcalendar.io/docs/inline-week-number-render-hooks">inlineWeekNumberContent</a>
      */
@@ -1012,14 +1204,25 @@ class ViewOptions implements Serializable {
     /**
      * CSS classes for the arrow of the now indicator in the time axis (time grid and timeline views).
      * <p>
-     * A callback gets an {@code info} object with {@code date} and {@code view}. The library docs list only
-     * {@code date}, but the used library version also passes {@code view}. It returns the class names as a
-     * string.
+     * A theme can set classes of its own, and the classes set here are added to them.
      * <p>
-     * The library default is no classes. A theme can set classes of its own, and the classes set here are added to
-     * them.
-     * <p>
-     * The getter returns null while the option is not set; then the library default applies.
+     * The getter returns null while the option is not set. Then the library default applies.
+     * <dl>
+     *   <dt>Forms</dt>     <dd>{@link ClassName}, or a {@link JsCallback}</dd>
+     *   <dt>Shortcuts</dt> <dd>{@link #setNowIndicatorHeaderClass(String)}: class names separated by spaces, as
+     *                          {@link ClassName}</dd>
+     *   <dt>Default</dt>   <dd>library: no classes<br>add-on: the stable class
+     *                          {@code fc-timegrid-now-indicator-arrow} in time grid views. Classes set here are
+     *                          added to it.</dd>
+     *   <dt>Callback</dt>  <dd>{@code function(info)}. {@code info} has {@code date} and {@code view}. The library docs
+     *                          list only {@code date}, but the used library version also passes {@code view}.</dd>
+     *   <dt>Returns</dt>   <dd>the class names as a string</dd>
+     * </dl>
+     * <pre>{@code
+     * calendar.options().setNowIndicatorHeaderClass("my-class");
+     * calendar.options().setNowIndicatorHeaderClass(JsCallback.of(
+     *         "info => info.date.getHours() < 12 ? 'my-morning' : ''"));
+     * }</pre>
      *
      * @see <a href="https://fullcalendar.io/docs/now-indicator-header-render-hooks">nowIndicatorHeaderClass</a>
      */
@@ -1047,13 +1250,21 @@ class ViewOptions implements Serializable {
     /**
      * Custom content for the arrow of the now indicator in the time axis (time grid and timeline views).
      * <p>
-     * A callback gets an {@code info} object with {@code date} and {@code view}. The library docs list only
-     * {@code date}, but the used library version also passes {@code view}. It returns a text, or
-     * {@code {html: '...'}} or {@code {domNodes: [...]}}.
-     * <p>
-     * The library default is no generated content.
-     * <p>
-     * The getter returns null while the option is not set; then the library default applies.
+     * The getter returns null while the option is not set. Then the library default applies.
+     * <dl>
+     *   <dt>Forms</dt>     <dd>{@link TextContent} (shown as text), {@link ContentValue#ofHtml(String) HTML} (not
+     *                          escaped), or a {@link JsCallback}</dd>
+     *   <dt>Shortcuts</dt> <dd>{@link #setNowIndicatorHeaderContent(String)}: a text, as {@link TextContent}</dd>
+     *   <dt>Default</dt>   <dd>library: no generated content</dd>
+     *   <dt>Callback</dt>  <dd>{@code function(info)}. {@code info} has {@code date} and {@code view}. The library docs
+     *                          list only {@code date}, but the used library version also passes {@code view}.</dd>
+     *   <dt>Returns</dt>   <dd>a text, {@code {html: '...'}} or {@code {domNodes: [...]}}</dd>
+     * </dl>
+     * <pre>{@code
+     * calendar.options().setNowIndicatorHeaderContent("Text");
+     * calendar.options().setNowIndicatorHeaderContent(ContentValue.ofHtml("<b>Text</b>"));
+     * calendar.options().setNowIndicatorHeaderContent(JsCallback.of("info => info.date.toLocaleTimeString()"));
+     * }</pre>
      *
      * @see <a href="https://fullcalendar.io/docs/now-indicator-header-render-hooks">nowIndicatorHeaderContent</a>
      */
@@ -1115,14 +1326,25 @@ class ViewOptions implements Serializable {
     /**
      * CSS classes for the line of the now indicator over the day columns (time grid and timeline views).
      * <p>
-     * A callback gets an {@code info} object with {@code date} and {@code view}. The library docs list only
-     * {@code date}, but the used library version also passes {@code view}. It returns the class names as a
-     * string.
+     * A theme can set classes of its own, and the classes set here are added to them.
      * <p>
-     * The library default is no classes. A theme can set classes of its own, and the classes set here are added to
-     * them.
-     * <p>
-     * The getter returns null while the option is not set; then the library default applies.
+     * The getter returns null while the option is not set. Then the library default applies.
+     * <dl>
+     *   <dt>Forms</dt>     <dd>{@link ClassName}, or a {@link JsCallback}</dd>
+     *   <dt>Shortcuts</dt> <dd>{@link #setNowIndicatorLineClass(String)}: class names separated by spaces, as
+     *                          {@link ClassName}</dd>
+     *   <dt>Default</dt>   <dd>library: no classes<br>add-on: the stable class
+     *                          {@code fc-timegrid-now-indicator-line} in time grid views. Classes set here are
+     *                          added to it.</dd>
+     *   <dt>Callback</dt>  <dd>{@code function(info)}. {@code info} has {@code date} and {@code view}. The library docs
+     *                          list only {@code date}, but the used library version also passes {@code view}.</dd>
+     *   <dt>Returns</dt>   <dd>the class names as a string</dd>
+     * </dl>
+     * <pre>{@code
+     * calendar.options().setNowIndicatorLineClass("my-class");
+     * calendar.options().setNowIndicatorLineClass(JsCallback.of(
+     *         "info => info.date.getHours() < 12 ? 'my-morning' : ''"));
+     * }</pre>
      *
      * @see <a href="https://fullcalendar.io/docs/now-indicator-line-render-hooks">nowIndicatorLineClass</a>
      */
@@ -1150,13 +1372,21 @@ class ViewOptions implements Serializable {
     /**
      * Custom content for the line of the now indicator over the day columns (time grid and timeline views).
      * <p>
-     * A callback gets an {@code info} object with {@code date} and {@code view}. The library docs list only
-     * {@code date}, but the used library version also passes {@code view}. It returns a text, or
-     * {@code {html: '...'}} or {@code {domNodes: [...]}}.
-     * <p>
-     * The library default is no generated content.
-     * <p>
-     * The getter returns null while the option is not set; then the library default applies.
+     * The getter returns null while the option is not set. Then the library default applies.
+     * <dl>
+     *   <dt>Forms</dt>     <dd>{@link TextContent} (shown as text), {@link ContentValue#ofHtml(String) HTML} (not
+     *                          escaped), or a {@link JsCallback}</dd>
+     *   <dt>Shortcuts</dt> <dd>{@link #setNowIndicatorLineContent(String)}: a text, as {@link TextContent}</dd>
+     *   <dt>Default</dt>   <dd>library: no generated content</dd>
+     *   <dt>Callback</dt>  <dd>{@code function(info)}. {@code info} has {@code date} and {@code view}. The library docs
+     *                          list only {@code date}, but the used library version also passes {@code view}.</dd>
+     *   <dt>Returns</dt>   <dd>a text, {@code {html: '...'}} or {@code {domNodes: [...]}}</dd>
+     * </dl>
+     * <pre>{@code
+     * calendar.options().setNowIndicatorLineContent("Text");
+     * calendar.options().setNowIndicatorLineContent(ContentValue.ofHtml("<b>Text</b>"));
+     * calendar.options().setNowIndicatorLineContent(JsCallback.of("info => info.date.toLocaleTimeString()"));
+     * }</pre>
      *
      * @see <a href="https://fullcalendar.io/docs/now-indicator-line-render-hooks">nowIndicatorLineContent</a>
      */
@@ -1218,13 +1448,25 @@ class ViewOptions implements Serializable {
     /**
      * CSS classes for time slot headers, where time grid and timeline views show the date or time text of a slot.
      * <p>
-     * A callback gets an {@code info} object with {@code date}, {@code text}, {@code isPast} and more, see the library
-     * docs. It returns the class names as a string.
+     * A theme can set classes of its own, and the classes set here are added to them.
      * <p>
-     * The library default is no classes. A theme can set classes of its own, and the classes set here are added to
-     * them.
-     * <p>
-     * The getter returns null while the option is not set; then the library default applies.
+     * The getter returns null while the option is not set. Then the library default applies.
+     * <dl>
+     *   <dt>Forms</dt>     <dd>{@link ClassName}, or a {@link JsCallback}</dd>
+     *   <dt>Shortcuts</dt> <dd>{@link #setSlotHeaderClass(String)}: class names separated by spaces, as
+     *                          {@link ClassName}</dd>
+     *   <dt>Default</dt>   <dd>library: no classes<br>add-on: stable classes such as {@code fc-timegrid-slot}
+     *                          and {@code fc-timegrid-slot-label} in time grid views. Classes set here are added
+     *                          to them.</dd>
+     *   <dt>Callback</dt>  <dd>{@code function(info)}. {@code info} has {@code date}, {@code text},
+     *                          {@code isMinor} and more, see the library docs.</dd>
+     *   <dt>Returns</dt>   <dd>the class names as a string</dd>
+     * </dl>
+     * <pre>{@code
+     * calendar.options().setSlotHeaderClass("my-class");
+     * calendar.options().setSlotHeaderClass(JsCallback.of(
+     *         "info => info.date.getHours() < 12 ? 'my-morning-slot' : ''"));
+     * }</pre>
      *
      * @see <a href="https://fullcalendar.io/docs/slot-header-render-hooks">slotHeaderClass</a>
      */
@@ -1252,12 +1494,22 @@ class ViewOptions implements Serializable {
     /**
      * Custom content for a time slot header.
      * <p>
-     * A callback gets an {@code info} object with {@code date}, {@code text}, {@code isPast} and more, see the library
-     * docs. It returns a text, or {@code {html: '...'}} or {@code {domNodes: [...]}}.
-     * <p>
-     * The library default is its own content, the formatted text of the slot.
-     * <p>
-     * The getter returns null while the option is not set; then the library default applies.
+     * The getter returns null while the option is not set. Then the library default applies.
+     * <dl>
+     *   <dt>Forms</dt>     <dd>{@link TextContent} (shown as text), {@link ContentValue#ofHtml(String) HTML} (not
+     *                          escaped), or a {@link JsCallback}</dd>
+     *   <dt>Shortcuts</dt> <dd>{@link #setSlotHeaderContent(String)}: a text, as {@link TextContent}</dd>
+     *   <dt>Default</dt>   <dd>library: the formatted text of the slot</dd>
+     *   <dt>Callback</dt>  <dd>{@code function(info)}. {@code info} has {@code date}, {@code text},
+     *                          {@code isMinor} and more, see the library docs.</dd>
+     *   <dt>Returns</dt>   <dd>a text, {@code {html: '...'}} or {@code {domNodes: [...]}}</dd>
+     * </dl>
+     * <pre>{@code
+     * calendar.options().setSlotHeaderContent("Text");
+     * calendar.options().setSlotHeaderContent(ContentValue.ofHtml("<b>Text</b>"));
+     * calendar.options().setSlotHeaderContent(JsCallback.of(
+     *         "info => info.date.getHours() === 12 ? 'Noon' : info.text"));
+     * }</pre>
      *
      * @see <a href="https://fullcalendar.io/docs/slot-header-render-hooks">slotHeaderContent</a>
      */
@@ -1302,13 +1554,23 @@ class ViewOptions implements Serializable {
     /**
      * CSS classes for the divider line between the time labels and the slot lanes, in time grid and timeline views.
      * <p>
-     * A callback gets an {@code info} object with {@code inTableHeader} and {@code options} (with {@code dayMinWidth}).
-     * It returns the class names as a string.
+     * A theme can set classes of its own, and the classes set here are added to them.
      * <p>
-     * The library default is no classes. A theme can set classes of its own, and the classes set here are added to
-     * them.
-     * <p>
-     * The getter returns null while the option is not set; then the library default applies.
+     * The getter returns null while the option is not set. Then the library default applies.
+     * <dl>
+     *   <dt>Forms</dt>     <dd>{@link ClassName}, or a {@link JsCallback}</dd>
+     *   <dt>Shortcuts</dt> <dd>{@link #setSlotHeaderDividerClass(String)}: class names separated by spaces, as
+     *                          {@link ClassName}</dd>
+     *   <dt>Default</dt>   <dd>library: no classes</dd>
+     *   <dt>Callback</dt>  <dd>{@code function(info)}. {@code info} has {@code inTableHeader} and {@code options} (with
+     *                          {@code dayMinWidth}).</dd>
+     *   <dt>Returns</dt>   <dd>the class names as a string</dd>
+     * </dl>
+     * <pre>{@code
+     * calendar.options().setSlotHeaderDividerClass("my-class");
+     * calendar.options().setSlotHeaderDividerClass(JsCallback.of(
+     *         "info => info.inTableHeader ? 'my-header-divider' : ''"));
+     * }</pre>
      *
      * @see <a href="https://fullcalendar.io/docs/slot-header-divider-render-hooks">slotHeaderDividerClass</a>
      */
@@ -1337,13 +1599,23 @@ class ViewOptions implements Serializable {
      * CSS classes for the inner wrapper of the slot headers, where time grid and timeline views display their date and
      * time text. Useful for adjusting padding.
      * <p>
-     * A callback gets an {@code info} object with {@code date}, {@code text}, {@code isPast} and more, see the library
-     * docs. It returns the class names as a string.
+     * A theme can set classes of its own, and the classes set here are added to them.
      * <p>
-     * The library default is no classes. A theme can set classes of its own, and the classes set here are added to
-     * them.
-     * <p>
-     * The getter returns null while the option is not set; then the library default applies.
+     * The getter returns null while the option is not set. Then the library default applies.
+     * <dl>
+     *   <dt>Forms</dt>     <dd>{@link ClassName}, or a {@link JsCallback}</dd>
+     *   <dt>Shortcuts</dt> <dd>{@link #setSlotHeaderInnerClass(String)}: class names separated by spaces, as
+     *                          {@link ClassName}</dd>
+     *   <dt>Default</dt>   <dd>library: no classes</dd>
+     *   <dt>Callback</dt>  <dd>{@code function(info)}. {@code info} has {@code date}, {@code text},
+     *                          {@code isMinor} and more, see the library docs.</dd>
+     *   <dt>Returns</dt>   <dd>the class names as a string</dd>
+     * </dl>
+     * <pre>{@code
+     * calendar.options().setSlotHeaderInnerClass("my-class");
+     * calendar.options().setSlotHeaderInnerClass(JsCallback.of(
+     *         "info => info.date.getHours() < 12 ? 'my-morning-slot' : ''"));
+     * }</pre>
      *
      * @see <a href="https://fullcalendar.io/docs/slot-header-render-hooks">slotHeaderInnerClass</a>
      */
@@ -1404,14 +1676,25 @@ class ViewOptions implements Serializable {
      * CSS classes for the lane of a time slot. In time grid views this is the horizontal space passing under all days,
      * in timeline views the vertical space passing through the resources.
      * <p>
-     * A callback gets an {@code info} object with {@code date}, {@code view} and more, and {@code time} in time grid
-     * views, see the library docs. It returns the class names as a string. The library docs list {@code text} as well,
-     * which the used library version does not pass.
+     * A theme can set classes of its own, and the classes set here are added to them.
      * <p>
-     * The library default is no classes. A theme can set classes of its own, and the classes set here are added to
-     * them.
-     * <p>
-     * The getter returns null while the option is not set; then the library default applies.
+     * The getter returns null while the option is not set. Then the library default applies.
+     * <dl>
+     *   <dt>Forms</dt>     <dd>{@link ClassName}, or a {@link JsCallback}</dd>
+     *   <dt>Shortcuts</dt> <dd>{@link #setSlotLaneClass(String)}: class names separated by spaces, as
+     *                          {@link ClassName}</dd>
+     *   <dt>Default</dt>   <dd>library: no classes<br>add-on: stable classes such as {@code fc-timegrid-slot}
+     *                          and {@code fc-timegrid-slot-lane} in time grid views. Classes set here are added to
+     *                          them.</dd>
+     *   <dt>Callback</dt>  <dd>{@code function(info)}. {@code info} has {@code date}, {@code view} and more, and
+     *                          {@code time} in time grid views, see the library docs. The library docs list
+     *                          {@code text} as well, which the used library version does not pass.</dd>
+     *   <dt>Returns</dt>   <dd>the class names as a string</dd>
+     * </dl>
+     * <pre>{@code
+     * calendar.options().setSlotLaneClass("my-class");
+     * calendar.options().setSlotLaneClass(JsCallback.of("info => info.isMinor ? 'my-minor-slot' : ''"));
+     * }</pre>
      *
      * @see <a href="https://fullcalendar.io/docs/slot-lane-render-hooks">slotLaneClass</a>
      */
@@ -1476,13 +1759,22 @@ class ViewOptions implements Serializable {
      * CSS classes for the body of the table-structured layout used across views, where the day cells and entries
      * appear.
      * <p>
-     * A callback gets an {@code info} object with {@code borderlessX}, {@code borderlessTop}, {@code borderlessBottom}
-     * and more, see the library docs. It returns the class names as a string.
+     * A theme can set classes of its own, and the classes set here are added to them.
      * <p>
-     * The library default is no classes. A theme can set classes of its own, and the classes set here are added to
-     * them.
-     * <p>
-     * The getter returns null while the option is not set; then the library default applies.
+     * The getter returns null while the option is not set. Then the library default applies.
+     * <dl>
+     *   <dt>Forms</dt>     <dd>{@link ClassName}, or a {@link JsCallback}</dd>
+     *   <dt>Shortcuts</dt> <dd>{@link #setTableBodyClass(String)}: class names separated by spaces, as
+     *                          {@link ClassName}</dd>
+     *   <dt>Default</dt>   <dd>library: no classes</dd>
+     *   <dt>Callback</dt>  <dd>{@code function(info)}. {@code info} has {@code borderlessX},
+     *                          {@code borderlessTop}, {@code borderlessBottom} and {@code multiMonthColumns}.</dd>
+     *   <dt>Returns</dt>   <dd>the class names as a string</dd>
+     * </dl>
+     * <pre>{@code
+     * calendar.options().setTableBodyClass("my-class");
+     * calendar.options().setTableBodyClass(JsCallback.of("info => info.borderlessX ? 'my-borderless-body' : ''"));
+     * }</pre>
      *
      * @see <a href="https://fullcalendar.io/docs/table-render-hooks">tableBodyClass</a>
      */
@@ -1510,13 +1802,22 @@ class ViewOptions implements Serializable {
     /**
      * CSS classes for the root element of the table-structured layout used across views.
      * <p>
-     * A callback gets an {@code info} object with {@code borderlessX}, {@code borderlessTop}, {@code borderlessBottom}
-     * and more, see the library docs. It returns the class names as a string.
+     * A theme can set classes of its own, and the classes set here are added to them.
      * <p>
-     * The library default is no classes. A theme can set classes of its own, and the classes set here are added to
-     * them.
-     * <p>
-     * The getter returns null while the option is not set; then the library default applies.
+     * The getter returns null while the option is not set. Then the library default applies.
+     * <dl>
+     *   <dt>Forms</dt>     <dd>{@link ClassName}, or a {@link JsCallback}</dd>
+     *   <dt>Shortcuts</dt> <dd>{@link #setTableClass(String)}: class names separated by spaces, as
+     *                          {@link ClassName}</dd>
+     *   <dt>Default</dt>   <dd>library: no classes</dd>
+     *   <dt>Callback</dt>  <dd>{@code function(info)}. {@code info} has {@code borderlessX},
+     *                          {@code borderlessTop}, {@code borderlessBottom} and {@code multiMonthColumns}.</dd>
+     *   <dt>Returns</dt>   <dd>the class names as a string</dd>
+     * </dl>
+     * <pre>{@code
+     * calendar.options().setTableClass("my-class");
+     * calendar.options().setTableClass(JsCallback.of("info => info.borderlessX ? 'my-borderless-table' : ''"));
+     * }</pre>
      *
      * @see <a href="https://fullcalendar.io/docs/table-render-hooks">tableClass</a>
      */
@@ -1544,13 +1845,22 @@ class ViewOptions implements Serializable {
     /**
      * CSS classes for the header row of the table-structured layout used across views, where the day names appear.
      * <p>
-     * A callback gets an {@code info} object with {@code borderlessX}, {@code borderlessTop}, {@code borderlessBottom}
-     * and more, see the library docs. It returns the class names as a string.
+     * A theme can set classes of its own, and the classes set here are added to them.
      * <p>
-     * The library default is no classes. A theme can set classes of its own, and the classes set here are added to
-     * them.
-     * <p>
-     * The getter returns null while the option is not set; then the library default applies.
+     * The getter returns null while the option is not set. Then the library default applies.
+     * <dl>
+     *   <dt>Forms</dt>     <dd>{@link ClassName}, or a {@link JsCallback}</dd>
+     *   <dt>Shortcuts</dt> <dd>{@link #setTableHeaderClass(String)}: class names separated by spaces, as
+     *                          {@link ClassName}</dd>
+     *   <dt>Default</dt>   <dd>library: no classes</dd>
+     *   <dt>Callback</dt>  <dd>{@code function(info)}. {@code info} has {@code isSticky}, {@code borderlessX},
+     *                          {@code borderlessTop}, {@code borderlessBottom} and {@code multiMonthColumns}.</dd>
+     *   <dt>Returns</dt>   <dd>the class names as a string</dd>
+     * </dl>
+     * <pre>{@code
+     * calendar.options().setTableHeaderClass("my-class");
+     * calendar.options().setTableHeaderClass(JsCallback.of("info => info.isSticky ? 'my-sticky-header' : ''"));
+     * }</pre>
      *
      * @see <a href="https://fullcalendar.io/docs/table-render-hooks">tableHeaderClass</a>
      */
@@ -1578,13 +1888,24 @@ class ViewOptions implements Serializable {
     /**
      * CSS classes for the week number in the header above the time axis of time grid views.
      * <p>
-     * A callback gets an {@code info} object with {@code num}, {@code text}, {@code textParts} and more, see the
-     * library docs. {@code options} holds only {@code dayMinWidth}. It returns the class names as a string.
+     * A theme can set classes of its own, and the classes set here are added to them.
      * <p>
-     * The library default is no classes. A theme can set classes of its own, and the classes set here are added to
-     * them.
-     * <p>
-     * The getter returns null while the option is not set; then the library default applies.
+     * The getter returns null while the option is not set. Then the library default applies.
+     * <dl>
+     *   <dt>Forms</dt>     <dd>{@link ClassName}, or a {@link JsCallback}</dd>
+     *   <dt>Shortcuts</dt> <dd>{@link #setWeekNumberHeaderClass(String)}: class names separated by spaces, as
+     *                          {@link ClassName}</dd>
+     *   <dt>Default</dt>   <dd>library: no classes<br>add-on: the stable class {@code fc-timegrid-axis}. Classes
+     *                          set here are added to it.</dd>
+     *   <dt>Callback</dt>  <dd>{@code function(info)}. {@code info} has {@code num}, {@code text},
+     *                          {@code textParts}, {@code date}, {@code isNarrow}, {@code hasNavLink} and
+     *                          {@code options}. {@code options} holds only {@code dayMinWidth}.</dd>
+     *   <dt>Returns</dt>   <dd>the class names as a string</dd>
+     * </dl>
+     * <pre>{@code
+     * calendar.options().setWeekNumberHeaderClass("my-class");
+     * calendar.options().setWeekNumberHeaderClass(JsCallback.of("info => info.isNarrow ? 'my-narrow-week' : ''"));
+     * }</pre>
      *
      * @see <a href="https://fullcalendar.io/docs/week-number-header-render-hooks">weekNumberHeaderClass</a>
      */
@@ -1612,13 +1933,22 @@ class ViewOptions implements Serializable {
     /**
      * Custom content for the week number in the header above the time axis of time grid views.
      * <p>
-     * A callback gets an {@code info} object with {@code num}, {@code text}, {@code textParts} and more, see the
-     * library docs. {@code options} holds only {@code dayMinWidth}. It returns a text, or {@code {html: '...'}} or
-     * {@code {domNodes: [...]}}.
-     * <p>
-     * The library default is the text of the week number, formatted as {@code weekNumberFormat} says.
-     * <p>
-     * The getter returns null while the option is not set; then the library default applies.
+     * The getter returns null while the option is not set. Then the library default applies.
+     * <dl>
+     *   <dt>Forms</dt>     <dd>{@link TextContent} (shown as text), {@link ContentValue#ofHtml(String) HTML} (not
+     *                          escaped), or a {@link JsCallback}</dd>
+     *   <dt>Shortcuts</dt> <dd>{@link #setWeekNumberHeaderContent(String)}: a text, as {@link TextContent}</dd>
+     *   <dt>Default</dt>   <dd>library: the text of the week number, formatted as {@code weekNumberFormat} says</dd>
+     *   <dt>Callback</dt>  <dd>{@code function(info)}. {@code info} has {@code num}, {@code text},
+     *                          {@code textParts}, {@code date}, {@code isNarrow}, {@code hasNavLink} and
+     *                          {@code options}. {@code options} holds only {@code dayMinWidth}.</dd>
+     *   <dt>Returns</dt>   <dd>a text, {@code {html: '...'}} or {@code {domNodes: [...]}}</dd>
+     * </dl>
+     * <pre>{@code
+     * calendar.options().setWeekNumberHeaderContent("Week");
+     * calendar.options().setWeekNumberHeaderContent(ContentValue.ofHtml("<b>W</b>"));
+     * calendar.options().setWeekNumberHeaderContent(JsCallback.of("info => 'W' + info.num"));
+     * }</pre>
      *
      * @see <a href="https://fullcalendar.io/docs/week-number-header-render-hooks">weekNumberHeaderContent</a>
      */
@@ -1665,13 +1995,23 @@ class ViewOptions implements Serializable {
      * CSS classes for the inner wrapper of the week number header in time grid views, the top-left cell above the time
      * axis. Useful for adjusting padding.
      * <p>
-     * A callback gets an {@code info} object with {@code num}, {@code text}, {@code textParts} and more, see the
-     * library docs. It returns the class names as a string.
+     * A theme can set classes of its own, and the classes set here are added to them.
      * <p>
-     * The library default is no classes. A theme can set classes of its own, and the classes set here are added to
-     * them.
-     * <p>
-     * The getter returns null while the option is not set; then the library default applies.
+     * The getter returns null while the option is not set. Then the library default applies.
+     * <dl>
+     *   <dt>Forms</dt>     <dd>{@link ClassName}, or a {@link JsCallback}</dd>
+     *   <dt>Shortcuts</dt> <dd>{@link #setWeekNumberHeaderInnerClass(String)}: class names separated by spaces, as
+     *                          {@link ClassName}</dd>
+     *   <dt>Default</dt>   <dd>library: no classes</dd>
+     *   <dt>Callback</dt>  <dd>{@code function(info)}. {@code info} has {@code num}, {@code date}, {@code text},
+     *                          {@code textParts}, {@code isNarrow}, {@code hasNavLink} and {@code options}.
+     *                          {@code options} holds only {@code dayMinWidth}, see the library docs.</dd>
+     *   <dt>Returns</dt>   <dd>the class names as a string</dd>
+     * </dl>
+     * <pre>{@code
+     * calendar.options().setWeekNumberHeaderInnerClass("my-class");
+     * calendar.options().setWeekNumberHeaderInnerClass(JsCallback.of("info => info.isNarrow ? 'my-narrow' : ''"));
+     * }</pre>
      *
      * @see <a href="https://fullcalendar.io/docs/week-number-header-render-hooks">weekNumberHeaderInnerClass</a>
      */
@@ -1720,15 +2060,24 @@ class ViewOptions implements Serializable {
      * CSS classes for the outermost element of block entries, the rectangular, color-filled entries (essentially all
      * entries except list entries).
      * <p>
-     * A callback gets an {@code info} object with {@code event}, {@code timeText}, {@code isStart} and more, see the
-     * library docs. It returns the class names as a string.
-     * <p>
      * It applies in addition to the general entry class option of the same part.
      * <p>
-     * The library default is no classes. A theme can set classes of its own, and the classes set here are added to
-     * them.
+     * A theme can set classes of its own, and the classes set here are added to them.
      * <p>
-     * The getter returns null while the option is not set; then the library default applies.
+     * The getter returns null while the option is not set. Then the library default applies.
+     * <dl>
+     *   <dt>Forms</dt>     <dd>{@link ClassName}, or a {@link JsCallback}</dd>
+     *   <dt>Shortcuts</dt> <dd>{@link #setBlockEntryClass(String)}: class names separated by spaces, as
+     *                          {@link ClassName}</dd>
+     *   <dt>Default</dt>   <dd>library: no classes</dd>
+     *   <dt>Callback</dt>  <dd>{@code function(info)}. {@code info} has {@code event}, {@code timeText},
+     *                          {@code isStart} and more, see the library docs.</dd>
+     *   <dt>Returns</dt>   <dd>the class names as a string</dd>
+     * </dl>
+     * <pre>{@code
+     * calendar.options().setBlockEntryClass("my-class");
+     * calendar.options().setBlockEntryClass(JsCallback.of("info => info.isPast ? 'my-past' : ''"));
+     * }</pre>
      *
      * @see <a href="https://fullcalendar.io/docs/block-event-render-hooks">blockEventClass</a>
      */
@@ -1758,15 +2107,24 @@ class ViewOptions implements Serializable {
      * CSS classes for the element before the "inner" wrapper of block entries, the rectangular, color-filled entries
      * (essentially all entries except list entries).
      * <p>
-     * A callback gets an {@code info} object with {@code event}, {@code timeText}, {@code isStart} and more, see the
-     * library docs. It returns the class names as a string.
-     * <p>
      * It applies in addition to the general entry class option of the same part.
      * <p>
-     * The library default is no classes. A theme can set classes of its own, and the classes set here are added to
-     * them.
+     * A theme can set classes of its own, and the classes set here are added to them.
      * <p>
-     * The getter returns null while the option is not set; then the library default applies.
+     * The getter returns null while the option is not set. Then the library default applies.
+     * <dl>
+     *   <dt>Forms</dt>     <dd>{@link ClassName}, or a {@link JsCallback}</dd>
+     *   <dt>Shortcuts</dt> <dd>{@link #setBlockEntryBeforeClass(String)}: class names separated by spaces, as
+     *                          {@link ClassName}</dd>
+     *   <dt>Default</dt>   <dd>library: no classes</dd>
+     *   <dt>Callback</dt>  <dd>{@code function(info)}. {@code info} has {@code event}, {@code timeText},
+     *                          {@code isStart} and more, see the library docs.</dd>
+     *   <dt>Returns</dt>   <dd>the class names as a string</dd>
+     * </dl>
+     * <pre>{@code
+     * calendar.options().setBlockEntryBeforeClass("my-class");
+     * calendar.options().setBlockEntryBeforeClass(JsCallback.of("info => info.isPast ? 'my-past' : ''"));
+     * }</pre>
      *
      * @see <a href="https://fullcalendar.io/docs/block-event-render-hooks">blockEventBeforeClass</a>
      */
@@ -1798,15 +2156,24 @@ class ViewOptions implements Serializable {
      * CSS classes for the element after the "inner" wrapper of block entries, the rectangular, color-filled entries
      * (essentially all entries except list entries).
      * <p>
-     * A callback gets an {@code info} object with {@code event}, {@code timeText}, {@code isStart} and more, see the
-     * library docs. It returns the class names as a string.
-     * <p>
      * It applies in addition to the general entry class option of the same part.
      * <p>
-     * The library default is no classes. A theme can set classes of its own, and the classes set here are added to
-     * them.
+     * A theme can set classes of its own, and the classes set here are added to them.
      * <p>
-     * The getter returns null while the option is not set; then the library default applies.
+     * The getter returns null while the option is not set. Then the library default applies.
+     * <dl>
+     *   <dt>Forms</dt>     <dd>{@link ClassName}, or a {@link JsCallback}</dd>
+     *   <dt>Shortcuts</dt> <dd>{@link #setBlockEntryAfterClass(String)}: class names separated by spaces, as
+     *                          {@link ClassName}</dd>
+     *   <dt>Default</dt>   <dd>library: no classes</dd>
+     *   <dt>Callback</dt>  <dd>{@code function(info)}. {@code info} has {@code event}, {@code timeText},
+     *                          {@code isStart} and more, see the library docs.</dd>
+     *   <dt>Returns</dt>   <dd>the class names as a string</dd>
+     * </dl>
+     * <pre>{@code
+     * calendar.options().setBlockEntryAfterClass("my-class");
+     * calendar.options().setBlockEntryAfterClass(JsCallback.of("info => info.isPast ? 'my-past' : ''"));
+     * }</pre>
      *
      * @see <a href="https://fullcalendar.io/docs/block-event-render-hooks">blockEventAfterClass</a>
      */
@@ -1838,15 +2205,24 @@ class ViewOptions implements Serializable {
      * CSS classes for the "inner" wrapper element of block entries, the rectangular, color-filled entries (essentially
      * all entries except list entries).
      * <p>
-     * A callback gets an {@code info} object with {@code event}, {@code timeText}, {@code isStart} and more, see the
-     * library docs. It returns the class names as a string.
-     * <p>
      * It applies in addition to the general entry class option of the same part.
      * <p>
-     * The library default is no classes. A theme can set classes of its own, and the classes set here are added to
-     * them.
+     * A theme can set classes of its own, and the classes set here are added to them.
      * <p>
-     * The getter returns null while the option is not set; then the library default applies.
+     * The getter returns null while the option is not set. Then the library default applies.
+     * <dl>
+     *   <dt>Forms</dt>     <dd>{@link ClassName}, or a {@link JsCallback}</dd>
+     *   <dt>Shortcuts</dt> <dd>{@link #setBlockEntryInnerClass(String)}: class names separated by spaces, as
+     *                          {@link ClassName}</dd>
+     *   <dt>Default</dt>   <dd>library: no classes</dd>
+     *   <dt>Callback</dt>  <dd>{@code function(info)}. {@code info} has {@code event}, {@code timeText},
+     *                          {@code isStart} and more, see the library docs.</dd>
+     *   <dt>Returns</dt>   <dd>the class names as a string</dd>
+     * </dl>
+     * <pre>{@code
+     * calendar.options().setBlockEntryInnerClass("my-class");
+     * calendar.options().setBlockEntryInnerClass(JsCallback.of("info => info.isPast ? 'my-past' : ''"));
+     * }</pre>
      *
      * @see <a href="https://fullcalendar.io/docs/block-event-render-hooks">blockEventInnerClass</a>
      */
@@ -1877,15 +2253,25 @@ class ViewOptions implements Serializable {
      * CSS classes for the time element within the "inner" wrapper of block entries, the rectangular, color-filled
      * entries (essentially all entries except list entries).
      * <p>
-     * A callback gets an {@code info} object with {@code event}, {@code timeText}, {@code isNarrow} and
-     * {@code isShort}, see the library docs. It returns the class names as a string.
-     * <p>
      * It applies in addition to the general entry class option of the same part.
      * <p>
-     * The library default is no classes. A theme can set classes of its own, and the classes set here are added to
-     * them.
+     * A theme can set classes of its own, and the classes set here are added to them.
      * <p>
-     * The getter returns null while the option is not set; then the library default applies.
+     * The getter returns null while the option is not set. Then the library default applies.
+     * <dl>
+     *   <dt>Forms</dt>     <dd>{@link ClassName}, or a {@link JsCallback}</dd>
+     *   <dt>Shortcuts</dt> <dd>{@link #setBlockEntryTimeClass(String)}: class names separated by spaces, as
+     *                          {@link ClassName}</dd>
+     *   <dt>Default</dt>   <dd>library: no classes</dd>
+     *   <dt>Callback</dt>  <dd>{@code function(info)}. {@code info} has only {@code event}, {@code timeText},
+     *                          {@code isNarrow}, {@code isShort} and {@code resource} (resource views),
+     *                          see the library docs.</dd>
+     *   <dt>Returns</dt>   <dd>the class names as a string</dd>
+     * </dl>
+     * <pre>{@code
+     * calendar.options().setBlockEntryTimeClass("my-class");
+     * calendar.options().setBlockEntryTimeClass(JsCallback.of("info => info.isNarrow ? 'my-narrow' : ''"));
+     * }</pre>
      *
      * @see <a href="https://fullcalendar.io/docs/block-event-render-hooks">blockEventTimeClass</a>
      */
@@ -1917,15 +2303,25 @@ class ViewOptions implements Serializable {
      * CSS classes for the title element within the "inner" wrapper of block entries, the rectangular, color-filled
      * entries (essentially all entries except list entries).
      * <p>
-     * A callback gets an {@code info} object with {@code event}, {@code timeText}, {@code isNarrow} and
-     * {@code isShort}, see the library docs. It returns the class names as a string.
-     * <p>
      * It applies in addition to the general entry class option of the same part.
      * <p>
-     * The library default is no classes. A theme can set classes of its own, and the classes set here are added to
-     * them.
+     * A theme can set classes of its own, and the classes set here are added to them.
      * <p>
-     * The getter returns null while the option is not set; then the library default applies.
+     * The getter returns null while the option is not set. Then the library default applies.
+     * <dl>
+     *   <dt>Forms</dt>     <dd>{@link ClassName}, or a {@link JsCallback}</dd>
+     *   <dt>Shortcuts</dt> <dd>{@link #setBlockEntryTitleClass(String)}: class names separated by spaces, as
+     *                          {@link ClassName}</dd>
+     *   <dt>Default</dt>   <dd>library: no classes</dd>
+     *   <dt>Callback</dt>  <dd>{@code function(info)}. {@code info} has only {@code event}, {@code timeText},
+     *                          {@code isNarrow}, {@code isShort} and {@code resource} (resource views),
+     *                          see the library docs.</dd>
+     *   <dt>Returns</dt>   <dd>the class names as a string</dd>
+     * </dl>
+     * <pre>{@code
+     * calendar.options().setBlockEntryTitleClass("my-class");
+     * calendar.options().setBlockEntryTitleClass(JsCallback.of("info => info.isNarrow ? 'my-narrow' : ''"));
+     * }</pre>
      *
      * @see <a href="https://fullcalendar.io/docs/block-event-render-hooks">blockEventTitleClass</a>
      */
@@ -1957,15 +2353,26 @@ class ViewOptions implements Serializable {
      * CSS classes for the outermost element of column entries, the color-filled entries that render vertically (timed
      * entries in time grid views).
      * <p>
-     * A callback gets an {@code info} object with {@code event}, {@code timeText}, {@code isStart} and more, see the
-     * library docs. It returns the class names as a string.
-     * <p>
      * It applies in addition to the general and the block entry class option of the same part.
      * <p>
-     * The library default is no classes. A theme can set classes of its own, and the classes set here are added to
-     * them.
+     * A theme can set classes of its own, and the classes set here are added to them.
      * <p>
-     * The getter returns null while the option is not set; then the library default applies.
+     * The getter returns null while the option is not set. Then the library default applies.
+     * <dl>
+     *   <dt>Forms</dt>     <dd>{@link ClassName}, or a {@link JsCallback}</dd>
+     *   <dt>Shortcuts</dt> <dd>{@link #setColumnEntryClass(String)}: class names separated by spaces, as
+     *                          {@link ClassName}</dd>
+     *   <dt>Default</dt>   <dd>library: no classes<br>
+     *                          add-on: the stable classes {@code fc-timegrid-event} and {@code fc-v-event}.
+     *                          Classes set here are added to them.</dd>
+     *   <dt>Callback</dt>  <dd>{@code function(info)}. {@code info} has {@code event}, {@code timeText},
+     *                          {@code isStart} and more, see the library docs.</dd>
+     *   <dt>Returns</dt>   <dd>the class names as a string</dd>
+     * </dl>
+     * <pre>{@code
+     * calendar.options().setColumnEntryClass("my-class");
+     * calendar.options().setColumnEntryClass(JsCallback.of("info => info.isPast ? 'my-past' : ''"));
+     * }</pre>
      *
      * @see <a href="https://fullcalendar.io/docs/column-event-render-hooks">columnEventClass</a>
      */
@@ -1995,15 +2402,24 @@ class ViewOptions implements Serializable {
      * CSS classes for the element before the "inner" wrapper of column entries, the color-filled entries that render
      * vertically (timed entries in time grid views).
      * <p>
-     * A callback gets an {@code info} object with {@code event}, {@code timeText}, {@code isStart} and more, see the
-     * library docs. It returns the class names as a string.
-     * <p>
      * It applies in addition to the general and the block entry class option of the same part.
      * <p>
-     * The library default is no classes. A theme can set classes of its own, and the classes set here are added to
-     * them.
+     * A theme can set classes of its own, and the classes set here are added to them.
      * <p>
-     * The getter returns null while the option is not set; then the library default applies.
+     * The getter returns null while the option is not set. Then the library default applies.
+     * <dl>
+     *   <dt>Forms</dt>     <dd>{@link ClassName}, or a {@link JsCallback}</dd>
+     *   <dt>Shortcuts</dt> <dd>{@link #setColumnEntryBeforeClass(String)}: class names separated by spaces, as
+     *                          {@link ClassName}</dd>
+     *   <dt>Default</dt>   <dd>library: no classes</dd>
+     *   <dt>Callback</dt>  <dd>{@code function(info)}. {@code info} has {@code event}, {@code timeText},
+     *                          {@code isStart} and more, see the library docs.</dd>
+     *   <dt>Returns</dt>   <dd>the class names as a string</dd>
+     * </dl>
+     * <pre>{@code
+     * calendar.options().setColumnEntryBeforeClass("my-class");
+     * calendar.options().setColumnEntryBeforeClass(JsCallback.of("info => info.isPast ? 'my-past' : ''"));
+     * }</pre>
      *
      * @see <a href="https://fullcalendar.io/docs/column-event-render-hooks">columnEventBeforeClass</a>
      */
@@ -2035,15 +2451,24 @@ class ViewOptions implements Serializable {
      * CSS classes for the element after the "inner" wrapper of column entries, the color-filled entries that render
      * vertically (timed entries in time grid views).
      * <p>
-     * A callback gets an {@code info} object with {@code event}, {@code timeText}, {@code isStart} and more, see the
-     * library docs. It returns the class names as a string.
-     * <p>
      * It applies in addition to the general and the block entry class option of the same part.
      * <p>
-     * The library default is no classes. A theme can set classes of its own, and the classes set here are added to
-     * them.
+     * A theme can set classes of its own, and the classes set here are added to them.
      * <p>
-     * The getter returns null while the option is not set; then the library default applies.
+     * The getter returns null while the option is not set. Then the library default applies.
+     * <dl>
+     *   <dt>Forms</dt>     <dd>{@link ClassName}, or a {@link JsCallback}</dd>
+     *   <dt>Shortcuts</dt> <dd>{@link #setColumnEntryAfterClass(String)}: class names separated by spaces, as
+     *                          {@link ClassName}</dd>
+     *   <dt>Default</dt>   <dd>library: no classes</dd>
+     *   <dt>Callback</dt>  <dd>{@code function(info)}. {@code info} has {@code event}, {@code timeText},
+     *                          {@code isStart} and more, see the library docs.</dd>
+     *   <dt>Returns</dt>   <dd>the class names as a string</dd>
+     * </dl>
+     * <pre>{@code
+     * calendar.options().setColumnEntryAfterClass("my-class");
+     * calendar.options().setColumnEntryAfterClass(JsCallback.of("info => info.isPast ? 'my-past' : ''"));
+     * }</pre>
      *
      * @see <a href="https://fullcalendar.io/docs/column-event-render-hooks">columnEventAfterClass</a>
      */
@@ -2075,15 +2500,24 @@ class ViewOptions implements Serializable {
      * CSS classes for the "inner" wrapper element of column entries, the color-filled entries that render vertically
      * (timed entries in time grid views).
      * <p>
-     * A callback gets an {@code info} object with {@code event}, {@code timeText}, {@code isStart} and more, see the
-     * library docs. It returns the class names as a string.
-     * <p>
      * It applies in addition to the general and the block entry class option of the same part.
      * <p>
-     * The library default is no classes. A theme can set classes of its own, and the classes set here are added to
-     * them.
+     * A theme can set classes of its own, and the classes set here are added to them.
      * <p>
-     * The getter returns null while the option is not set; then the library default applies.
+     * The getter returns null while the option is not set. Then the library default applies.
+     * <dl>
+     *   <dt>Forms</dt>     <dd>{@link ClassName}, or a {@link JsCallback}</dd>
+     *   <dt>Shortcuts</dt> <dd>{@link #setColumnEntryInnerClass(String)}: class names separated by spaces, as
+     *                          {@link ClassName}</dd>
+     *   <dt>Default</dt>   <dd>library: no classes</dd>
+     *   <dt>Callback</dt>  <dd>{@code function(info)}. {@code info} has {@code event}, {@code timeText},
+     *                          {@code isStart} and more, see the library docs.</dd>
+     *   <dt>Returns</dt>   <dd>the class names as a string</dd>
+     * </dl>
+     * <pre>{@code
+     * calendar.options().setColumnEntryInnerClass("my-class");
+     * calendar.options().setColumnEntryInnerClass(JsCallback.of("info => info.isPast ? 'my-past' : ''"));
+     * }</pre>
      *
      * @see <a href="https://fullcalendar.io/docs/column-event-render-hooks">columnEventInnerClass</a>
      */
@@ -2115,15 +2549,25 @@ class ViewOptions implements Serializable {
      * CSS classes for the time element within the "inner" wrapper of column entries, the color-filled entries that
      * render vertically (timed entries in time grid views).
      * <p>
-     * A callback gets an {@code info} object with {@code event}, {@code timeText}, {@code isNarrow} and
-     * {@code isShort}, see the library docs. It returns the class names as a string.
-     * <p>
      * It applies in addition to the general and the block entry class option of the same part.
      * <p>
-     * The library default is no classes. A theme can set classes of its own, and the classes set here are added to
-     * them.
+     * A theme can set classes of its own, and the classes set here are added to them.
      * <p>
-     * The getter returns null while the option is not set; then the library default applies.
+     * The getter returns null while the option is not set. Then the library default applies.
+     * <dl>
+     *   <dt>Forms</dt>     <dd>{@link ClassName}, or a {@link JsCallback}</dd>
+     *   <dt>Shortcuts</dt> <dd>{@link #setColumnEntryTimeClass(String)}: class names separated by spaces, as
+     *                          {@link ClassName}</dd>
+     *   <dt>Default</dt>   <dd>library: no classes</dd>
+     *   <dt>Callback</dt>  <dd>{@code function(info)}. {@code info} has only {@code event}, {@code timeText},
+     *                          {@code isNarrow}, {@code isShort} and {@code resource} (resource views),
+     *                          see the library docs.</dd>
+     *   <dt>Returns</dt>   <dd>the class names as a string</dd>
+     * </dl>
+     * <pre>{@code
+     * calendar.options().setColumnEntryTimeClass("my-class");
+     * calendar.options().setColumnEntryTimeClass(JsCallback.of("info => info.isNarrow ? 'my-narrow' : ''"));
+     * }</pre>
      *
      * @see <a href="https://fullcalendar.io/docs/column-event-render-hooks">columnEventTimeClass</a>
      */
@@ -2155,15 +2599,25 @@ class ViewOptions implements Serializable {
      * CSS classes for the title element within the "inner" wrapper of column entries, the color-filled entries that
      * render vertically (timed entries in time grid views).
      * <p>
-     * A callback gets an {@code info} object with {@code event}, {@code timeText}, {@code isNarrow} and
-     * {@code isShort}, see the library docs. It returns the class names as a string.
-     * <p>
      * It applies in addition to the general and the block entry class option of the same part.
      * <p>
-     * The library default is no classes. A theme can set classes of its own, and the classes set here are added to
-     * them.
+     * A theme can set classes of its own, and the classes set here are added to them.
      * <p>
-     * The getter returns null while the option is not set; then the library default applies.
+     * The getter returns null while the option is not set. Then the library default applies.
+     * <dl>
+     *   <dt>Forms</dt>     <dd>{@link ClassName}, or a {@link JsCallback}</dd>
+     *   <dt>Shortcuts</dt> <dd>{@link #setColumnEntryTitleClass(String)}: class names separated by spaces, as
+     *                          {@link ClassName}</dd>
+     *   <dt>Default</dt>   <dd>library: no classes</dd>
+     *   <dt>Callback</dt>  <dd>{@code function(info)}. {@code info} has only {@code event}, {@code timeText},
+     *                          {@code isNarrow}, {@code isShort} and {@code resource} (resource views),
+     *                          see the library docs.</dd>
+     *   <dt>Returns</dt>   <dd>the class names as a string</dd>
+     * </dl>
+     * <pre>{@code
+     * calendar.options().setColumnEntryTitleClass("my-class");
+     * calendar.options().setColumnEntryTitleClass(JsCallback.of("info => info.isNarrow ? 'my-narrow' : ''"));
+     * }</pre>
      *
      * @see <a href="https://fullcalendar.io/docs/column-event-render-hooks">columnEventTitleClass</a>
      */
@@ -2196,15 +2650,26 @@ class ViewOptions implements Serializable {
      * <p>
      * Row entries are the entries drawn as horizontal bars: all-day entries and entries spanning several days in day
      * grid views, all-day entries in time grid views, and entries in timeline views. This hook applies in addition to
-     * the general entry hook.
+     * the general and the block entry hook.
      * <p>
-     * A callback gets an {@code info} object with {@code event}, {@code timeText}, {@code isStart} and more, see the
-     * library docs. It returns the class names as a string.
+     * A theme can set classes of its own, and the classes set here are added to them.
      * <p>
-     * The library default is no classes. A theme can set classes of its own, and the classes set here are added to
-     * them.
-     * <p>
-     * The getter returns null while the option is not set; then the library default applies.
+     * The getter returns null while the option is not set. Then the library default applies.
+     * <dl>
+     *   <dt>Forms</dt>     <dd>{@link ClassName}, or a {@link JsCallback}</dd>
+     *   <dt>Shortcuts</dt> <dd>{@link #setRowEntryClass(String)}: class names separated by spaces, as
+     *                          {@link ClassName}</dd>
+     *   <dt>Default</dt>   <dd>library: no classes<br>
+     *                          add-on: stable classes such as {@code fc-h-event} and {@code fc-daygrid-block-event}.
+     *                          Classes set here are added to them.</dd>
+     *   <dt>Callback</dt>  <dd>{@code function(info)}. {@code info} has {@code event}, {@code timeText},
+     *                          {@code isStart} and more, see the library docs.</dd>
+     *   <dt>Returns</dt>   <dd>the class names as a string</dd>
+     * </dl>
+     * <pre>{@code
+     * calendar.options().setRowEntryClass("my-class");
+     * calendar.options().setRowEntryClass(JsCallback.of("info => info.isPast ? 'my-past' : ''"));
+     * }</pre>
      *
      * @see <a href="https://fullcalendar.io/docs/row-event-render-hooks">rowEventClass</a>
      */
@@ -2235,15 +2700,24 @@ class ViewOptions implements Serializable {
      * <p>
      * Row entries are the entries drawn as horizontal bars: all-day entries and entries spanning several days in day
      * grid views, all-day entries in time grid views, and entries in timeline views. This hook applies in addition to
-     * the general entry hook.
+     * the general and the block entry hook.
      * <p>
-     * A callback gets an {@code info} object with {@code event}, {@code timeText}, {@code isStart} and more, see the
-     * library docs. It returns the class names as a string.
+     * A theme can set classes of its own, and the classes set here are added to them.
      * <p>
-     * The library default is no classes. A theme can set classes of its own, and the classes set here are added to
-     * them.
-     * <p>
-     * The getter returns null while the option is not set; then the library default applies.
+     * The getter returns null while the option is not set. Then the library default applies.
+     * <dl>
+     *   <dt>Forms</dt>     <dd>{@link ClassName}, or a {@link JsCallback}</dd>
+     *   <dt>Shortcuts</dt> <dd>{@link #setRowEntryBeforeClass(String)}: class names separated by spaces, as
+     *                          {@link ClassName}</dd>
+     *   <dt>Default</dt>   <dd>library: no classes</dd>
+     *   <dt>Callback</dt>  <dd>{@code function(info)}. {@code info} has {@code event}, {@code timeText},
+     *                          {@code isStart} and more, see the library docs.</dd>
+     *   <dt>Returns</dt>   <dd>the class names as a string</dd>
+     * </dl>
+     * <pre>{@code
+     * calendar.options().setRowEntryBeforeClass("my-class");
+     * calendar.options().setRowEntryBeforeClass(JsCallback.of("info => info.isPast ? 'my-past' : ''"));
+     * }</pre>
      *
      * @see <a href="https://fullcalendar.io/docs/row-event-render-hooks">rowEventBeforeClass</a>
      */
@@ -2277,15 +2751,23 @@ class ViewOptions implements Serializable {
      * date.
      * <p>
      * Row entries are the entries drawn as horizontal bars: all-day entries and entries spanning several days in day
-     * grid views, all-day entries in time grid views, and entries in timeline views. This hook applies in addition to
-     * the general entry hook.
+     * grid views, all-day entries in time grid views, and entries in timeline views.
      * <p>
-     * A callback gets an {@code info} object with {@code event}, {@code timeText}, {@code isStart} and more, see the
-     * library docs. It returns a text, or {@code {html: '...'}} or {@code {domNodes: [...]}}.
-     * <p>
-     * The library default is no content.
-     * <p>
-     * The getter returns null while the option is not set; then the library default applies.
+     * The getter returns null while the option is not set. Then the library default applies.
+     * <dl>
+     *   <dt>Forms</dt>     <dd>{@link TextContent} (shown as text), {@link ContentValue#ofHtml(String) HTML} (not
+     *                          escaped), or a {@link JsCallback}</dd>
+     *   <dt>Shortcuts</dt> <dd>{@link #setRowEntryBeforeContent(String)}: a text, as {@link TextContent}</dd>
+     *   <dt>Default</dt>   <dd>library: no content</dd>
+     *   <dt>Callback</dt>  <dd>{@code function(info)}. {@code info} has {@code event}, {@code timeText},
+     *                          {@code isStart} and more, see the library docs.</dd>
+     *   <dt>Returns</dt>   <dd>a text, {@code {html: '...'}} or {@code {domNodes: [...]}}</dd>
+     * </dl>
+     * <pre>{@code
+     * calendar.options().setRowEntryBeforeContent("<");
+     * calendar.options().setRowEntryBeforeContent(ContentValue.ofHtml("<b>&laquo;</b>"));
+     * calendar.options().setRowEntryBeforeContent(JsCallback.of("info => info.isStart ? '' : '<'"));
+     * }</pre>
      *
      * @see <a href="https://fullcalendar.io/docs/row-event-render-hooks">rowEventBeforeContent</a>
      */
@@ -2316,15 +2798,24 @@ class ViewOptions implements Serializable {
      * <p>
      * Row entries are the entries drawn as horizontal bars: all-day entries and entries spanning several days in day
      * grid views, all-day entries in time grid views, and entries in timeline views. This hook applies in addition to
-     * the general entry hook.
+     * the general and the block entry hook.
      * <p>
-     * A callback gets an {@code info} object with {@code event}, {@code timeText}, {@code isStart} and more, see the
-     * library docs. It returns the class names as a string.
+     * A theme can set classes of its own, and the classes set here are added to them.
      * <p>
-     * The library default is no classes. A theme can set classes of its own, and the classes set here are added to
-     * them.
-     * <p>
-     * The getter returns null while the option is not set; then the library default applies.
+     * The getter returns null while the option is not set. Then the library default applies.
+     * <dl>
+     *   <dt>Forms</dt>     <dd>{@link ClassName}, or a {@link JsCallback}</dd>
+     *   <dt>Shortcuts</dt> <dd>{@link #setRowEntryAfterClass(String)}: class names separated by spaces, as
+     *                          {@link ClassName}</dd>
+     *   <dt>Default</dt>   <dd>library: no classes</dd>
+     *   <dt>Callback</dt>  <dd>{@code function(info)}. {@code info} has {@code event}, {@code timeText},
+     *                          {@code isStart} and more, see the library docs.</dd>
+     *   <dt>Returns</dt>   <dd>the class names as a string</dd>
+     * </dl>
+     * <pre>{@code
+     * calendar.options().setRowEntryAfterClass("my-class");
+     * calendar.options().setRowEntryAfterClass(JsCallback.of("info => info.isPast ? 'my-past' : ''"));
+     * }</pre>
      *
      * @see <a href="https://fullcalendar.io/docs/row-event-render-hooks">rowEventAfterClass</a>
      */
@@ -2357,15 +2848,23 @@ class ViewOptions implements Serializable {
      * assistive technology. Useful for decorations such as an arrow showing that the entry continues past a later date.
      * <p>
      * Row entries are the entries drawn as horizontal bars: all-day entries and entries spanning several days in day
-     * grid views, all-day entries in time grid views, and entries in timeline views. This hook applies in addition to
-     * the general entry hook.
+     * grid views, all-day entries in time grid views, and entries in timeline views.
      * <p>
-     * A callback gets an {@code info} object with {@code event}, {@code timeText}, {@code isStart} and more, see the
-     * library docs. It returns a text, or {@code {html: '...'}} or {@code {domNodes: [...]}}.
-     * <p>
-     * The library default is no content.
-     * <p>
-     * The getter returns null while the option is not set; then the library default applies.
+     * The getter returns null while the option is not set. Then the library default applies.
+     * <dl>
+     *   <dt>Forms</dt>     <dd>{@link TextContent} (shown as text), {@link ContentValue#ofHtml(String) HTML} (not
+     *                          escaped), or a {@link JsCallback}</dd>
+     *   <dt>Shortcuts</dt> <dd>{@link #setRowEntryAfterContent(String)}: a text, as {@link TextContent}</dd>
+     *   <dt>Default</dt>   <dd>library: no content</dd>
+     *   <dt>Callback</dt>  <dd>{@code function(info)}. {@code info} has {@code event}, {@code timeText},
+     *                          {@code isStart} and more, see the library docs.</dd>
+     *   <dt>Returns</dt>   <dd>a text, {@code {html: '...'}} or {@code {domNodes: [...]}}</dd>
+     * </dl>
+     * <pre>{@code
+     * calendar.options().setRowEntryAfterContent("Text");
+     * calendar.options().setRowEntryAfterContent(ContentValue.ofHtml("<b>Text</b>"));
+     * calendar.options().setRowEntryAfterContent(JsCallback.of("info => info.isEnd ? '' : '>'"));
+     * }</pre>
      *
      * @see <a href="https://fullcalendar.io/docs/row-event-render-hooks">rowEventAfterContent</a>
      */
@@ -2396,15 +2895,24 @@ class ViewOptions implements Serializable {
      * <p>
      * Row entries are the entries drawn as horizontal bars: all-day entries and entries spanning several days in day
      * grid views, all-day entries in time grid views, and entries in timeline views. This hook applies in addition to
-     * the general entry hook.
+     * the general and the block entry hook.
      * <p>
-     * A callback gets an {@code info} object with {@code event}, {@code timeText}, {@code isStart} and more, see the
-     * library docs. It returns the class names as a string.
+     * A theme can set classes of its own, and the classes set here are added to them.
      * <p>
-     * The library default is no classes. A theme can set classes of its own, and the classes set here are added to
-     * them.
-     * <p>
-     * The getter returns null while the option is not set; then the library default applies.
+     * The getter returns null while the option is not set. Then the library default applies.
+     * <dl>
+     *   <dt>Forms</dt>     <dd>{@link ClassName}, or a {@link JsCallback}</dd>
+     *   <dt>Shortcuts</dt> <dd>{@link #setRowEntryInnerClass(String)}: class names separated by spaces, as
+     *                          {@link ClassName}</dd>
+     *   <dt>Default</dt>   <dd>library: no classes</dd>
+     *   <dt>Callback</dt>  <dd>{@code function(info)}. {@code info} has {@code event}, {@code timeText},
+     *                          {@code isStart} and more, see the library docs.</dd>
+     *   <dt>Returns</dt>   <dd>the class names as a string</dd>
+     * </dl>
+     * <pre>{@code
+     * calendar.options().setRowEntryInnerClass("my-row-inner");
+     * calendar.options().setRowEntryInnerClass(JsCallback.of("info => info.isStart ? 'my-start' : ''"));
+     * }</pre>
      *
      * @see <a href="https://fullcalendar.io/docs/row-event-render-hooks">rowEventInnerClass</a>
      */
@@ -2436,15 +2944,25 @@ class ViewOptions implements Serializable {
      * <p>
      * Row entries are the entries drawn as horizontal bars: all-day entries and entries spanning several days in day
      * grid views, all-day entries in time grid views, and entries in timeline views. This hook applies in addition to
-     * the general entry hook.
+     * the general and the block entry hook.
      * <p>
-     * A callback gets an {@code info} object with {@code event}, {@code timeText}, {@code isNarrow} and
-     * {@code isShort}, see the library docs. It returns the class names as a string.
+     * A theme can set classes of its own, and the classes set here are added to them.
      * <p>
-     * The library default is no classes. A theme can set classes of its own, and the classes set here are added to
-     * them.
-     * <p>
-     * The getter returns null while the option is not set; then the library default applies.
+     * The getter returns null while the option is not set. Then the library default applies.
+     * <dl>
+     *   <dt>Forms</dt>     <dd>{@link ClassName}, or a {@link JsCallback}</dd>
+     *   <dt>Shortcuts</dt> <dd>{@link #setRowEntryTimeClass(String)}: class names separated by spaces, as
+     *                          {@link ClassName}</dd>
+     *   <dt>Default</dt>   <dd>library: no classes</dd>
+     *   <dt>Callback</dt>  <dd>{@code function(info)}. {@code info} has only {@code event}, {@code timeText},
+     *                          {@code isNarrow}, {@code isShort} and {@code resource} (resource views),
+     *                          see the library docs.</dd>
+     *   <dt>Returns</dt>   <dd>the class names as a string</dd>
+     * </dl>
+     * <pre>{@code
+     * calendar.options().setRowEntryTimeClass("my-row-time");
+     * calendar.options().setRowEntryTimeClass(JsCallback.of("info => info.isNarrow ? 'my-narrow' : ''"));
+     * }</pre>
      *
      * @see <a href="https://fullcalendar.io/docs/row-event-render-hooks">rowEventTimeClass</a>
      */
@@ -2477,15 +2995,25 @@ class ViewOptions implements Serializable {
      * <p>
      * Row entries are the entries drawn as horizontal bars: all-day entries and entries spanning several days in day
      * grid views, all-day entries in time grid views, and entries in timeline views. This hook applies in addition to
-     * the general entry hook.
+     * the general and the block entry hook.
      * <p>
-     * A callback gets an {@code info} object with {@code event}, {@code timeText}, {@code isNarrow} and
-     * {@code isShort}, see the library docs. It returns the class names as a string.
+     * A theme can set classes of its own, and the classes set here are added to them.
      * <p>
-     * The library default is no classes. A theme can set classes of its own, and the classes set here are added to
-     * them.
-     * <p>
-     * The getter returns null while the option is not set; then the library default applies.
+     * The getter returns null while the option is not set. Then the library default applies.
+     * <dl>
+     *   <dt>Forms</dt>     <dd>{@link ClassName}, or a {@link JsCallback}</dd>
+     *   <dt>Shortcuts</dt> <dd>{@link #setRowEntryTitleClass(String)}: class names separated by spaces, as
+     *                          {@link ClassName}</dd>
+     *   <dt>Default</dt>   <dd>library: no classes</dd>
+     *   <dt>Callback</dt>  <dd>{@code function(info)}. {@code info} has only {@code event}, {@code timeText},
+     *                          {@code isNarrow}, {@code isShort} and {@code resource} (resource views),
+     *                          see the library docs.</dd>
+     *   <dt>Returns</dt>   <dd>the class names as a string</dd>
+     * </dl>
+     * <pre>{@code
+     * calendar.options().setRowEntryTitleClass("my-row-title");
+     * calendar.options().setRowEntryTitleClass(JsCallback.of("info => info.isNarrow ? 'my-narrow' : ''"));
+     * }</pre>
      *
      * @see <a href="https://fullcalendar.io/docs/row-event-render-hooks">rowEventTitleClass</a>
      */
@@ -2518,13 +3046,26 @@ class ViewOptions implements Serializable {
     /**
      * CSS classes for the outermost element of a background entry.
      * <p>
-     * A callback gets an {@code info} object with {@code event}, {@code timeText}, {@code isStart} and more, see the
-     * library docs. It returns the class names as a string.
+     * The general entry class options do not apply to background entries.
      * <p>
-     * The general entry class options do not apply to background entries. The library default is no classes. A theme
-     * can set classes of its own, and the classes set here are added to them.
+     * A theme can set classes of its own, and the classes set here are added to them.
      * <p>
-     * The getter returns null while the option is not set; then the library default applies.
+     * The getter returns null while the option is not set. Then the library default applies.
+     * <dl>
+     *   <dt>Forms</dt>     <dd>{@link ClassName}, or a {@link JsCallback}</dd>
+     *   <dt>Shortcuts</dt> <dd>{@link #setBackgroundEntryClass(String)}: class names separated by spaces, as
+     *                          {@link ClassName}</dd>
+     *   <dt>Default</dt>   <dd>library: no classes<br>
+     *                          add-on: stable classes such as {@code fc-bg-event}.
+     *                          Classes set here are added to them.</dd>
+     *   <dt>Callback</dt>  <dd>{@code function(info)}. {@code info} has {@code event}, {@code timeText},
+     *                          {@code isStart} and more, see the library docs.</dd>
+     *   <dt>Returns</dt>   <dd>the class names as a string</dd>
+     * </dl>
+     * <pre>{@code
+     * calendar.options().setBackgroundEntryClass("my-background");
+     * calendar.options().setBackgroundEntryClass(JsCallback.of("info => info.isStart ? 'my-start' : ''"));
+     * }</pre>
      *
      * @see <a href="https://fullcalendar.io/docs/background-event-render-hooks">backgroundEventClass</a>
      */
@@ -2551,16 +3092,26 @@ class ViewOptions implements Serializable {
     }
 
     /**
-     * Custom content for background entries. The generated content is inserted inside the inner-most wrapper of
-     * the entry element.
+     * Custom content for background entries. The generated content is inserted inside the inner-most wrapper of the
+     * entry element.
      * <p>
-     * A callback gets an {@code info} object with {@code event}, {@code timeText}, {@code isStart} and more, see the
-     * library docs. It returns a text, or {@code {html: '...'}} or {@code {domNodes: [...]}}. It is called every time
-     * the entry data changes.
+     * A callback is called every time the entry data changes.
      * <p>
-     * The library default is the title of the entry, if it has one.
-     * <p>
-     * The getter returns null while the option is not set; then the library default applies.
+     * The getter returns null while the option is not set. Then the library default applies.
+     * <dl>
+     *   <dt>Forms</dt>     <dd>{@link TextContent} (shown as text), {@link ContentValue#ofHtml(String) HTML} (not
+     *                          escaped), or a {@link JsCallback}</dd>
+     *   <dt>Shortcuts</dt> <dd>{@link #setBackgroundEntryContent(String)}: a text, as {@link TextContent}</dd>
+     *   <dt>Default</dt>   <dd>library: the title of the entry, if it has one</dd>
+     *   <dt>Callback</dt>  <dd>{@code function(info)}. {@code info} has {@code event}, {@code timeText},
+     *                          {@code isStart} and more, see the library docs.</dd>
+     *   <dt>Returns</dt>   <dd>a text, {@code {html: '...'}} or {@code {domNodes: [...]}}</dd>
+     * </dl>
+     * <pre>{@code
+     * calendar.options().setBackgroundEntryContent("Text");
+     * calendar.options().setBackgroundEntryContent(ContentValue.ofHtml("<b>Text</b>"));
+     * calendar.options().setBackgroundEntryContent(JsCallback.of("info => 'Closed: ' + info.event.title"));
+     * }</pre>
      *
      * @see <a href="https://fullcalendar.io/docs/background-event-render-hooks">backgroundEventContent</a>
      */
@@ -2606,13 +3157,24 @@ class ViewOptions implements Serializable {
     /**
      * CSS classes for the inner wrapper of a background entry.
      * <p>
-     * A callback gets an {@code info} object with {@code event}, {@code timeText}, {@code isStart} and more, see the
-     * library docs. It returns the class names as a string.
+     * The general entry class options do not apply to background entries.
      * <p>
-     * The general entry class options do not apply to background entries. The library default is no classes. A theme
-     * can set classes of its own, and the classes set here are added to them.
+     * A theme can set classes of its own, and the classes set here are added to them.
      * <p>
-     * The getter returns null while the option is not set; then the library default applies.
+     * The getter returns null while the option is not set. Then the library default applies.
+     * <dl>
+     *   <dt>Forms</dt>     <dd>{@link ClassName}, or a {@link JsCallback}</dd>
+     *   <dt>Shortcuts</dt> <dd>{@link #setBackgroundEntryInnerClass(String)}: class names separated by spaces, as
+     *                          {@link ClassName}</dd>
+     *   <dt>Default</dt>   <dd>library: no classes</dd>
+     *   <dt>Callback</dt>  <dd>{@code function(info)}. {@code info} has {@code event}, {@code timeText},
+     *                          {@code isStart} and more, see the library docs.</dd>
+     *   <dt>Returns</dt>   <dd>the class names as a string</dd>
+     * </dl>
+     * <pre>{@code
+     * calendar.options().setBackgroundEntryInnerClass("my-background-inner");
+     * calendar.options().setBackgroundEntryInnerClass(JsCallback.of("info => info.isStart ? 'my-start' : ''"));
+     * }</pre>
      *
      * @see <a href="https://fullcalendar.io/docs/background-event-render-hooks">backgroundEventInnerClass</a>
      */
@@ -2641,13 +3203,24 @@ class ViewOptions implements Serializable {
     /**
      * CSS classes for the title element inside the inner wrapper of a background entry.
      * <p>
-     * A callback gets an {@code info} object with {@code event}, {@code timeText}, {@code isNarrow} and
-     * {@code isShort}, see the library docs. It returns the class names as a string.
+     * The general entry class options do not apply to background entries.
      * <p>
-     * The general entry class options do not apply to background entries. The library default is no classes. A theme
-     * can set classes of its own, and the classes set here are added to them.
+     * A theme can set classes of its own, and the classes set here are added to them.
      * <p>
-     * The getter returns null while the option is not set; then the library default applies.
+     * The getter returns null while the option is not set. Then the library default applies.
+     * <dl>
+     *   <dt>Forms</dt>     <dd>{@link ClassName}, or a {@link JsCallback}</dd>
+     *   <dt>Shortcuts</dt> <dd>{@link #setBackgroundEntryTitleClass(String)}: class names separated by spaces, as
+     *                          {@link ClassName}</dd>
+     *   <dt>Default</dt>   <dd>library: no classes</dd>
+     *   <dt>Callback</dt>  <dd>{@code function(info)}. {@code info} has {@code event}, {@code timeText} (always
+     *                          empty), {@code isNarrow}, {@code isShort} and {@code resource} (resource views).</dd>
+     *   <dt>Returns</dt>   <dd>the class names as a string</dd>
+     * </dl>
+     * <pre>{@code
+     * calendar.options().setBackgroundEntryTitleClass("my-background-title");
+     * calendar.options().setBackgroundEntryTitleClass(JsCallback.of("info => info.isNarrow ? 'my-narrow' : ''"));
+     * }</pre>
      *
      * @see <a href="https://fullcalendar.io/docs/background-event-render-hooks">backgroundEventTitleClass</a>
      */
@@ -2693,13 +3266,25 @@ class ViewOptions implements Serializable {
     /**
      * CSS classes for the element after the inner wrapper of an entry. Background entries are not affected.
      * <p>
-     * A callback gets an {@code info} object with {@code event}, {@code timeText}, {@code isStart} and more, see the
-     * library docs. It returns the class names as a string.
+     * A theme can set classes of its own, and the classes set here are added to them.
      * <p>
-     * The library default is no classes. A theme can set classes of its own, and the classes set here are added to
-     * them.
-     * <p>
-     * The getter returns null while the option is not set; then the library default applies.
+     * The getter returns null while the option is not set. Then the library default applies.
+     * <dl>
+     *   <dt>Forms</dt>     <dd>{@link ClassName}, or a {@link JsCallback}</dd>
+     *   <dt>Shortcuts</dt> <dd>{@link #setEntryAfterClass(String)}: class names separated by spaces, as
+     *                          {@link ClassName}</dd>
+     *   <dt>Default</dt>   <dd>library: no classes<br>
+     *                          add-on: the stable classes {@code fc-event-resizer} and
+     *                          {@code fc-event-resizer-end}, for entries that can be resized at their end.
+     *                          Classes set here are added to them.</dd>
+     *   <dt>Callback</dt>  <dd>{@code function(info)}. {@code info} has {@code event}, {@code timeText},
+     *                          {@code isStart} and more, see the library docs.</dd>
+     *   <dt>Returns</dt>   <dd>the class names as a string</dd>
+     * </dl>
+     * <pre>{@code
+     * calendar.options().setEntryAfterClass("my-after");
+     * calendar.options().setEntryAfterClass(JsCallback.of("info => info.isStart ? 'my-start' : ''"));
+     * }</pre>
      *
      * @see <a href="https://fullcalendar.io/docs/event-render-hooks">eventAfterClass</a>
      */
@@ -2728,13 +3313,25 @@ class ViewOptions implements Serializable {
     /**
      * CSS classes for the element before the inner wrapper of an entry. Background entries are not affected.
      * <p>
-     * A callback gets an {@code info} object with {@code event}, {@code timeText}, {@code isStart} and more, see the
-     * library docs. It returns the class names as a string.
+     * A theme can set classes of its own, and the classes set here are added to them.
      * <p>
-     * The library default is no classes. A theme can set classes of its own, and the classes set here are added to
-     * them.
-     * <p>
-     * The getter returns null while the option is not set; then the library default applies.
+     * The getter returns null while the option is not set. Then the library default applies.
+     * <dl>
+     *   <dt>Forms</dt>     <dd>{@link ClassName}, or a {@link JsCallback}</dd>
+     *   <dt>Shortcuts</dt> <dd>{@link #setEntryBeforeClass(String)}: class names separated by spaces, as
+     *                          {@link ClassName}</dd>
+     *   <dt>Default</dt>   <dd>library: no classes<br>
+     *                          add-on: the stable classes {@code fc-event-resizer} and
+     *                          {@code fc-event-resizer-start}, for entries that can be resized at their start.
+     *                          Classes set here are added to them.</dd>
+     *   <dt>Callback</dt>  <dd>{@code function(info)}. {@code info} has {@code event}, {@code timeText},
+     *                          {@code isStart} and more, see the library docs.</dd>
+     *   <dt>Returns</dt>   <dd>the class names as a string</dd>
+     * </dl>
+     * <pre>{@code
+     * calendar.options().setEntryBeforeClass("my-before");
+     * calendar.options().setEntryBeforeClass(JsCallback.of("info => info.isStart ? 'my-start' : ''"));
+     * }</pre>
      *
      * @see <a href="https://fullcalendar.io/docs/event-render-hooks">eventBeforeClass</a>
      */
@@ -2763,13 +3360,24 @@ class ViewOptions implements Serializable {
     /**
      * CSS classes for the outermost element of an entry. Background entries are not affected.
      * <p>
-     * A callback gets an {@code info} object with {@code event}, {@code timeText}, {@code isStart} and more, see the
-     * library docs. It returns the class names as a string.
+     * A theme can set classes of its own, and the classes set here are added to them.
      * <p>
-     * The library default is no classes. A theme can set classes of its own, and the classes set here are added to
-     * them.
-     * <p>
-     * The getter returns null while the option is not set; then the library default applies.
+     * The getter returns null while the option is not set. Then the library default applies.
+     * <dl>
+     *   <dt>Forms</dt>     <dd>{@link ClassName}, or a {@link JsCallback}</dd>
+     *   <dt>Shortcuts</dt> <dd>{@link #setEntryClass(String)}: class names separated by spaces, as
+     *                          {@link ClassName}</dd>
+     *   <dt>Default</dt>   <dd>library: no classes<br>
+     *                          add-on: stable classes such as {@code fc-event} and {@code fc-event-draggable}, in
+     *                          day grid views also {@code fc-daygrid-event}. Classes set here are added to them.</dd>
+     *   <dt>Callback</dt>  <dd>{@code function(info)}. {@code info} has {@code event}, {@code timeText},
+     *                          {@code isStart} and more, see the library docs.</dd>
+     *   <dt>Returns</dt>   <dd>the class names as a string</dd>
+     * </dl>
+     * <pre>{@code
+     * calendar.options().setEntryClass("my-entry");
+     * calendar.options().setEntryClass(JsCallback.of("info => info.isStart ? 'my-start' : ''"));
+     * }</pre>
      *
      * @see <a href="https://fullcalendar.io/docs/event-render-hooks">eventClass</a>
      */
@@ -2796,15 +3404,26 @@ class ViewOptions implements Serializable {
     }
 
     /**
-     * Custom content for entries. Background entries are not affected. The generated content is inserted inside
-     * the inner-most wrapper of the entry element.
+     * Custom content for entries. Background entries are not affected. The generated content is inserted inside the
+     * inner-most wrapper of the entry element.
      * <p>
-     * A callback gets an {@code info} object with {@code event}, {@code timeText}, {@code isStart} and more, see the
-     * library docs. It returns a text, or {@code {html: '...'}} or {@code {domNodes: [...]}}. It is called every time
-     * the entry data changes.
+     * A callback is called every time the entry data changes.
      * <p>
-     * The library has no default for this option. The themes set no entry content. The getter returns null while the
-     * option is not set; then the library default applies.
+     * The getter returns null while the option is not set. Then the library default applies.
+     * <dl>
+     *   <dt>Forms</dt>     <dd>{@link TextContent} (shown as text), {@link ContentValue#ofHtml(String) HTML} (not
+     *                          escaped), or a {@link JsCallback}</dd>
+     *   <dt>Shortcuts</dt> <dd>{@link #setEntryContent(String)}: a text, as {@link TextContent}</dd>
+     *   <dt>Default</dt>   <dd>library: none, and the themes set no entry content</dd>
+     *   <dt>Callback</dt>  <dd>{@code function(info)}. {@code info} has {@code event}, {@code timeText},
+     *                          {@code isStart} and more, see the library docs.</dd>
+     *   <dt>Returns</dt>   <dd>a text, {@code {html: '...'}} or {@code {domNodes: [...]}}</dd>
+     * </dl>
+     * <pre>{@code
+     * calendar.options().setEntryContent("Text");
+     * calendar.options().setEntryContent(ContentValue.ofHtml("<b>Text</b>"));
+     * calendar.options().setEntryContent(JsCallback.of("info => info.timeText + ' ' + info.event.title"));
+     * }</pre>
      *
      * @see <a href="https://fullcalendar.io/docs/event-render-hooks">eventContent</a>
      */
@@ -2833,13 +3452,23 @@ class ViewOptions implements Serializable {
     /**
      * CSS classes for the inner wrapper of an entry. Background entries are not affected.
      * <p>
-     * A callback gets an {@code info} object with {@code event}, {@code timeText}, {@code isStart} and more, see the
-     * library docs. It returns the class names as a string.
+     * A theme can set classes of its own, and the classes set here are added to them.
      * <p>
-     * The library default is no classes. A theme can set classes of its own, and the classes set here are added to
-     * them.
-     * <p>
-     * The getter returns null while the option is not set; then the library default applies.
+     * The getter returns null while the option is not set. Then the library default applies.
+     * <dl>
+     *   <dt>Forms</dt>     <dd>{@link ClassName}, or a {@link JsCallback}</dd>
+     *   <dt>Shortcuts</dt> <dd>{@link #setEntryInnerClass(String)}: class names separated by spaces, as
+     *                          {@link ClassName}</dd>
+     *   <dt>Default</dt>   <dd>library: no classes<br>
+     *                          add-on: the stable class {@code fc-event-main}. Classes set here are added to it.</dd>
+     *   <dt>Callback</dt>  <dd>{@code function(info)}. {@code info} has {@code event}, {@code timeText},
+     *                          {@code isStart} and more, see the library docs.</dd>
+     *   <dt>Returns</dt>   <dd>the class names as a string</dd>
+     * </dl>
+     * <pre>{@code
+     * calendar.options().setEntryInnerClass("my-inner");
+     * calendar.options().setEntryInnerClass(JsCallback.of("info => info.isStart ? 'my-start' : ''"));
+     * }</pre>
      *
      * @see <a href="https://fullcalendar.io/docs/event-render-hooks">eventInnerClass</a>
      */
@@ -2868,13 +3497,23 @@ class ViewOptions implements Serializable {
     /**
      * CSS classes for the time element inside the inner wrapper of an entry. Background entries are not affected.
      * <p>
-     * A callback gets an {@code info} object with {@code event}, {@code timeText}, {@code isNarrow} and more, see the
-     * library docs. It returns the class names as a string.
+     * A theme can set classes of its own, and the classes set here are added to them.
      * <p>
-     * The library default is no classes. A theme can set classes of its own, and the classes set here are added to
-     * them.
-     * <p>
-     * The getter returns null while the option is not set; then the library default applies.
+     * The getter returns null while the option is not set. Then the library default applies.
+     * <dl>
+     *   <dt>Forms</dt>     <dd>{@link ClassName}, or a {@link JsCallback}</dd>
+     *   <dt>Shortcuts</dt> <dd>{@link #setEntryTimeClass(String)}: class names separated by spaces, as
+     *                          {@link ClassName}</dd>
+     *   <dt>Default</dt>   <dd>library: no classes<br>
+     *                          add-on: the stable class {@code fc-event-time}. Classes set here are added to it.</dd>
+     *   <dt>Callback</dt>  <dd>{@code function(info)}. {@code info} has {@code event}, {@code timeText},
+     *                          {@code isNarrow}, {@code isShort} and {@code resource} (resource views).</dd>
+     *   <dt>Returns</dt>   <dd>the class names as a string</dd>
+     * </dl>
+     * <pre>{@code
+     * calendar.options().setEntryTimeClass("my-time");
+     * calendar.options().setEntryTimeClass(JsCallback.of("info => info.isNarrow ? 'my-narrow' : ''"));
+     * }</pre>
      *
      * @see <a href="https://fullcalendar.io/docs/event-render-hooks">eventTimeClass</a>
      */
@@ -2903,13 +3542,23 @@ class ViewOptions implements Serializable {
     /**
      * CSS classes for the title element inside the inner wrapper of an entry. Background entries are not affected.
      * <p>
-     * A callback gets an {@code info} object with {@code event}, {@code timeText}, {@code isNarrow} and more, see the
-     * library docs. It returns the class names as a string.
+     * A theme can set classes of its own, and the classes set here are added to them.
      * <p>
-     * The library default is no classes. A theme can set classes of its own, and the classes set here are added to
-     * them.
-     * <p>
-     * The getter returns null while the option is not set; then the library default applies.
+     * The getter returns null while the option is not set. Then the library default applies.
+     * <dl>
+     *   <dt>Forms</dt>     <dd>{@link ClassName}, or a {@link JsCallback}</dd>
+     *   <dt>Shortcuts</dt> <dd>{@link #setEntryTitleClass(String)}: class names separated by spaces, as
+     *                          {@link ClassName}</dd>
+     *   <dt>Default</dt>   <dd>library: no classes<br>
+     *                          add-on: the stable class {@code fc-event-title}. Classes set here are added to it.</dd>
+     *   <dt>Callback</dt>  <dd>{@code function(info)}. {@code info} has {@code event}, {@code timeText},
+     *                          {@code isNarrow}, {@code isShort} and {@code resource} (resource views).</dd>
+     *   <dt>Returns</dt>   <dd>the class names as a string</dd>
+     * </dl>
+     * <pre>{@code
+     * calendar.options().setEntryTitleClass("my-title");
+     * calendar.options().setEntryTitleClass(JsCallback.of("info => info.isNarrow ? 'my-narrow' : ''"));
+     * }</pre>
      *
      * @see <a href="https://fullcalendar.io/docs/event-render-hooks">eventTitleClass</a>
      */
@@ -2958,16 +3607,25 @@ class ViewOptions implements Serializable {
 
     /**
      * CSS classes for the element after the inner wrapper of a list item entry, that is a timed entry within one day in
-     * day grid views and an entry in list views. {@code entryDisplay} can change which entries are list items. They
-     * apply in addition to the general entry classes.
+     * day grid views and an entry in list views. {@code entryDisplay} can change which entries are list items.
      * <p>
-     * A callback gets an {@code info} object with {@code event}, {@code timeText}, {@code isStart} and more, see the
-     * library docs. It returns the class names as a string.
+     * The classes apply in addition to the general entry classes. A theme can set classes of its own, and the classes
+     * set here are added to them.
      * <p>
-     * The library default is no classes. A theme can set classes of its own, and the classes set here are added to
-     * them.
-     * <p>
-     * The getter returns null while the option is not set; then the library default applies.
+     * The getter returns null while the option is not set. Then the library default applies.
+     * <dl>
+     *   <dt>Forms</dt>     <dd>{@link ClassName}, or a {@link JsCallback}</dd>
+     *   <dt>Shortcuts</dt> <dd>{@link #setListItemEntryAfterClass(String)}: class names separated by spaces, as
+     *                          {@link ClassName}</dd>
+     *   <dt>Default</dt>   <dd>library: no classes</dd>
+     *   <dt>Callback</dt>  <dd>{@code function(info)}. {@code info} has {@code event}, {@code timeText},
+     *                          {@code isStart} and more, see the library docs.</dd>
+     *   <dt>Returns</dt>   <dd>the class names as a string</dd>
+     * </dl>
+     * <pre>{@code
+     * calendar.options().setListItemEntryAfterClass("my-li-after");
+     * calendar.options().setListItemEntryAfterClass(JsCallback.of("info => info.isStart ? 'my-start' : ''"));
+     * }</pre>
      *
      * @see <a href="https://fullcalendar.io/docs/list-item-event-render-hooks">listItemEventAfterClass</a>
      */
@@ -2995,16 +3653,27 @@ class ViewOptions implements Serializable {
 
     /**
      * CSS classes for the element before the inner wrapper of a list item entry, that is a timed entry within one day
-     * in day grid views and an entry in list views. {@code entryDisplay} can change which entries are list items. They
-     * apply in addition to the general entry classes.
+     * in day grid views and an entry in list views. {@code entryDisplay} can change which entries are list items.
      * <p>
-     * A callback gets an {@code info} object with {@code event}, {@code timeText}, {@code isStart} and more, see the
-     * library docs. It returns the class names as a string.
+     * The classes apply in addition to the general entry classes. A theme can set classes of its own, and the classes
+     * set here are added to them.
      * <p>
-     * The library default is no classes. A theme can set classes of its own, and the classes set here are added to
-     * them.
-     * <p>
-     * The getter returns null while the option is not set; then the library default applies.
+     * The getter returns null while the option is not set. Then the library default applies.
+     * <dl>
+     *   <dt>Forms</dt>     <dd>{@link ClassName}, or a {@link JsCallback}</dd>
+     *   <dt>Shortcuts</dt> <dd>{@link #setListItemEntryBeforeClass(String)}: class names separated by spaces, as
+     *                          {@link ClassName}</dd>
+     *   <dt>Default</dt>   <dd>library: no classes<br>
+     *                          add-on: the stable class {@code fc-daygrid-event-dot} in day grid views and
+     *                          {@code fc-list-event-dot} in list views. Classes set here are added to it.</dd>
+     *   <dt>Callback</dt>  <dd>{@code function(info)}. {@code info} has {@code event}, {@code timeText},
+     *                          {@code isStart} and more, see the library docs.</dd>
+     *   <dt>Returns</dt>   <dd>the class names as a string</dd>
+     * </dl>
+     * <pre>{@code
+     * calendar.options().setListItemEntryBeforeClass("my-li-before");
+     * calendar.options().setListItemEntryBeforeClass(JsCallback.of("info => info.isStart ? 'my-start' : ''"));
+     * }</pre>
      *
      * @see <a href="https://fullcalendar.io/docs/list-item-event-render-hooks">listItemEventBeforeClass</a>
      */
@@ -3032,16 +3701,27 @@ class ViewOptions implements Serializable {
 
     /**
      * CSS classes for the outermost element of a list item entry, that is a timed entry within one day in day grid
-     * views and an entry in list views. {@code entryDisplay} can change which entries are list items. They apply in
-     * addition to the general entry classes.
+     * views and an entry in list views. {@code entryDisplay} can change which entries are list items.
      * <p>
-     * A callback gets an {@code info} object with {@code event}, {@code timeText}, {@code isStart} and more, see the
-     * library docs. It returns the class names as a string.
+     * The classes apply in addition to the general entry classes. A theme can set classes of its own, and the classes
+     * set here are added to them.
      * <p>
-     * The library default is no classes. A theme can set classes of its own, and the classes set here are added to
-     * them.
-     * <p>
-     * The getter returns null while the option is not set; then the library default applies.
+     * The getter returns null while the option is not set. Then the library default applies.
+     * <dl>
+     *   <dt>Forms</dt>     <dd>{@link ClassName}, or a {@link JsCallback}</dd>
+     *   <dt>Shortcuts</dt> <dd>{@link #setListItemEntryClass(String)}: class names separated by spaces, as
+     *                          {@link ClassName}</dd>
+     *   <dt>Default</dt>   <dd>library: no classes<br>
+     *                          add-on: the stable class {@code fc-daygrid-dot-event} in day grid views and
+     *                          {@code fc-list-event} in list views. Classes set here are added to it.</dd>
+     *   <dt>Callback</dt>  <dd>{@code function(info)}. {@code info} has {@code event}, {@code timeText},
+     *                          {@code isStart} and more, see the library docs.</dd>
+     *   <dt>Returns</dt>   <dd>the class names as a string</dd>
+     * </dl>
+     * <pre>{@code
+     * calendar.options().setListItemEntryClass("my-li");
+     * calendar.options().setListItemEntryClass(JsCallback.of("info => info.isStart ? 'my-start' : ''"));
+     * }</pre>
      *
      * @see <a href="https://fullcalendar.io/docs/list-item-event-render-hooks">listItemEventClass</a>
      */
@@ -3069,16 +3749,25 @@ class ViewOptions implements Serializable {
 
     /**
      * CSS classes for the inner wrapper of a list item entry, that is a timed entry within one day in day grid views
-     * and an entry in list views. {@code entryDisplay} can change which entries are list items. They apply in addition
-     * to the general entry classes.
+     * and an entry in list views. {@code entryDisplay} can change which entries are list items.
      * <p>
-     * A callback gets an {@code info} object with {@code event}, {@code timeText}, {@code isStart} and more, see the
-     * library docs. It returns the class names as a string.
+     * The classes apply in addition to the general entry classes. A theme can set classes of its own, and the classes
+     * set here are added to them.
      * <p>
-     * The library default is no classes. A theme can set classes of its own, and the classes set here are added to
-     * them.
-     * <p>
-     * The getter returns null while the option is not set; then the library default applies.
+     * The getter returns null while the option is not set. Then the library default applies.
+     * <dl>
+     *   <dt>Forms</dt>     <dd>{@link ClassName}, or a {@link JsCallback}</dd>
+     *   <dt>Shortcuts</dt> <dd>{@link #setListItemEntryInnerClass(String)}: class names separated by spaces, as
+     *                          {@link ClassName}</dd>
+     *   <dt>Default</dt>   <dd>library: no classes</dd>
+     *   <dt>Callback</dt>  <dd>{@code function(info)}. {@code info} has {@code event}, {@code timeText},
+     *                          {@code isStart} and more, see the library docs.</dd>
+     *   <dt>Returns</dt>   <dd>the class names as a string</dd>
+     * </dl>
+     * <pre>{@code
+     * calendar.options().setListItemEntryInnerClass("my-li-inner");
+     * calendar.options().setListItemEntryInnerClass(JsCallback.of("info => info.isStart ? 'my-start' : ''"));
+     * }</pre>
      *
      * @see <a href="https://fullcalendar.io/docs/list-item-event-render-hooks">listItemEventInnerClass</a>
      */
@@ -3107,15 +3796,26 @@ class ViewOptions implements Serializable {
     /**
      * CSS classes for the time element inside the inner wrapper of a list item entry, that is a timed entry within one
      * day in day grid views and an entry in list views. {@code entryDisplay} can change which entries are list items.
-     * They apply in addition to the general entry classes.
      * <p>
-     * A callback gets an {@code info} object with {@code event}, {@code timeText}, {@code isNarrow} and more, see the
-     * library docs. It returns the class names as a string.
+     * The classes apply in addition to the general entry classes. A theme can set classes of its own, and the classes
+     * set here are added to them.
      * <p>
-     * The library default is no classes. A theme can set classes of its own, and the classes set here are added to
-     * them.
-     * <p>
-     * The getter returns null while the option is not set; then the library default applies.
+     * The getter returns null while the option is not set. Then the library default applies.
+     * <dl>
+     *   <dt>Forms</dt>     <dd>{@link ClassName}, or a {@link JsCallback}</dd>
+     *   <dt>Shortcuts</dt> <dd>{@link #setListItemEntryTimeClass(String)}: class names separated by spaces, as
+     *                          {@link ClassName}</dd>
+     *   <dt>Default</dt>   <dd>library: no classes<br>
+     *                          add-on: in list views the stable class {@code fc-list-event-time}. Classes set
+     *                          here are added to it.</dd>
+     *   <dt>Callback</dt>  <dd>{@code function(info)}. {@code info} has {@code event}, {@code timeText},
+     *                          {@code isNarrow}, {@code isShort} and {@code resource} (resource views).</dd>
+     *   <dt>Returns</dt>   <dd>the class names as a string</dd>
+     * </dl>
+     * <pre>{@code
+     * calendar.options().setListItemEntryTimeClass("my-li-time");
+     * calendar.options().setListItemEntryTimeClass(JsCallback.of("info => info.isNarrow ? 'my-narrow' : ''"));
+     * }</pre>
      *
      * @see <a href="https://fullcalendar.io/docs/list-item-event-render-hooks">listItemEventTimeClass</a>
      */
@@ -3144,15 +3844,26 @@ class ViewOptions implements Serializable {
     /**
      * CSS classes for the title element inside the inner wrapper of a list item entry, that is a timed entry within one
      * day in day grid views and an entry in list views. {@code entryDisplay} can change which entries are list items.
-     * They apply in addition to the general entry classes.
      * <p>
-     * A callback gets an {@code info} object with {@code event}, {@code timeText}, {@code isNarrow} and more, see the
-     * library docs. It returns the class names as a string.
+     * The classes apply in addition to the general entry classes. A theme can set classes of its own, and the classes
+     * set here are added to them.
      * <p>
-     * The library default is no classes. A theme can set classes of its own, and the classes set here are added to
-     * them.
-     * <p>
-     * The getter returns null while the option is not set; then the library default applies.
+     * The getter returns null while the option is not set. Then the library default applies.
+     * <dl>
+     *   <dt>Forms</dt>     <dd>{@link ClassName}, or a {@link JsCallback}</dd>
+     *   <dt>Shortcuts</dt> <dd>{@link #setListItemEntryTitleClass(String)}: class names separated by spaces, as
+     *                          {@link ClassName}</dd>
+     *   <dt>Default</dt>   <dd>library: no classes<br>
+     *                          add-on: in list views the stable class {@code fc-list-event-title}. Classes set
+     *                          here are added to it.</dd>
+     *   <dt>Callback</dt>  <dd>{@code function(info)}. {@code info} has {@code event}, {@code timeText},
+     *                          {@code isNarrow}, {@code isShort} and {@code resource} (resource views).</dd>
+     *   <dt>Returns</dt>   <dd>the class names as a string</dd>
+     * </dl>
+     * <pre>{@code
+     * calendar.options().setListItemEntryTitleClass("my-class");
+     * calendar.options().setListItemEntryTitleClass(JsCallback.of("info => info.isNarrow ? 'my-narrow-title' : ''"));
+     * }</pre>
      *
      * @see <a href="https://fullcalendar.io/docs/list-item-event-render-hooks">listItemEventTitleClass</a>
      */
@@ -3183,13 +3894,26 @@ class ViewOptions implements Serializable {
     /**
      * CSS classes for each button of the built-in toolbars (header and footer).
      * <p>
-     * A callback gets an {@code info} object with {@code name}, {@code text}, {@code isPrimary} and more, see the
-     * library docs. It returns the class names as a string.
+     * A theme can set classes of its own, and the classes set here are added to them.
      * <p>
-     * The library default is no classes. A theme can set classes of its own, and the classes set here are added to
-     * them.
-     * <p>
-     * The getter returns null while the option is not set; then the library default applies.
+     * The getter returns null while the option is not set. Then the library default applies.
+     * <dl>
+     *   <dt>Forms</dt>     <dd>{@link ClassName}, or a {@link JsCallback}</dd>
+     *   <dt>Shortcuts</dt> <dd>{@link #setButtonClass(String)}: class names separated by spaces, as
+     *                          {@link ClassName}</dd>
+     *   <dt>Default</dt>   <dd>library: no classes<br>
+     *                          add-on: stable classes such as {@code fc-button} and {@code fc-button-active}.
+     *                          Classes set here are added to them.</dd>
+     *   <dt>Callback</dt>  <dd>{@code function(info)}. {@code info} has {@code name}, {@code text}, {@code isPrimary},
+     *                          {@code isSelected}, {@code isDisabled}, {@code isIconOnly} and
+     *                          {@code buttonGroup}. The latter is null for a button outside a group, else an
+     *                          object with {@code hasSelection}.</dd>
+     *   <dt>Returns</dt>   <dd>the class names as a string</dd>
+     * </dl>
+     * <pre>{@code
+     * calendar.options().setButtonClass("my-class");
+     * calendar.options().setButtonClass(JsCallback.of("info => info.isPrimary ? 'my-primary-button' : ''"));
+     * }</pre>
      *
      * @see <a href="https://fullcalendar.io/docs/toolbar-render-hooks">buttonClass</a>
      */
@@ -3216,15 +3940,26 @@ class ViewOptions implements Serializable {
 
     /**
      * CSS classes for each group of buttons in a toolbar section. A group is a set of buttons separated by commas in
-     * the toolbar layout. A group with only one button has no group element, so the class is not applied to it.
+     * the toolbar layout.
      * <p>
-     * A callback gets an {@code info} object with {@code hasSelection}, which is true when only one button of
-     * the group can be active at a time, like view buttons. It returns the class names as a string.
+     * A group with only one button has no group element, so the class is not applied to it.
      * <p>
-     * The library default is no classes. A theme can set classes of its own, and the classes set here are added to
-     * them.
+     * A theme can set classes of its own, and the classes set here are added to them.
      * <p>
-     * The getter returns null while the option is not set; then the library default applies.
+     * The getter returns null while the option is not set. Then the library default applies.
+     * <dl>
+     *   <dt>Forms</dt>     <dd>{@link ClassName}, or a {@link JsCallback}</dd>
+     *   <dt>Shortcuts</dt> <dd>{@link #setButtonGroupClass(String)}: class names separated by spaces, as
+     *                          {@link ClassName}</dd>
+     *   <dt>Default</dt>   <dd>library: no classes</dd>
+     *   <dt>Callback</dt>  <dd>{@code function(info)}. {@code info} has {@code hasSelection}, which is true when only
+     *                          one button of the group can be active at a time, like view buttons.</dd>
+     *   <dt>Returns</dt>   <dd>the class names as a string</dd>
+     * </dl>
+     * <pre>{@code
+     * calendar.options().setButtonGroupClass("my-class");
+     * calendar.options().setButtonGroupClass(JsCallback.of("info => info.hasSelection ? 'my-view-buttons' : ''"));
+     * }</pre>
      *
      * @see <a href="https://fullcalendar.io/docs/toolbar-render-hooks">buttonGroupClass</a>
      */
@@ -3266,14 +4001,25 @@ class ViewOptions implements Serializable {
     /**
      * CSS classes for each single month of multi-month views.
      * <p>
-     * A callback gets an {@code info} object with {@code multiMonthColumns} (0 until the layout is measured),
-     * {@code isFirst} and {@code isLast}. The library docs also list {@code date}, which the used library version
-     * does not pass. It returns the class names as a string.
+     * A theme can set classes of its own, and the classes set here are added to them.
      * <p>
-     * The library default is no classes. A theme can set classes of its own, and the classes set here are added to
-     * them.
-     * <p>
-     * The getter returns null while the option is not set; then the library default applies.
+     * The getter returns null while the option is not set. Then the library default applies.
+     * <dl>
+     *   <dt>Forms</dt>     <dd>{@link ClassName}, or a {@link JsCallback}</dd>
+     *   <dt>Shortcuts</dt> <dd>{@link #setSingleMonthClass(String)}: class names separated by spaces, as
+     *                          {@link ClassName}</dd>
+     *   <dt>Default</dt>   <dd>library: no classes<br>
+     *                          add-on: the stable class {@code fc-multimonth-month}. Classes set here are added
+     *                          to it.</dd>
+     *   <dt>Callback</dt>  <dd>{@code function(info)}. {@code info} has {@code multiMonthColumns} (0 until the layout
+     *                          is measured), {@code isFirst} and {@code isLast}. The library docs also list
+     *                          {@code date}, which the used library version does not pass.</dd>
+     *   <dt>Returns</dt>   <dd>the class names as a string</dd>
+     * </dl>
+     * <pre>{@code
+     * calendar.options().setSingleMonthClass("my-class");
+     * calendar.options().setSingleMonthClass(JsCallback.of("info => info.isFirst ? 'my-first-month' : ''"));
+     * }</pre>
      *
      * @see <a href="https://fullcalendar.io/docs/single-month-render-hooks">singleMonthClass</a>
      */
@@ -3313,14 +4059,25 @@ class ViewOptions implements Serializable {
     /**
      * CSS classes for the month header (the title above each month grid) of multi-month views.
      * <p>
-     * A callback gets an {@code info} object with {@code multiMonthColumns}, {@code isSticky}, {@code isNarrow} and
-     * {@code hasNavLink}. The library docs also list {@code date}, which the used library version does not pass. It
-     * returns the class names as a string.
+     * A theme can set classes of its own, and the classes set here are added to them.
      * <p>
-     * The library default is no classes. A theme can set classes of its own, and the classes set here are added to
-     * them.
-     * <p>
-     * The getter returns null while the option is not set; then the library default applies.
+     * The getter returns null while the option is not set. Then the library default applies.
+     * <dl>
+     *   <dt>Forms</dt>     <dd>{@link ClassName}, or a {@link JsCallback}</dd>
+     *   <dt>Shortcuts</dt> <dd>{@link #setSingleMonthHeaderClass(String)}: class names separated by spaces, as
+     *                          {@link ClassName}</dd>
+     *   <dt>Default</dt>   <dd>library: no classes<br>
+     *                          add-on: the stable class {@code fc-multimonth-title}. Classes set here are added
+     *                          to it.</dd>
+     *   <dt>Callback</dt>  <dd>{@code function(info)}. {@code info} has {@code multiMonthColumns}, {@code isSticky},
+     *                          {@code isNarrow} and {@code hasNavLink}. The library docs also list {@code date}, which
+     *                          the used library version does not pass.</dd>
+     *   <dt>Returns</dt>   <dd>the class names as a string</dd>
+     * </dl>
+     * <pre>{@code
+     * calendar.options().setSingleMonthHeaderClass("my-class");
+     * calendar.options().setSingleMonthHeaderClass(JsCallback.of("info => info.isSticky ? 'my-sticky-header' : ''"));
+     * }</pre>
      *
      * @see <a href="https://fullcalendar.io/docs/single-month-header-render-hooks">singleMonthHeaderClass</a>
      */
@@ -3348,14 +4105,23 @@ class ViewOptions implements Serializable {
     /**
      * CSS classes for the inner element of the month header of multi-month views. This element may be a nav link.
      * <p>
-     * A callback gets an {@code info} object with {@code multiMonthColumns}, {@code isSticky}, {@code isNarrow} and
-     * {@code hasNavLink}. The library docs also list {@code date}, which the used library version does not pass. It
-     * returns the class names as a string.
+     * A theme can set classes of its own, and the classes set here are added to them.
      * <p>
-     * The library default is no classes. A theme can set classes of its own, and the classes set here are added to
-     * them.
-     * <p>
-     * The getter returns null while the option is not set; then the library default applies.
+     * The getter returns null while the option is not set. Then the library default applies.
+     * <dl>
+     *   <dt>Forms</dt>     <dd>{@link ClassName}, or a {@link JsCallback}</dd>
+     *   <dt>Shortcuts</dt> <dd>{@link #setSingleMonthHeaderInnerClass(String)}: class names separated by spaces, as
+     *                          {@link ClassName}</dd>
+     *   <dt>Default</dt>   <dd>library: no classes</dd>
+     *   <dt>Callback</dt>  <dd>{@code function(info)}. {@code info} has {@code multiMonthColumns}, {@code isSticky},
+     *                          {@code isNarrow} and {@code hasNavLink}. The library docs also list {@code date}, which
+     *                          the used library version does not pass.</dd>
+     *   <dt>Returns</dt>   <dd>the class names as a string</dd>
+     * </dl>
+     * <pre>{@code
+     * calendar.options().setSingleMonthHeaderInnerClass("my-class");
+     * calendar.options().setSingleMonthHeaderInnerClass(JsCallback.of("info => info.hasNavLink ? 'my-nav' : ''"));
+     * }</pre>
      *
      * @see <a href="https://fullcalendar.io/docs/single-month-header-render-hooks">singleMonthHeaderInnerClass</a>
      */
@@ -3399,13 +4165,23 @@ class ViewOptions implements Serializable {
     /**
      * CSS classes for the container of the built-in toolbars (header and footer).
      * <p>
-     * A callback gets an {@code info} object with {@code borderlessX}, {@code borderlessTop} and
-     * {@code borderlessBottom}. It returns the class names as a string.
+     * A theme can set classes of its own, and the classes set here are added to them.
      * <p>
-     * The library default is no classes. A theme can set classes of its own, and the classes set here are added to
-     * them.
-     * <p>
-     * The getter returns null while the option is not set; then the library default applies.
+     * The getter returns null while the option is not set. Then the library default applies.
+     * <dl>
+     *   <dt>Forms</dt>     <dd>{@link ClassName}, or a {@link JsCallback}</dd>
+     *   <dt>Shortcuts</dt> <dd>{@link #setToolbarClass(String)}: class names separated by spaces, as
+     *                          {@link ClassName}</dd>
+     *   <dt>Default</dt>   <dd>library: no classes<br>
+     *                          add-on: the stable class {@code fc-toolbar}. Classes set here are added to it.</dd>
+     *   <dt>Callback</dt>  <dd>{@code function(info)}. {@code info} has {@code borderlessX}, {@code borderlessTop} and
+     *                          {@code borderlessBottom}.</dd>
+     *   <dt>Returns</dt>   <dd>the class names as a string</dd>
+     * </dl>
+     * <pre>{@code
+     * calendar.options().setToolbarClass("my-class");
+     * calendar.options().setToolbarClass(JsCallback.of("info => info.borderlessX ? 'my-flush-toolbar' : ''"));
+     * }</pre>
      *
      * @see <a href="https://fullcalendar.io/docs/toolbar-render-hooks">toolbarClass</a>
      */
@@ -3433,13 +4209,22 @@ class ViewOptions implements Serializable {
     /**
      * CSS classes for each section (start, center, end) of the built-in toolbars.
      * <p>
-     * A callback gets an {@code info} object with {@code name}, the name of the section. It returns the class names as
-     * a string.
+     * A theme can set classes of its own, and the classes set here are added to them.
      * <p>
-     * The library default is no classes. A theme can set classes of its own, and the classes set here are added to
-     * them.
-     * <p>
-     * The getter returns null while the option is not set; then the library default applies.
+     * The getter returns null while the option is not set. Then the library default applies.
+     * <dl>
+     *   <dt>Forms</dt>     <dd>{@link ClassName}, or a {@link JsCallback}</dd>
+     *   <dt>Shortcuts</dt> <dd>{@link #setToolbarSectionClass(String)}: class names separated by spaces, as
+     *                          {@link ClassName}</dd>
+     *   <dt>Default</dt>   <dd>library: no classes</dd>
+     *   <dt>Callback</dt>  <dd>{@code function(info)}. {@code info} has {@code name}, the section: {@code 'start'},
+     *                          {@code 'center'} or {@code 'end'}.</dd>
+     *   <dt>Returns</dt>   <dd>the class names as a string</dd>
+     * </dl>
+     * <pre>{@code
+     * calendar.options().setToolbarSectionClass("my-class");
+     * calendar.options().setToolbarSectionClass(JsCallback.of("info => info.name === 'center' ? 'my-title' : ''"));
+     * }</pre>
      *
      * @see <a href="https://fullcalendar.io/docs/toolbar-render-hooks">toolbarSectionClass</a>
      */
@@ -3484,13 +4269,25 @@ class ViewOptions implements Serializable {
      * CSS classes for the column more-link element. A column more-link appears in time grid views when too many timed
      * entries overlap within a day column.
      * <p>
-     * A callback gets an {@code info} object with {@code num}, {@code text}, {@code numericText} and more, see the
-     * library docs. It returns the class names as a string.
+     * A theme can set classes of its own, and the classes set here are added to them.
      * <p>
-     * The library default is no classes. A theme can set classes of its own, and the classes set here are added to
-     * them.
-     * <p>
-     * The getter returns null while the option is not set; then the library default applies.
+     * The getter returns null while the option is not set. Then the library default applies.
+     * <dl>
+     *   <dt>Forms</dt>     <dd>{@link ClassName}, or a {@link JsCallback}</dd>
+     *   <dt>Shortcuts</dt> <dd>{@link #setColumnMoreLinkClass(String)}: class names separated by spaces, as
+     *                          {@link ClassName}</dd>
+     *   <dt>Default</dt>   <dd>library: no classes<br>
+     *                          add-on: the stable class {@code fc-timegrid-more-link}. Classes set here are added
+     *                          to it.</dd>
+     *   <dt>Callback</dt>  <dd>{@code function(info)}. {@code info} has
+     *                          {@code num}, {@code numericText}, {@code longText}, {@code text}, {@code isNarrow},
+     *                          {@code view}, {@code resource} (resource views) and more, see the library docs.</dd>
+     *   <dt>Returns</dt>   <dd>the class names as a string</dd>
+     * </dl>
+     * <pre>{@code
+     * calendar.options().setColumnMoreLinkClass("my-class");
+     * calendar.options().setColumnMoreLinkClass(JsCallback.of("info => info.num > 5 ? 'my-many-hidden' : ''"));
+     * }</pre>
      *
      * @see <a href="https://fullcalendar.io/docs/column-more-link-render-hooks">columnMoreLinkClass</a>
      */
@@ -3516,16 +4313,27 @@ class ViewOptions implements Serializable {
     }
 
     /**
-     * CSS classes for the inner wrapper of the column more-link. Useful for adjusting padding. A column more-link
-     * appears in time grid views when too many timed entries overlap within a day column.
+     * CSS classes for the inner wrapper of the column more-link. Useful for adjusting padding.
      * <p>
-     * A callback gets an {@code info} object with {@code num}, {@code text}, {@code numericText} and more, see the
-     * library docs. It returns the class names as a string.
+     * A column more-link appears in time grid views when too many timed entries overlap within a day column.
      * <p>
-     * The library default is no classes. A theme can set classes of its own, and the classes set here are added to
-     * them.
+     * A theme can set classes of its own, and the classes set here are added to them.
      * <p>
-     * The getter returns null while the option is not set; then the library default applies.
+     * The getter returns null while the option is not set. Then the library default applies.
+     * <dl>
+     *   <dt>Forms</dt>     <dd>{@link ClassName}, or a {@link JsCallback}</dd>
+     *   <dt>Shortcuts</dt> <dd>{@link #setColumnMoreLinkInnerClass(String)}: class names separated by spaces, as
+     *                          {@link ClassName}</dd>
+     *   <dt>Default</dt>   <dd>library: no classes</dd>
+     *   <dt>Callback</dt>  <dd>{@code function(info)}. {@code info} has
+     *                          {@code num}, {@code numericText}, {@code longText}, {@code text}, {@code isNarrow},
+     *                          {@code view}, {@code resource} (resource views) and more, see the library docs.</dd>
+     *   <dt>Returns</dt>   <dd>the class names as a string</dd>
+     * </dl>
+     * <pre>{@code
+     * calendar.options().setColumnMoreLinkInnerClass("my-class");
+     * calendar.options().setColumnMoreLinkInnerClass(JsCallback.of("info => info.num > 5 ? 'my-many-hidden' : ''"));
+     * }</pre>
      *
      * @see <a href="https://fullcalendar.io/docs/column-more-link-render-hooks">columnMoreLinkInnerClass</a>
      */
@@ -3567,13 +4375,23 @@ class ViewOptions implements Serializable {
     /**
      * CSS classes for the element that wraps the entries of a single day in list views.
      * <p>
-     * A callback gets an {@code info} object with {@code date}, {@code isToday}, {@code view} and more, see the library
-     * docs. It returns the class names as a string.
+     * A theme can set classes of its own, and the classes set here are added to them.
      * <p>
-     * The library default is no classes. A theme can set classes of its own, and the classes set here are added to
-     * them.
-     * <p>
-     * The getter returns null while the option is not set; then the library default applies.
+     * The getter returns null while the option is not set. Then the library default applies.
+     * <dl>
+     *   <dt>Forms</dt>     <dd>{@link ClassName}, or a {@link JsCallback}</dd>
+     *   <dt>Shortcuts</dt> <dd>{@link #setListDayBodyClass(String)}: class names separated by spaces, as
+     *                          {@link ClassName}</dd>
+     *   <dt>Default</dt>   <dd>library: no classes</dd>
+     *   <dt>Callback</dt>  <dd>{@code function(info)}. {@code info} has {@code date} (a JS Date), {@code dow},
+     *                          {@code isDisabled}, {@code isOther}, {@code isToday}, {@code isPast},
+     *                          {@code isFuture} and {@code view}.</dd>
+     *   <dt>Returns</dt>   <dd>the class names as a string</dd>
+     * </dl>
+     * <pre>{@code
+     * calendar.options().setListDayBodyClass("my-class");
+     * calendar.options().setListDayBodyClass(JsCallback.of("info => info.isToday ? 'my-today-body' : ''"));
+     * }</pre>
      *
      * @see <a href="https://fullcalendar.io/docs/list-day-render-hooks">listDayBodyClass</a>
      */
@@ -3599,15 +4417,27 @@ class ViewOptions implements Serializable {
     }
 
     /**
-     * CSS classes for the element that wraps a day section in list views: the day header row and the entries.
+     * CSS classes for the element that wraps a day section in list views. A day section consists of the day header row
+     * and the entries.
      * <p>
-     * A callback gets an {@code info} object with {@code date}, {@code isToday}, {@code isFirst} and more, see the
-     * library docs. It returns the class names as a string.
+     * A theme can set classes of its own, and the classes set here are added to them.
      * <p>
-     * The library default is no classes. A theme can set classes of its own, and the classes set here are added to
-     * them.
-     * <p>
-     * The getter returns null while the option is not set; then the library default applies.
+     * The getter returns null while the option is not set. Then the library default applies.
+     * <dl>
+     *   <dt>Forms</dt>     <dd>{@link ClassName}, or a {@link JsCallback}</dd>
+     *   <dt>Shortcuts</dt> <dd>{@link #setListDayClass(String)}: class names separated by spaces, as
+     *                          {@link ClassName}</dd>
+     *   <dt>Default</dt>   <dd>library: no classes</dd>
+     *   <dt>Callback</dt>  <dd>{@code function(info)}. {@code info} has
+     *                          {@code date}, {@code dow}, {@code isDisabled}, {@code isOther},
+     *                          {@code isToday}, {@code isPast}, {@code isFuture},
+     *                          {@code isFirst}, {@code isLast} and {@code view}.</dd>
+     *   <dt>Returns</dt>   <dd>the class names as a string</dd>
+     * </dl>
+     * <pre>{@code
+     * calendar.options().setListDayClass("my-class");
+     * calendar.options().setListDayClass(JsCallback.of("info => info.isFirst ? 'my-first-day' : ''"));
+     * }</pre>
      *
      * @see <a href="https://fullcalendar.io/docs/list-day-render-hooks">listDayClass</a>
      */
@@ -3635,13 +4465,25 @@ class ViewOptions implements Serializable {
     /**
      * CSS classes for list view day headings (the row that shows the date above a group of entries).
      * <p>
-     * A callback gets an {@code info} object with {@code date}, {@code isPast}, {@code isToday} and more, see the
-     * library docs. It returns the class names as a string.
+     * A theme can set classes of its own, and the classes set here are added to them.
      * <p>
-     * The library default is no classes. A theme can set classes of its own, and the classes set here are added to
-     * them.
-     * <p>
-     * The getter returns null while the option is not set; then the library default applies.
+     * The getter returns null while the option is not set. Then the library default applies.
+     * <dl>
+     *   <dt>Forms</dt>     <dd>{@link ClassName}, or a {@link JsCallback}</dd>
+     *   <dt>Shortcuts</dt> <dd>{@link #setListDayHeaderClass(String)}: class names separated by spaces, as
+     *                          {@link ClassName}</dd>
+     *   <dt>Default</dt>   <dd>library: no classes<br>
+     *                          add-on: the stable class {@code fc-list-day}. Classes set here are added to it.</dd>
+     *   <dt>Callback</dt>  <dd>{@code function(info)}. {@code info} has
+     *                          {@code date}, {@code dow}, {@code isDisabled}, {@code isOther},
+     *                          {@code isToday}, {@code isPast}, {@code isFuture}
+     *                          and {@code view}.</dd>
+     *   <dt>Returns</dt>   <dd>the class names as a string</dd>
+     * </dl>
+     * <pre>{@code
+     * calendar.options().setListDayHeaderClass("my-class");
+     * calendar.options().setListDayHeaderClass(JsCallback.of("info => info.isToday ? 'my-today-heading' : ''"));
+     * }</pre>
      *
      * @see <a href="https://fullcalendar.io/docs/list-day-header-render-hooks">listDayHeaderClass</a>
      */
@@ -3670,12 +4512,25 @@ class ViewOptions implements Serializable {
      * Content for the texts of a list view day heading. The library calls it once per text, with {@code level} 0 for
      * the primary day format and 1 for the alternative day format.
      * <p>
-     * A callback gets an {@code info} object with {@code date}, {@code text}, {@code level} and more, see the library
-     * docs. It returns a text, or {@code {html: '...'}} or {@code {domNodes: [...]}}.
-     * <p>
-     * The library default is the text of the day formats, see {@link #getListDayFormat()} and
-     * {@link #getListDayAltFormat()}. The getter returns null while the option is not set; then the library default
-     * applies.
+     * The getter returns null while the option is not set. Then the library default applies.
+     * <dl>
+     *   <dt>Forms</dt>     <dd>{@link TextContent} (shown as text), {@link ContentValue#ofHtml(String) HTML} (not
+     *                          escaped), or a {@link JsCallback}</dd>
+     *   <dt>Shortcuts</dt> <dd>{@link #setListDayHeaderContent(String)}: a text, as {@link TextContent}</dd>
+     *   <dt>Default</dt>   <dd>library: the text of the day formats, see {@link #getListDayFormat()} and
+     *                          {@link #getListDayAltFormat()}</dd>
+     *   <dt>Callback</dt>  <dd>{@code function(info)}. {@code info} has
+     *                          {@code date}, {@code dow}, {@code isDisabled}, {@code isOther},
+     *                          {@code isToday}, {@code isPast}, {@code isFuture},
+     *                          {@code view}, {@code text}, {@code textParts}, {@code weekdayText},
+     *                          {@code dayNumberText}, {@code monthText}, {@code hasNavLink} and {@code level}.</dd>
+     *   <dt>Returns</dt>   <dd>a text, {@code {html: '...'}} or {@code {domNodes: [...]}}</dd>
+     * </dl>
+     * <pre>{@code
+     * calendar.options().setListDayHeaderContent("Day");
+     * calendar.options().setListDayHeaderContent(ContentValue.ofHtml("<b>Day</b>"));
+     * calendar.options().setListDayHeaderContent(JsCallback.of("info => info.level === 0 ? info.text : ''"));
+     * }</pre>
      *
      * @see <a href="https://fullcalendar.io/docs/list-day-header-render-hooks">listDayHeaderContent</a>
      */
@@ -3717,16 +4572,32 @@ class ViewOptions implements Serializable {
     private JsCallback listDayHeaderDidMount;
 
     /**
-     * CSS classes for each side of the day header in list views: the left and the right half.
+     * CSS classes for each side of the day header in list views, the left and the right half.
      * <p>
-     * A callback gets an {@code info} object with {@code date}, {@code text}, {@code level} and more. {@code level} is
-     * 0 for the primary day format side and 1 for the alternative format side, see the library docs. It returns the
-     * class names as a string.
+     * A theme can set classes of its own, and the classes set here are added to them.
      * <p>
-     * The library default is no classes. A theme can set classes of its own, and the classes set here are added to
-     * them.
-     * <p>
-     * The getter returns null while the option is not set; then the library default applies.
+     * The getter returns null while the option is not set. Then the library default applies.
+     * <dl>
+     *   <dt>Forms</dt>     <dd>{@link ClassName}, or a {@link JsCallback}</dd>
+     *   <dt>Shortcuts</dt> <dd>{@link #setListDayHeaderInnerClass(String)}: class names separated by spaces, as
+     *                          {@link ClassName}</dd>
+     *   <dt>Default</dt>   <dd>library: no classes<br>
+     *                          add-on: the stable classes {@code fc-list-day-cushion} and, depending on
+     *                          the side, {@code fc-list-day-text} or {@code fc-list-day-side-text}.
+     *                          Classes set here are added to them.</dd>
+     *   <dt>Callback</dt>  <dd>{@code function(info)}. {@code info} has
+     *                          {@code date}, {@code dow}, {@code isDisabled}, {@code isOther},
+     *                          {@code isToday}, {@code isPast}, {@code isFuture},
+     *                          {@code view}, {@code text}, {@code textParts}, {@code weekdayText},
+     *                          {@code dayNumberText}, {@code monthText}, {@code hasNavLink} and
+     *                          {@code level}. {@code level} is 0 for the primary day format side and 1 for the
+     *                          alternative format side.</dd>
+     *   <dt>Returns</dt>   <dd>the class names as a string</dd>
+     * </dl>
+     * <pre>{@code
+     * calendar.options().setListDayHeaderInnerClass("my-class");
+     * calendar.options().setListDayHeaderInnerClass(JsCallback.of("info => info.level === 0 ? 'my-left' : ''"));
+     * }</pre>
      *
      * @see <a href="https://fullcalendar.io/docs/list-day-header-render-hooks">listDayHeaderInnerClass</a>
      */
@@ -3771,13 +4642,24 @@ class ViewOptions implements Serializable {
      * CSS classes for the "+N more" link in every view. {@link #getColumnMoreLinkClass() columnMoreLinkClass} and
      * {@link #getRowMoreLinkClass() rowMoreLinkClass} add classes for the links of one layout only.
      * <p>
-     * A callback gets an {@code info} object with {@code num}, {@code text}, {@code numericText} and more, see the
-     * library docs. It returns the class names as a string.
+     * A theme can set classes of its own, and the classes set here are added to them.
      * <p>
-     * The library default is no classes. A theme can set classes of its own, and the classes set here are added to
-     * them.
-     * <p>
-     * The getter returns null while the option is not set; then the library default applies.
+     * The getter returns null while the option is not set. Then the library default applies.
+     * <dl>
+     *   <dt>Forms</dt>     <dd>{@link ClassName}, or a {@link JsCallback}</dd>
+     *   <dt>Shortcuts</dt> <dd>{@link #setMoreLinkClass(String)}: class names separated by spaces, as
+     *                          {@link ClassName}</dd>
+     *   <dt>Default</dt>   <dd>library: no classes<br>
+     *                          add-on: the stable class {@code fc-more-link}. Classes set here are added to it.</dd>
+     *   <dt>Callback</dt>  <dd>{@code function(info)}. {@code info} has
+     *                          {@code num}, {@code numericText}, {@code longText}, {@code text}, {@code isNarrow},
+     *                          {@code view}, {@code resource} (resource views) and more, see the library docs.</dd>
+     *   <dt>Returns</dt>   <dd>the class names as a string</dd>
+     * </dl>
+     * <pre>{@code
+     * calendar.options().setMoreLinkClass("my-class");
+     * calendar.options().setMoreLinkClass(JsCallback.of("info => info.num > 5 ? 'my-many-hidden' : ''"));
+     * }</pre>
      *
      * @see <a href="https://fullcalendar.io/docs/more-link-render-hooks">moreLinkClass</a>
      */
@@ -3805,11 +4687,22 @@ class ViewOptions implements Serializable {
     /**
      * Content for the "+N more" link.
      * <p>
-     * A callback gets an {@code info} object with {@code num}, {@code text}, {@code numericText} and more, see the
-     * library docs. It returns a text, or {@code {html: '...'}} or {@code {domNodes: [...]}}.
-     * <p>
-     * The library default is the library's own text, see {@link #getMoreLinkText()}. The getter returns null while the
-     * option is not set; then the library default applies.
+     * The getter returns null while the option is not set. Then the library default applies.
+     * <dl>
+     *   <dt>Forms</dt>     <dd>{@link TextContent} (shown as text), {@link ContentValue#ofHtml(String) HTML} (not
+     *                          escaped), or a {@link JsCallback}</dd>
+     *   <dt>Shortcuts</dt> <dd>{@link #setMoreLinkContent(String)}: a text, as {@link TextContent}</dd>
+     *   <dt>Default</dt>   <dd>library: the library's own text, see {@link #getMoreLinkText()}</dd>
+     *   <dt>Callback</dt>  <dd>{@code function(info)}. {@code info} has
+     *                          {@code num}, {@code numericText}, {@code longText}, {@code text}, {@code isNarrow},
+     *                          {@code view}, {@code resource} (resource views) and more, see the library docs.</dd>
+     *   <dt>Returns</dt>   <dd>a text, {@code {html: '...'}} or {@code {domNodes: [...]}}</dd>
+     * </dl>
+     * <pre>{@code
+     * calendar.options().setMoreLinkContent("More");
+     * calendar.options().setMoreLinkContent(ContentValue.ofHtml("<b>More</b>"));
+     * calendar.options().setMoreLinkContent(JsCallback.of("info => info.numericText + ' more'"));
+     * }</pre>
      *
      * @see <a href="https://fullcalendar.io/docs/more-link-render-hooks">moreLinkContent</a>
      */
@@ -3852,13 +4745,23 @@ class ViewOptions implements Serializable {
     /**
      * CSS classes for the inner wrapper of the "+N more" link. Useful for adjusting padding.
      * <p>
-     * A callback gets an {@code info} object with {@code num}, {@code text}, {@code numericText} and more, see the
-     * library docs. It returns the class names as a string.
+     * A theme can set classes of its own, and the classes set here are added to them.
      * <p>
-     * The library default is no classes. A theme can set classes of its own, and the classes set here are added to
-     * them.
-     * <p>
-     * The getter returns null while the option is not set; then the library default applies.
+     * The getter returns null while the option is not set. Then the library default applies.
+     * <dl>
+     *   <dt>Forms</dt>     <dd>{@link ClassName}, or a {@link JsCallback}</dd>
+     *   <dt>Shortcuts</dt> <dd>{@link #setMoreLinkInnerClass(String)}: class names separated by spaces, as
+     *                          {@link ClassName}</dd>
+     *   <dt>Default</dt>   <dd>library: no classes</dd>
+     *   <dt>Callback</dt>  <dd>{@code function(info)}. {@code info} has
+     *                          {@code num}, {@code numericText}, {@code longText}, {@code text}, {@code isNarrow},
+     *                          {@code view}, {@code resource} (resource views) and more, see the library docs.</dd>
+     *   <dt>Returns</dt>   <dd>the class names as a string</dd>
+     * </dl>
+     * <pre>{@code
+     * calendar.options().setMoreLinkInnerClass("my-class");
+     * calendar.options().setMoreLinkInnerClass(JsCallback.of("info => info.num > 5 ? 'my-many-hidden' : ''"));
+     * }</pre>
      *
      * @see <a href="https://fullcalendar.io/docs/more-link-render-hooks">moreLinkInnerClass</a>
      */
@@ -3901,14 +4804,23 @@ class ViewOptions implements Serializable {
     /**
      * CSS classes for the "No events to display" message of list views.
      * <p>
-     * A callback gets an {@code info} object with {@code text} (the message text, from
-     * {@link #getNoEntriesText() noEntriesText}) and {@code view}. It returns the class
-     * names as a string.
+     * A theme can set classes of its own, and the classes set here are added to them.
      * <p>
-     * The library default is no classes. A theme can set classes of its own, and the classes set here are added to
-     * them.
-     * <p>
-     * The getter returns null while the option is not set; then the library default applies.
+     * The getter returns null while the option is not set. Then the library default applies.
+     * <dl>
+     *   <dt>Forms</dt>     <dd>{@link ClassName}, or a {@link JsCallback}</dd>
+     *   <dt>Shortcuts</dt> <dd>{@link #setNoEntriesClass(String)}: class names separated by spaces, as
+     *                          {@link ClassName}</dd>
+     *   <dt>Default</dt>   <dd>library: no classes<br>
+     *                          add-on: the stable class {@code fc-list-empty}. Classes set here are added to it.</dd>
+     *   <dt>Callback</dt>  <dd>{@code function(info)}. {@code info} has {@code text} (the message text, from
+     *                          {@link #getNoEntriesText() noEntriesText}) and {@code view}.</dd>
+     *   <dt>Returns</dt>   <dd>the class names as a string</dd>
+     * </dl>
+     * <pre>{@code
+     * calendar.options().setNoEntriesClass("my-class");
+     * calendar.options().setNoEntriesClass(JsCallback.of("info => info.view.type === 'listWeek' ? 'my-week' : ''"));
+     * }</pre>
      *
      * @see <a href="https://fullcalendar.io/docs/no-events-render-hooks">noEventsClass</a>
      */
@@ -3937,13 +4849,21 @@ class ViewOptions implements Serializable {
     /**
      * Content for the "No events to display" message of list views.
      * <p>
-     * A callback gets an {@code info} object with {@code text} (the message text, from
-     * {@link #getNoEntriesText() noEntriesText}) and {@code view}. It returns a text, or
-     * {@code {html: '...'}} or {@code {domNodes: [...]}}.
-     * <p>
-     * The library default is the message text, see {@link #getNoEntriesText() noEntriesText}.
-     * <p>
-     * The getter returns null while the option is not set; then the library default applies.
+     * The getter returns null while the option is not set. Then the library default applies.
+     * <dl>
+     *   <dt>Forms</dt>     <dd>{@link TextContent} (shown as text), {@link ContentValue#ofHtml(String) HTML} (not
+     *                          escaped), or a {@link JsCallback}</dd>
+     *   <dt>Shortcuts</dt> <dd>{@link #setNoEntriesContent(String)}: a text, as {@link TextContent}</dd>
+     *   <dt>Default</dt>   <dd>library: the message text, see {@link #getNoEntriesText() noEntriesText}</dd>
+     *   <dt>Callback</dt>  <dd>{@code function(info)}. {@code info} has {@code text} (the message text, from
+     *                          {@link #getNoEntriesText() noEntriesText}) and {@code view}.</dd>
+     *   <dt>Returns</dt>   <dd>a text, {@code {html: '...'}} or {@code {domNodes: [...]}}</dd>
+     * </dl>
+     * <pre>{@code
+     * calendar.options().setNoEntriesContent("Nothing here");
+     * calendar.options().setNoEntriesContent(ContentValue.ofHtml("<b>Nothing here</b>"));
+     * calendar.options().setNoEntriesContent(JsCallback.of("info => info.text.toUpperCase()"));
+     * }</pre>
      *
      * @see <a href="https://fullcalendar.io/docs/no-events-render-hooks">noEventsContent</a>
      */
@@ -3989,14 +4909,22 @@ class ViewOptions implements Serializable {
     /**
      * CSS classes for the inner padding element of the "No events to display" message of list views.
      * <p>
-     * A callback gets an {@code info} object with {@code text} (the message text, from
-     * {@link #getNoEntriesText() noEntriesText}) and {@code view}. It returns the class
-     * names as a string.
+     * A theme can set classes of its own, and the classes set here are added to them.
      * <p>
-     * The library default is no classes. A theme can set classes of its own, and the classes set here are added to
-     * them.
-     * <p>
-     * The getter returns null while the option is not set; then the library default applies.
+     * The getter returns null while the option is not set. Then the library default applies.
+     * <dl>
+     *   <dt>Forms</dt>     <dd>{@link ClassName}, or a {@link JsCallback}</dd>
+     *   <dt>Shortcuts</dt> <dd>{@link #setNoEntriesInnerClass(String)}: class names separated by spaces, as
+     *                          {@link ClassName}</dd>
+     *   <dt>Default</dt>   <dd>library: no classes</dd>
+     *   <dt>Callback</dt>  <dd>{@code function(info)}. {@code info} has {@code text} (the message text, from
+     *                          {@link #getNoEntriesText() noEntriesText}) and {@code view}.</dd>
+     *   <dt>Returns</dt>   <dd>the class names as a string</dd>
+     * </dl>
+     * <pre>{@code
+     * calendar.options().setNoEntriesInnerClass("my-class");
+     * calendar.options().setNoEntriesInnerClass(JsCallback.of("info => info.view.type === 'listWeek' ? 'wk' : ''"));
+     * }</pre>
      *
      * @see <a href="https://fullcalendar.io/docs/no-events-render-hooks">noEventsInnerClass</a>
      */
@@ -4072,12 +5000,21 @@ class ViewOptions implements Serializable {
      * inserted inside the button, typically an icon. The accessible label of the button comes from
      * {@link #getCloseHint() closeHint}.
      * <p>
-     * A callback gets an {@code info} object without properties, because the library declares none. It returns a text,
-     * or {@code {html: '...'}} or {@code {domNodes: [...]}}.
-     * <p>
-     * The library default is no content. The themes of the library supply their own icon.
-     * <p>
-     * The getter returns null while the option is not set; then the library default applies.
+     * The getter returns null while the option is not set. Then the library default applies.
+     * <dl>
+     *   <dt>Forms</dt>     <dd>{@link TextContent} (shown as text), {@link ContentValue#ofHtml(String) HTML} (not
+     *                          escaped), or a {@link JsCallback}</dd>
+     *   <dt>Shortcuts</dt> <dd>{@link #setPopoverCloseContent(String)}: a text, as {@link TextContent}</dd>
+     *   <dt>Default</dt>   <dd>library: no content. The themes of the library supply their own icon.</dd>
+     *   <dt>Callback</dt>  <dd>{@code function(info)}. {@code info} has no properties, because the library
+     *                          declares none.</dd>
+     *   <dt>Returns</dt>   <dd>a text, {@code {html: '...'}} or {@code {domNodes: [...]}}</dd>
+     * </dl>
+     * <pre>{@code
+     * calendar.options().setPopoverCloseContent("x");
+     * calendar.options().setPopoverCloseContent(ContentValue.ofHtml("<b>&times;</b>"));
+     * calendar.options().setPopoverCloseContent(JsCallback.of("() => 'Close'"));
+     * }</pre>
      *
      * @see <a href="https://fullcalendar.io/docs/popover-render-hooks">popoverCloseContent</a>
      */
@@ -4106,13 +5043,25 @@ class ViewOptions implements Serializable {
      * CSS classes for the row more-link element. A row more-link appears in row-based layouts such as day grid and
      * timeline rows when too many entries would otherwise be shown.
      * <p>
-     * A callback gets an {@code info} object with {@code num}, {@code text}, {@code numericText} and more, see the
-     * library docs. It returns the class names as a string.
+     * A theme can set classes of its own, and the classes set here are added to them.
      * <p>
-     * The library default is no classes. A theme can set classes of its own, and the classes set here are added to
-     * them.
-     * <p>
-     * The getter returns null while the option is not set; then the library default applies.
+     * The getter returns null while the option is not set. Then the library default applies.
+     * <dl>
+     *   <dt>Forms</dt>     <dd>{@link ClassName}, or a {@link JsCallback}</dd>
+     *   <dt>Shortcuts</dt> <dd>{@link #setRowMoreLinkClass(String)}: class names separated by spaces, as
+     *                          {@link ClassName}</dd>
+     *   <dt>Default</dt>   <dd>library: no classes<br>
+     *                          add-on: the stable class {@code fc-daygrid-more-link} in day grid, time grid and
+     *                          multi-month views. Classes set here are added to it.</dd>
+     *   <dt>Callback</dt>  <dd>{@code function(info)}. {@code info} has
+     *                          {@code num}, {@code numericText}, {@code longText}, {@code text}, {@code isNarrow},
+     *                          {@code view}, {@code resource} (resource views) and more, see the library docs.</dd>
+     *   <dt>Returns</dt>   <dd>the class names as a string</dd>
+     * </dl>
+     * <pre>{@code
+     * calendar.options().setRowMoreLinkClass("my-more-link");
+     * calendar.options().setRowMoreLinkClass(JsCallback.of("info => info.num > 5 ? 'many-hidden' : ''"));
+     * }</pre>
      *
      * @see <a href="https://fullcalendar.io/docs/row-more-link-render-hooks">rowMoreLinkClass</a>
      */
@@ -4141,13 +5090,23 @@ class ViewOptions implements Serializable {
      * CSS classes for the inner wrapper of the row more-link. Useful for adjusting padding. A row more-link appears in
      * row-based layouts such as day grid and timeline rows when too many entries would otherwise be shown.
      * <p>
-     * A callback gets an {@code info} object with {@code num}, {@code text}, {@code numericText} and more, see the
-     * library docs. It returns the class names as a string.
+     * A theme can set classes of its own, and the classes set here are added to them.
      * <p>
-     * The library default is no classes. A theme can set classes of its own, and the classes set here are added to
-     * them.
-     * <p>
-     * The getter returns null while the option is not set; then the library default applies.
+     * The getter returns null while the option is not set. Then the library default applies.
+     * <dl>
+     *   <dt>Forms</dt>     <dd>{@link ClassName}, or a {@link JsCallback}</dd>
+     *   <dt>Shortcuts</dt> <dd>{@link #setRowMoreLinkInnerClass(String)}: class names separated by spaces, as
+     *                          {@link ClassName}</dd>
+     *   <dt>Default</dt>   <dd>library: no classes</dd>
+     *   <dt>Callback</dt>  <dd>{@code function(info)}. {@code info} has
+     *                          {@code num}, {@code numericText}, {@code longText}, {@code text}, {@code isNarrow},
+     *                          {@code view}, {@code resource} (resource views) and more, see the library docs.</dd>
+     *   <dt>Returns</dt>   <dd>the class names as a string</dd>
+     * </dl>
+     * <pre>{@code
+     * calendar.options().setRowMoreLinkInnerClass("my-more-link");
+     * calendar.options().setRowMoreLinkInnerClass(JsCallback.of("info => info.num > 5 ? 'many-hidden' : ''"));
+     * }</pre>
      *
      * @see <a href="https://fullcalendar.io/docs/row-more-link-render-hooks">rowMoreLinkInnerClass</a>
      */
@@ -4572,17 +5531,29 @@ class ViewOptions implements Serializable {
      * The current date of the calendar, the day it highlights as today. It is useful with a time zone other than the
      * one of the browser.
      * <p>
-     * A callback runs on the client and returns the date.
+     * The library reads a date value only when the browser creates the calendar. So a change on a calendar the browser
+     * shows has no effect. A calendar that is detached and attached again (not within one round trip) starts with the
+     * current value, or without one if the option was removed. The same applies when the browser creates the calendar
+     * again, for example on a refresh with {@code @PreserveOnRefresh}. A callback is read again when the time zone or
+     * locale changes.
      * <p>
-     * The library reads a date value only when the browser creates the calendar. So a change on a calendar the
-     * browser shows has no effect. A calendar that is detached and attached again (not within one round trip) starts
-     * with the current value, or without one if the option was removed. The same applies when the browser creates
-     * the calendar again, for example on a refresh with {@code @PreserveOnRefresh}. A callback is read again when
-     * the time zone or locale changes.
-     * <p>
-     * The library default is the current date of the browser.
-     * <p>
-     * The getter returns null while the option is not set; then the library default applies.
+     * The getter returns null while the option is not set. Then the library default applies.
+     * <dl>
+     *   <dt>Forms</dt>     <dd>{@link NowValue#ofDay(LocalDate) a date},
+     *                          {@link NowValue#ofDateTime(LocalDateTime) a date and time} (read as UTC, like the
+     *                          start and end of entries), or a {@link JsCallback}</dd>
+     *   <dt>Shortcuts</dt> <dd>{@link #setNow(LocalDate)}: a date, as {@link NowValue#ofDay(LocalDate)}<br>
+     *                          {@link #setNow(LocalDateTime)}: a date and time, as
+     *                          {@link NowValue#ofDateTime(LocalDateTime)}</dd>
+     *   <dt>Default</dt>   <dd>library: the current date of the browser</dd>
+     *   <dt>Callback</dt>  <dd>{@code function()}, runs on the client</dd>
+     *   <dt>Returns</dt>   <dd>a JavaScript {@code Date}, or any value the library parses as a date</dd>
+     * </dl>
+     * <pre>{@code
+     * calendar.options().setNow(LocalDate.of(2026, 5, 17));
+     * calendar.options().setNow(LocalDateTime.of(2026, 5, 17, 14, 30));
+     * calendar.options().setNow(JsCallback.of("() => new Date()"));
+     * }</pre>
      *
      * @see <a href="https://fullcalendar.io/docs/now">now</a>
      */
@@ -4631,16 +5602,25 @@ class ViewOptions implements Serializable {
     /**
      * The date range the user can navigate to and where entries can go. Dates outside of the range are grayed out,
      * entries cannot be dragged or resized into them, and the prev and next buttons are disabled when they would leave
-     * the range. One bound may stay open (a {@link DateRange} with a null start or end).
+     * the range.
      * <p>
      * A {@link DateRange} with equal bounds is rejected, although the library reads such a range as one day.
      * <p>
-     * A callback gets the start of the current day and returns the range. The library calls it several times per view
-     * render, so keep it cheap.
+     * The library calls a callback several times per view render, so keep it cheap.
      * <p>
-     * The library default is no range, so no date is outside of it.
-     * <p>
-     * The getter returns null while the option is not set; then the library default applies.
+     * The getter returns null while the option is not set. Then the library default applies.
+     * <dl>
+     *   <dt>Forms</dt>     <dd>{@link DateRange} (the end is exclusive, one bound may be null for an open range,
+     *                          see {@link DateRange#withOpenEnd(LocalDate)} and
+     *                          {@link DateRange#withOpenStart(LocalDate)}), or a {@link JsCallback}</dd>
+     *   <dt>Default</dt>   <dd>library: no range, so no date is outside of it</dd>
+     *   <dt>Callback</dt>  <dd>{@code function(todayDate)}, the start of the current day</dd>
+     *   <dt>Returns</dt>   <dd>an object with {@code start} and {@code end}</dd>
+     * </dl>
+     * <pre>{@code
+     * calendar.options().setValidRange(DateRange.withOpenEnd(LocalDate.of(2025, 3, 1)));
+     * calendar.options().setValidRange(JsCallback.of("today => ({start: today})"));
+     * }</pre>
      *
      * @see <a href="https://fullcalendar.io/docs/validRange">validRange</a>
      */
@@ -4648,17 +5628,26 @@ class ViewOptions implements Serializable {
     private DateRangeValue validRange;
 
     /**
-     * The exact date range a view shows. The end is exclusive. The library ignores a range with an open bound. It
-     * applies only to views that define neither a duration nor a day count.
+     * The exact date range a view shows. The end is exclusive. It applies only to views that define neither a duration
+     * nor a day count.
      * <p>
      * A {@link DateRange} with equal bounds is rejected, although the library reads such a range as one day.
      * <p>
-     * A callback gets the date the view is currently at and returns the range. The library calls it several times per
-     * view render, so keep it cheap.
+     * The library calls a callback several times per view render, so keep it cheap.
      * <p>
-     * The library default is no range. Then the view shows the range its own duration gives.
-     * <p>
-     * The getter returns null while the option is not set; then the library default applies.
+     * The getter returns null while the option is not set. Then the library default applies.
+     * <dl>
+     *   <dt>Forms</dt>     <dd>{@link DateRange} (needs both bounds, the library ignores a range with an open
+     *                          bound), or a {@link JsCallback}</dd>
+     *   <dt>Default</dt>   <dd>library: no range, then the view shows the range its own duration gives</dd>
+     *   <dt>Callback</dt>  <dd>{@code function(currentDate)}, the date the view is currently at</dd>
+     *   <dt>Returns</dt>   <dd>an object with {@code start} and {@code end}</dd>
+     * </dl>
+     * <pre>{@code
+     * calendar.options().setVisibleRange(new DateRange(LocalDate.of(2026, 3, 22), LocalDate.of(2026, 3, 25)));
+     * calendar.options().setVisibleRange(
+     *         JsCallback.of("d => ({start: d, end: new Date(d.valueOf() + 3 * 86400000)})"));
+     * }</pre>
      *
      * @see <a href="https://fullcalendar.io/docs/visibleRange">visibleRange</a>
      */
@@ -4924,14 +5913,21 @@ class ViewOptions implements Serializable {
      * Horizontal text alignment of the slot headers of timeline views, which the Scheduler provides. It accepts the
      * same values as {@link #getDayHeaderAlign()}.
      * <p>
-     * A callback gets an {@code info} object with {@code level} and {@code isTime}. It returns {@code "start"},
-     * {@code "center"} or {@code "end"}.
+     * A theme can change the alignment. The classic theme, on which the Vaadin theme builds, centers the headers that
+     * show no time.
      * <p>
-     * The library default is {@code "start"}, but a theme can change it. The classic theme, on which the Vaadin theme
-     * builds, centers the headers that show no time. The library docs do not describe this option. The linked page
-     * lists the slot header hooks only.
-     * <p>
-     * The getter returns null while the option is not set; then the library default applies.
+     * The getter returns null while the option is not set. Then the library default applies.
+     * <dl>
+     *   <dt>Forms</dt>     <dd>{@link HeaderAlign#START}, {@link HeaderAlign#CENTER}, {@link HeaderAlign#END}, or
+     *                          a {@link JsCallback}</dd>
+     *   <dt>Default</dt>   <dd>library: {@link HeaderAlign#START}</dd>
+     *   <dt>Callback</dt>  <dd>{@code function(info)}. {@code info} has {@code level} and {@code isTime}.</dd>
+     *   <dt>Returns</dt>   <dd>{@code "start"}, {@code "center"} or {@code "end"}</dd>
+     * </dl>
+     * <pre>{@code
+     * calendar.options().setSlotHeaderAlign(HeaderAlign.CENTER);
+     * calendar.options().setSlotHeaderAlign(JsCallback.of("info => info.isTime ? 'center' : 'start'"));
+     * }</pre>
      *
      * @see <a href="https://fullcalendar.io/docs/slot-header-render-hooks">slotHeaderAlign</a>
      */
@@ -4994,13 +5990,24 @@ class ViewOptions implements Serializable {
 
     /**
      * Sticky positioning of the header rows above the lowest one in the slot headers of timeline views, which the
-     * Scheduler provides. With {@link StickyValue#STICKY} their text stays visible at the start and end edge of the
-     * horizontal scroll area, with {@link StickyValue#NOT_STICKY} it scrolls away. With an offset, a number or a CSS
-     * length, that edge moves inward by the offset. With a centered slot header alignment, the offset has no effect.
+     * Scheduler provides. While the user scrolls horizontally, a sticky header keeps its text at the edge of the
+     * scroll area. With an offset, that edge moves inward by the offset. With a centered slot header alignment, the
+     * offset has no effect.
      * <p>
-     * The library docs do not describe this option. The library default is {@link StickyValue#STICKY}.
-     * <p>
-     * The getter returns null while the option is not set; then the library default applies.
+     * The getter returns null while the option is not set. Then the library default applies.
+     * <dl>
+     *   <dt>Forms</dt>     <dd>{@link StickyValue#STICKY} (the text stays visible),
+     *                          {@link StickyValue#NOT_STICKY} (the text scrolls away), or
+     *                          {@link StickyValue#of(String) an offset} (a CSS length, such as {@code "2em"} or
+     *                          {@code "10px"})</dd>
+     *   <dt>Shortcuts</dt> <dd>{@link #setSlotHeaderSticky(String)}: a CSS length, as
+     *                          {@link StickyValue#of(String)}</dd>
+     *   <dt>Default</dt>   <dd>library: {@link StickyValue#STICKY}</dd>
+     * </dl>
+     * <pre>{@code
+     * calendar.options().setSlotHeaderSticky("10px");
+     * calendar.options().setSlotHeaderSticky(StickyValue.NOT_STICKY);
+     * }</pre>
      *
      * @see <a href="https://fullcalendar.io/docs/slot-header-render-hooks">slotHeaderSticky</a>
      */
@@ -5234,13 +6241,21 @@ class ViewOptions implements Serializable {
     private Boolean droppable;
 
     /**
-     * Filters which external elements can be dropped onto the calendar. It takes effect when {@link #getDroppable()}
-     * is true.
+     * Filters which external elements can be dropped onto the calendar. It takes effect when {@link #getDroppable()} is
+     * true.
      * <p>
-     * A callback gets the dragged item as its argument and returns true if the item can be dropped.
-     * <p>
-     * The library default is {@code "*"}, which accepts every element. The getter returns null while the option is not
-     * set; then the library default applies.
+     * The getter returns null while the option is not set. Then the library default applies.
+     * <dl>
+     *   <dt>Forms</dt>     <dd>{@link CssSelector}, or a {@link JsCallback}</dd>
+     *   <dt>Shortcuts</dt> <dd>{@link #setDropAccept(String)}: a CSS selector, as {@link CssSelector}</dd>
+     *   <dt>Default</dt>   <dd>library: {@code "*"}, which accepts every element</dd>
+     *   <dt>Callback</dt>  <dd>{@code function(item)}, the dragged element</dd>
+     *   <dt>Returns</dt>   <dd>{@code true} if the item can be dropped</dd>
+     * </dl>
+     * <pre>{@code
+     * calendar.options().setDropAccept(".cool-entry");
+     * calendar.options().setDropAccept(JsCallback.of("item => item.classList.contains('cool-entry')"));
+     * }</pre>
      *
      * @see <a href="https://fullcalendar.io/docs/dropAccept">dropAccept</a>
      */
@@ -5309,11 +6324,23 @@ class ViewOptions implements Serializable {
      * Whether entries that are dragged or resized may overlap other entries. Background entries count like normal
      * entries.
      * <p>
-     * A callback runs for every pair of intersecting entries and returns true if the overlap is allowed. It gets the
-     * entry underneath and the entry being moved, which still has its original start and end.
+     * A callback runs for every pair of intersecting entries. The entry being moved still has its original start and
+     * end.
      * <p>
-     * The library default is {@code true}. The getter returns null while the option is not set; then the library
-     * default applies.
+     * The getter returns null while the option is not set. Then the library default applies.
+     * <dl>
+     *   <dt>Forms</dt>     <dd>{@link Overlap#ALLOWED}, {@link Overlap#FORBIDDEN}, or a {@link JsCallback}</dd>
+     *   <dt>Shortcuts</dt> <dd>{@link #setEntryOverlap(boolean)}: {@code true} = {@link Overlap#ALLOWED},
+     *                          {@code false} = {@link Overlap#FORBIDDEN}</dd>
+     *   <dt>Default</dt>   <dd>library: {@code true}</dd>
+     *   <dt>Callback</dt>  <dd>{@code function(stillEvent, movingEvent)}, the entry underneath and the entry being
+     *                          moved</dd>
+     *   <dt>Returns</dt>   <dd>{@code true} to allow the overlap</dd>
+     * </dl>
+     * <pre>{@code
+     * calendar.options().setEntryOverlap(false);
+     * calendar.options().setEntryOverlap(JsCallback.of("(still, moving) => still.allDay && moving.allDay"));
+     * }</pre>
      *
      * @see <a href="https://fullcalendar.io/docs/eventOverlap">eventOverlap</a>
      */
@@ -5431,15 +6458,23 @@ class ViewOptions implements Serializable {
      * Whether the user can select periods of time that are occupied by entries. It applies when
      * {@link #getSelectable()} is true.
      * <p>
-     * A callback runs for every entry the selection intersects and returns true to allow the selection. It gets the
-     * intersected entry itself, not wrapped in an info object.
+     * A callback runs for every entry the selection intersects. An all-day entry counts as intersecting in time grid
+     * views, although it does not visually overlap the time slots.
      * <p>
-     * An all-day entry counts as intersecting in time grid views, although it does not visually overlap the time
-     * slots.
-     * <p>
-     * The library default is {@code true}, which allows the selection.
-     * <p>
-     * The getter returns null while the option is not set; then the library default applies.
+     * The getter returns null while the option is not set. Then the library default applies.
+     * <dl>
+     *   <dt>Forms</dt>     <dd>{@link Overlap#ALLOWED}, {@link Overlap#FORBIDDEN}, or a {@link JsCallback}</dd>
+     *   <dt>Shortcuts</dt> <dd>{@link #setSelectOverlap(boolean)}: {@code true} = {@link Overlap#ALLOWED},
+     *                          {@code false} = {@link Overlap#FORBIDDEN}</dd>
+     *   <dt>Default</dt>   <dd>library: {@code true}, which allows the selection</dd>
+     *   <dt>Callback</dt>  <dd>{@code function(event)}, the intersected entry itself, not wrapped in an info
+     *                          object</dd>
+     *   <dt>Returns</dt>   <dd>{@code true} to allow the selection</dd>
+     * </dl>
+     * <pre>{@code
+     * calendar.options().setSelectOverlap(false);
+     * calendar.options().setSelectOverlap(JsCallback.of("event => event.display === 'background'"));
+     * }</pre>
      *
      * @see <a href="https://fullcalendar.io/docs/selectOverlap">selectOverlap</a>
      */
@@ -5571,12 +6606,23 @@ class ViewOptions implements Serializable {
     private Boolean borderlessX;
 
     /**
-     * The time slots the calendar emphasizes as business hours. {@link BusinessHoursValue#DEFAULT} uses the library's
-     * default, Monday to Friday from 9am to 5pm. Own hours come from {@link BusinessHoursValue#of(BusinessHours...)}.
-     * {@link BusinessHoursValue#NONE} switches the emphasis off. The library default is
-     * {@link BusinessHoursValue#NONE}.
+     * The time slots the calendar emphasizes as business hours.
      * <p>
-     * The getter returns null while the option is not set; then the library default applies.
+     * The getter returns null while the option is not set. Then the library default applies.
+     * <dl>
+     *   <dt>Forms</dt>     <dd>{@link BusinessHoursValue#DEFAULT} (Monday to Friday, 9am to 5pm),
+     *                          {@link BusinessHoursValue#of(BusinessHours...) own hours} ({@link BusinessHours},
+     *                          at least one), or {@link BusinessHoursValue#NONE} (no emphasis)</dd>
+     *   <dt>Shortcuts</dt> <dd>{@link #setBusinessHours(BusinessHours...)}: own hours, as
+     *                          {@link BusinessHoursValue#of(BusinessHours...)}. Without any {@link BusinessHours}
+     *                          it throws an {@link IllegalArgumentException}.</dd>
+     *   <dt>Default</dt>   <dd>library: {@link BusinessHoursValue#NONE}</dd>
+     * </dl>
+     * <pre>{@code
+     * calendar.options().setBusinessHours(BusinessHours.businessWeek().start(8).end(18));
+     * calendar.options().setBusinessHours(BusinessHoursValue.DEFAULT);
+     * calendar.options().setBusinessHours(BusinessHoursValue.NONE);
+     * }</pre>
      *
      * @see <a href="https://fullcalendar.io/docs/businessHours">businessHours</a>
      */
@@ -5641,17 +6687,29 @@ class ViewOptions implements Serializable {
     private Boolean columnEntryTitleSticky;
 
     /**
-     * The height of the view area of the calendar. The library default is no value. Then the calendar height follows
-     * the {@link #getAspectRatio() aspect ratio}, as long as no {@code height} is set.
+     * The height of the view area of the calendar.
      * <p>
-     * A pixel height is exact, and the view scrolls when its content does not fit. {@link HeightValue#AUTO} gives the
-     * view the natural height of its content, without scrollbars. A CSS length such as {@code "50vh"} sets the height
-     * in that unit.
-     * <p>
-     * A pixel or CSS value has no effect while {@code height} is set, which the add-on does by default (full
-     * height). {@link HeightValue#AUTO} still works.
-     * <p>
-     * The getter returns null while the option is not set; then the library default applies.
+     * The getter returns null while the option is not set. Then the library default applies.
+     * <dl>
+     *   <dt>Forms</dt>     <dd>{@link HeightValue#ofPixels(int) pixels} (exact, the view scrolls when its content
+     *                          does not fit), {@link HeightValue#ofCss(String) a CSS length} (such as
+     *                          {@code "50vh"}), or {@link HeightValue#AUTO} (the natural height of the content,
+     *                          without scrollbars)</dd>
+     *   <dt>Shortcuts</dt> <dd>{@link #setContentHeight(int)}: pixels, as {@link HeightValue#ofPixels(int)}. A
+     *                          negative number throws an {@link IllegalArgumentException}.<br>
+     *                          {@link #setContentHeight(String)}: a CSS length, as
+     *                          {@link HeightValue#ofCss(String)}. {@code "auto"} throws an
+     *                          {@link IllegalArgumentException}, use {@link HeightValue#AUTO}.</dd>
+     *   <dt>Default</dt>   <dd>library: no value, then the calendar height follows the
+     *                          {@link #getAspectRatio() aspect ratio}, as long as no {@code height} is set<br>
+     *                          add-on: sets {@code height} to the full height by default. While it is set, a
+     *                          pixel or CSS value has no effect, and {@link HeightValue#AUTO} still works.</dd>
+     * </dl>
+     * <pre>{@code
+     * calendar.options().setContentHeight(600);
+     * calendar.options().setContentHeight("50vh");
+     * calendar.options().setContentHeight(HeightValue.AUTO);
+     * }</pre>
      *
      * @see <a href="https://fullcalendar.io/docs/contentHeight">contentHeight</a>
      */
@@ -5692,12 +6750,22 @@ class ViewOptions implements Serializable {
      * {@link EntryLimitValue#CELL_HEIGHT} limits it to 5 rows there. For the timed entries of time grid views and for
      * timeline views use {@link #getEntryMaxStack() entryMaxStack}.
      * <p>
-     * A number limits it to that many. {@link EntryLimitValue#CELL_HEIGHT} limits it to what fits into the height of
-     * the cell. {@link EntryLimitValue#NONE} shows all entries. The library combines this option with
-     * {@link #getDayMaxEntryRows() dayMaxEntryRows}, see {@link EntryLimitValue}.
+     * The library combines this option with {@link #getDayMaxEntryRows() dayMaxEntryRows}, see {@link EntryLimitValue}.
      * <p>
-     * The library default is {@link EntryLimitValue#NONE}. The getter returns null while the option is not set; then
-     * the library default applies.
+     * The getter returns null while the option is not set. Then the library default applies.
+     * <dl>
+     *   <dt>Forms</dt>     <dd>{@link EntryLimitValue#of(int) a number} (that many),
+     *                          {@link EntryLimitValue#CELL_HEIGHT} (as many as fit into the height of the cell),
+     *                          or {@link EntryLimitValue#NONE} (all entries)</dd>
+     *   <dt>Shortcuts</dt> <dd>{@link #setDayMaxEntries(int)}: a number, as {@link EntryLimitValue#of(int)}. A
+     *                          negative number throws an {@link IllegalArgumentException}.</dd>
+     *   <dt>Default</dt>   <dd>library: {@link EntryLimitValue#NONE}</dd>
+     * </dl>
+     * <pre>{@code
+     * calendar.options().setDayMaxEntries(3);
+     * calendar.options().setDayMaxEntries(EntryLimitValue.CELL_HEIGHT);
+     * calendar.options().setDayMaxEntries(EntryLimitValue.NONE);
+     * }</pre>
      *
      * @see <a href="https://fullcalendar.io/docs/dayMaxEvents">dayMaxEvents</a>
      */
@@ -5729,12 +6797,22 @@ class ViewOptions implements Serializable {
      * {@link EntryLimitValue#CELL_HEIGHT} limits it to 5 rows there. For the timed entries of time grid views and for
      * timeline views use {@link #getEntryMaxStack() entryMaxStack}.
      * <p>
-     * A number limits it to that many. {@link EntryLimitValue#CELL_HEIGHT} limits it to what fits into the height of
-     * the cell. {@link EntryLimitValue#NONE} shows all entries. The library combines this option with
-     * {@link #getDayMaxEntries() dayMaxEntries}, see {@link EntryLimitValue}.
+     * The library combines this option with {@link #getDayMaxEntries() dayMaxEntries}, see {@link EntryLimitValue}.
      * <p>
-     * The library default is {@link EntryLimitValue#NONE}. The getter returns null while the option is not set; then
-     * the library default applies.
+     * The getter returns null while the option is not set. Then the library default applies.
+     * <dl>
+     *   <dt>Forms</dt>     <dd>{@link EntryLimitValue#of(int) a number} (that many),
+     *                          {@link EntryLimitValue#CELL_HEIGHT} (as many as fit into the height of the cell),
+     *                          or {@link EntryLimitValue#NONE} (all entries)</dd>
+     *   <dt>Shortcuts</dt> <dd>{@link #setDayMaxEntryRows(int)}: a number, as {@link EntryLimitValue#of(int)}. A
+     *                          negative number throws an {@link IllegalArgumentException}.</dd>
+     *   <dt>Default</dt>   <dd>library: {@link EntryLimitValue#NONE}</dd>
+     * </dl>
+     * <pre>{@code
+     * calendar.options().setDayMaxEntryRows(3);
+     * calendar.options().setDayMaxEntryRows(EntryLimitValue.CELL_HEIGHT);
+     * calendar.options().setDayMaxEntryRows(EntryLimitValue.NONE);
+     * }</pre>
      *
      * @see <a href="https://fullcalendar.io/docs/dayMaxEventRows">dayMaxEventRows</a>
      */
@@ -5841,20 +6919,33 @@ class ViewOptions implements Serializable {
 
     /**
      * The order of entries within the same day. In time grid views it is the horizontal order, otherwise the vertical
-     * order. The library default is {@code "start,-duration,allDay,title"}: earlier entries first, then longer ones,
-     * then all-day ones, then by title.
+     * order. If a lower ranked entry fits into the layout more compactly, the library places it earlier, unless
+     * {@link #getEntryOrderStrict() entryOrderStrict} is set.
      * <p>
-     * It takes a list of entry property names, where a leading {@code -} sorts descending, a mix with compare functions
-     * ({@link Order}), or a single {@link JsCallback} that compares two entries. If a lower ranked entry fits into
-     * the layout more compactly, the library places it earlier, unless {@link #getEntryOrderStrict() entryOrderStrict}
-     * is set.
-     * <p>
-     * A compare function gets two plain objects, not the entries themselves. They hold the fields of the entry
-     * definition such as {@code title} and {@code extendedProps}, the extended properties at top level, {@code id},
-     * {@code start} and {@code end} as numbers in milliseconds, {@code duration} in milliseconds and {@code allDay} as
-     * 0 or 1.
-     * <p>
-     * The getter returns null while the option is not set; then the library default applies.
+     * The getter returns null while the option is not set. Then the library default applies.
+     * <dl>
+     *   <dt>Forms</dt>     <dd>{@link Order} (a list of sort keys, each an entry property name, ascending or
+     *                          descending, or a compare {@link JsCallback}), or one {@link JsCallback} that
+     *                          compares two entries</dd>
+     *   <dt>Shortcuts</dt> <dd>{@link #setEntryOrder(String...)}: entry property names, a leading {@code -}
+     *                          sorts descending, as {@link Order#of(String...)}. No name, an empty name or a
+     *                          name with a comma throws an {@link IllegalArgumentException}.<br>
+     *                          {@link #setEntryOrder(Order.Key...)}: sort keys that may mix properties and
+     *                          compare functions, as {@link Order#of(Order.Key...)}. No key throws an
+     *                          {@link IllegalArgumentException}.</dd>
+     *   <dt>Default</dt>   <dd>library: {@code "start,-duration,allDay,title"} (earlier entries first, then
+     *                          longer ones, then all-day ones, then by title)</dd>
+     *   <dt>Callback</dt>  <dd>{@code function(a, b)}. {@code a} and {@code b} are plain objects, not the entries
+     *                          themselves. They hold the fields of the entry definition such as {@code title} and
+     *                          {@code extendedProps}, the extended properties at top level, {@code id},
+     *                          {@code start} and {@code end} as numbers in milliseconds, {@code duration} in
+     *                          milliseconds and {@code allDay} as 0 or 1.</dd>
+     *   <dt>Returns</dt>   <dd>a negative number, zero or a positive number</dd>
+     * </dl>
+     * <pre>{@code
+     * calendar.options().setEntryOrder("title", "-start");
+     * calendar.options().setEntryOrder(JsCallback.of("(a, b) => a.start - b.start"));
+     * }</pre>
      *
      * @see <a href="https://fullcalendar.io/docs/eventOrder">entryOrder</a>
      */
@@ -6025,11 +7116,19 @@ class ViewOptions implements Serializable {
      * Accessible hint (the {@code title} attribute) for the "+N more" link. It describes what happens when the link
      * opens the entry popover.
      * <p>
-     * A text may use {@code $0} as placeholder for the number of hidden entries, such as "Click to see $0 more
-     * entries". A callback gets that number and returns the text.
-     * <p>
-     * The library default is the text of the locale, "Show 3 more events" for three entries in English. The getter
-     * returns null while the option is not set; then the library default applies.
+     * The getter returns null while the option is not set. Then the library default applies.
+     * <dl>
+     *   <dt>Forms</dt>     <dd>{@link TextContent} (shown as text, {@code $0} stands for the number of hidden
+     *                          entries, such as "Click to see $0 more entries"), or a {@link JsCallback}</dd>
+     *   <dt>Shortcuts</dt> <dd>{@link #setMoreLinkHint(String)}: a text, as {@link TextContent}</dd>
+     *   <dt>Default</dt>   <dd>library: the text of the locale, "Show 3 more events" for three entries in English</dd>
+     *   <dt>Callback</dt>  <dd>{@code function(num)}, the number of hidden entries</dd>
+     *   <dt>Returns</dt>   <dd>the text</dd>
+     * </dl>
+     * <pre>{@code
+     * calendar.options().setMoreLinkHint("Click to see $0 more entries");
+     * calendar.options().setMoreLinkHint(JsCallback.of("num => 'Show ' + num + ' hidden entries'"));
+     * }</pre>
      *
      * @see <a href="https://fullcalendar.io/docs/hints">moreLinkHint</a>
      */
@@ -6057,14 +7156,23 @@ class ViewOptions implements Serializable {
     /**
      * Text of the "+N more" link that shows when too many entries do not fit in a day.
      * <p>
-     * A text is put after the number, so "more" shows "+3 more". A callback gets the number of hidden entries and
-     * returns the whole text. Very small cells and the more links of time grid columns show only the number.
+     * Very small cells and the more links of time grid columns show only the number.
      * <p>
-     * For full control of the link's content use {@code moreLinkContent}. The library docs do not describe this option.
-     * The behavior comes from the library code.
+     * For full control of the link's content use {@code moreLinkContent}.
      * <p>
-     * The library default is the text of the locale, "more" in English. The getter returns null while the option is not
-     * set; then the library default applies.
+     * The getter returns null while the option is not set. Then the library default applies.
+     * <dl>
+     *   <dt>Forms</dt>     <dd>{@link TextContent} (shown as text, put after the number, so "more" shows "+3
+     *                          more"), or a {@link JsCallback}</dd>
+     *   <dt>Shortcuts</dt> <dd>{@link #setMoreLinkText(String)}: a text, as {@link TextContent}</dd>
+     *   <dt>Default</dt>   <dd>library: the text of the locale, "more" in English</dd>
+     *   <dt>Callback</dt>  <dd>{@code function(num)}, the number of hidden entries</dd>
+     *   <dt>Returns</dt>   <dd>the whole text of the link</dd>
+     * </dl>
+     * <pre>{@code
+     * calendar.options().setMoreLinkText("more");
+     * calendar.options().setMoreLinkText(JsCallback.of("num => '+' + num + ' hidden'"));
+     * }</pre>
      *
      * @see <a href="https://fullcalendar.io/docs/more-link-render-hooks">more-link render hooks</a>
      */
@@ -6093,12 +7201,20 @@ class ViewOptions implements Serializable {
      * Accessible hint ({@code aria-label}) for clickable day and week numbers (nav links). It describes what happens
      * after the nav link is clicked.
      * <p>
-     * A text may use {@code $0} as placeholder for the localized date text, such as "Go to $0". A callback gets that
-     * date text and the JavaScript {@code Date} of the link, and returns the text.
-     * <p>
-     * The library default is the hint of the locale, "Go to $0" in English.
-     * <p>
-     * The getter returns null while the option is not set; then the library default applies.
+     * The getter returns null while the option is not set. Then the library default applies.
+     * <dl>
+     *   <dt>Forms</dt>     <dd>{@link TextContent} (shown as text, {@code $0} stands for the localized date text,
+     *                          such as "Go to $0"), or a {@link JsCallback}</dd>
+     *   <dt>Shortcuts</dt> <dd>{@link #setNavLinkHint(String)}: a text, as {@link TextContent}</dd>
+     *   <dt>Default</dt>   <dd>library: the hint of the locale, "Go to $0" in English</dd>
+     *   <dt>Callback</dt>  <dd>{@code function(text, date)}, the localized date text and the JavaScript
+     *                          {@code Date} of the link</dd>
+     *   <dt>Returns</dt>   <dd>the text</dd>
+     * </dl>
+     * <pre>{@code
+     * calendar.options().setNavLinkHint("Go to $0");
+     * calendar.options().setNavLinkHint(JsCallback.of("(text, date) => 'Open ' + text"));
+     * }</pre>
      *
      * @see <a href="https://fullcalendar.io/docs/hints">navLinkHint</a>
      */
@@ -6170,13 +7286,27 @@ class ViewOptions implements Serializable {
      * For the first-of-month cells in day grid views that span several months and for the first cell of the view,
      * {@link #getMonthStartFormat() monthStartFormat} is used instead.
      * <p>
-     * A callback gets an {@code info} object with {@code date}, {@code start}, {@code end} and more, see the library
-     * docs, and returns the text. The library docs speak of a date instead of the info object, but the used library
-     * version passes the info object.
-     * <p>
-     * The library default shows the day number only.
-     * <p>
-     * The getter returns null while the option is not set; then the library default applies.
+     * The getter returns null while the option is not set. Then the library default applies.
+     * <dl>
+     *   <dt>Forms</dt>     <dd>{@link DateFormat} (the properties of a format object, such as {@code weekday} or
+     *                          {@code month}), or a {@link JsCallback}</dd>
+     *   <dt>Shortcuts</dt> <dd>{@link #setDayCellFormat(Map)}: the properties of the format object, as
+     *                          {@link DateFormat#of(Map)}. A value that is no string, boolean or number throws an
+     *                          {@link IllegalArgumentException}.</dd>
+     *   <dt>Default</dt>   <dd>library: the day number only</dd>
+     *   <dt>Callback</dt>  <dd>{@code function(info)}. {@code info} has {@code date}, {@code start},
+     *                          {@code end}, {@code timeZone} and {@code localeCodes}. {@code date} (the same as
+     *                          {@code start}) is a plain object with {@code year}, {@code month} (zero-based),
+     *                          {@code day}, {@code hour}, {@code minute}, {@code second}, {@code millisecond}
+     *                          and {@code marker}, not a JavaScript {@code Date}. {@code end} is null here. The
+     *                          library docs name a date as the argument, but the used library version passes the
+     *                          info object.</dd>
+     *   <dt>Returns</dt>   <dd>the text</dd>
+     * </dl>
+     * <pre>{@code
+     * calendar.options().setDayCellFormat(Map.of("day", "numeric"));
+     * calendar.options().setDayCellFormat(JsCallback.of("info => info.date.day + '.'"));
+     * }</pre>
      *
      * @see <a href="https://fullcalendar.io/docs/dayCellFormat">dayCellFormat</a>
      */
@@ -6202,19 +7332,35 @@ class ViewOptions implements Serializable {
     }
 
     /**
-     * Format of the text in the day headers (column headings). The library default depends on the view. It is the short
-     * weekday in month views, the short weekday and day number in views with several day columns, and the long weekday
-     * and day number in views with one column.
-     * <p>
-     * A callback gets an {@code info} object with {@code date}, {@code start}, {@code end} and more, see the library
-     * docs, and returns the text. The library docs speak of a date instead of the info object, but the used library
-     * version passes the info object.
+     * Format of the text in the day headers (column headings).
      * <p>
      * The library docs show the default for views with several day columns as the short weekday with month and day, and
      * for views with one day column as the long weekday only. The used library version leaves out the month and shows
      * the day number in both. The forma theme of the library sets the long weekday for month views.
      * <p>
-     * The getter returns null while the option is not set; then the library default applies.
+     * The getter returns null while the option is not set. Then the library default applies.
+     * <dl>
+     *   <dt>Forms</dt>     <dd>{@link DateFormat} (the properties of a format object, such as {@code weekday} or
+     *                          {@code month}), or a {@link JsCallback}</dd>
+     *   <dt>Shortcuts</dt> <dd>{@link #setDayHeaderFormat(Map)}: the properties of the format object, as
+     *                          {@link DateFormat#of(Map)}. A value that is no string, boolean or number throws an
+     *                          {@link IllegalArgumentException}.</dd>
+     *   <dt>Default</dt>   <dd>library: depends on the view (the short weekday in month views, the short weekday
+     *                          and day number in views with several day columns, and the long weekday and day
+     *                          number in views with one column)</dd>
+     *   <dt>Callback</dt>  <dd>{@code function(info)}. {@code info} has {@code date}, {@code start},
+     *                          {@code end}, {@code timeZone} and {@code localeCodes}. {@code date} (the same as
+     *                          {@code start}) is a plain object with {@code year}, {@code month} (zero-based),
+     *                          {@code day}, {@code hour}, {@code minute}, {@code second}, {@code millisecond}
+     *                          and {@code marker}, not a JavaScript {@code Date}. {@code end} is null here. The
+     *                          library docs name a date as the argument, but the used library version passes the
+     *                          info object.</dd>
+     *   <dt>Returns</dt>   <dd>the text</dd>
+     * </dl>
+     * <pre>{@code
+     * calendar.options().setDayHeaderFormat(Map.of("weekday", "long"));
+     * calendar.options().setDayHeaderFormat(JsCallback.of("info => info.date.day + '/' + (info.date.month + 1)"));
+     * }</pre>
      *
      * @see <a href="https://fullcalendar.io/docs/dayHeaderFormat">dayHeaderFormat</a>
      */
@@ -6242,13 +7388,30 @@ class ViewOptions implements Serializable {
     /**
      * Format of the time text shown on entries. It is shown for timed entries only.
      * <p>
-     * A callback gets an {@code info} object with {@code date}, {@code start}, {@code end} and more, and returns the
-     * text. The library docs speak of a date instead of the info object, but the used library version passes the info
-     * object.
+     * For list views, the library docs give {@code 7pm}, which differs from the default of the used library version.
      * <p>
-     * The library default depends on the view: {@code 7:00} in time grid views, {@code 7p} in day grid views and
-     * {@code 7:00pm} in list views. The library docs give {@code 7pm} for list views. The getter returns null while the
-     * option is not set; then the library default applies.
+     * The getter returns null while the option is not set. Then the library default applies.
+     * <dl>
+     *   <dt>Forms</dt>     <dd>{@link DateFormat} (the properties of a format object, such as {@code hour} or
+     *                          {@code minute}), or a {@link JsCallback}</dd>
+     *   <dt>Shortcuts</dt> <dd>{@link #setEntryTimeFormat(Map)}: the properties of the format object, as
+     *                          {@link DateFormat#of(Map)}. A value that is no string, boolean or number throws an
+     *                          {@link IllegalArgumentException}.</dd>
+     *   <dt>Default</dt>   <dd>library: depends on the view ({@code 7:00} in time grid views, {@code 7p} in day
+     *                          grid views and {@code 7:00pm} in list views)</dd>
+     *   <dt>Callback</dt>  <dd>{@code function(info)}. {@code info} has {@code date}, {@code start},
+     *                          {@code end}, {@code timeZone} and {@code localeCodes}. {@code date} (the same as
+     *                          {@code start}) is a plain object with {@code year}, {@code month} (zero-based),
+     *                          {@code day}, {@code hour}, {@code minute}, {@code second}, {@code millisecond}
+     *                          and {@code marker}, not a JavaScript {@code Date}. {@code end} is set when the
+     *                          end time is shown, otherwise it is null. The library docs name a date as the
+     *                          argument, but the used library version passes the info object.</dd>
+     *   <dt>Returns</dt>   <dd>the text</dd>
+     * </dl>
+     * <pre>{@code
+     * calendar.options().setEntryTimeFormat(Map.of("hour", "2-digit", "minute", "2-digit", "meridiem", false));
+     * calendar.options().setEntryTimeFormat(JsCallback.of("info => info.start.hour + 'h'"));
+     * }</pre>
      *
      * @see <a href="https://fullcalendar.io/docs/eventTimeFormat">eventTimeFormat</a>
      */
@@ -6275,16 +7438,32 @@ class ViewOptions implements Serializable {
     }
 
     /**
-     * Format of the text on the right side of the day headings in list views. {@link ListDayFormatValue#NONE} hides the
-     * text.
+     * Format of the text on the right side of the day headings in list views.
      * <p>
-     * A callback gets an {@code info} object with {@code date}, {@code start}, {@code end} and more, and returns the
-     * text. The library docs speak of a date instead of the info object, but the used library version passes the info
-     * object.
-     * <p>
-     * The library default depends on the view: no text in views of one day, the full date, such as "January 1, 2026" in
-     * English, in views of one week or of a number of days, and the long weekday name in longer views. The getter
-     * returns null while the option is not set; then the library default applies.
+     * The getter returns null while the option is not set. Then the library default applies.
+     * <dl>
+     *   <dt>Forms</dt>     <dd>{@link DateFormat} (the properties of a format object, such as {@code weekday} or
+     *                          {@code month}), {@link ListDayFormatValue#NONE} (no text), or a {@link JsCallback}</dd>
+     *   <dt>Shortcuts</dt> <dd>{@link #setListDayAltFormat(Map)}: the properties of the format object, as
+     *                          {@link DateFormat#of(Map)}. A value that is no string, boolean or number throws an
+     *                          {@link IllegalArgumentException}.</dd>
+     *   <dt>Default</dt>   <dd>library: depends on the view (no text in views of one day, the full date, such as
+     *                          "January 1, 2026" in English, in views of one week or of a number of days, and the
+     *                          long weekday name in longer views)</dd>
+     *   <dt>Callback</dt>  <dd>{@code function(info)}. {@code info} has {@code date}, {@code start},
+     *                          {@code end}, {@code timeZone} and {@code localeCodes}. {@code date} (the same as
+     *                          {@code start}) is a plain object with {@code year}, {@code month} (zero-based),
+     *                          {@code day}, {@code hour}, {@code minute}, {@code second}, {@code millisecond}
+     *                          and {@code marker}, not a JavaScript {@code Date}. {@code end} is null here. The
+     *                          library docs name a date as the argument, but the used library version passes the
+     *                          info object.</dd>
+     *   <dt>Returns</dt>   <dd>the text</dd>
+     * </dl>
+     * <pre>{@code
+     * calendar.options().setListDayAltFormat(Map.of("weekday", "long"));
+     * calendar.options().setListDayAltFormat(ListDayFormatValue.NONE);
+     * calendar.options().setListDayAltFormat(JsCallback.of("info => info.date.day + '.'"));
+     * }</pre>
      *
      * @see <a href="https://fullcalendar.io/docs/listDayAltFormat">listDayAltFormat</a>
      */
@@ -6310,16 +7489,32 @@ class ViewOptions implements Serializable {
     }
 
     /**
-     * Format of the text on the left side of the day headings in list views. {@link ListDayFormatValue#NONE} hides the
-     * text.
+     * Format of the text on the left side of the day headings in list views.
      * <p>
-     * A callback gets an {@code info} object with {@code date}, {@code start}, {@code end} and more, and returns the
-     * text. The library docs speak of a date instead of the info object, but the used library version passes the info
-     * object.
-     * <p>
-     * The library default depends on the view: the long weekday name in views of one day, of one week or of a number of
-     * days, and the full date, such as "January 1, 2026" in English, in longer views. The getter returns null while the
-     * option is not set; then the library default applies.
+     * The getter returns null while the option is not set. Then the library default applies.
+     * <dl>
+     *   <dt>Forms</dt>     <dd>{@link DateFormat} (the properties of a format object, such as {@code weekday} or
+     *                          {@code month}), {@link ListDayFormatValue#NONE} (no text), or a {@link JsCallback}</dd>
+     *   <dt>Shortcuts</dt> <dd>{@link #setListDayFormat(Map)}: the properties of the format object, as
+     *                          {@link DateFormat#of(Map)}. A value that is no string, boolean or number throws an
+     *                          {@link IllegalArgumentException}.</dd>
+     *   <dt>Default</dt>   <dd>library: depends on the view (the long weekday name in views of one day, of one
+     *                          week or of a number of days, and the full date, such as "January 1, 2026" in
+     *                          English, in longer views)</dd>
+     *   <dt>Callback</dt>  <dd>{@code function(info)}. {@code info} has {@code date}, {@code start},
+     *                          {@code end}, {@code timeZone} and {@code localeCodes}. {@code date} (the same as
+     *                          {@code start}) is a plain object with {@code year}, {@code month} (zero-based),
+     *                          {@code day}, {@code hour}, {@code minute}, {@code second}, {@code millisecond}
+     *                          and {@code marker}, not a JavaScript {@code Date}. {@code end} is null here. The
+     *                          library docs name a date as the argument, but the used library version passes the
+     *                          info object.</dd>
+     *   <dt>Returns</dt>   <dd>the text</dd>
+     * </dl>
+     * <pre>{@code
+     * calendar.options().setListDayFormat(Map.of("weekday", "long"));
+     * calendar.options().setListDayFormat(ListDayFormatValue.NONE);
+     * calendar.options().setListDayFormat(JsCallback.of("info => info.date.day + '.'"));
+     * }</pre>
      *
      * @see <a href="https://fullcalendar.io/docs/listDayFormat">listDayFormat</a>
      */
@@ -6348,12 +7543,28 @@ class ViewOptions implements Serializable {
      * Format of the first cell of each month and of the first cell of the view, when a day grid view spans several
      * months.
      * <p>
-     * A callback gets an {@code info} object with {@code date}, {@code start}, {@code end} and more, and returns the
-     * text. The library docs speak of a date instead of the info object, but the used library version passes the info
-     * object.
-     * <p>
-     * The library default is the long month and the day, such as "January 1" in English. The getter returns null while
-     * the option is not set; then the library default applies.
+     * The getter returns null while the option is not set. Then the library default applies.
+     * <dl>
+     *   <dt>Forms</dt>     <dd>{@link DateFormat} (the properties of a format object, such as {@code month} or
+     *                          {@code day}), or a {@link JsCallback}</dd>
+     *   <dt>Shortcuts</dt> <dd>{@link #setMonthStartFormat(Map)}: the properties of the format object, as
+     *                          {@link DateFormat#of(Map)}. A value that is no string, boolean or number throws
+     *                          an {@link IllegalArgumentException}.</dd>
+     *   <dt>Default</dt>   <dd>library: the long month and the day, such as "January 1" in English</dd>
+     *   <dt>Callback</dt>  <dd>{@code function(info)}. {@code info} has {@code date}, {@code start},
+     *                          {@code end}, {@code timeZone} and {@code localeCodes}. {@code date} (the same as
+     *                          {@code start}) is a plain object with {@code year}, {@code month} (zero-based),
+     *                          {@code day}, {@code hour}, {@code minute}, {@code second}, {@code millisecond}
+     *                          and {@code marker}, not a JavaScript {@code Date}. {@code end} is null here. The
+     *                          library docs name a date as the argument, but the used library version passes the
+     *                          info object.</dd>
+     *   <dt>Returns</dt>   <dd>the text</dd>
+     * </dl>
+     * <pre>{@code
+     * calendar.options().setMonthStartFormat(Map.of("month", "short", "day", "numeric"));
+     * calendar.options().setMonthStartFormat(
+     *         JsCallback.of("info => info.date.day + '.' + (info.date.month + 1) + '.'"));
+     * }</pre>
      *
      * @see <a href="https://fullcalendar.io/docs/monthStartFormat">monthStartFormat</a>
      */
@@ -6381,13 +7592,28 @@ class ViewOptions implements Serializable {
     /**
      * Format of the date in the title of the "+N more" popover.
      * <p>
-     * A callback gets an {@code info} object with {@code date}, {@code start}, {@code end} and more, see the library
-     * docs, and returns the text. The library docs speak of a date instead of the info object, but the used library
-     * version passes the info object.
-     * <p>
-     * The library default is the long month, the day and the year.
-     * <p>
-     * The getter returns null while the option is not set; then the library default applies.
+     * The getter returns null while the option is not set. Then the library default applies.
+     * <dl>
+     *   <dt>Forms</dt>     <dd>{@link DateFormat} (the properties of a format object, such as {@code month} or
+     *                          {@code day}), or a {@link JsCallback}</dd>
+     *   <dt>Shortcuts</dt> <dd>{@link #setPopoverFormat(Map)}: the properties of the format object, as
+     *                          {@link DateFormat#of(Map)}. A value that is no string, boolean or number throws
+     *                          an {@link IllegalArgumentException}.</dd>
+     *   <dt>Default</dt>   <dd>library: the long month, the day and the year</dd>
+     *   <dt>Callback</dt>  <dd>{@code function(info)}. {@code info} has {@code date}, {@code start},
+     *                          {@code end}, {@code timeZone} and {@code localeCodes}. {@code date} (the same as
+     *                          {@code start}) is a plain object with {@code year}, {@code month} (zero-based),
+     *                          {@code day}, {@code hour}, {@code minute}, {@code second}, {@code millisecond}
+     *                          and {@code marker}, not a JavaScript {@code Date}. {@code end} is null here. The
+     *                          library docs name a date as the argument, but the used library version passes the
+     *                          info object.</dd>
+     *   <dt>Returns</dt>   <dd>the text</dd>
+     * </dl>
+     * <pre>{@code
+     * calendar.options().setPopoverFormat(Map.of("month", "short", "day", "numeric"));
+     * calendar.options().setPopoverFormat(
+     *         JsCallback.of("info => info.date.day + '.' + (info.date.month + 1) + '.' + info.date.year"));
+     * }</pre>
      *
      * @see <a href="https://fullcalendar.io/docs/popoverFormat">popoverFormat</a>
      */
@@ -6413,14 +7639,31 @@ class ViewOptions implements Serializable {
     }
 
     /**
-     * Format of the text above each month in multi-month views. The library default is the long month if the calendar
-     * spans a single year, otherwise the long month and the year.
+     * Format of the text above each month in multi-month views.
      * <p>
-     * A callback gets an {@code info} object with {@code date}, {@code start}, {@code end} and more, see the library
-     * docs, and returns the text. The library docs speak of a date instead of the info object, but the used library
-     * version passes the info object.
-     * <p>
-     * The getter returns null while the option is not set; then the library default applies.
+     * The getter returns null while the option is not set. Then the library default applies.
+     * <dl>
+     *   <dt>Forms</dt>     <dd>{@link DateFormat} (the properties of a format object, such as {@code month} or
+     *                          {@code day}), or a {@link JsCallback}</dd>
+     *   <dt>Shortcuts</dt> <dd>{@link #setSingleMonthTitleFormat(Map)}: the properties of the format object, as
+     *                          {@link DateFormat#of(Map)}. A value that is no string, boolean or number throws
+     *                          an {@link IllegalArgumentException}.</dd>
+     *   <dt>Default</dt>   <dd>library: the long month if the calendar spans a single year, otherwise the long month
+     *                          and the year</dd>
+     *   <dt>Callback</dt>  <dd>{@code function(info)}. {@code info} has {@code date}, {@code start},
+     *                          {@code end}, {@code timeZone} and {@code localeCodes}. {@code date} (the same as
+     *                          {@code start}) is a plain object with {@code year}, {@code month} (zero-based),
+     *                          {@code day}, {@code hour}, {@code minute}, {@code second}, {@code millisecond}
+     *                          and {@code marker}, not a JavaScript {@code Date}. {@code end} is null here. The
+     *                          library docs name a date as the argument, but the used library version passes the
+     *                          info object.</dd>
+     *   <dt>Returns</dt>   <dd>the text</dd>
+     * </dl>
+     * <pre>{@code
+     * calendar.options().setSingleMonthTitleFormat(Map.of("month", "short"));
+     * calendar.options().setSingleMonthTitleFormat(
+     *         JsCallback.of("info => info.date.year + '/' + (info.date.month + 1)"));
+     * }</pre>
      *
      * @see <a href="https://fullcalendar.io/docs/singleMonthTitleFormat">singleMonthTitleFormat</a>
      */
@@ -6448,19 +7691,37 @@ class ViewOptions implements Serializable {
     /**
      * Format of the time slot headers.
      * <p>
-     * A timeline view also takes one format per header row, with {@link SlotHeaderFormatValue#of(DateFormatValue...)},
-     * the top row first, for example the month above the weekday. Timeline views come with the Scheduler. The time grid
-     * uses the first format only.
+     * With one format per header row, the top row comes first, for example the month above the weekday. The time
+     * grid uses the first format only.
      * <p>
-     * A callback gets an {@code info} object with {@code date}, {@code start}, {@code end} and more, and returns the
-     * text. The library docs speak of a date instead of the info object, but the used library version passes the info
-     * object.
-     * <p>
-     * The library default in the time grid is
-     * {@code {hour: 'numeric', minute: '2-digit', omitZeroMinute: true, meridiem: 'short'}}, which shows times like
-     * "5pm" and "5:30pm" in English. A timeline view picks its header formats from its slot duration.
-     * <p>
-     * The getter returns null while the option is not set; then the library default applies.
+     * The getter returns null while the option is not set. Then the library default applies.
+     * <dl>
+     *   <dt>Forms</dt>     <dd>{@link DateFormat} (the properties of a format object, such as {@code hour} or
+     *                          {@code minute}), a {@link JsCallback}, or one format per header row with
+     *                          {@link SlotHeaderFormatValue#of(DateFormatValue...)} (timeline views, scheduler
+     *                          only)</dd>
+     *   <dt>Shortcuts</dt> <dd>{@link #setSlotHeaderFormat(Map)}: the properties of the format object, as
+     *                          {@link DateFormat#of(Map)}. A value that is no string, boolean or number throws
+     *                          an {@link IllegalArgumentException}.</dd>
+     *   <dt>Default</dt>   <dd>library: in the time grid
+     *                          {@code {hour: 'numeric', minute: '2-digit', omitZeroMinute: true, meridiem: 'short'}},
+     *                          which shows times like "5pm" and "5:30pm" in English. A timeline view picks its header
+     *                          formats from its slot duration.</dd>
+     *   <dt>Callback</dt>  <dd>{@code function(info)}. {@code info} has {@code date}, {@code start},
+     *                          {@code end}, {@code timeZone} and {@code localeCodes}. {@code date} (the same as
+     *                          {@code start}) is a plain object with {@code year}, {@code month} (zero-based),
+     *                          {@code day}, {@code hour}, {@code minute}, {@code second}, {@code millisecond}
+     *                          and {@code marker}, not a JavaScript {@code Date}. {@code end} is null here. The
+     *                          library docs name a date as the argument, but the used library version passes the
+     *                          info object.</dd>
+     *   <dt>Returns</dt>   <dd>the text</dd>
+     * </dl>
+     * <pre>{@code
+     * calendar.options().setSlotHeaderFormat(Map.of("hour", "2-digit", "minute", "2-digit", "hour12", false));
+     * calendar.options().setSlotHeaderFormat(JsCallback.of("info => info.date.hour + ' h'"));
+     * calendar.options().setSlotHeaderFormat(SlotHeaderFormatValue.of(
+     *         DateFormat.of(Map.of("month", "long")), DateFormat.of(Map.of("weekday", "short"))));
+     * }</pre>
      *
      * @see <a href="https://fullcalendar.io/docs/slotHeaderFormat">slotHeaderFormat</a>
      */
@@ -6488,16 +7749,31 @@ class ViewOptions implements Serializable {
     /**
      * Format of the title text in the built-in header toolbar.
      * <p>
-     * A callback gets an {@code info} object with {@code date}, {@code start}, {@code end} and more, and returns the
-     * text. The library docs speak of a date instead of the info object, but the used library version passes the info
-     * object.
-     * <p>
-     * The library default depends on the view: year and long month in month and week views ("September 2009"), year,
-     * long month and day in day views ("September 8 2009"). When the range spans two months, the months are short. List
-     * views of several days show the days as well. The library docs show the day in week views too ("Sep 13 2009"),
-     * which the used library version does not.
-     * <p>
-     * The getter returns null while the option is not set; then the library default applies.
+     * The getter returns null while the option is not set. Then the library default applies.
+     * <dl>
+     *   <dt>Forms</dt>     <dd>{@link DateFormat} (the properties of a format object, such as {@code month} or
+     *                          {@code day}), or a {@link JsCallback}</dd>
+     *   <dt>Shortcuts</dt> <dd>{@link #setTitleFormat(Map)}: the properties of the format object, as
+     *                          {@link DateFormat#of(Map)}. A value that is no string, boolean or number throws
+     *                          an {@link IllegalArgumentException}.</dd>
+     *   <dt>Default</dt>   <dd>library: depends on the view. Month and week views show the year and the long month
+     *                          ("September 2009"), day views also the day ("September 8 2009"). When the range spans
+     *                          two months, the months are short. List views of several days show the days as well. The
+     *                          library docs show the day in week views too ("Sep 13 2009"), which the used library
+     *                          version does not.</dd>
+     *   <dt>Callback</dt>  <dd>{@code function(info)}. {@code info} has {@code date}, {@code start},
+     *                          {@code end}, {@code timeZone} and {@code localeCodes}. {@code date} (the same as
+     *                          {@code start}) is a plain object with {@code year}, {@code month} (zero-based),
+     *                          {@code day}, {@code hour}, {@code minute}, {@code second}, {@code millisecond}
+     *                          and {@code marker}, not a JavaScript {@code Date}. {@code end} is the end of the
+     *                          shown range. The library docs name a date as the argument, but the used library
+     *                          version passes the info object.</dd>
+     *   <dt>Returns</dt>   <dd>the text</dd>
+     * </dl>
+     * <pre>{@code
+     * calendar.options().setTitleFormat(Map.of("year", "numeric", "month", "short"));
+     * calendar.options().setTitleFormat(JsCallback.of("info => info.start.year + ' / ' + (info.start.month + 1)"));
+     * }</pre>
      *
      * @see <a href="https://fullcalendar.io/docs/titleFormat">titleFormat</a>
      */
@@ -6526,14 +7802,29 @@ class ViewOptions implements Serializable {
      * Text format of the week numbers. The text depends on {@code weekTextShort}: with {@code "W"}, {@code narrow}
      * gives {@code "W6"}, {@code short} gives {@code "W 6"} and {@code numeric} gives {@code "6"}.
      * <p>
-     * A callback gets an {@code info} object with {@code date}, {@code start}, {@code end} and more, and returns the
-     * text. The library docs speak of a date instead of the info object, but the used library version passes the info
-     * object.
-     * <p>
-     * The library default is {@code week: 'narrow'} in day grid views and {@code week: 'short'} in time grid views. The
-     * library docs name {@code week: 'narrow'} for all views.
-     * <p>
-     * The getter returns null while the option is not set; then the library default applies.
+     * The getter returns null while the option is not set. Then the library default applies.
+     * <dl>
+     *   <dt>Forms</dt>     <dd>{@link DateFormat} (the properties of a format object, such as {@code month} or
+     *                          {@code day}), or a {@link JsCallback}</dd>
+     *   <dt>Shortcuts</dt> <dd>{@link #setWeekNumberFormat(Map)}: the properties of the format object, as
+     *                          {@link DateFormat#of(Map)}. A value that is no string, boolean or number throws
+     *                          an {@link IllegalArgumentException}.</dd>
+     *   <dt>Default</dt>   <dd>library: {@code week: 'narrow'} in day grid views and {@code week: 'short'} in time grid
+     *                          views. The library docs name {@code week: 'narrow'} for all views.</dd>
+     *   <dt>Callback</dt>  <dd>{@code function(info)}. {@code info} has {@code date}, {@code start},
+     *                          {@code end}, {@code timeZone} and {@code localeCodes}. {@code date} (the same as
+     *                          {@code start}) is a plain object with {@code year}, {@code month} (zero-based),
+     *                          {@code day}, {@code hour}, {@code minute}, {@code second}, {@code millisecond}
+     *                          and {@code marker}, not a JavaScript {@code Date}. {@code end} is null here. The
+     *                          library docs name a date as the argument, but the used library version passes the
+     *                          info object.</dd>
+     *   <dt>Returns</dt>   <dd>the text</dd>
+     * </dl>
+     * <pre>{@code
+     * calendar.options().setWeekNumberFormat(Map.of("week", "numeric"));
+     * calendar.options().setWeekNumberFormat(
+     *         JsCallback.of("info => 'Week of ' + info.date.day + '.' + (info.date.month + 1) + '.'"));
+     * }</pre>
      *
      * @see <a href="https://fullcalendar.io/docs/weekNumberFormat">weekNumberFormat</a>
      */
@@ -6575,13 +7866,22 @@ class ViewOptions implements Serializable {
      * CSS classes for the built-in header toolbar only. {@link #getToolbarClass() toolbarClass} applies to both
      * toolbars.
      * <p>
-     * A callback gets an {@code info} object with {@code borderlessX}, {@code borderlessTop} and
-     * {@code borderlessBottom}. It returns the class names as a string.
-     * <p>
-     * The library default is no classes. A theme can set classes of its own, and the classes set here are added to
-     * them.
-     * <p>
-     * The getter returns null while the option is not set; then the library default applies.
+     * The getter returns null while the option is not set. Then the library default applies.
+     * <dl>
+     *   <dt>Forms</dt>     <dd>{@link ClassName}, or a {@link JsCallback}</dd>
+     *   <dt>Shortcuts</dt> <dd>{@link #setHeaderToolbarClass(String)}: class names separated by spaces, as
+     *                          {@link ClassName}</dd>
+     *   <dt>Default</dt>   <dd>library: no classes, a theme can set classes of its own<br>
+     *                          add-on: the stable class {@code fc-header-toolbar}. Classes set here are added to
+     *                          it.</dd>
+     *   <dt>Callback</dt>  <dd>{@code function(info)}. {@code info} has {@code borderlessX}, {@code borderlessTop} and
+     *                          {@code borderlessBottom}.</dd>
+     *   <dt>Returns</dt>   <dd>the class names as a string</dd>
+     * </dl>
+     * <pre>{@code
+     * calendar.options().setHeaderToolbarClass("my-toolbar");
+     * calendar.options().setHeaderToolbarClass(JsCallback.of("info => info.borderlessTop ? 'my-flat-toolbar' : ''"));
+     * }</pre>
      *
      * @see <a href="https://fullcalendar.io/docs/toolbar-render-hooks">headerToolbarClass</a>
      */
@@ -6610,13 +7910,22 @@ class ViewOptions implements Serializable {
      * CSS classes for the built-in footer toolbar only. {@link #getToolbarClass() toolbarClass} applies to both
      * toolbars.
      * <p>
-     * A callback gets an {@code info} object with {@code borderlessX}, {@code borderlessTop} and
-     * {@code borderlessBottom}. It returns the class names as a string.
-     * <p>
-     * The library default is no classes. A theme can set classes of its own, and the classes set here are added to
-     * them.
-     * <p>
-     * The getter returns null while the option is not set; then the library default applies.
+     * The getter returns null while the option is not set. Then the library default applies.
+     * <dl>
+     *   <dt>Forms</dt>     <dd>{@link ClassName}, or a {@link JsCallback}</dd>
+     *   <dt>Shortcuts</dt> <dd>{@link #setFooterToolbarClass(String)}: class names separated by spaces, as
+     *                          {@link ClassName}</dd>
+     *   <dt>Default</dt>   <dd>library: no classes, a theme can set classes of its own<br>
+     *                          add-on: the stable class {@code fc-footer-toolbar}. Classes set here are added to
+     *                          it.</dd>
+     *   <dt>Callback</dt>  <dd>{@code function(info)}. {@code info} has {@code borderlessX}, {@code borderlessTop} and
+     *                          {@code borderlessBottom}.</dd>
+     *   <dt>Returns</dt>   <dd>the class names as a string</dd>
+     * </dl>
+     * <pre>{@code
+     * calendar.options().setFooterToolbarClass("my-toolbar");
+     * calendar.options().setFooterToolbarClass(JsCallback.of("info => info.borderlessTop ? 'my-flat-toolbar' : ''"));
+     * }</pre>
      *
      * @see <a href="https://fullcalendar.io/docs/toolbar-render-hooks">footerToolbarClass</a>
      */
