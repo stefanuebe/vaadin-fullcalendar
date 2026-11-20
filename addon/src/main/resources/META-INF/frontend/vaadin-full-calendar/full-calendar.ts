@@ -711,6 +711,19 @@ export class FullCalendar extends HTMLElement {
     }
 
     /**
+     * PROTOTYPE #479: sets an option to a function that Flow has already materialized from a JsDefinition snippet
+     * (a JsFunction argument of callJsFunction). No string is compiled here, so this works under a strict CSP.
+     */
+    setOptionFunction(key: string, fn: Function) {
+        if (!this._calendar) {
+            setTimeout(() => this.setOptionFunction(key, fn), 50);
+            return;
+        }
+        ((window as any).__cspProto ??= []).push({key, type: typeof fn, length: fn?.length});
+        this._calendar.setOption(key as any, fn as any);
+    }
+
+    /**
      * Allows to set a bunch of options at a time.
      * @param options options to set
      */

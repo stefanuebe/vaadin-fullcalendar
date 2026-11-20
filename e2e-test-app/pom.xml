@@ -16,8 +16,8 @@
     <packaging>jar</packaging>
 
     <properties>
-        <vaadin.version>25.3.0</vaadin.version>
-        <spring-boot.version>4.0.4</spring-boot.version>
+        <vaadin.version>25.4.0-beta2</vaadin.version>
+        <spring-boot.version>4.2.0-RC2</spring-boot.version>
         <fullcalendar.version>8.0.1-SNAPSHOT</fullcalendar.version>
 
         <plugin.version.maven-compiler>3.14.1</plugin.version.maven-compiler>
