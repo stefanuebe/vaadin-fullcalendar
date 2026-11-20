@@ -126,19 +126,19 @@ class ViewOptions implements Serializable {
      * <p>
      * The getter returns null while the option is not set. Then the library default applies.
      * <dl>
-     *   <dt>Forms</dt>     <dd>{@link ClassName}: class names.
-     *                          <p>{@link JsCallback}: a function, see Callback.</dd>
-     *   <dt>Shortcuts</dt> <dd>{@link #setDayCellClass(String)}: class names separated by spaces, as
-     *                          {@link ClassName}.</dd>
-     *   <dt>Default</dt>   <dd>library: no classes.
-     *                          <p>add-on: stable classes such as {@code fc-daygrid-day} and {@code fc-day-today}, and
-     *                          {@code fc-popover-body} in the popover.<br>
-     *                          Classes set here are added to them.</dd>
-     *   <dt>Callback</dt>  <dd>{@code function(info)}.<br>
-     *                          {@code info} has {@code date}, {@code text}, {@code isPast}, {@code isFuture},
-     *                          {@code isToday}, {@code isOther} and more.<br>
-     *                          See the library docs.</dd>
-     *   <dt>Returns</dt>   <dd>the class names as a string.</dd>
+     *   <dt><b>Forms</b></dt>      <dd>{@link ClassName}: class names.
+     *                                  <p>{@link JsCallback}: a function, see JsCallback.</dd>
+     *   <dt><b>Shortcuts</b></dt>  <dd>{@link #setDayCellClass(String)}: class names separated by spaces, as
+     *                                  {@link ClassName}.</dd>
+     *   <dt><b>Default</b></dt>    <dd>library: no classes.
+     *                                  <p>add-on: stable classes such as {@code fc-daygrid-day} and
+     *                                  {@code fc-day-today}, and {@code fc-popover-body} in the popover.<br>
+     *                                  Classes set here are added to them.</dd>
+     *   <dt><b>JsCallback</b></dt> <dd>{@code function(info)}.<br>
+     *                                  {@code info} has {@code date}, {@code text}, {@code isPast}, {@code isFuture},
+     *                                  {@code isToday}, {@code isOther} and more.<br>
+     *                                  See the library docs.<br>
+     *                                  It returns the class names as a string.</dd>
      * </dl>
      * <pre>{@code
      * calendar.options().setDayCellClass("my-day");
@@ -152,6 +152,7 @@ class ViewOptions implements Serializable {
 
     /**
      * Sets fixed CSS classes for day cells, see {@link #getDayCellClass()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param classNames the class names, separated by spaces, or null to remove the option
      */
@@ -161,6 +162,7 @@ class ViewOptions implements Serializable {
 
     /**
      * Sets the CSS classes for day cells in any form, see {@link #getDayCellClass()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param value the classes or callback, or null to remove the option
      */
@@ -173,14 +175,15 @@ class ViewOptions implements Serializable {
      * <p>
      * The getter returns null while the option is not set. Then the library default applies.
      * <dl>
-     *   <dt>Forms</dt>     <dd>{@link TextContent}: shown as text.
-     *                          <p>{@link ContentValue#ofHtml(String)}: HTML, not escaped.
-     *                          <p>{@link JsCallback}: a function, see Callback.</dd>
-     *   <dt>Shortcuts</dt> <dd>{@link #setAllDayHeaderContent(String)}: a text, as {@link TextContent}.</dd>
-     *   <dt>Default</dt>   <dd>library: the text of the locale for the all-day section, "All-day" in English.</dd>
-     *   <dt>Callback</dt>  <dd>{@code function(info)}.<br>
-     *                          {@code info} has {@code text}, {@code isNarrow} and {@code view}.</dd>
-     *   <dt>Returns</dt>   <dd>a text, {@code {html: '...'}} or {@code {domNodes: [...]}}.</dd>
+     *   <dt><b>Forms</b></dt>      <dd>{@link TextContent}: shown as text.
+     *                                  <p>{@link ContentValue#ofHtml(String)}: HTML, not escaped.
+     *                                  <p>{@link JsCallback}: a function, see JsCallback.</dd>
+     *   <dt><b>Shortcuts</b></dt>  <dd>{@link #setAllDayHeaderContent(String)}: a text, as {@link TextContent}.</dd>
+     *   <dt><b>Default</b></dt>    <dd>library: the text of the locale for the all-day section, "All-day" in
+     *                                  English.</dd>
+     *   <dt><b>JsCallback</b></dt> <dd>{@code function(info)}.<br>
+     *                                  {@code info} has {@code text}, {@code isNarrow} and {@code view}.<br>
+     *                                  It returns a text, {@code {html: '...'}} or {@code {domNodes: [...]}}.</dd>
      * </dl>
      * <pre>{@code
      * calendar.options().setAllDayHeaderContent("Whole day");
@@ -195,6 +198,7 @@ class ViewOptions implements Serializable {
 
     /**
      * Sets a text as the content of the all-day header cell, see {@link #getAllDayHeaderContent()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param text the text, shown as text, or null to remove the option
      */
@@ -204,6 +208,7 @@ class ViewOptions implements Serializable {
 
     /**
      * Sets the content of the all-day header cell in any form, see {@link #getAllDayHeaderContent()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param value the content or callback, or null to remove the option
      */
@@ -217,16 +222,16 @@ class ViewOptions implements Serializable {
      * <p>
      * The getter returns null while the option is not set. Then the library default applies.
      * <dl>
-     *   <dt>Forms</dt>     <dd>{@link HeaderAlign#START}, {@link HeaderAlign#CENTER} or {@link HeaderAlign#END}: a
-     *                          fixed alignment.
-     *                          <p>{@link JsCallback}: a function, see Callback.</dd>
-     *   <dt>Default</dt>   <dd>library: {@link HeaderAlign#START}.<br>
-     *                          A theme can change it.
-     *                          <p>add-on: the theme of the add-on builds on the classic theme of the library, which
-     *                          centers the text outside the popover.</dd>
-     *   <dt>Callback</dt>  <dd>{@code function(info)}.<br>
-     *                          {@code info} has {@code level}, {@code inPopover} and {@code isNarrow}.</dd>
-     *   <dt>Returns</dt>   <dd>{@code "start"}, {@code "center"} or {@code "end"}.</dd>
+     *   <dt><b>Forms</b></dt>      <dd>{@link HeaderAlign#START}, {@link HeaderAlign#CENTER} or
+     *                                  {@link HeaderAlign#END}: a fixed alignment.
+     *                                  <p>{@link JsCallback}: a function, see JsCallback.</dd>
+     *   <dt><b>Default</b></dt>    <dd>library: {@link HeaderAlign#START}.<br>
+     *                                  A theme can change it.
+     *                                  <p>add-on: the theme of the add-on builds on the classic theme of the library,
+     *                                  which centers the text outside the popover.</dd>
+     *   <dt><b>JsCallback</b></dt> <dd>{@code function(info)}.<br>
+     *                                  {@code info} has {@code level}, {@code inPopover} and {@code isNarrow}.<br>
+     *                                  It returns {@code "start"}, {@code "center"} or {@code "end"}.</dd>
      * </dl>
      * <pre>{@code
      * calendar.options().setDayHeaderAlign(HeaderAlign.END);
@@ -259,16 +264,16 @@ class ViewOptions implements Serializable {
      * <p>
      * The getter returns null while the option is not set. Then the library default applies.
      * <dl>
-     *   <dt>Forms</dt>     <dd>{@link ClassName}: class names.
-     *                          <p>{@link JsCallback}: a function, see Callback.</dd>
-     *   <dt>Shortcuts</dt> <dd>{@link #setAllDayHeaderClass(String)}: class names separated by spaces, as
-     *                          {@link ClassName}.</dd>
-     *   <dt>Default</dt>   <dd>library: no classes.
-     *                          <p>add-on: the stable class {@code fc-timegrid-axis}.<br>
-     *                          Classes set here are added to it.</dd>
-     *   <dt>Callback</dt>  <dd>{@code function(info)}.<br>
-     *                          {@code info} has {@code text}, {@code isNarrow} and {@code view}.</dd>
-     *   <dt>Returns</dt>   <dd>the class names as a string.</dd>
+     *   <dt><b>Forms</b></dt>      <dd>{@link ClassName}: class names.
+     *                                  <p>{@link JsCallback}: a function, see JsCallback.</dd>
+     *   <dt><b>Shortcuts</b></dt>  <dd>{@link #setAllDayHeaderClass(String)}: class names separated by spaces, as
+     *                                  {@link ClassName}.</dd>
+     *   <dt><b>Default</b></dt>    <dd>library: no classes.
+     *                                  <p>add-on: the stable class {@code fc-timegrid-axis}.<br>
+     *                                  Classes set here are added to it.</dd>
+     *   <dt><b>JsCallback</b></dt> <dd>{@code function(info)}.<br>
+     *                                  {@code info} has {@code text}, {@code isNarrow} and {@code view}.<br>
+     *                                  It returns the class names as a string.</dd>
      * </dl>
      * <pre>{@code
      * calendar.options().setAllDayHeaderClass("my-all-day");
@@ -282,6 +287,7 @@ class ViewOptions implements Serializable {
 
     /**
      * Sets fixed CSS classes for the all-day header cell, see {@link #getAllDayHeaderClass()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param classNames the class names, separated by spaces, or null to remove the option
      */
@@ -291,6 +297,7 @@ class ViewOptions implements Serializable {
 
     /**
      * Sets the CSS classes for the all-day header cell in any form, see {@link #getAllDayHeaderClass()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param value the classes or callback, or null to remove the option
      */
@@ -322,14 +329,14 @@ class ViewOptions implements Serializable {
      * <p>
      * The getter returns null while the option is not set. Then the library default applies.
      * <dl>
-     *   <dt>Forms</dt>     <dd>{@link ClassName}: class names.
-     *                          <p>{@link JsCallback}: a function, see Callback.</dd>
-     *   <dt>Shortcuts</dt> <dd>{@link #setAllDayHeaderInnerClass(String)}: class names separated by spaces, as
-     *                          {@link ClassName}.</dd>
-     *   <dt>Default</dt>   <dd>library: no classes.</dd>
-     *   <dt>Callback</dt>  <dd>{@code function(info)}.<br>
-     *                          {@code info} has {@code text}, {@code isNarrow} and {@code view}.</dd>
-     *   <dt>Returns</dt>   <dd>the class names as a string.</dd>
+     *   <dt><b>Forms</b></dt>      <dd>{@link ClassName}: class names.
+     *                                  <p>{@link JsCallback}: a function, see JsCallback.</dd>
+     *   <dt><b>Shortcuts</b></dt>  <dd>{@link #setAllDayHeaderInnerClass(String)}: class names separated by spaces, as
+     *                                  {@link ClassName}.</dd>
+     *   <dt><b>Default</b></dt>    <dd>library: no classes.</dd>
+     *   <dt><b>JsCallback</b></dt> <dd>{@code function(info)}.<br>
+     *                                  {@code info} has {@code text}, {@code isNarrow} and {@code view}.<br>
+     *                                  It returns the class names as a string.</dd>
      * </dl>
      * <pre>{@code
      * calendar.options().setAllDayHeaderInnerClass("my-all-day-inner");
@@ -344,6 +351,7 @@ class ViewOptions implements Serializable {
     /**
      * Sets fixed CSS classes for the inner wrapper of the all-day header cell, see
      * {@link #getAllDayHeaderInnerClass()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param classNames the class names, separated by spaces, or null to remove the option
      */
@@ -354,6 +362,7 @@ class ViewOptions implements Serializable {
     /**
      * Sets the CSS classes for the inner wrapper of the all-day header cell in any form, see
      * {@link #getAllDayHeaderInnerClass()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param value the classes or callback, or null to remove the option
      */
@@ -385,15 +394,15 @@ class ViewOptions implements Serializable {
      * <p>
      * The getter returns null while the option is not set. Then the library default applies.
      * <dl>
-     *   <dt>Forms</dt>     <dd>{@link ClassName}: class names.
-     *                          <p>{@link JsCallback}: a function, see Callback.</dd>
-     *   <dt>Shortcuts</dt> <dd>{@link #setDayCellBottomClass(String)}: class names separated by spaces, as
-     *                          {@link ClassName}.</dd>
-     *   <dt>Default</dt>   <dd>library: no classes.</dd>
-     *   <dt>Callback</dt>  <dd>{@code function(info)}.<br>
-     *                          {@code info} has {@code date}, {@code text}, {@code isToday} and more.<br>
-     *                          See the library docs.</dd>
-     *   <dt>Returns</dt>   <dd>the class names as a string.</dd>
+     *   <dt><b>Forms</b></dt>      <dd>{@link ClassName}: class names.
+     *                                  <p>{@link JsCallback}: a function, see JsCallback.</dd>
+     *   <dt><b>Shortcuts</b></dt>  <dd>{@link #setDayCellBottomClass(String)}: class names separated by spaces, as
+     *                                  {@link ClassName}.</dd>
+     *   <dt><b>Default</b></dt>    <dd>library: no classes.</dd>
+     *   <dt><b>JsCallback</b></dt> <dd>{@code function(info)}.<br>
+     *                                  {@code info} has {@code date}, {@code text}, {@code isToday} and more.<br>
+     *                                  See the library docs.<br>
+     *                                  It returns the class names as a string.</dd>
      * </dl>
      * <pre>{@code
      * calendar.options().setDayCellBottomClass("my-day-bottom");
@@ -407,6 +416,7 @@ class ViewOptions implements Serializable {
 
     /**
      * Sets fixed CSS classes for the bottom area of day cells, see {@link #getDayCellBottomClass()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param classNames the class names, separated by spaces, or null to remove the option
      */
@@ -416,6 +426,7 @@ class ViewOptions implements Serializable {
 
     /**
      * Sets the CSS classes for the bottom area of day cells in any form, see {@link #getDayCellBottomClass()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param value the classes or callback, or null to remove the option
      */
@@ -446,17 +457,17 @@ class ViewOptions implements Serializable {
      * <p>
      * The getter returns null while the option is not set. Then the library default applies.
      * <dl>
-     *   <dt>Forms</dt>     <dd>{@link ClassName}: class names.
-     *                          <p>{@link JsCallback}: a function, see Callback.</dd>
-     *   <dt>Shortcuts</dt> <dd>{@link #setDayCellInnerClass(String)}: class names separated by spaces, as
-     *                          {@link ClassName}.</dd>
-     *   <dt>Default</dt>   <dd>library: no classes.
-     *                          <p>add-on: the stable class {@code fc-daygrid-day-events}.<br>
-     *                          Classes set here are added to it.</dd>
-     *   <dt>Callback</dt>  <dd>{@code function(info)}.<br>
-     *                          {@code info} has {@code date}, {@code text}, {@code isToday} and more.<br>
-     *                          See the library docs.</dd>
-     *   <dt>Returns</dt>   <dd>the class names as a string.</dd>
+     *   <dt><b>Forms</b></dt>      <dd>{@link ClassName}: class names.
+     *                                  <p>{@link JsCallback}: a function, see JsCallback.</dd>
+     *   <dt><b>Shortcuts</b></dt>  <dd>{@link #setDayCellInnerClass(String)}: class names separated by spaces, as
+     *                                  {@link ClassName}.</dd>
+     *   <dt><b>Default</b></dt>    <dd>library: no classes.
+     *                                  <p>add-on: the stable class {@code fc-daygrid-day-events}.<br>
+     *                                  Classes set here are added to it.</dd>
+     *   <dt><b>JsCallback</b></dt> <dd>{@code function(info)}.<br>
+     *                                  {@code info} has {@code date}, {@code text}, {@code isToday} and more.<br>
+     *                                  See the library docs.<br>
+     *                                  It returns the class names as a string.</dd>
      * </dl>
      * <pre>{@code
      * calendar.options().setDayCellInnerClass("my-day-inner");
@@ -470,6 +481,7 @@ class ViewOptions implements Serializable {
 
     /**
      * Sets fixed CSS classes for the middle area of day cells, see {@link #getDayCellInnerClass()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param classNames the class names, separated by spaces, or null to remove the option
      */
@@ -479,6 +491,7 @@ class ViewOptions implements Serializable {
 
     /**
      * Sets the CSS classes for the middle area of day cells in any form, see {@link #getDayCellInnerClass()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param value the classes or callback, or null to remove the option
      */
@@ -494,17 +507,17 @@ class ViewOptions implements Serializable {
      * <p>
      * The getter returns null while the option is not set. Then the library default applies.
      * <dl>
-     *   <dt>Forms</dt>     <dd>{@link ClassName}: class names.
-     *                          <p>{@link JsCallback}: a function, see Callback.</dd>
-     *   <dt>Shortcuts</dt> <dd>{@link #setDayCellTopClass(String)}: class names separated by spaces, as
-     *                          {@link ClassName}.</dd>
-     *   <dt>Default</dt>   <dd>library: no classes.
-     *                          <p>add-on: the stable class {@code fc-daygrid-day-top}.<br>
-     *                          Classes set here are added to it.</dd>
-     *   <dt>Callback</dt>  <dd>{@code function(info)}.<br>
-     *                          {@code info} has {@code date}, {@code text}, {@code isToday} and more.<br>
-     *                          See the library docs.</dd>
-     *   <dt>Returns</dt>   <dd>the class names as a string.</dd>
+     *   <dt><b>Forms</b></dt>      <dd>{@link ClassName}: class names.
+     *                                  <p>{@link JsCallback}: a function, see JsCallback.</dd>
+     *   <dt><b>Shortcuts</b></dt>  <dd>{@link #setDayCellTopClass(String)}: class names separated by spaces, as
+     *                                  {@link ClassName}.</dd>
+     *   <dt><b>Default</b></dt>    <dd>library: no classes.
+     *                                  <p>add-on: the stable class {@code fc-daygrid-day-top}.<br>
+     *                                  Classes set here are added to it.</dd>
+     *   <dt><b>JsCallback</b></dt> <dd>{@code function(info)}.<br>
+     *                                  {@code info} has {@code date}, {@code text}, {@code isToday} and more.<br>
+     *                                  See the library docs.<br>
+     *                                  It returns the class names as a string.</dd>
      * </dl>
      * <pre>{@code
      * calendar.options().setDayCellTopClass("my-day-top");
@@ -518,6 +531,7 @@ class ViewOptions implements Serializable {
 
     /**
      * Sets fixed CSS classes for the top area of day cells, see {@link #getDayCellTopClass()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param classNames the class names, separated by spaces, or null to remove the option
      */
@@ -527,6 +541,7 @@ class ViewOptions implements Serializable {
 
     /**
      * Sets the CSS classes for the top area of day cells in any form, see {@link #getDayCellTopClass()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param value the classes or callback, or null to remove the option
      */
@@ -545,15 +560,15 @@ class ViewOptions implements Serializable {
      * <p>
      * The getter returns null while the option is not set. Then the library default applies.
      * <dl>
-     *   <dt>Forms</dt>     <dd>{@link TextContent}: shown as text.
-     *                          <p>{@link ContentValue#ofHtml(String)}: HTML, not escaped.
-     *                          <p>{@link JsCallback}: a function, see Callback.</dd>
-     *   <dt>Shortcuts</dt> <dd>{@link #setDayCellTopContent(String)}: a text, as {@link TextContent}.</dd>
-     *   <dt>Default</dt>   <dd>library: the day number text.</dd>
-     *   <dt>Callback</dt>  <dd>{@code function(info)}.<br>
-     *                          {@code info} has {@code date}, {@code text}, {@code isToday} and more.<br>
-     *                          See the library docs.</dd>
-     *   <dt>Returns</dt>   <dd>a text, {@code {html: '...'}} or {@code {domNodes: [...]}}.</dd>
+     *   <dt><b>Forms</b></dt>      <dd>{@link TextContent}: shown as text.
+     *                                  <p>{@link ContentValue#ofHtml(String)}: HTML, not escaped.
+     *                                  <p>{@link JsCallback}: a function, see JsCallback.</dd>
+     *   <dt><b>Shortcuts</b></dt>  <dd>{@link #setDayCellTopContent(String)}: a text, as {@link TextContent}.</dd>
+     *   <dt><b>Default</b></dt>    <dd>library: the day number text.</dd>
+     *   <dt><b>JsCallback</b></dt> <dd>{@code function(info)}.<br>
+     *                                  {@code info} has {@code date}, {@code text}, {@code isToday} and more.<br>
+     *                                  See the library docs.<br>
+     *                                  It returns a text, {@code {html: '...'}} or {@code {domNodes: [...]}}.</dd>
      * </dl>
      * <pre>{@code
      * calendar.options().setDayCellTopContent("Day");
@@ -568,6 +583,7 @@ class ViewOptions implements Serializable {
 
     /**
      * Sets a text as the content of the top area of a day cell, see {@link #getDayCellTopContent()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param text the text, shown as text, or null to remove the option
      */
@@ -577,6 +593,7 @@ class ViewOptions implements Serializable {
 
     /**
      * Sets the content of the top area of a day cell in any form, see {@link #getDayCellTopContent()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param value the content or callback, or null to remove the option
      */
@@ -595,17 +612,17 @@ class ViewOptions implements Serializable {
      * <p>
      * The getter returns null while the option is not set. Then the library default applies.
      * <dl>
-     *   <dt>Forms</dt>     <dd>{@link ClassName}: class names.
-     *                          <p>{@link JsCallback}: a function, see Callback.</dd>
-     *   <dt>Shortcuts</dt> <dd>{@link #setDayCellTopInnerClass(String)}: class names separated by spaces, as
-     *                          {@link ClassName}.</dd>
-     *   <dt>Default</dt>   <dd>library: no classes.
-     *                          <p>add-on: the stable class {@code fc-daygrid-day-number}.<br>
-     *                          Classes set here are added to it.</dd>
-     *   <dt>Callback</dt>  <dd>{@code function(info)}.<br>
-     *                          {@code info} has {@code date}, {@code text}, {@code isToday} and more, see the library
-     *                          docs.</dd>
-     *   <dt>Returns</dt>   <dd>the class names as a string.</dd>
+     *   <dt><b>Forms</b></dt>      <dd>{@link ClassName}: class names.
+     *                                  <p>{@link JsCallback}: a function, see JsCallback.</dd>
+     *   <dt><b>Shortcuts</b></dt>  <dd>{@link #setDayCellTopInnerClass(String)}: class names separated by spaces, as
+     *                                  {@link ClassName}.</dd>
+     *   <dt><b>Default</b></dt>    <dd>library: no classes.
+     *                                  <p>add-on: the stable class {@code fc-daygrid-day-number}.<br>
+     *                                  Classes set here are added to it.</dd>
+     *   <dt><b>JsCallback</b></dt> <dd>{@code function(info)}.<br>
+     *                                  {@code info} has {@code date}, {@code text}, {@code isToday} and more, see the
+     *                                  library docs.<br>
+     *                                  It returns the class names as a string.</dd>
      * </dl>
      * <pre>{@code
      * calendar.options().setDayCellTopInnerClass("my-class");
@@ -620,6 +637,7 @@ class ViewOptions implements Serializable {
     /**
      * Sets fixed CSS classes for the inner wrapper of the top area of day cells, see
      * {@link #getDayCellTopInnerClass()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param classNames the class names, separated by spaces, or null to remove the option
      */
@@ -630,6 +648,7 @@ class ViewOptions implements Serializable {
     /**
      * Sets the CSS classes for the inner wrapper of the top area of day cells in any form, see
      * {@link #getDayCellTopInnerClass()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param value the classes or callback, or null to remove the option
      */
@@ -660,18 +679,18 @@ class ViewOptions implements Serializable {
      * <p>
      * The getter returns null while the option is not set. Then the library default applies.
      * <dl>
-     *   <dt>Forms</dt>     <dd>{@link ClassName}: class names.
-     *                          <p>{@link JsCallback}: a function, see Callback.</dd>
-     *   <dt>Shortcuts</dt> <dd>{@link #setDayHeaderClass(String)}: class names separated by spaces, as
-     *                          {@link ClassName}.</dd>
-     *   <dt>Default</dt>   <dd>library: no classes.
-     *                          <p>add-on: stable classes such as {@code fc-col-header-cell} and
-     *                          {@code fc-day-today}.<br>
-     *                          Classes set here are added to them.</dd>
-     *   <dt>Callback</dt>  <dd>{@code function(info)}.<br>
-     *                          {@code info} has {@code date}, {@code text}, {@code isToday} and more, see the library
-     *                          docs.</dd>
-     *   <dt>Returns</dt>   <dd>the class names as a string.</dd>
+     *   <dt><b>Forms</b></dt>      <dd>{@link ClassName}: class names.
+     *                                  <p>{@link JsCallback}: a function, see JsCallback.</dd>
+     *   <dt><b>Shortcuts</b></dt>  <dd>{@link #setDayHeaderClass(String)}: class names separated by spaces, as
+     *                                  {@link ClassName}.</dd>
+     *   <dt><b>Default</b></dt>    <dd>library: no classes.
+     *                                  <p>add-on: stable classes such as {@code fc-col-header-cell} and
+     *                                  {@code fc-day-today}.<br>
+     *                                  Classes set here are added to them.</dd>
+     *   <dt><b>JsCallback</b></dt> <dd>{@code function(info)}.<br>
+     *                                  {@code info} has {@code date}, {@code text}, {@code isToday} and more, see the
+     *                                  library docs.<br>
+     *                                  It returns the class names as a string.</dd>
      * </dl>
      * <pre>{@code
      * calendar.options().setDayHeaderClass("my-class");
@@ -685,6 +704,7 @@ class ViewOptions implements Serializable {
 
     /**
      * Sets fixed CSS classes for day header cells, see {@link #getDayHeaderClass()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param classNames the class names, separated by spaces, or null to remove the option
      */
@@ -694,6 +714,7 @@ class ViewOptions implements Serializable {
 
     /**
      * Sets the CSS classes for day header cells in any form, see {@link #getDayHeaderClass()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param value the classes or callback, or null to remove the option
      */
@@ -709,17 +730,17 @@ class ViewOptions implements Serializable {
      * <p>
      * The getter returns null while the option is not set. Then the library default applies.
      * <dl>
-     *   <dt>Forms</dt>     <dd>{@link TextContent}: shown as text.
-     *                          <p>{@link ContentValue#ofHtml(String)}: HTML, not escaped.
-     *                          <p>{@link JsCallback}: a function, see Callback.</dd>
-     *   <dt>Shortcuts</dt> <dd>{@link #setDayHeaderContent(String)}: a text, as {@link TextContent}.</dd>
-     *   <dt>Default</dt>   <dd>library: the formatted date text.<br>
-     *                          Some stock themes set content of their own.
-     *                          <p>add-on: the Vaadin theme sets no content.</dd>
-     *   <dt>Callback</dt>  <dd>{@code function(info)}.<br>
-     *                          {@code info} has {@code date}, {@code text}, {@code isToday} and more, see the library
-     *                          docs.</dd>
-     *   <dt>Returns</dt>   <dd>a text, {@code {html: '...'}} or {@code {domNodes: [...]}}.</dd>
+     *   <dt><b>Forms</b></dt>      <dd>{@link TextContent}: shown as text.
+     *                                  <p>{@link ContentValue#ofHtml(String)}: HTML, not escaped.
+     *                                  <p>{@link JsCallback}: a function, see JsCallback.</dd>
+     *   <dt><b>Shortcuts</b></dt>  <dd>{@link #setDayHeaderContent(String)}: a text, as {@link TextContent}.</dd>
+     *   <dt><b>Default</b></dt>    <dd>library: the formatted date text.<br>
+     *                                  Some stock themes set content of their own.
+     *                                  <p>add-on: the Vaadin theme sets no content.</dd>
+     *   <dt><b>JsCallback</b></dt> <dd>{@code function(info)}.<br>
+     *                                  {@code info} has {@code date}, {@code text}, {@code isToday} and more, see the
+     *                                  library docs.<br>
+     *                                  It returns a text, {@code {html: '...'}} or {@code {domNodes: [...]}}.</dd>
      * </dl>
      * <pre>{@code
      * calendar.options().setDayHeaderContent("Text");
@@ -734,6 +755,7 @@ class ViewOptions implements Serializable {
 
     /**
      * Sets a text as the content of the day header cell, see {@link #getDayHeaderContent()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param text the text, shown as text, or null to remove the option
      */
@@ -743,6 +765,7 @@ class ViewOptions implements Serializable {
 
     /**
      * Sets the content of the day header cell in any form, see {@link #getDayHeaderContent()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param value the content or callback, or null to remove the option
      */
@@ -772,17 +795,17 @@ class ViewOptions implements Serializable {
      * <p>
      * The getter returns null while the option is not set. Then the library default applies.
      * <dl>
-     *   <dt>Forms</dt>     <dd>{@link ClassName}: class names.
-     *                          <p>{@link JsCallback}: a function, see Callback.</dd>
-     *   <dt>Shortcuts</dt> <dd>{@link #setDayHeaderDividerClass(String)}: class names separated by spaces, as
-     *                          {@link ClassName}.</dd>
-     *   <dt>Default</dt>   <dd>library: no classes.</dd>
-     *   <dt>Callback</dt>  <dd>{@code function(info)}.<br>
-     *                          {@code info} has {@code isSticky}, {@code multiMonthColumns} and {@code options}, see
-     *                          the library docs.<br>
-     *                          The library docs say that {@code options} is the calendar options object.<br>
-     *                          The used library version passes only {@code allDaySlot} in it.</dd>
-     *   <dt>Returns</dt>   <dd>the class names as a string.</dd>
+     *   <dt><b>Forms</b></dt>      <dd>{@link ClassName}: class names.
+     *                                  <p>{@link JsCallback}: a function, see JsCallback.</dd>
+     *   <dt><b>Shortcuts</b></dt>  <dd>{@link #setDayHeaderDividerClass(String)}: class names separated by spaces, as
+     *                                  {@link ClassName}.</dd>
+     *   <dt><b>Default</b></dt>    <dd>library: no classes.</dd>
+     *   <dt><b>JsCallback</b></dt> <dd>{@code function(info)}.<br>
+     *                                  {@code info} has {@code isSticky}, {@code multiMonthColumns} and
+     *                                  {@code options}, see the library docs.<br>
+     *                                  The library docs say that {@code options} is the calendar options object.<br>
+     *                                  The used library version passes only {@code allDaySlot} in it.<br>
+     *                                  It returns the class names as a string.</dd>
      * </dl>
      * <pre>{@code
      * calendar.options().setDayHeaderDividerClass("my-class");
@@ -796,6 +819,7 @@ class ViewOptions implements Serializable {
 
     /**
      * Sets fixed CSS classes for the day header divider, see {@link #getDayHeaderDividerClass()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param classNames the class names, separated by spaces, or null to remove the option
      */
@@ -805,6 +829,7 @@ class ViewOptions implements Serializable {
 
     /**
      * Sets the CSS classes for the day header divider in any form, see {@link #getDayHeaderDividerClass()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param value the classes or callback, or null to remove the option
      */
@@ -820,18 +845,18 @@ class ViewOptions implements Serializable {
      * <p>
      * The getter returns null while the option is not set. Then the library default applies.
      * <dl>
-     *   <dt>Forms</dt>     <dd>{@link ClassName}: class names.
-     *                          <p>{@link JsCallback}: a function, see Callback.</dd>
-     *   <dt>Shortcuts</dt> <dd>{@link #setDayHeaderInnerClass(String)}: class names separated by spaces, as
-     *                          {@link ClassName}.</dd>
-     *   <dt>Default</dt>   <dd>library: no classes.
-     *                          <p>add-on: the stable class {@code fc-col-header-cell-cushion}, in the header of the
-     *                          entry popover {@code fc-popover-title}.<br>
-     *                          Classes set here are added to it.</dd>
-     *   <dt>Callback</dt>  <dd>{@code function(info)}.<br>
-     *                          {@code info} has {@code date}, {@code text}, {@code isToday} and more, see the library
-     *                          docs.</dd>
-     *   <dt>Returns</dt>   <dd>the class names as a string.</dd>
+     *   <dt><b>Forms</b></dt>      <dd>{@link ClassName}: class names.
+     *                                  <p>{@link JsCallback}: a function, see JsCallback.</dd>
+     *   <dt><b>Shortcuts</b></dt>  <dd>{@link #setDayHeaderInnerClass(String)}: class names separated by spaces, as
+     *                                  {@link ClassName}.</dd>
+     *   <dt><b>Default</b></dt>    <dd>library: no classes.
+     *                                  <p>add-on: the stable class {@code fc-col-header-cell-cushion}, in the header of
+     *                                  the entry popover {@code fc-popover-title}.<br>
+     *                                  Classes set here are added to it.</dd>
+     *   <dt><b>JsCallback</b></dt> <dd>{@code function(info)}.<br>
+     *                                  {@code info} has {@code date}, {@code text}, {@code isToday} and more, see the
+     *                                  library docs.<br>
+     *                                  It returns the class names as a string.</dd>
      * </dl>
      * <pre>{@code
      * calendar.options().setDayHeaderInnerClass("my-class");
@@ -845,6 +870,7 @@ class ViewOptions implements Serializable {
 
     /**
      * Sets fixed CSS classes for the inner wrapper of day header cells, see {@link #getDayHeaderInnerClass()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param classNames the class names, separated by spaces, or null to remove the option
      */
@@ -855,6 +881,7 @@ class ViewOptions implements Serializable {
     /**
      * Sets the CSS classes for the inner wrapper of day header cells in any form, see
      * {@link #getDayHeaderInnerClass()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param value the classes or callback, or null to remove the option
      */
@@ -898,17 +925,18 @@ class ViewOptions implements Serializable {
      * <p>
      * The getter returns null while the option is not set. Then the library default applies.
      * <dl>
-     *   <dt>Forms</dt>     <dd>{@link ClassName}: class names.
-     *                          <p>{@link JsCallback}: a function, see Callback.</dd>
-     *   <dt>Shortcuts</dt> <dd>{@link #setDayLaneClass(String)}: class names separated by spaces, as
-     *                          {@link ClassName}.</dd>
-     *   <dt>Default</dt>   <dd>library: no classes.
-     *                          <p>add-on: stable classes such as {@code fc-timegrid-col} and {@code fc-day-today}.<br>
-     *                          Classes set here are added to them.</dd>
-     *   <dt>Callback</dt>  <dd>{@code function(info)}.<br>
-     *                          {@code info} has {@code date}, {@code isToday}, {@code isNarrow} and more, see the
-     *                          library docs.</dd>
-     *   <dt>Returns</dt>   <dd>the class names as a string.</dd>
+     *   <dt><b>Forms</b></dt>      <dd>{@link ClassName}: class names.
+     *                                  <p>{@link JsCallback}: a function, see JsCallback.</dd>
+     *   <dt><b>Shortcuts</b></dt>  <dd>{@link #setDayLaneClass(String)}: class names separated by spaces, as
+     *                                  {@link ClassName}.</dd>
+     *   <dt><b>Default</b></dt>    <dd>library: no classes.
+     *                                  <p>add-on: stable classes such as {@code fc-timegrid-col} and
+     *                                  {@code fc-day-today}.<br>
+     *                                  Classes set here are added to them.</dd>
+     *   <dt><b>JsCallback</b></dt> <dd>{@code function(info)}.<br>
+     *                                  {@code info} has {@code date}, {@code isToday}, {@code isNarrow} and more, see
+     *                                  the library docs.<br>
+     *                                  It returns the class names as a string.</dd>
      * </dl>
      * <pre>{@code
      * calendar.options().setDayLaneClass("my-class");
@@ -922,6 +950,7 @@ class ViewOptions implements Serializable {
 
     /**
      * Sets fixed CSS classes for day lanes, see {@link #getDayLaneClass()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param classNames the class names, separated by spaces, or null to remove the option
      */
@@ -931,6 +960,7 @@ class ViewOptions implements Serializable {
 
     /**
      * Sets the CSS classes for day lanes in any form, see {@link #getDayLaneClass()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param value the classes or callback, or null to remove the option
      */
@@ -960,15 +990,15 @@ class ViewOptions implements Serializable {
      * <p>
      * The getter returns null while the option is not set. Then the library default applies.
      * <dl>
-     *   <dt>Forms</dt>     <dd>{@link ClassName}: class names.
-     *                          <p>{@link JsCallback}: a function, see Callback.</dd>
-     *   <dt>Shortcuts</dt> <dd>{@link #setDayLaneInnerClass(String)}: class names separated by spaces, as
-     *                          {@link ClassName}.</dd>
-     *   <dt>Default</dt>   <dd>library: no classes.</dd>
-     *   <dt>Callback</dt>  <dd>{@code function(info)}.<br>
-     *                          {@code info} has {@code date}, {@code isToday}, {@code isNarrow} and more, see the
-     *                          library docs.</dd>
-     *   <dt>Returns</dt>   <dd>the class names as a string.</dd>
+     *   <dt><b>Forms</b></dt>      <dd>{@link ClassName}: class names.
+     *                                  <p>{@link JsCallback}: a function, see JsCallback.</dd>
+     *   <dt><b>Shortcuts</b></dt>  <dd>{@link #setDayLaneInnerClass(String)}: class names separated by spaces, as
+     *                                  {@link ClassName}.</dd>
+     *   <dt><b>Default</b></dt>    <dd>library: no classes.</dd>
+     *   <dt><b>JsCallback</b></dt> <dd>{@code function(info)}.<br>
+     *                                  {@code info} has {@code date}, {@code isToday}, {@code isNarrow} and more, see
+     *                                  the library docs.<br>
+     *                                  It returns the class names as a string.</dd>
      * </dl>
      * <pre>{@code
      * calendar.options().setDayLaneInnerClass("my-class");
@@ -982,6 +1012,7 @@ class ViewOptions implements Serializable {
 
     /**
      * Sets fixed CSS classes for the inner wrapper of day lanes, see {@link #getDayLaneInnerClass()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param classNames the class names, separated by spaces, or null to remove the option
      */
@@ -991,6 +1022,7 @@ class ViewOptions implements Serializable {
 
     /**
      * Sets the CSS classes for the inner wrapper of day lanes in any form, see {@link #getDayLaneInnerClass()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param value the classes or callback, or null to remove the option
      */
@@ -1036,14 +1068,14 @@ class ViewOptions implements Serializable {
      * <p>
      * The getter returns null while the option is not set. Then the library default applies.
      * <dl>
-     *   <dt>Forms</dt>     <dd>{@link ClassName}: class names.
-     *                          <p>{@link JsCallback}: a function, see Callback.</dd>
-     *   <dt>Shortcuts</dt> <dd>{@link #setFillerClass(String)}: class names separated by spaces, as
-     *                          {@link ClassName}.</dd>
-     *   <dt>Default</dt>   <dd>library: no classes.</dd>
-     *   <dt>Callback</dt>  <dd>{@code function(info)}.<br>
-     *                          {@code info} has {@code inTableHeader}, see the library docs.</dd>
-     *   <dt>Returns</dt>   <dd>the class names as a string.</dd>
+     *   <dt><b>Forms</b></dt>      <dd>{@link ClassName}: class names.
+     *                                  <p>{@link JsCallback}: a function, see JsCallback.</dd>
+     *   <dt><b>Shortcuts</b></dt>  <dd>{@link #setFillerClass(String)}: class names separated by spaces, as
+     *                                  {@link ClassName}.</dd>
+     *   <dt><b>Default</b></dt>    <dd>library: no classes.</dd>
+     *   <dt><b>JsCallback</b></dt> <dd>{@code function(info)}.<br>
+     *                                  {@code info} has {@code inTableHeader}, see the library docs.<br>
+     *                                  It returns the class names as a string.</dd>
      * </dl>
      * <pre>{@code
      * calendar.options().setFillerClass("my-class");
@@ -1057,6 +1089,7 @@ class ViewOptions implements Serializable {
 
     /**
      * Sets fixed CSS classes for filler elements, see {@link #getFillerClass()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param classNames the class names, separated by spaces, or null to remove the option
      */
@@ -1066,6 +1099,7 @@ class ViewOptions implements Serializable {
 
     /**
      * Sets the CSS classes for filler elements in any form, see {@link #getFillerClass()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param value the classes or callback, or null to remove the option
      */
@@ -1110,17 +1144,17 @@ class ViewOptions implements Serializable {
      * <p>
      * The getter returns null while the option is not set. Then the library default applies.
      * <dl>
-     *   <dt>Forms</dt>     <dd>{@link ClassName}: class names.
-     *                          <p>{@link JsCallback}: a function, see Callback.</dd>
-     *   <dt>Shortcuts</dt> <dd>{@link #setInlineWeekNumberClass(String)}: class names separated by spaces, as
-     *                          {@link ClassName}.</dd>
-     *   <dt>Default</dt>   <dd>library: no classes.
-     *                          <p>add-on: the stable class {@code fc-daygrid-week-number}.<br>
-     *                          Classes set here are added to it.</dd>
-     *   <dt>Callback</dt>  <dd>{@code function(info)}.<br>
-     *                          {@code info} has {@code num}, {@code text}, {@code textParts}, {@code date},
-     *                          {@code isNarrow} and {@code hasNavLink}.</dd>
-     *   <dt>Returns</dt>   <dd>the class names as a string.</dd>
+     *   <dt><b>Forms</b></dt>      <dd>{@link ClassName}: class names.
+     *                                  <p>{@link JsCallback}: a function, see JsCallback.</dd>
+     *   <dt><b>Shortcuts</b></dt>  <dd>{@link #setInlineWeekNumberClass(String)}: class names separated by spaces, as
+     *                                  {@link ClassName}.</dd>
+     *   <dt><b>Default</b></dt>    <dd>library: no classes.
+     *                                  <p>add-on: the stable class {@code fc-daygrid-week-number}.<br>
+     *                                  Classes set here are added to it.</dd>
+     *   <dt><b>JsCallback</b></dt> <dd>{@code function(info)}.<br>
+     *                                  {@code info} has {@code num}, {@code text}, {@code textParts}, {@code date},
+     *                                  {@code isNarrow} and {@code hasNavLink}.<br>
+     *                                  It returns the class names as a string.</dd>
      * </dl>
      * <pre>{@code
      * calendar.options().setInlineWeekNumberClass("my-class");
@@ -1134,6 +1168,7 @@ class ViewOptions implements Serializable {
 
     /**
      * Sets fixed CSS classes, see {@link #getInlineWeekNumberClass()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param classNames the class names, separated by spaces, or null to remove the option
      */
@@ -1143,6 +1178,7 @@ class ViewOptions implements Serializable {
 
     /**
      * Sets the CSS classes in any form, see {@link #getInlineWeekNumberClass()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param value the classes or callback, or null to remove the option
      */
@@ -1155,15 +1191,16 @@ class ViewOptions implements Serializable {
      * <p>
      * The getter returns null while the option is not set. Then the library default applies.
      * <dl>
-     *   <dt>Forms</dt>     <dd>{@link TextContent}: shown as text.
-     *                          <p>{@link ContentValue#ofHtml(String)}: HTML, not escaped.
-     *                          <p>{@link JsCallback}: a function, see Callback.</dd>
-     *   <dt>Shortcuts</dt> <dd>{@link #setInlineWeekNumberContent(String)}: a text, as {@link TextContent}.</dd>
-     *   <dt>Default</dt>   <dd>library: the library's own week number text.</dd>
-     *   <dt>Callback</dt>  <dd>{@code function(info)}.<br>
-     *                          {@code info} has {@code num}, {@code text}, {@code textParts}, {@code date},
-     *                          {@code isNarrow} and {@code hasNavLink}.</dd>
-     *   <dt>Returns</dt>   <dd>a text, {@code {html: '...'}} or {@code {domNodes: [...]}}.</dd>
+     *   <dt><b>Forms</b></dt>      <dd>{@link TextContent}: shown as text.
+     *                                  <p>{@link ContentValue#ofHtml(String)}: HTML, not escaped.
+     *                                  <p>{@link JsCallback}: a function, see JsCallback.</dd>
+     *   <dt><b>Shortcuts</b></dt>  <dd>{@link #setInlineWeekNumberContent(String)}: a text, as
+     *                                  {@link TextContent}.</dd>
+     *   <dt><b>Default</b></dt>    <dd>library: the library's own week number text.</dd>
+     *   <dt><b>JsCallback</b></dt> <dd>{@code function(info)}.<br>
+     *                                  {@code info} has {@code num}, {@code text}, {@code textParts}, {@code date},
+     *                                  {@code isNarrow} and {@code hasNavLink}.<br>
+     *                                  It returns a text, {@code {html: '...'}} or {@code {domNodes: [...]}}.</dd>
      * </dl>
      * <pre>{@code
      * calendar.options().setInlineWeekNumberContent("Text");
@@ -1178,6 +1215,7 @@ class ViewOptions implements Serializable {
 
     /**
      * Sets a text as the content, see {@link #getInlineWeekNumberContent()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param text the text, shown as text, or null to remove the option
      */
@@ -1187,6 +1225,7 @@ class ViewOptions implements Serializable {
 
     /**
      * Sets the content in any form, see {@link #getInlineWeekNumberContent()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param value the content or callback, or null to remove the option
      */
@@ -1250,19 +1289,19 @@ class ViewOptions implements Serializable {
      * <p>
      * The getter returns null while the option is not set. Then the library default applies.
      * <dl>
-     *   <dt>Forms</dt>     <dd>{@link ClassName}: class names.
-     *                          <p>{@link JsCallback}: a function, see Callback.</dd>
-     *   <dt>Shortcuts</dt> <dd>{@link #setNowIndicatorHeaderClass(String)}: class names separated by spaces, as
-     *                          {@link ClassName}.</dd>
-     *   <dt>Default</dt>   <dd>library: no classes.
-     *                          <p>add-on: the stable class {@code fc-timegrid-now-indicator-arrow} in time grid
-     *                          views.<br>
-     *                          Classes set here are added to it.</dd>
-     *   <dt>Callback</dt>  <dd>{@code function(info)}.<br>
-     *                          {@code info} has {@code date} and {@code view}.<br>
-     *                          The library docs list only {@code date}, but the used library version also passes
-     *                          {@code view}.</dd>
-     *   <dt>Returns</dt>   <dd>the class names as a string.</dd>
+     *   <dt><b>Forms</b></dt>      <dd>{@link ClassName}: class names.
+     *                                  <p>{@link JsCallback}: a function, see JsCallback.</dd>
+     *   <dt><b>Shortcuts</b></dt>  <dd>{@link #setNowIndicatorHeaderClass(String)}: class names separated by spaces, as
+     *                                  {@link ClassName}.</dd>
+     *   <dt><b>Default</b></dt>    <dd>library: no classes.
+     *                                  <p>add-on: the stable class {@code fc-timegrid-now-indicator-arrow} in time grid
+     *                                  views.<br>
+     *                                  Classes set here are added to it.</dd>
+     *   <dt><b>JsCallback</b></dt> <dd>{@code function(info)}.<br>
+     *                                  {@code info} has {@code date} and {@code view}.<br>
+     *                                  The library docs list only {@code date}, but the used library version also
+     *                                  passes {@code view}.<br>
+     *                                  It returns the class names as a string.</dd>
      * </dl>
      * <pre>{@code
      * calendar.options().setNowIndicatorHeaderClass("my-class");
@@ -1277,6 +1316,7 @@ class ViewOptions implements Serializable {
 
     /**
      * Sets fixed CSS classes, see {@link #getNowIndicatorHeaderClass()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param classNames the class names, separated by spaces, or null to remove the option
      */
@@ -1286,6 +1326,7 @@ class ViewOptions implements Serializable {
 
     /**
      * Sets the CSS classes in any form, see {@link #getNowIndicatorHeaderClass()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param value the classes or callback, or null to remove the option
      */
@@ -1298,16 +1339,17 @@ class ViewOptions implements Serializable {
      * <p>
      * The getter returns null while the option is not set. Then the library default applies.
      * <dl>
-     *   <dt>Forms</dt>     <dd>{@link TextContent}: shown as text.
-     *                          <p>{@link ContentValue#ofHtml(String)}: HTML, not escaped.
-     *                          <p>{@link JsCallback}: a function, see Callback.</dd>
-     *   <dt>Shortcuts</dt> <dd>{@link #setNowIndicatorHeaderContent(String)}: a text, as {@link TextContent}.</dd>
-     *   <dt>Default</dt>   <dd>library: no generated content.</dd>
-     *   <dt>Callback</dt>  <dd>{@code function(info)}.<br>
-     *                          {@code info} has {@code date} and {@code view}.<br>
-     *                          The library docs list only {@code date}, but the used library version also passes
-     *                          {@code view}.</dd>
-     *   <dt>Returns</dt>   <dd>a text, {@code {html: '...'}} or {@code {domNodes: [...]}}.</dd>
+     *   <dt><b>Forms</b></dt>      <dd>{@link TextContent}: shown as text.
+     *                                  <p>{@link ContentValue#ofHtml(String)}: HTML, not escaped.
+     *                                  <p>{@link JsCallback}: a function, see JsCallback.</dd>
+     *   <dt><b>Shortcuts</b></dt>  <dd>{@link #setNowIndicatorHeaderContent(String)}: a text, as
+     *                                  {@link TextContent}.</dd>
+     *   <dt><b>Default</b></dt>    <dd>library: no generated content.</dd>
+     *   <dt><b>JsCallback</b></dt> <dd>{@code function(info)}.<br>
+     *                                  {@code info} has {@code date} and {@code view}.<br>
+     *                                  The library docs list only {@code date}, but the used library version also
+     *                                  passes {@code view}.<br>
+     *                                  It returns a text, {@code {html: '...'}} or {@code {domNodes: [...]}}.</dd>
      * </dl>
      * <pre>{@code
      * calendar.options().setNowIndicatorHeaderContent("Text");
@@ -1322,6 +1364,7 @@ class ViewOptions implements Serializable {
 
     /**
      * Sets a text as the content, see {@link #getNowIndicatorHeaderContent()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param text the text, shown as text, or null to remove the option
      */
@@ -1331,6 +1374,7 @@ class ViewOptions implements Serializable {
 
     /**
      * Sets the content in any form, see {@link #getNowIndicatorHeaderContent()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param value the content or callback, or null to remove the option
      */
@@ -1379,19 +1423,19 @@ class ViewOptions implements Serializable {
      * <p>
      * The getter returns null while the option is not set. Then the library default applies.
      * <dl>
-     *   <dt>Forms</dt>     <dd>{@link ClassName}: class names.
-     *                          <p>{@link JsCallback}: a function, see Callback.</dd>
-     *   <dt>Shortcuts</dt> <dd>{@link #setNowIndicatorLineClass(String)}: class names separated by spaces, as
-     *                          {@link ClassName}.</dd>
-     *   <dt>Default</dt>   <dd>library: no classes.
-     *                          <p>add-on: the stable class {@code fc-timegrid-now-indicator-line} in time grid
-     *                          views.<br>
-     *                          Classes set here are added to it.</dd>
-     *   <dt>Callback</dt>  <dd>{@code function(info)}.<br>
-     *                          {@code info} has {@code date} and {@code view}.<br>
-     *                          The library docs list only {@code date}, but the used library version also passes
-     *                          {@code view}.</dd>
-     *   <dt>Returns</dt>   <dd>the class names as a string.</dd>
+     *   <dt><b>Forms</b></dt>      <dd>{@link ClassName}: class names.
+     *                                  <p>{@link JsCallback}: a function, see JsCallback.</dd>
+     *   <dt><b>Shortcuts</b></dt>  <dd>{@link #setNowIndicatorLineClass(String)}: class names separated by spaces, as
+     *                                  {@link ClassName}.</dd>
+     *   <dt><b>Default</b></dt>    <dd>library: no classes.
+     *                                  <p>add-on: the stable class {@code fc-timegrid-now-indicator-line} in time grid
+     *                                  views.<br>
+     *                                  Classes set here are added to it.</dd>
+     *   <dt><b>JsCallback</b></dt> <dd>{@code function(info)}.<br>
+     *                                  {@code info} has {@code date} and {@code view}.<br>
+     *                                  The library docs list only {@code date}, but the used library version also
+     *                                  passes {@code view}.<br>
+     *                                  It returns the class names as a string.</dd>
      * </dl>
      * <pre>{@code
      * calendar.options().setNowIndicatorLineClass("my-class");
@@ -1406,6 +1450,7 @@ class ViewOptions implements Serializable {
 
     /**
      * Sets fixed CSS classes, see {@link #getNowIndicatorLineClass()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param classNames the class names, separated by spaces, or null to remove the option
      */
@@ -1415,6 +1460,7 @@ class ViewOptions implements Serializable {
 
     /**
      * Sets the CSS classes in any form, see {@link #getNowIndicatorLineClass()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param value the classes or callback, or null to remove the option
      */
@@ -1427,16 +1473,17 @@ class ViewOptions implements Serializable {
      * <p>
      * The getter returns null while the option is not set. Then the library default applies.
      * <dl>
-     *   <dt>Forms</dt>     <dd>{@link TextContent}: shown as text.
-     *                          <p>{@link ContentValue#ofHtml(String)}: HTML, not escaped.
-     *                          <p>{@link JsCallback}: a function, see Callback.</dd>
-     *   <dt>Shortcuts</dt> <dd>{@link #setNowIndicatorLineContent(String)}: a text, as {@link TextContent}.</dd>
-     *   <dt>Default</dt>   <dd>library: no generated content.</dd>
-     *   <dt>Callback</dt>  <dd>{@code function(info)}.<br>
-     *                          {@code info} has {@code date} and {@code view}.<br>
-     *                          The library docs list only {@code date}, but the used library version also passes
-     *                          {@code view}.</dd>
-     *   <dt>Returns</dt>   <dd>a text, {@code {html: '...'}} or {@code {domNodes: [...]}}.</dd>
+     *   <dt><b>Forms</b></dt>      <dd>{@link TextContent}: shown as text.
+     *                                  <p>{@link ContentValue#ofHtml(String)}: HTML, not escaped.
+     *                                  <p>{@link JsCallback}: a function, see JsCallback.</dd>
+     *   <dt><b>Shortcuts</b></dt>  <dd>{@link #setNowIndicatorLineContent(String)}: a text, as
+     *                                  {@link TextContent}.</dd>
+     *   <dt><b>Default</b></dt>    <dd>library: no generated content.</dd>
+     *   <dt><b>JsCallback</b></dt> <dd>{@code function(info)}.<br>
+     *                                  {@code info} has {@code date} and {@code view}.<br>
+     *                                  The library docs list only {@code date}, but the used library version also
+     *                                  passes {@code view}.<br>
+     *                                  It returns a text, {@code {html: '...'}} or {@code {domNodes: [...]}}.</dd>
      * </dl>
      * <pre>{@code
      * calendar.options().setNowIndicatorLineContent("Text");
@@ -1451,6 +1498,7 @@ class ViewOptions implements Serializable {
 
     /**
      * Sets a text as the content, see {@link #getNowIndicatorLineContent()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param text the text, shown as text, or null to remove the option
      */
@@ -1460,6 +1508,7 @@ class ViewOptions implements Serializable {
 
     /**
      * Sets the content in any form, see {@link #getNowIndicatorLineContent()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param value the content or callback, or null to remove the option
      */
@@ -1508,18 +1557,18 @@ class ViewOptions implements Serializable {
      * <p>
      * The getter returns null while the option is not set. Then the library default applies.
      * <dl>
-     *   <dt>Forms</dt>     <dd>{@link ClassName}: class names.
-     *                          <p>{@link JsCallback}: a function, see Callback.</dd>
-     *   <dt>Shortcuts</dt> <dd>{@link #setSlotHeaderClass(String)}: class names separated by spaces, as
-     *                          {@link ClassName}.</dd>
-     *   <dt>Default</dt>   <dd>library: no classes.
-     *                          <p>add-on: stable classes such as {@code fc-timegrid-slot} and
-     *                          {@code fc-timegrid-slot-label} in time grid views.<br>
-     *                          Classes set here are added to them.</dd>
-     *   <dt>Callback</dt>  <dd>{@code function(info)}.<br>
-     *                          {@code info} has {@code date}, {@code text}, {@code isMinor} and more, see the library
-     *                          docs.</dd>
-     *   <dt>Returns</dt>   <dd>the class names as a string.</dd>
+     *   <dt><b>Forms</b></dt>      <dd>{@link ClassName}: class names.
+     *                                  <p>{@link JsCallback}: a function, see JsCallback.</dd>
+     *   <dt><b>Shortcuts</b></dt>  <dd>{@link #setSlotHeaderClass(String)}: class names separated by spaces, as
+     *                                  {@link ClassName}.</dd>
+     *   <dt><b>Default</b></dt>    <dd>library: no classes.
+     *                                  <p>add-on: stable classes such as {@code fc-timegrid-slot} and
+     *                                  {@code fc-timegrid-slot-label} in time grid views.<br>
+     *                                  Classes set here are added to them.</dd>
+     *   <dt><b>JsCallback</b></dt> <dd>{@code function(info)}.<br>
+     *                                  {@code info} has {@code date}, {@code text}, {@code isMinor} and more, see the
+     *                                  library docs.<br>
+     *                                  It returns the class names as a string.</dd>
      * </dl>
      * <pre>{@code
      * calendar.options().setSlotHeaderClass("my-class");
@@ -1534,6 +1583,7 @@ class ViewOptions implements Serializable {
 
     /**
      * Sets fixed CSS classes, see {@link #getSlotHeaderClass()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param classNames the class names, separated by spaces, or null to remove the option
      */
@@ -1543,6 +1593,7 @@ class ViewOptions implements Serializable {
 
     /**
      * Sets the CSS classes in any form, see {@link #getSlotHeaderClass()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param value the classes or callback, or null to remove the option
      */
@@ -1555,15 +1606,15 @@ class ViewOptions implements Serializable {
      * <p>
      * The getter returns null while the option is not set. Then the library default applies.
      * <dl>
-     *   <dt>Forms</dt>     <dd>{@link TextContent}: shown as text.
-     *                          <p>{@link ContentValue#ofHtml(String)}: HTML, not escaped.
-     *                          <p>{@link JsCallback}: a function, see Callback.</dd>
-     *   <dt>Shortcuts</dt> <dd>{@link #setSlotHeaderContent(String)}: a text, as {@link TextContent}.</dd>
-     *   <dt>Default</dt>   <dd>library: the formatted text of the slot.</dd>
-     *   <dt>Callback</dt>  <dd>{@code function(info)}.<br>
-     *                          {@code info} has {@code date}, {@code text}, {@code isMinor} and more, see the library
-     *                          docs.</dd>
-     *   <dt>Returns</dt>   <dd>a text, {@code {html: '...'}} or {@code {domNodes: [...]}}.</dd>
+     *   <dt><b>Forms</b></dt>      <dd>{@link TextContent}: shown as text.
+     *                                  <p>{@link ContentValue#ofHtml(String)}: HTML, not escaped.
+     *                                  <p>{@link JsCallback}: a function, see JsCallback.</dd>
+     *   <dt><b>Shortcuts</b></dt>  <dd>{@link #setSlotHeaderContent(String)}: a text, as {@link TextContent}.</dd>
+     *   <dt><b>Default</b></dt>    <dd>library: the formatted text of the slot.</dd>
+     *   <dt><b>JsCallback</b></dt> <dd>{@code function(info)}.<br>
+     *                                  {@code info} has {@code date}, {@code text}, {@code isMinor} and more, see the
+     *                                  library docs.<br>
+     *                                  It returns a text, {@code {html: '...'}} or {@code {domNodes: [...]}}.</dd>
      * </dl>
      * <pre>{@code
      * calendar.options().setSlotHeaderContent("Text");
@@ -1579,6 +1630,7 @@ class ViewOptions implements Serializable {
 
     /**
      * Sets a text as the content, see {@link #getSlotHeaderContent()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param text the text, shown as text, or null to remove the option
      */
@@ -1588,6 +1640,7 @@ class ViewOptions implements Serializable {
 
     /**
      * Sets the content in any form, see {@link #getSlotHeaderContent()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param value the content or callback, or null to remove the option
      */
@@ -1619,15 +1672,15 @@ class ViewOptions implements Serializable {
      * <p>
      * The getter returns null while the option is not set. Then the library default applies.
      * <dl>
-     *   <dt>Forms</dt>     <dd>{@link ClassName}: class names.
-     *                          <p>{@link JsCallback}: a function, see Callback.</dd>
-     *   <dt>Shortcuts</dt> <dd>{@link #setSlotHeaderDividerClass(String)}: class names separated by spaces, as
-     *                          {@link ClassName}.</dd>
-     *   <dt>Default</dt>   <dd>library: no classes.</dd>
-     *   <dt>Callback</dt>  <dd>{@code function(info)}.<br>
-     *                          {@code info} has {@code inTableHeader} and {@code options} (with
-     *                          {@code dayMinWidth}).</dd>
-     *   <dt>Returns</dt>   <dd>the class names as a string.</dd>
+     *   <dt><b>Forms</b></dt>      <dd>{@link ClassName}: class names.
+     *                                  <p>{@link JsCallback}: a function, see JsCallback.</dd>
+     *   <dt><b>Shortcuts</b></dt>  <dd>{@link #setSlotHeaderDividerClass(String)}: class names separated by spaces, as
+     *                                  {@link ClassName}.</dd>
+     *   <dt><b>Default</b></dt>    <dd>library: no classes.</dd>
+     *   <dt><b>JsCallback</b></dt> <dd>{@code function(info)}.<br>
+     *                                  {@code info} has {@code inTableHeader} and {@code options} (with
+     *                                  {@code dayMinWidth}).<br>
+     *                                  It returns the class names as a string.</dd>
      * </dl>
      * <pre>{@code
      * calendar.options().setSlotHeaderDividerClass("my-class");
@@ -1642,6 +1695,7 @@ class ViewOptions implements Serializable {
 
     /**
      * Sets fixed CSS classes, see {@link #getSlotHeaderDividerClass()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param classNames the class names, separated by spaces, or null to remove the option
      */
@@ -1651,6 +1705,7 @@ class ViewOptions implements Serializable {
 
     /**
      * Sets the CSS classes in any form, see {@link #getSlotHeaderDividerClass()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param value the classes or callback, or null to remove the option
      */
@@ -1666,15 +1721,15 @@ class ViewOptions implements Serializable {
      * <p>
      * The getter returns null while the option is not set. Then the library default applies.
      * <dl>
-     *   <dt>Forms</dt>     <dd>{@link ClassName}: class names.
-     *                          <p>{@link JsCallback}: a function, see Callback.</dd>
-     *   <dt>Shortcuts</dt> <dd>{@link #setSlotHeaderInnerClass(String)}: class names separated by spaces, as
-     *                          {@link ClassName}.</dd>
-     *   <dt>Default</dt>   <dd>library: no classes.</dd>
-     *   <dt>Callback</dt>  <dd>{@code function(info)}.<br>
-     *                          {@code info} has {@code date}, {@code text}, {@code isMinor} and more, see the library
-     *                          docs.</dd>
-     *   <dt>Returns</dt>   <dd>the class names as a string.</dd>
+     *   <dt><b>Forms</b></dt>      <dd>{@link ClassName}: class names.
+     *                                  <p>{@link JsCallback}: a function, see JsCallback.</dd>
+     *   <dt><b>Shortcuts</b></dt>  <dd>{@link #setSlotHeaderInnerClass(String)}: class names separated by spaces, as
+     *                                  {@link ClassName}.</dd>
+     *   <dt><b>Default</b></dt>    <dd>library: no classes.</dd>
+     *   <dt><b>JsCallback</b></dt> <dd>{@code function(info)}.<br>
+     *                                  {@code info} has {@code date}, {@code text}, {@code isMinor} and more, see the
+     *                                  library docs.<br>
+     *                                  It returns the class names as a string.</dd>
      * </dl>
      * <pre>{@code
      * calendar.options().setSlotHeaderInnerClass("my-class");
@@ -1689,6 +1744,7 @@ class ViewOptions implements Serializable {
 
     /**
      * Sets fixed CSS classes, see {@link #getSlotHeaderInnerClass()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param classNames the class names, separated by spaces, or null to remove the option
      */
@@ -1698,6 +1754,7 @@ class ViewOptions implements Serializable {
 
     /**
      * Sets the CSS classes in any form, see {@link #getSlotHeaderInnerClass()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param value the classes or callback, or null to remove the option
      */
@@ -1745,20 +1802,20 @@ class ViewOptions implements Serializable {
      * <p>
      * The getter returns null while the option is not set. Then the library default applies.
      * <dl>
-     *   <dt>Forms</dt>     <dd>{@link ClassName}: class names.
-     *                          <p>{@link JsCallback}: a function, see Callback.</dd>
-     *   <dt>Shortcuts</dt> <dd>{@link #setSlotLaneClass(String)}: class names separated by spaces, as
-     *                          {@link ClassName}.</dd>
-     *   <dt>Default</dt>   <dd>library: no classes.
-     *                          <p>add-on: stable classes such as {@code fc-timegrid-slot} and
-     *                          {@code fc-timegrid-slot-lane} in time grid views.<br>
-     *                          Classes set here are added to them.</dd>
-     *   <dt>Callback</dt>  <dd>{@code function(info)}.<br>
-     *                          {@code info} has {@code date}, {@code view} and more, and {@code time} in time grid
-     *                          views, see the library docs.<br>
-     *                          The library docs list {@code text} as well, which the used library version does not
-     *                          pass.</dd>
-     *   <dt>Returns</dt>   <dd>the class names as a string.</dd>
+     *   <dt><b>Forms</b></dt>      <dd>{@link ClassName}: class names.
+     *                                  <p>{@link JsCallback}: a function, see JsCallback.</dd>
+     *   <dt><b>Shortcuts</b></dt>  <dd>{@link #setSlotLaneClass(String)}: class names separated by spaces, as
+     *                                  {@link ClassName}.</dd>
+     *   <dt><b>Default</b></dt>    <dd>library: no classes.
+     *                                  <p>add-on: stable classes such as {@code fc-timegrid-slot} and
+     *                                  {@code fc-timegrid-slot-lane} in time grid views.<br>
+     *                                  Classes set here are added to them.</dd>
+     *   <dt><b>JsCallback</b></dt> <dd>{@code function(info)}.<br>
+     *                                  {@code info} has {@code date}, {@code view} and more, and {@code time} in time
+     *                                  grid views, see the library docs.<br>
+     *                                  The library docs list {@code text} as well, which the used library version does
+     *                                  not pass.<br>
+     *                                  It returns the class names as a string.</dd>
      * </dl>
      * <pre>{@code
      * calendar.options().setSlotLaneClass("my-class");
@@ -1772,6 +1829,7 @@ class ViewOptions implements Serializable {
 
     /**
      * Sets fixed CSS classes, see {@link #getSlotLaneClass()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param classNames the class names, separated by spaces, or null to remove the option
      */
@@ -1781,6 +1839,7 @@ class ViewOptions implements Serializable {
 
     /**
      * Sets the CSS classes in any form, see {@link #getSlotLaneClass()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param value the classes or callback, or null to remove the option
      */
@@ -1832,15 +1891,15 @@ class ViewOptions implements Serializable {
      * <p>
      * The getter returns null while the option is not set. Then the library default applies.
      * <dl>
-     *   <dt>Forms</dt>     <dd>{@link ClassName}: class names.
-     *                          <p>{@link JsCallback}: a function, see Callback.</dd>
-     *   <dt>Shortcuts</dt> <dd>{@link #setTableBodyClass(String)}: class names separated by spaces, as
-     *                          {@link ClassName}.</dd>
-     *   <dt>Default</dt>   <dd>library: no classes.</dd>
-     *   <dt>Callback</dt>  <dd>{@code function(info)}.<br>
-     *                          {@code info} has {@code borderlessX}, {@code borderlessTop}, {@code borderlessBottom}
-     *                          and {@code multiMonthColumns}.</dd>
-     *   <dt>Returns</dt>   <dd>the class names as a string.</dd>
+     *   <dt><b>Forms</b></dt>      <dd>{@link ClassName}: class names.
+     *                                  <p>{@link JsCallback}: a function, see JsCallback.</dd>
+     *   <dt><b>Shortcuts</b></dt>  <dd>{@link #setTableBodyClass(String)}: class names separated by spaces, as
+     *                                  {@link ClassName}.</dd>
+     *   <dt><b>Default</b></dt>    <dd>library: no classes.</dd>
+     *   <dt><b>JsCallback</b></dt> <dd>{@code function(info)}.<br>
+     *                                  {@code info} has {@code borderlessX}, {@code borderlessTop},
+     *                                  {@code borderlessBottom} and {@code multiMonthColumns}.<br>
+     *                                  It returns the class names as a string.</dd>
      * </dl>
      * <pre>{@code
      * calendar.options().setTableBodyClass("my-class");
@@ -1854,6 +1913,7 @@ class ViewOptions implements Serializable {
 
     /**
      * Sets fixed CSS classes, see {@link #getTableBodyClass()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param classNames the class names, separated by spaces, or null to remove the option
      */
@@ -1863,6 +1923,7 @@ class ViewOptions implements Serializable {
 
     /**
      * Sets the CSS classes in any form, see {@link #getTableBodyClass()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param value the classes or callback, or null to remove the option
      */
@@ -1877,15 +1938,15 @@ class ViewOptions implements Serializable {
      * <p>
      * The getter returns null while the option is not set. Then the library default applies.
      * <dl>
-     *   <dt>Forms</dt>     <dd>{@link ClassName}: class names.
-     *                          <p>{@link JsCallback}: a function, see Callback.</dd>
-     *   <dt>Shortcuts</dt> <dd>{@link #setTableClass(String)}: class names separated by spaces, as
-     *                          {@link ClassName}.</dd>
-     *   <dt>Default</dt>   <dd>library: no classes.</dd>
-     *   <dt>Callback</dt>  <dd>{@code function(info)}.<br>
-     *                          {@code info} has {@code borderlessX}, {@code borderlessTop}, {@code borderlessBottom}
-     *                          and {@code multiMonthColumns}.</dd>
-     *   <dt>Returns</dt>   <dd>the class names as a string.</dd>
+     *   <dt><b>Forms</b></dt>      <dd>{@link ClassName}: class names.
+     *                                  <p>{@link JsCallback}: a function, see JsCallback.</dd>
+     *   <dt><b>Shortcuts</b></dt>  <dd>{@link #setTableClass(String)}: class names separated by spaces, as
+     *                                  {@link ClassName}.</dd>
+     *   <dt><b>Default</b></dt>    <dd>library: no classes.</dd>
+     *   <dt><b>JsCallback</b></dt> <dd>{@code function(info)}.<br>
+     *                                  {@code info} has {@code borderlessX}, {@code borderlessTop},
+     *                                  {@code borderlessBottom} and {@code multiMonthColumns}.<br>
+     *                                  It returns the class names as a string.</dd>
      * </dl>
      * <pre>{@code
      * calendar.options().setTableClass("my-class");
@@ -1899,6 +1960,7 @@ class ViewOptions implements Serializable {
 
     /**
      * Sets fixed CSS classes, see {@link #getTableClass()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param classNames the class names, separated by spaces, or null to remove the option
      */
@@ -1908,6 +1970,7 @@ class ViewOptions implements Serializable {
 
     /**
      * Sets the CSS classes in any form, see {@link #getTableClass()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param value the classes or callback, or null to remove the option
      */
@@ -1922,15 +1985,15 @@ class ViewOptions implements Serializable {
      * <p>
      * The getter returns null while the option is not set. Then the library default applies.
      * <dl>
-     *   <dt>Forms</dt>     <dd>{@link ClassName}: class names.
-     *                          <p>{@link JsCallback}: a function, see Callback.</dd>
-     *   <dt>Shortcuts</dt> <dd>{@link #setTableHeaderClass(String)}: class names separated by spaces, as
-     *                          {@link ClassName}.</dd>
-     *   <dt>Default</dt>   <dd>library: no classes.</dd>
-     *   <dt>Callback</dt>  <dd>{@code function(info)}.<br>
-     *                          {@code info} has {@code isSticky}, {@code borderlessX}, {@code borderlessTop},
-     *                          {@code borderlessBottom} and {@code multiMonthColumns}.</dd>
-     *   <dt>Returns</dt>   <dd>the class names as a string.</dd>
+     *   <dt><b>Forms</b></dt>      <dd>{@link ClassName}: class names.
+     *                                  <p>{@link JsCallback}: a function, see JsCallback.</dd>
+     *   <dt><b>Shortcuts</b></dt>  <dd>{@link #setTableHeaderClass(String)}: class names separated by spaces, as
+     *                                  {@link ClassName}.</dd>
+     *   <dt><b>Default</b></dt>    <dd>library: no classes.</dd>
+     *   <dt><b>JsCallback</b></dt> <dd>{@code function(info)}.<br>
+     *                                  {@code info} has {@code isSticky}, {@code borderlessX}, {@code borderlessTop},
+     *                                  {@code borderlessBottom} and {@code multiMonthColumns}.<br>
+     *                                  It returns the class names as a string.</dd>
      * </dl>
      * <pre>{@code
      * calendar.options().setTableHeaderClass("my-class");
@@ -1944,6 +2007,7 @@ class ViewOptions implements Serializable {
 
     /**
      * Sets fixed CSS classes, see {@link #getTableHeaderClass()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param classNames the class names, separated by spaces, or null to remove the option
      */
@@ -1953,6 +2017,7 @@ class ViewOptions implements Serializable {
 
     /**
      * Sets the CSS classes in any form, see {@link #getTableHeaderClass()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param value the classes or callback, or null to remove the option
      */
@@ -1967,18 +2032,18 @@ class ViewOptions implements Serializable {
      * <p>
      * The getter returns null while the option is not set. Then the library default applies.
      * <dl>
-     *   <dt>Forms</dt>     <dd>{@link ClassName}: class names.
-     *                          <p>{@link JsCallback}: a function, see Callback.</dd>
-     *   <dt>Shortcuts</dt> <dd>{@link #setWeekNumberHeaderClass(String)}: class names separated by spaces, as
-     *                          {@link ClassName}.</dd>
-     *   <dt>Default</dt>   <dd>library: no classes.
-     *                          <p>add-on: the stable class {@code fc-timegrid-axis}.<br>
-     *                          Classes set here are added to it.</dd>
-     *   <dt>Callback</dt>  <dd>{@code function(info)}.<br>
-     *                          {@code info} has {@code num}, {@code text}, {@code textParts}, {@code date},
-     *                          {@code isNarrow}, {@code hasNavLink} and {@code options}.<br>
-     *                          {@code options} holds only {@code dayMinWidth}.</dd>
-     *   <dt>Returns</dt>   <dd>the class names as a string.</dd>
+     *   <dt><b>Forms</b></dt>      <dd>{@link ClassName}: class names.
+     *                                  <p>{@link JsCallback}: a function, see JsCallback.</dd>
+     *   <dt><b>Shortcuts</b></dt>  <dd>{@link #setWeekNumberHeaderClass(String)}: class names separated by spaces, as
+     *                                  {@link ClassName}.</dd>
+     *   <dt><b>Default</b></dt>    <dd>library: no classes.
+     *                                  <p>add-on: the stable class {@code fc-timegrid-axis}.<br>
+     *                                  Classes set here are added to it.</dd>
+     *   <dt><b>JsCallback</b></dt> <dd>{@code function(info)}.<br>
+     *                                  {@code info} has {@code num}, {@code text}, {@code textParts}, {@code date},
+     *                                  {@code isNarrow}, {@code hasNavLink} and {@code options}.<br>
+     *                                  {@code options} holds only {@code dayMinWidth}.<br>
+     *                                  It returns the class names as a string.</dd>
      * </dl>
      * <pre>{@code
      * calendar.options().setWeekNumberHeaderClass("my-class");
@@ -1992,6 +2057,7 @@ class ViewOptions implements Serializable {
 
     /**
      * Sets fixed CSS classes, see {@link #getWeekNumberHeaderClass()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param classNames the class names, separated by spaces, or null to remove the option
      */
@@ -2001,6 +2067,7 @@ class ViewOptions implements Serializable {
 
     /**
      * Sets the CSS classes in any form, see {@link #getWeekNumberHeaderClass()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param value the classes or callback, or null to remove the option
      */
@@ -2013,16 +2080,18 @@ class ViewOptions implements Serializable {
      * <p>
      * The getter returns null while the option is not set. Then the library default applies.
      * <dl>
-     *   <dt>Forms</dt>     <dd>{@link TextContent}: shown as text.
-     *                          <p>{@link ContentValue#ofHtml(String)}: HTML, not escaped.
-     *                          <p>{@link JsCallback}: a function, see Callback.</dd>
-     *   <dt>Shortcuts</dt> <dd>{@link #setWeekNumberHeaderContent(String)}: a text, as {@link TextContent}.</dd>
-     *   <dt>Default</dt>   <dd>library: the text of the week number, formatted as {@code weekNumberFormat} says.</dd>
-     *   <dt>Callback</dt>  <dd>{@code function(info)}.<br>
-     *                          {@code info} has {@code num}, {@code text}, {@code textParts}, {@code date},
-     *                          {@code isNarrow}, {@code hasNavLink} and {@code options}.<br>
-     *                          {@code options} holds only {@code dayMinWidth}.</dd>
-     *   <dt>Returns</dt>   <dd>a text, {@code {html: '...'}} or {@code {domNodes: [...]}}.</dd>
+     *   <dt><b>Forms</b></dt>      <dd>{@link TextContent}: shown as text.
+     *                                  <p>{@link ContentValue#ofHtml(String)}: HTML, not escaped.
+     *                                  <p>{@link JsCallback}: a function, see JsCallback.</dd>
+     *   <dt><b>Shortcuts</b></dt>  <dd>{@link #setWeekNumberHeaderContent(String)}: a text, as
+     *                                  {@link TextContent}.</dd>
+     *   <dt><b>Default</b></dt>    <dd>library: the text of the week number, formatted as {@code weekNumberFormat}
+     *                                  says.</dd>
+     *   <dt><b>JsCallback</b></dt> <dd>{@code function(info)}.<br>
+     *                                  {@code info} has {@code num}, {@code text}, {@code textParts}, {@code date},
+     *                                  {@code isNarrow}, {@code hasNavLink} and {@code options}.<br>
+     *                                  {@code options} holds only {@code dayMinWidth}.<br>
+     *                                  It returns a text, {@code {html: '...'}} or {@code {domNodes: [...]}}.</dd>
      * </dl>
      * <pre>{@code
      * calendar.options().setWeekNumberHeaderContent("Week");
@@ -2037,6 +2106,7 @@ class ViewOptions implements Serializable {
 
     /**
      * Sets a text as the content, see {@link #getWeekNumberHeaderContent()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param text the text, shown as text, or null to remove the option
      */
@@ -2046,6 +2116,7 @@ class ViewOptions implements Serializable {
 
     /**
      * Sets the content in any form, see {@link #getWeekNumberHeaderContent()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param value the content or callback, or null to remove the option
      */
@@ -2079,16 +2150,16 @@ class ViewOptions implements Serializable {
      * <p>
      * The getter returns null while the option is not set. Then the library default applies.
      * <dl>
-     *   <dt>Forms</dt>     <dd>{@link ClassName}: class names.
-     *                          <p>{@link JsCallback}: a function, see Callback.</dd>
-     *   <dt>Shortcuts</dt> <dd>{@link #setWeekNumberHeaderInnerClass(String)}: class names separated by spaces, as
-     *                          {@link ClassName}.</dd>
-     *   <dt>Default</dt>   <dd>library: no classes.</dd>
-     *   <dt>Callback</dt>  <dd>{@code function(info)}.<br>
-     *                          {@code info} has {@code num}, {@code date}, {@code text}, {@code textParts},
-     *                          {@code isNarrow}, {@code hasNavLink} and {@code options}.<br>
-     *                          {@code options} holds only {@code dayMinWidth}, see the library docs.</dd>
-     *   <dt>Returns</dt>   <dd>the class names as a string.</dd>
+     *   <dt><b>Forms</b></dt>      <dd>{@link ClassName}: class names.
+     *                                  <p>{@link JsCallback}: a function, see JsCallback.</dd>
+     *   <dt><b>Shortcuts</b></dt>  <dd>{@link #setWeekNumberHeaderInnerClass(String)}: class names separated by spaces,
+     *                                  as {@link ClassName}.</dd>
+     *   <dt><b>Default</b></dt>    <dd>library: no classes.</dd>
+     *   <dt><b>JsCallback</b></dt> <dd>{@code function(info)}.<br>
+     *                                  {@code info} has {@code num}, {@code date}, {@code text}, {@code textParts},
+     *                                  {@code isNarrow}, {@code hasNavLink} and {@code options}.<br>
+     *                                  {@code options} holds only {@code dayMinWidth}, see the library docs.<br>
+     *                                  It returns the class names as a string.</dd>
      * </dl>
      * <pre>{@code
      * calendar.options().setWeekNumberHeaderInnerClass("my-class");
@@ -2102,6 +2173,7 @@ class ViewOptions implements Serializable {
 
     /**
      * Sets fixed CSS classes, see {@link #getWeekNumberHeaderInnerClass()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param classNames the class names, separated by spaces, or null to remove the option
      */
@@ -2111,6 +2183,7 @@ class ViewOptions implements Serializable {
 
     /**
      * Sets the CSS classes in any form, see {@link #getWeekNumberHeaderInnerClass()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param value the classes or callback, or null to remove the option
      */
@@ -2148,15 +2221,15 @@ class ViewOptions implements Serializable {
      * <p>
      * The getter returns null while the option is not set. Then the library default applies.
      * <dl>
-     *   <dt>Forms</dt>     <dd>{@link ClassName}: class names.
-     *                          <p>{@link JsCallback}: a function, see Callback.</dd>
-     *   <dt>Shortcuts</dt> <dd>{@link #setBlockEntryClass(String)}: class names separated by spaces, as
-     *                          {@link ClassName}.</dd>
-     *   <dt>Default</dt>   <dd>library: no classes.</dd>
-     *   <dt>Callback</dt>  <dd>{@code function(info)}.<br>
-     *                          {@code info} has {@code event}, {@code timeText}, {@code isStart} and more, see the
-     *                          library docs.</dd>
-     *   <dt>Returns</dt>   <dd>the class names as a string.</dd>
+     *   <dt><b>Forms</b></dt>      <dd>{@link ClassName}: class names.
+     *                                  <p>{@link JsCallback}: a function, see JsCallback.</dd>
+     *   <dt><b>Shortcuts</b></dt>  <dd>{@link #setBlockEntryClass(String)}: class names separated by spaces, as
+     *                                  {@link ClassName}.</dd>
+     *   <dt><b>Default</b></dt>    <dd>library: no classes.</dd>
+     *   <dt><b>JsCallback</b></dt> <dd>{@code function(info)}.<br>
+     *                                  {@code info} has {@code event}, {@code timeText}, {@code isStart} and more, see
+     *                                  the library docs.<br>
+     *                                  It returns the class names as a string.</dd>
      * </dl>
      * <pre>{@code
      * calendar.options().setBlockEntryClass("my-class");
@@ -2171,6 +2244,7 @@ class ViewOptions implements Serializable {
 
     /**
      * Sets fixed CSS classes for the outermost element of block entries, see {@link #getBlockEntryClass()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param classNames the class names, separated by spaces, or null to remove the option
      */
@@ -2180,6 +2254,7 @@ class ViewOptions implements Serializable {
 
     /**
      * Sets the CSS classes for the outermost element of block entries in any form, see {@link #getBlockEntryClass()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param value the classes or callback, or null to remove the option
      */
@@ -2197,15 +2272,15 @@ class ViewOptions implements Serializable {
      * <p>
      * The getter returns null while the option is not set. Then the library default applies.
      * <dl>
-     *   <dt>Forms</dt>     <dd>{@link ClassName}: class names.
-     *                          <p>{@link JsCallback}: a function, see Callback.</dd>
-     *   <dt>Shortcuts</dt> <dd>{@link #setBlockEntryBeforeClass(String)}: class names separated by spaces, as
-     *                          {@link ClassName}.</dd>
-     *   <dt>Default</dt>   <dd>library: no classes.</dd>
-     *   <dt>Callback</dt>  <dd>{@code function(info)}.<br>
-     *                          {@code info} has {@code event}, {@code timeText}, {@code isStart} and more, see the
-     *                          library docs.</dd>
-     *   <dt>Returns</dt>   <dd>the class names as a string.</dd>
+     *   <dt><b>Forms</b></dt>      <dd>{@link ClassName}: class names.
+     *                                  <p>{@link JsCallback}: a function, see JsCallback.</dd>
+     *   <dt><b>Shortcuts</b></dt>  <dd>{@link #setBlockEntryBeforeClass(String)}: class names separated by spaces, as
+     *                                  {@link ClassName}.</dd>
+     *   <dt><b>Default</b></dt>    <dd>library: no classes.</dd>
+     *   <dt><b>JsCallback</b></dt> <dd>{@code function(info)}.<br>
+     *                                  {@code info} has {@code event}, {@code timeText}, {@code isStart} and more, see
+     *                                  the library docs.<br>
+     *                                  It returns the class names as a string.</dd>
      * </dl>
      * <pre>{@code
      * calendar.options().setBlockEntryBeforeClass("my-class");
@@ -2221,6 +2296,7 @@ class ViewOptions implements Serializable {
     /**
      * Sets fixed CSS classes for the element before the "inner" wrapper of block entries, see
      * {@link #getBlockEntryBeforeClass()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param classNames the class names, separated by spaces, or null to remove the option
      */
@@ -2231,6 +2307,7 @@ class ViewOptions implements Serializable {
     /**
      * Sets the CSS classes for the element before the "inner" wrapper of block entries in any form, see
      * {@link #getBlockEntryBeforeClass()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param value the classes or callback, or null to remove the option
      */
@@ -2248,15 +2325,15 @@ class ViewOptions implements Serializable {
      * <p>
      * The getter returns null while the option is not set. Then the library default applies.
      * <dl>
-     *   <dt>Forms</dt>     <dd>{@link ClassName}: class names.
-     *                          <p>{@link JsCallback}: a function, see Callback.</dd>
-     *   <dt>Shortcuts</dt> <dd>{@link #setBlockEntryAfterClass(String)}: class names separated by spaces, as
-     *                          {@link ClassName}.</dd>
-     *   <dt>Default</dt>   <dd>library: no classes.</dd>
-     *   <dt>Callback</dt>  <dd>{@code function(info)}.<br>
-     *                          {@code info} has {@code event}, {@code timeText}, {@code isStart} and more, see the
-     *                          library docs.</dd>
-     *   <dt>Returns</dt>   <dd>the class names as a string.</dd>
+     *   <dt><b>Forms</b></dt>      <dd>{@link ClassName}: class names.
+     *                                  <p>{@link JsCallback}: a function, see JsCallback.</dd>
+     *   <dt><b>Shortcuts</b></dt>  <dd>{@link #setBlockEntryAfterClass(String)}: class names separated by spaces, as
+     *                                  {@link ClassName}.</dd>
+     *   <dt><b>Default</b></dt>    <dd>library: no classes.</dd>
+     *   <dt><b>JsCallback</b></dt> <dd>{@code function(info)}.<br>
+     *                                  {@code info} has {@code event}, {@code timeText}, {@code isStart} and more, see
+     *                                  the library docs.<br>
+     *                                  It returns the class names as a string.</dd>
      * </dl>
      * <pre>{@code
      * calendar.options().setBlockEntryAfterClass("my-class");
@@ -2272,6 +2349,7 @@ class ViewOptions implements Serializable {
     /**
      * Sets fixed CSS classes for the element after the "inner" wrapper of block entries, see
      * {@link #getBlockEntryAfterClass()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param classNames the class names, separated by spaces, or null to remove the option
      */
@@ -2282,6 +2360,7 @@ class ViewOptions implements Serializable {
     /**
      * Sets the CSS classes for the element after the "inner" wrapper of block entries in any form, see
      * {@link #getBlockEntryAfterClass()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param value the classes or callback, or null to remove the option
      */
@@ -2299,15 +2378,15 @@ class ViewOptions implements Serializable {
      * <p>
      * The getter returns null while the option is not set. Then the library default applies.
      * <dl>
-     *   <dt>Forms</dt>     <dd>{@link ClassName}: class names.
-     *                          <p>{@link JsCallback}: a function, see Callback.</dd>
-     *   <dt>Shortcuts</dt> <dd>{@link #setBlockEntryInnerClass(String)}: class names separated by spaces, as
-     *                          {@link ClassName}.</dd>
-     *   <dt>Default</dt>   <dd>library: no classes.</dd>
-     *   <dt>Callback</dt>  <dd>{@code function(info)}.<br>
-     *                          {@code info} has {@code event}, {@code timeText}, {@code isStart} and more, see the
-     *                          library docs.</dd>
-     *   <dt>Returns</dt>   <dd>the class names as a string.</dd>
+     *   <dt><b>Forms</b></dt>      <dd>{@link ClassName}: class names.
+     *                                  <p>{@link JsCallback}: a function, see JsCallback.</dd>
+     *   <dt><b>Shortcuts</b></dt>  <dd>{@link #setBlockEntryInnerClass(String)}: class names separated by spaces, as
+     *                                  {@link ClassName}.</dd>
+     *   <dt><b>Default</b></dt>    <dd>library: no classes.</dd>
+     *   <dt><b>JsCallback</b></dt> <dd>{@code function(info)}.<br>
+     *                                  {@code info} has {@code event}, {@code timeText}, {@code isStart} and more, see
+     *                                  the library docs.<br>
+     *                                  It returns the class names as a string.</dd>
      * </dl>
      * <pre>{@code
      * calendar.options().setBlockEntryInnerClass("my-class");
@@ -2322,6 +2401,7 @@ class ViewOptions implements Serializable {
 
     /**
      * Sets fixed CSS classes for the "inner" wrapper element of block entries, see {@link #getBlockEntryInnerClass()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param classNames the class names, separated by spaces, or null to remove the option
      */
@@ -2332,6 +2412,7 @@ class ViewOptions implements Serializable {
     /**
      * Sets the CSS classes for the "inner" wrapper element of block entries in any form, see
      * {@link #getBlockEntryInnerClass()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param value the classes or callback, or null to remove the option
      */
@@ -2349,15 +2430,15 @@ class ViewOptions implements Serializable {
      * <p>
      * The getter returns null while the option is not set. Then the library default applies.
      * <dl>
-     *   <dt>Forms</dt>     <dd>{@link ClassName}: class names.
-     *                          <p>{@link JsCallback}: a function, see Callback.</dd>
-     *   <dt>Shortcuts</dt> <dd>{@link #setBlockEntryTimeClass(String)}: class names separated by spaces, as
-     *                          {@link ClassName}.</dd>
-     *   <dt>Default</dt>   <dd>library: no classes.</dd>
-     *   <dt>Callback</dt>  <dd>{@code function(info)}.<br>
-     *                          {@code info} has only {@code event}, {@code timeText}, {@code isNarrow}, {@code isShort}
-     *                          and {@code resource} (resource views).</dd>
-     *   <dt>Returns</dt>   <dd>the class names as a string.</dd>
+     *   <dt><b>Forms</b></dt>      <dd>{@link ClassName}: class names.
+     *                                  <p>{@link JsCallback}: a function, see JsCallback.</dd>
+     *   <dt><b>Shortcuts</b></dt>  <dd>{@link #setBlockEntryTimeClass(String)}: class names separated by spaces, as
+     *                                  {@link ClassName}.</dd>
+     *   <dt><b>Default</b></dt>    <dd>library: no classes.</dd>
+     *   <dt><b>JsCallback</b></dt> <dd>{@code function(info)}.<br>
+     *                                  {@code info} has only {@code event}, {@code timeText}, {@code isNarrow},
+     *                                  {@code isShort} and {@code resource} (resource views).<br>
+     *                                  It returns the class names as a string.</dd>
      * </dl>
      * <pre>{@code
      * calendar.options().setBlockEntryTimeClass("my-class");
@@ -2373,6 +2454,7 @@ class ViewOptions implements Serializable {
     /**
      * Sets fixed CSS classes for the time element within the "inner" wrapper of block entries, see
      * {@link #getBlockEntryTimeClass()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param classNames the class names, separated by spaces, or null to remove the option
      */
@@ -2383,6 +2465,7 @@ class ViewOptions implements Serializable {
     /**
      * Sets the CSS classes for the time element within the "inner" wrapper of block entries in any form, see
      * {@link #getBlockEntryTimeClass()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param value the classes or callback, or null to remove the option
      */
@@ -2400,15 +2483,15 @@ class ViewOptions implements Serializable {
      * <p>
      * The getter returns null while the option is not set. Then the library default applies.
      * <dl>
-     *   <dt>Forms</dt>     <dd>{@link ClassName}: class names.
-     *                          <p>{@link JsCallback}: a function, see Callback.</dd>
-     *   <dt>Shortcuts</dt> <dd>{@link #setBlockEntryTitleClass(String)}: class names separated by spaces, as
-     *                          {@link ClassName}.</dd>
-     *   <dt>Default</dt>   <dd>library: no classes.</dd>
-     *   <dt>Callback</dt>  <dd>{@code function(info)}.<br>
-     *                          {@code info} has only {@code event}, {@code timeText}, {@code isNarrow}, {@code isShort}
-     *                          and {@code resource} (resource views).</dd>
-     *   <dt>Returns</dt>   <dd>the class names as a string.</dd>
+     *   <dt><b>Forms</b></dt>      <dd>{@link ClassName}: class names.
+     *                                  <p>{@link JsCallback}: a function, see JsCallback.</dd>
+     *   <dt><b>Shortcuts</b></dt>  <dd>{@link #setBlockEntryTitleClass(String)}: class names separated by spaces, as
+     *                                  {@link ClassName}.</dd>
+     *   <dt><b>Default</b></dt>    <dd>library: no classes.</dd>
+     *   <dt><b>JsCallback</b></dt> <dd>{@code function(info)}.<br>
+     *                                  {@code info} has only {@code event}, {@code timeText}, {@code isNarrow},
+     *                                  {@code isShort} and {@code resource} (resource views).<br>
+     *                                  It returns the class names as a string.</dd>
      * </dl>
      * <pre>{@code
      * calendar.options().setBlockEntryTitleClass("my-class");
@@ -2424,6 +2507,7 @@ class ViewOptions implements Serializable {
     /**
      * Sets fixed CSS classes for the title element within the "inner" wrapper of block entries, see
      * {@link #getBlockEntryTitleClass()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param classNames the class names, separated by spaces, or null to remove the option
      */
@@ -2434,6 +2518,7 @@ class ViewOptions implements Serializable {
     /**
      * Sets the CSS classes for the title element within the "inner" wrapper of block entries in any form, see
      * {@link #getBlockEntryTitleClass()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param value the classes or callback, or null to remove the option
      */
@@ -2451,17 +2536,18 @@ class ViewOptions implements Serializable {
      * <p>
      * The getter returns null while the option is not set. Then the library default applies.
      * <dl>
-     *   <dt>Forms</dt>     <dd>{@link ClassName}: class names.
-     *                          <p>{@link JsCallback}: a function, see Callback.</dd>
-     *   <dt>Shortcuts</dt> <dd>{@link #setColumnEntryClass(String)}: class names separated by spaces, as
-     *                          {@link ClassName}.</dd>
-     *   <dt>Default</dt>   <dd>library: no classes.
-     *                          <p>add-on: the stable classes {@code fc-timegrid-event} and {@code fc-v-event}.<br>
-     *                          Classes set here are added to them.</dd>
-     *   <dt>Callback</dt>  <dd>{@code function(info)}.<br>
-     *                          {@code info} has {@code event}, {@code timeText}, {@code isStart} and more, see the
-     *                          library docs.</dd>
-     *   <dt>Returns</dt>   <dd>the class names as a string.</dd>
+     *   <dt><b>Forms</b></dt>      <dd>{@link ClassName}: class names.
+     *                                  <p>{@link JsCallback}: a function, see JsCallback.</dd>
+     *   <dt><b>Shortcuts</b></dt>  <dd>{@link #setColumnEntryClass(String)}: class names separated by spaces, as
+     *                                  {@link ClassName}.</dd>
+     *   <dt><b>Default</b></dt>    <dd>library: no classes.
+     *                                  <p>add-on: the stable classes {@code fc-timegrid-event} and
+     *                                  {@code fc-v-event}.<br>
+     *                                  Classes set here are added to them.</dd>
+     *   <dt><b>JsCallback</b></dt> <dd>{@code function(info)}.<br>
+     *                                  {@code info} has {@code event}, {@code timeText}, {@code isStart} and more, see
+     *                                  the library docs.<br>
+     *                                  It returns the class names as a string.</dd>
      * </dl>
      * <pre>{@code
      * calendar.options().setColumnEntryClass("my-class");
@@ -2476,6 +2562,7 @@ class ViewOptions implements Serializable {
 
     /**
      * Sets fixed CSS classes for the outermost element of column entries, see {@link #getColumnEntryClass()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param classNames the class names, separated by spaces, or null to remove the option
      */
@@ -2485,6 +2572,7 @@ class ViewOptions implements Serializable {
 
     /**
      * Sets the CSS classes for the outermost element of column entries in any form, see {@link #getColumnEntryClass()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param value the classes or callback, or null to remove the option
      */
@@ -2502,15 +2590,15 @@ class ViewOptions implements Serializable {
      * <p>
      * The getter returns null while the option is not set. Then the library default applies.
      * <dl>
-     *   <dt>Forms</dt>     <dd>{@link ClassName}: class names.
-     *                          <p>{@link JsCallback}: a function, see Callback.</dd>
-     *   <dt>Shortcuts</dt> <dd>{@link #setColumnEntryBeforeClass(String)}: class names separated by spaces, as
-     *                          {@link ClassName}.</dd>
-     *   <dt>Default</dt>   <dd>library: no classes.</dd>
-     *   <dt>Callback</dt>  <dd>{@code function(info)}.<br>
-     *                          {@code info} has {@code event}, {@code timeText}, {@code isStart} and more, see the
-     *                          library docs.</dd>
-     *   <dt>Returns</dt>   <dd>the class names as a string.</dd>
+     *   <dt><b>Forms</b></dt>      <dd>{@link ClassName}: class names.
+     *                                  <p>{@link JsCallback}: a function, see JsCallback.</dd>
+     *   <dt><b>Shortcuts</b></dt>  <dd>{@link #setColumnEntryBeforeClass(String)}: class names separated by spaces, as
+     *                                  {@link ClassName}.</dd>
+     *   <dt><b>Default</b></dt>    <dd>library: no classes.</dd>
+     *   <dt><b>JsCallback</b></dt> <dd>{@code function(info)}.<br>
+     *                                  {@code info} has {@code event}, {@code timeText}, {@code isStart} and more, see
+     *                                  the library docs.<br>
+     *                                  It returns the class names as a string.</dd>
      * </dl>
      * <pre>{@code
      * calendar.options().setColumnEntryBeforeClass("my-class");
@@ -2526,6 +2614,7 @@ class ViewOptions implements Serializable {
     /**
      * Sets fixed CSS classes for the element before the "inner" wrapper of column entries, see
      * {@link #getColumnEntryBeforeClass()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param classNames the class names, separated by spaces, or null to remove the option
      */
@@ -2536,6 +2625,7 @@ class ViewOptions implements Serializable {
     /**
      * Sets the CSS classes for the element before the "inner" wrapper of column entries in any form, see
      * {@link #getColumnEntryBeforeClass()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param value the classes or callback, or null to remove the option
      */
@@ -2553,15 +2643,15 @@ class ViewOptions implements Serializable {
      * <p>
      * The getter returns null while the option is not set. Then the library default applies.
      * <dl>
-     *   <dt>Forms</dt>     <dd>{@link ClassName}: class names.
-     *                          <p>{@link JsCallback}: a function, see Callback.</dd>
-     *   <dt>Shortcuts</dt> <dd>{@link #setColumnEntryAfterClass(String)}: class names separated by spaces, as
-     *                          {@link ClassName}.</dd>
-     *   <dt>Default</dt>   <dd>library: no classes.</dd>
-     *   <dt>Callback</dt>  <dd>{@code function(info)}.<br>
-     *                          {@code info} has {@code event}, {@code timeText}, {@code isStart} and more, see the
-     *                          library docs.</dd>
-     *   <dt>Returns</dt>   <dd>the class names as a string.</dd>
+     *   <dt><b>Forms</b></dt>      <dd>{@link ClassName}: class names.
+     *                                  <p>{@link JsCallback}: a function, see JsCallback.</dd>
+     *   <dt><b>Shortcuts</b></dt>  <dd>{@link #setColumnEntryAfterClass(String)}: class names separated by spaces, as
+     *                                  {@link ClassName}.</dd>
+     *   <dt><b>Default</b></dt>    <dd>library: no classes.</dd>
+     *   <dt><b>JsCallback</b></dt> <dd>{@code function(info)}.<br>
+     *                                  {@code info} has {@code event}, {@code timeText}, {@code isStart} and more, see
+     *                                  the library docs.<br>
+     *                                  It returns the class names as a string.</dd>
      * </dl>
      * <pre>{@code
      * calendar.options().setColumnEntryAfterClass("my-class");
@@ -2577,6 +2667,7 @@ class ViewOptions implements Serializable {
     /**
      * Sets fixed CSS classes for the element after the "inner" wrapper of column entries, see
      * {@link #getColumnEntryAfterClass()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param classNames the class names, separated by spaces, or null to remove the option
      */
@@ -2587,6 +2678,7 @@ class ViewOptions implements Serializable {
     /**
      * Sets the CSS classes for the element after the "inner" wrapper of column entries in any form, see
      * {@link #getColumnEntryAfterClass()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param value the classes or callback, or null to remove the option
      */
@@ -2604,15 +2696,15 @@ class ViewOptions implements Serializable {
      * <p>
      * The getter returns null while the option is not set. Then the library default applies.
      * <dl>
-     *   <dt>Forms</dt>     <dd>{@link ClassName}: class names.
-     *                          <p>{@link JsCallback}: a function, see Callback.</dd>
-     *   <dt>Shortcuts</dt> <dd>{@link #setColumnEntryInnerClass(String)}: class names separated by spaces, as
-     *                          {@link ClassName}.</dd>
-     *   <dt>Default</dt>   <dd>library: no classes.</dd>
-     *   <dt>Callback</dt>  <dd>{@code function(info)}.<br>
-     *                          {@code info} has {@code event}, {@code timeText}, {@code isStart} and more, see the
-     *                          library docs.</dd>
-     *   <dt>Returns</dt>   <dd>the class names as a string.</dd>
+     *   <dt><b>Forms</b></dt>      <dd>{@link ClassName}: class names.
+     *                                  <p>{@link JsCallback}: a function, see JsCallback.</dd>
+     *   <dt><b>Shortcuts</b></dt>  <dd>{@link #setColumnEntryInnerClass(String)}: class names separated by spaces, as
+     *                                  {@link ClassName}.</dd>
+     *   <dt><b>Default</b></dt>    <dd>library: no classes.</dd>
+     *   <dt><b>JsCallback</b></dt> <dd>{@code function(info)}.<br>
+     *                                  {@code info} has {@code event}, {@code timeText}, {@code isStart} and more, see
+     *                                  the library docs.<br>
+     *                                  It returns the class names as a string.</dd>
      * </dl>
      * <pre>{@code
      * calendar.options().setColumnEntryInnerClass("my-class");
@@ -2628,6 +2720,7 @@ class ViewOptions implements Serializable {
     /**
      * Sets fixed CSS classes for the "inner" wrapper element of column entries, see
      * {@link #getColumnEntryInnerClass()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param classNames the class names, separated by spaces, or null to remove the option
      */
@@ -2638,6 +2731,7 @@ class ViewOptions implements Serializable {
     /**
      * Sets the CSS classes for the "inner" wrapper element of column entries in any form, see
      * {@link #getColumnEntryInnerClass()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param value the classes or callback, or null to remove the option
      */
@@ -2655,15 +2749,15 @@ class ViewOptions implements Serializable {
      * <p>
      * The getter returns null while the option is not set. Then the library default applies.
      * <dl>
-     *   <dt>Forms</dt>     <dd>{@link ClassName}: class names.
-     *                          <p>{@link JsCallback}: a function, see Callback.</dd>
-     *   <dt>Shortcuts</dt> <dd>{@link #setColumnEntryTimeClass(String)}: class names separated by spaces, as
-     *                          {@link ClassName}.</dd>
-     *   <dt>Default</dt>   <dd>library: no classes.</dd>
-     *   <dt>Callback</dt>  <dd>{@code function(info)}.<br>
-     *                          {@code info} has only {@code event}, {@code timeText}, {@code isNarrow}, {@code isShort}
-     *                          and {@code resource} (resource views).</dd>
-     *   <dt>Returns</dt>   <dd>the class names as a string.</dd>
+     *   <dt><b>Forms</b></dt>      <dd>{@link ClassName}: class names.
+     *                                  <p>{@link JsCallback}: a function, see JsCallback.</dd>
+     *   <dt><b>Shortcuts</b></dt>  <dd>{@link #setColumnEntryTimeClass(String)}: class names separated by spaces, as
+     *                                  {@link ClassName}.</dd>
+     *   <dt><b>Default</b></dt>    <dd>library: no classes.</dd>
+     *   <dt><b>JsCallback</b></dt> <dd>{@code function(info)}.<br>
+     *                                  {@code info} has only {@code event}, {@code timeText}, {@code isNarrow},
+     *                                  {@code isShort} and {@code resource} (resource views).<br>
+     *                                  It returns the class names as a string.</dd>
      * </dl>
      * <pre>{@code
      * calendar.options().setColumnEntryTimeClass("my-class");
@@ -2679,6 +2773,7 @@ class ViewOptions implements Serializable {
     /**
      * Sets fixed CSS classes for the time element within the "inner" wrapper of column entries, see
      * {@link #getColumnEntryTimeClass()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param classNames the class names, separated by spaces, or null to remove the option
      */
@@ -2689,6 +2784,7 @@ class ViewOptions implements Serializable {
     /**
      * Sets the CSS classes for the time element within the "inner" wrapper of column entries in any form, see
      * {@link #getColumnEntryTimeClass()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param value the classes or callback, or null to remove the option
      */
@@ -2706,15 +2802,15 @@ class ViewOptions implements Serializable {
      * <p>
      * The getter returns null while the option is not set. Then the library default applies.
      * <dl>
-     *   <dt>Forms</dt>     <dd>{@link ClassName}: class names.
-     *                          <p>{@link JsCallback}: a function, see Callback.</dd>
-     *   <dt>Shortcuts</dt> <dd>{@link #setColumnEntryTitleClass(String)}: class names separated by spaces, as
-     *                          {@link ClassName}.</dd>
-     *   <dt>Default</dt>   <dd>library: no classes.</dd>
-     *   <dt>Callback</dt>  <dd>{@code function(info)}.<br>
-     *                          {@code info} has only {@code event}, {@code timeText}, {@code isNarrow}, {@code isShort}
-     *                          and {@code resource} (resource views).</dd>
-     *   <dt>Returns</dt>   <dd>the class names as a string.</dd>
+     *   <dt><b>Forms</b></dt>      <dd>{@link ClassName}: class names.
+     *                                  <p>{@link JsCallback}: a function, see JsCallback.</dd>
+     *   <dt><b>Shortcuts</b></dt>  <dd>{@link #setColumnEntryTitleClass(String)}: class names separated by spaces, as
+     *                                  {@link ClassName}.</dd>
+     *   <dt><b>Default</b></dt>    <dd>library: no classes.</dd>
+     *   <dt><b>JsCallback</b></dt> <dd>{@code function(info)}.<br>
+     *                                  {@code info} has only {@code event}, {@code timeText}, {@code isNarrow},
+     *                                  {@code isShort} and {@code resource} (resource views).<br>
+     *                                  It returns the class names as a string.</dd>
      * </dl>
      * <pre>{@code
      * calendar.options().setColumnEntryTitleClass("my-class");
@@ -2730,6 +2826,7 @@ class ViewOptions implements Serializable {
     /**
      * Sets fixed CSS classes for the title element within the "inner" wrapper of column entries, see
      * {@link #getColumnEntryTitleClass()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param classNames the class names, separated by spaces, or null to remove the option
      */
@@ -2740,6 +2837,7 @@ class ViewOptions implements Serializable {
     /**
      * Sets the CSS classes for the title element within the "inner" wrapper of column entries in any form, see
      * {@link #getColumnEntryTitleClass()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param value the classes or callback, or null to remove the option
      */
@@ -2758,18 +2856,18 @@ class ViewOptions implements Serializable {
      * <p>
      * The getter returns null while the option is not set. Then the library default applies.
      * <dl>
-     *   <dt>Forms</dt>     <dd>{@link ClassName}: class names.
-     *                          <p>{@link JsCallback}: a function, see Callback.</dd>
-     *   <dt>Shortcuts</dt> <dd>{@link #setRowEntryClass(String)}: class names separated by spaces, as
-     *                          {@link ClassName}.</dd>
-     *   <dt>Default</dt>   <dd>library: no classes.
-     *                          <p>add-on: stable classes such as {@code fc-h-event} and
-     *                          {@code fc-daygrid-block-event}.<br>
-     *                          Classes set here are added to them.</dd>
-     *   <dt>Callback</dt>  <dd>{@code function(info)}.<br>
-     *                          {@code info} has {@code event}, {@code timeText}, {@code isStart} and more, see the
-     *                          library docs.</dd>
-     *   <dt>Returns</dt>   <dd>the class names as a string.</dd>
+     *   <dt><b>Forms</b></dt>      <dd>{@link ClassName}: class names.
+     *                                  <p>{@link JsCallback}: a function, see JsCallback.</dd>
+     *   <dt><b>Shortcuts</b></dt>  <dd>{@link #setRowEntryClass(String)}: class names separated by spaces, as
+     *                                  {@link ClassName}.</dd>
+     *   <dt><b>Default</b></dt>    <dd>library: no classes.
+     *                                  <p>add-on: stable classes such as {@code fc-h-event} and
+     *                                  {@code fc-daygrid-block-event}.<br>
+     *                                  Classes set here are added to them.</dd>
+     *   <dt><b>JsCallback</b></dt> <dd>{@code function(info)}.<br>
+     *                                  {@code info} has {@code event}, {@code timeText}, {@code isStart} and more, see
+     *                                  the library docs.<br>
+     *                                  It returns the class names as a string.</dd>
      * </dl>
      * <pre>{@code
      * calendar.options().setRowEntryClass("my-class");
@@ -2784,6 +2882,7 @@ class ViewOptions implements Serializable {
 
     /**
      * Sets fixed CSS classes for the outermost element of row entries, see {@link #getRowEntryClass()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param classNames the class names, separated by spaces, or null to remove the option
      */
@@ -2793,6 +2892,7 @@ class ViewOptions implements Serializable {
 
     /**
      * Sets the CSS classes for the outermost element of row entries in any form, see {@link #getRowEntryClass()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param value the classes or callback, or null to remove the option
      */
@@ -2811,15 +2911,15 @@ class ViewOptions implements Serializable {
      * <p>
      * The getter returns null while the option is not set. Then the library default applies.
      * <dl>
-     *   <dt>Forms</dt>     <dd>{@link ClassName}: class names.
-     *                          <p>{@link JsCallback}: a function, see Callback.</dd>
-     *   <dt>Shortcuts</dt> <dd>{@link #setRowEntryBeforeClass(String)}: class names separated by spaces, as
-     *                          {@link ClassName}.</dd>
-     *   <dt>Default</dt>   <dd>library: no classes.</dd>
-     *   <dt>Callback</dt>  <dd>{@code function(info)}.<br>
-     *                          {@code info} has {@code event}, {@code timeText}, {@code isStart} and more, see the
-     *                          library docs.</dd>
-     *   <dt>Returns</dt>   <dd>the class names as a string.</dd>
+     *   <dt><b>Forms</b></dt>      <dd>{@link ClassName}: class names.
+     *                                  <p>{@link JsCallback}: a function, see JsCallback.</dd>
+     *   <dt><b>Shortcuts</b></dt>  <dd>{@link #setRowEntryBeforeClass(String)}: class names separated by spaces, as
+     *                                  {@link ClassName}.</dd>
+     *   <dt><b>Default</b></dt>    <dd>library: no classes.</dd>
+     *   <dt><b>JsCallback</b></dt> <dd>{@code function(info)}.<br>
+     *                                  {@code info} has {@code event}, {@code timeText}, {@code isStart} and more, see
+     *                                  the library docs.<br>
+     *                                  It returns the class names as a string.</dd>
      * </dl>
      * <pre>{@code
      * calendar.options().setRowEntryBeforeClass("my-class");
@@ -2835,6 +2935,7 @@ class ViewOptions implements Serializable {
     /**
      * Sets fixed CSS classes for the element before the "inner" wrapper of row entries, see
      * {@link #getRowEntryBeforeClass()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param classNames the class names, separated by spaces, or null to remove the option
      */
@@ -2845,6 +2946,7 @@ class ViewOptions implements Serializable {
     /**
      * Sets the CSS classes for the element before the "inner" wrapper of row entries in any form, see
      * {@link #getRowEntryBeforeClass()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param value the classes or callback, or null to remove the option
      */
@@ -2862,15 +2964,15 @@ class ViewOptions implements Serializable {
      * <p>
      * The getter returns null while the option is not set. Then the library default applies.
      * <dl>
-     *   <dt>Forms</dt>     <dd>{@link TextContent}: shown as text.
-     *                          <p>{@link ContentValue#ofHtml(String)}: HTML, not escaped.
-     *                          <p>{@link JsCallback}: a function, see Callback.</dd>
-     *   <dt>Shortcuts</dt> <dd>{@link #setRowEntryBeforeContent(String)}: a text, as {@link TextContent}.</dd>
-     *   <dt>Default</dt>   <dd>library: no content.</dd>
-     *   <dt>Callback</dt>  <dd>{@code function(info)}.<br>
-     *                          {@code info} has {@code event}, {@code timeText}, {@code isStart} and more, see the
-     *                          library docs.</dd>
-     *   <dt>Returns</dt>   <dd>a text, {@code {html: '...'}} or {@code {domNodes: [...]}}.</dd>
+     *   <dt><b>Forms</b></dt>      <dd>{@link TextContent}: shown as text.
+     *                                  <p>{@link ContentValue#ofHtml(String)}: HTML, not escaped.
+     *                                  <p>{@link JsCallback}: a function, see JsCallback.</dd>
+     *   <dt><b>Shortcuts</b></dt>  <dd>{@link #setRowEntryBeforeContent(String)}: a text, as {@link TextContent}.</dd>
+     *   <dt><b>Default</b></dt>    <dd>library: no content.</dd>
+     *   <dt><b>JsCallback</b></dt> <dd>{@code function(info)}.<br>
+     *                                  {@code info} has {@code event}, {@code timeText}, {@code isStart} and more, see
+     *                                  the library docs.<br>
+     *                                  It returns a text, {@code {html: '...'}} or {@code {domNodes: [...]}}.</dd>
      * </dl>
      * <pre>{@code
      * calendar.options().setRowEntryBeforeContent("<");
@@ -2886,6 +2988,7 @@ class ViewOptions implements Serializable {
 
     /**
      * Sets a text as the content before the "inner" wrapper of row entries, see {@link #getRowEntryBeforeContent()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param text the text, shown as text, or null to remove the option
      */
@@ -2895,6 +2998,7 @@ class ViewOptions implements Serializable {
 
     /**
      * Sets the content before the "inner" wrapper of row entries in any form, see {@link #getRowEntryBeforeContent()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param value the content or callback, or null to remove the option
      */
@@ -2913,15 +3017,15 @@ class ViewOptions implements Serializable {
      * <p>
      * The getter returns null while the option is not set. Then the library default applies.
      * <dl>
-     *   <dt>Forms</dt>     <dd>{@link ClassName}: class names.
-     *                          <p>{@link JsCallback}: a function, see Callback.</dd>
-     *   <dt>Shortcuts</dt> <dd>{@link #setRowEntryAfterClass(String)}: class names separated by spaces, as
-     *                          {@link ClassName}.</dd>
-     *   <dt>Default</dt>   <dd>library: no classes.</dd>
-     *   <dt>Callback</dt>  <dd>{@code function(info)}.<br>
-     *                          {@code info} has {@code event}, {@code timeText}, {@code isStart} and more, see the
-     *                          library docs.</dd>
-     *   <dt>Returns</dt>   <dd>the class names as a string.</dd>
+     *   <dt><b>Forms</b></dt>      <dd>{@link ClassName}: class names.
+     *                                  <p>{@link JsCallback}: a function, see JsCallback.</dd>
+     *   <dt><b>Shortcuts</b></dt>  <dd>{@link #setRowEntryAfterClass(String)}: class names separated by spaces, as
+     *                                  {@link ClassName}.</dd>
+     *   <dt><b>Default</b></dt>    <dd>library: no classes.</dd>
+     *   <dt><b>JsCallback</b></dt> <dd>{@code function(info)}.<br>
+     *                                  {@code info} has {@code event}, {@code timeText}, {@code isStart} and more, see
+     *                                  the library docs.<br>
+     *                                  It returns the class names as a string.</dd>
      * </dl>
      * <pre>{@code
      * calendar.options().setRowEntryAfterClass("my-class");
@@ -2937,6 +3041,7 @@ class ViewOptions implements Serializable {
     /**
      * Sets fixed CSS classes for the element after the "inner" wrapper of row entries, see
      * {@link #getRowEntryAfterClass()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param classNames the class names, separated by spaces, or null to remove the option
      */
@@ -2947,6 +3052,7 @@ class ViewOptions implements Serializable {
     /**
      * Sets the CSS classes for the element after the "inner" wrapper of row entries in any form, see
      * {@link #getRowEntryAfterClass()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param value the classes or callback, or null to remove the option
      */
@@ -2963,15 +3069,15 @@ class ViewOptions implements Serializable {
      * <p>
      * The getter returns null while the option is not set. Then the library default applies.
      * <dl>
-     *   <dt>Forms</dt>     <dd>{@link TextContent}: shown as text.
-     *                          <p>{@link ContentValue#ofHtml(String)}: HTML, not escaped.
-     *                          <p>{@link JsCallback}: a function, see Callback.</dd>
-     *   <dt>Shortcuts</dt> <dd>{@link #setRowEntryAfterContent(String)}: a text, as {@link TextContent}.</dd>
-     *   <dt>Default</dt>   <dd>library: no content.</dd>
-     *   <dt>Callback</dt>  <dd>{@code function(info)}.<br>
-     *                          {@code info} has {@code event}, {@code timeText}, {@code isStart} and more, see the
-     *                          library docs.</dd>
-     *   <dt>Returns</dt>   <dd>a text, {@code {html: '...'}} or {@code {domNodes: [...]}}.</dd>
+     *   <dt><b>Forms</b></dt>      <dd>{@link TextContent}: shown as text.
+     *                                  <p>{@link ContentValue#ofHtml(String)}: HTML, not escaped.
+     *                                  <p>{@link JsCallback}: a function, see JsCallback.</dd>
+     *   <dt><b>Shortcuts</b></dt>  <dd>{@link #setRowEntryAfterContent(String)}: a text, as {@link TextContent}.</dd>
+     *   <dt><b>Default</b></dt>    <dd>library: no content.</dd>
+     *   <dt><b>JsCallback</b></dt> <dd>{@code function(info)}.<br>
+     *                                  {@code info} has {@code event}, {@code timeText}, {@code isStart} and more, see
+     *                                  the library docs.<br>
+     *                                  It returns a text, {@code {html: '...'}} or {@code {domNodes: [...]}}.</dd>
      * </dl>
      * <pre>{@code
      * calendar.options().setRowEntryAfterContent("Text");
@@ -2987,6 +3093,7 @@ class ViewOptions implements Serializable {
 
     /**
      * Sets a text as the content after the "inner" wrapper of row entries, see {@link #getRowEntryAfterContent()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param text the text, shown as text, or null to remove the option
      */
@@ -2996,6 +3103,7 @@ class ViewOptions implements Serializable {
 
     /**
      * Sets the content after the "inner" wrapper of row entries in any form, see {@link #getRowEntryAfterContent()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param value the content or callback, or null to remove the option
      */
@@ -3014,15 +3122,15 @@ class ViewOptions implements Serializable {
      * <p>
      * The getter returns null while the option is not set. Then the library default applies.
      * <dl>
-     *   <dt>Forms</dt>     <dd>{@link ClassName}: class names.
-     *                          <p>{@link JsCallback}: a function, see Callback.</dd>
-     *   <dt>Shortcuts</dt> <dd>{@link #setRowEntryInnerClass(String)}: class names separated by spaces, as
-     *                          {@link ClassName}.</dd>
-     *   <dt>Default</dt>   <dd>library: no classes.</dd>
-     *   <dt>Callback</dt>  <dd>{@code function(info)}.<br>
-     *                          {@code info} has {@code event}, {@code timeText}, {@code isStart} and more, see the
-     *                          library docs.</dd>
-     *   <dt>Returns</dt>   <dd>the class names as a string.</dd>
+     *   <dt><b>Forms</b></dt>      <dd>{@link ClassName}: class names.
+     *                                  <p>{@link JsCallback}: a function, see JsCallback.</dd>
+     *   <dt><b>Shortcuts</b></dt>  <dd>{@link #setRowEntryInnerClass(String)}: class names separated by spaces, as
+     *                                  {@link ClassName}.</dd>
+     *   <dt><b>Default</b></dt>    <dd>library: no classes.</dd>
+     *   <dt><b>JsCallback</b></dt> <dd>{@code function(info)}.<br>
+     *                                  {@code info} has {@code event}, {@code timeText}, {@code isStart} and more, see
+     *                                  the library docs.<br>
+     *                                  It returns the class names as a string.</dd>
      * </dl>
      * <pre>{@code
      * calendar.options().setRowEntryInnerClass("my-row-inner");
@@ -3037,6 +3145,7 @@ class ViewOptions implements Serializable {
 
     /**
      * Sets fixed CSS classes for the "inner" wrapper element of row entries, see {@link #getRowEntryInnerClass()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param classNames the class names, separated by spaces, or null to remove the option
      */
@@ -3047,6 +3156,7 @@ class ViewOptions implements Serializable {
     /**
      * Sets the CSS classes for the "inner" wrapper element of row entries in any form, see
      * {@link #getRowEntryInnerClass()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param value the classes or callback, or null to remove the option
      */
@@ -3065,15 +3175,15 @@ class ViewOptions implements Serializable {
      * <p>
      * The getter returns null while the option is not set. Then the library default applies.
      * <dl>
-     *   <dt>Forms</dt>     <dd>{@link ClassName}: class names.
-     *                          <p>{@link JsCallback}: a function, see Callback.</dd>
-     *   <dt>Shortcuts</dt> <dd>{@link #setRowEntryTimeClass(String)}: class names separated by spaces, as
-     *                          {@link ClassName}.</dd>
-     *   <dt>Default</dt>   <dd>library: no classes.</dd>
-     *   <dt>Callback</dt>  <dd>{@code function(info)}.<br>
-     *                          {@code info} has only {@code event}, {@code timeText}, {@code isNarrow}, {@code isShort}
-     *                          and {@code resource} (resource views).</dd>
-     *   <dt>Returns</dt>   <dd>the class names as a string.</dd>
+     *   <dt><b>Forms</b></dt>      <dd>{@link ClassName}: class names.
+     *                                  <p>{@link JsCallback}: a function, see JsCallback.</dd>
+     *   <dt><b>Shortcuts</b></dt>  <dd>{@link #setRowEntryTimeClass(String)}: class names separated by spaces, as
+     *                                  {@link ClassName}.</dd>
+     *   <dt><b>Default</b></dt>    <dd>library: no classes.</dd>
+     *   <dt><b>JsCallback</b></dt> <dd>{@code function(info)}.<br>
+     *                                  {@code info} has only {@code event}, {@code timeText}, {@code isNarrow},
+     *                                  {@code isShort} and {@code resource} (resource views).<br>
+     *                                  It returns the class names as a string.</dd>
      * </dl>
      * <pre>{@code
      * calendar.options().setRowEntryTimeClass("my-row-time");
@@ -3089,6 +3199,7 @@ class ViewOptions implements Serializable {
     /**
      * Sets fixed CSS classes for the time element within the "inner" wrapper of row entries, see
      * {@link #getRowEntryTimeClass()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param classNames the class names, separated by spaces, or null to remove the option
      */
@@ -3099,6 +3210,7 @@ class ViewOptions implements Serializable {
     /**
      * Sets the CSS classes for the time element within the "inner" wrapper of row entries in any form, see
      * {@link #getRowEntryTimeClass()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param value the classes or callback, or null to remove the option
      */
@@ -3117,15 +3229,15 @@ class ViewOptions implements Serializable {
      * <p>
      * The getter returns null while the option is not set. Then the library default applies.
      * <dl>
-     *   <dt>Forms</dt>     <dd>{@link ClassName}: class names.
-     *                          <p>{@link JsCallback}: a function, see Callback.</dd>
-     *   <dt>Shortcuts</dt> <dd>{@link #setRowEntryTitleClass(String)}: class names separated by spaces, as
-     *                          {@link ClassName}.</dd>
-     *   <dt>Default</dt>   <dd>library: no classes.</dd>
-     *   <dt>Callback</dt>  <dd>{@code function(info)}.<br>
-     *                          {@code info} has only {@code event}, {@code timeText}, {@code isNarrow}, {@code isShort}
-     *                          and {@code resource} (resource views).</dd>
-     *   <dt>Returns</dt>   <dd>the class names as a string.</dd>
+     *   <dt><b>Forms</b></dt>      <dd>{@link ClassName}: class names.
+     *                                  <p>{@link JsCallback}: a function, see JsCallback.</dd>
+     *   <dt><b>Shortcuts</b></dt>  <dd>{@link #setRowEntryTitleClass(String)}: class names separated by spaces, as
+     *                                  {@link ClassName}.</dd>
+     *   <dt><b>Default</b></dt>    <dd>library: no classes.</dd>
+     *   <dt><b>JsCallback</b></dt> <dd>{@code function(info)}.<br>
+     *                                  {@code info} has only {@code event}, {@code timeText}, {@code isNarrow},
+     *                                  {@code isShort} and {@code resource} (resource views).<br>
+     *                                  It returns the class names as a string.</dd>
      * </dl>
      * <pre>{@code
      * calendar.options().setRowEntryTitleClass("my-row-title");
@@ -3141,6 +3253,7 @@ class ViewOptions implements Serializable {
     /**
      * Sets fixed CSS classes for the title element within the "inner" wrapper of row entries, see
      * {@link #getRowEntryTitleClass()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param classNames the class names, separated by spaces, or null to remove the option
      */
@@ -3151,6 +3264,7 @@ class ViewOptions implements Serializable {
     /**
      * Sets the CSS classes for the title element within the "inner" wrapper of row entries in any form, see
      * {@link #getRowEntryTitleClass()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param value the classes or callback, or null to remove the option
      */
@@ -3169,17 +3283,17 @@ class ViewOptions implements Serializable {
      * <p>
      * The getter returns null while the option is not set. Then the library default applies.
      * <dl>
-     *   <dt>Forms</dt>     <dd>{@link ClassName}: class names.
-     *                          <p>{@link JsCallback}: a function, see Callback.</dd>
-     *   <dt>Shortcuts</dt> <dd>{@link #setBackgroundEntryClass(String)}: class names separated by spaces, as
-     *                          {@link ClassName}.</dd>
-     *   <dt>Default</dt>   <dd>library: no classes.
-     *                          <p>add-on: stable classes such as {@code fc-bg-event}.<br>
-     *                          Classes set here are added to them.</dd>
-     *   <dt>Callback</dt>  <dd>{@code function(info)}.<br>
-     *                          {@code info} has {@code event}, {@code timeText}, {@code isStart} and more, see the
-     *                          library docs.</dd>
-     *   <dt>Returns</dt>   <dd>the class names as a string.</dd>
+     *   <dt><b>Forms</b></dt>      <dd>{@link ClassName}: class names.
+     *                                  <p>{@link JsCallback}: a function, see JsCallback.</dd>
+     *   <dt><b>Shortcuts</b></dt>  <dd>{@link #setBackgroundEntryClass(String)}: class names separated by spaces, as
+     *                                  {@link ClassName}.</dd>
+     *   <dt><b>Default</b></dt>    <dd>library: no classes.
+     *                                  <p>add-on: stable classes such as {@code fc-bg-event}.<br>
+     *                                  Classes set here are added to them.</dd>
+     *   <dt><b>JsCallback</b></dt> <dd>{@code function(info)}.<br>
+     *                                  {@code info} has {@code event}, {@code timeText}, {@code isStart} and more, see
+     *                                  the library docs.<br>
+     *                                  It returns the class names as a string.</dd>
      * </dl>
      * <pre>{@code
      * calendar.options().setBackgroundEntryClass("my-background");
@@ -3194,6 +3308,7 @@ class ViewOptions implements Serializable {
 
     /**
      * Sets fixed CSS classes, see {@link #getBackgroundEntryClass()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param classNames the class names, separated by spaces, or null to remove the option
      */
@@ -3203,6 +3318,7 @@ class ViewOptions implements Serializable {
 
     /**
      * Sets the CSS classes in any form, see {@link #getBackgroundEntryClass()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param value the classes or callback, or null to remove the option
      */
@@ -3218,15 +3334,15 @@ class ViewOptions implements Serializable {
      * <p>
      * The getter returns null while the option is not set. Then the library default applies.
      * <dl>
-     *   <dt>Forms</dt>     <dd>{@link TextContent}: shown as text.
-     *                          <p>{@link ContentValue#ofHtml(String)}: HTML, not escaped.
-     *                          <p>{@link JsCallback}: a function, see Callback.</dd>
-     *   <dt>Shortcuts</dt> <dd>{@link #setBackgroundEntryContent(String)}: a text, as {@link TextContent}.</dd>
-     *   <dt>Default</dt>   <dd>library: the title of the entry, if it has one.</dd>
-     *   <dt>Callback</dt>  <dd>{@code function(info)}.<br>
-     *                          {@code info} has {@code event}, {@code timeText}, {@code isStart} and more, see the
-     *                          library docs.</dd>
-     *   <dt>Returns</dt>   <dd>a text, {@code {html: '...'}} or {@code {domNodes: [...]}}.</dd>
+     *   <dt><b>Forms</b></dt>      <dd>{@link TextContent}: shown as text.
+     *                                  <p>{@link ContentValue#ofHtml(String)}: HTML, not escaped.
+     *                                  <p>{@link JsCallback}: a function, see JsCallback.</dd>
+     *   <dt><b>Shortcuts</b></dt>  <dd>{@link #setBackgroundEntryContent(String)}: a text, as {@link TextContent}.</dd>
+     *   <dt><b>Default</b></dt>    <dd>library: the title of the entry, if it has one.</dd>
+     *   <dt><b>JsCallback</b></dt> <dd>{@code function(info)}.<br>
+     *                                  {@code info} has {@code event}, {@code timeText}, {@code isStart} and more, see
+     *                                  the library docs.<br>
+     *                                  It returns a text, {@code {html: '...'}} or {@code {domNodes: [...]}}.</dd>
      * </dl>
      * <pre>{@code
      * calendar.options().setBackgroundEntryContent("Text");
@@ -3242,6 +3358,7 @@ class ViewOptions implements Serializable {
 
     /**
      * Sets a text as the content, see {@link #getBackgroundEntryContent()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param text the text, shown as text, or null to remove the option
      */
@@ -3251,6 +3368,7 @@ class ViewOptions implements Serializable {
 
     /**
      * Sets the content in any form, see {@link #getBackgroundEntryContent()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param value the content or callback, or null to remove the option
      */
@@ -3284,15 +3402,15 @@ class ViewOptions implements Serializable {
      * <p>
      * The getter returns null while the option is not set. Then the library default applies.
      * <dl>
-     *   <dt>Forms</dt>     <dd>{@link ClassName}: class names.
-     *                          <p>{@link JsCallback}: a function, see Callback.</dd>
-     *   <dt>Shortcuts</dt> <dd>{@link #setBackgroundEntryInnerClass(String)}: class names separated by spaces, as
-     *                          {@link ClassName}.</dd>
-     *   <dt>Default</dt>   <dd>library: no classes.</dd>
-     *   <dt>Callback</dt>  <dd>{@code function(info)}.<br>
-     *                          {@code info} has {@code event}, {@code timeText}, {@code isStart} and more, see the
-     *                          library docs.</dd>
-     *   <dt>Returns</dt>   <dd>the class names as a string.</dd>
+     *   <dt><b>Forms</b></dt>      <dd>{@link ClassName}: class names.
+     *                                  <p>{@link JsCallback}: a function, see JsCallback.</dd>
+     *   <dt><b>Shortcuts</b></dt>  <dd>{@link #setBackgroundEntryInnerClass(String)}: class names separated by spaces,
+     *                                  as {@link ClassName}.</dd>
+     *   <dt><b>Default</b></dt>    <dd>library: no classes.</dd>
+     *   <dt><b>JsCallback</b></dt> <dd>{@code function(info)}.<br>
+     *                                  {@code info} has {@code event}, {@code timeText}, {@code isStart} and more, see
+     *                                  the library docs.<br>
+     *                                  It returns the class names as a string.</dd>
      * </dl>
      * <pre>{@code
      * calendar.options().setBackgroundEntryInnerClass("my-background-inner");
@@ -3307,6 +3425,7 @@ class ViewOptions implements Serializable {
 
     /**
      * Sets fixed CSS classes, see {@link #getBackgroundEntryInnerClass()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param classNames the class names, separated by spaces, or null to remove the option
      */
@@ -3316,6 +3435,7 @@ class ViewOptions implements Serializable {
 
     /**
      * Sets the CSS classes in any form, see {@link #getBackgroundEntryInnerClass()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param value the classes or callback, or null to remove the option
      */
@@ -3332,15 +3452,15 @@ class ViewOptions implements Serializable {
      * <p>
      * The getter returns null while the option is not set. Then the library default applies.
      * <dl>
-     *   <dt>Forms</dt>     <dd>{@link ClassName}: class names.
-     *                          <p>{@link JsCallback}: a function, see Callback.</dd>
-     *   <dt>Shortcuts</dt> <dd>{@link #setBackgroundEntryTitleClass(String)}: class names separated by spaces, as
-     *                          {@link ClassName}.</dd>
-     *   <dt>Default</dt>   <dd>library: no classes.</dd>
-     *   <dt>Callback</dt>  <dd>{@code function(info)}.<br>
-     *                          {@code info} has {@code event}, {@code timeText} (always empty), {@code isNarrow},
-     *                          {@code isShort} and {@code resource} (resource views).</dd>
-     *   <dt>Returns</dt>   <dd>the class names as a string.</dd>
+     *   <dt><b>Forms</b></dt>      <dd>{@link ClassName}: class names.
+     *                                  <p>{@link JsCallback}: a function, see JsCallback.</dd>
+     *   <dt><b>Shortcuts</b></dt>  <dd>{@link #setBackgroundEntryTitleClass(String)}: class names separated by spaces,
+     *                                  as {@link ClassName}.</dd>
+     *   <dt><b>Default</b></dt>    <dd>library: no classes.</dd>
+     *   <dt><b>JsCallback</b></dt> <dd>{@code function(info)}.<br>
+     *                                  {@code info} has {@code event}, {@code timeText} (always empty),
+     *                                  {@code isNarrow}, {@code isShort} and {@code resource} (resource views).<br>
+     *                                  It returns the class names as a string.</dd>
      * </dl>
      * <pre>{@code
      * calendar.options().setBackgroundEntryTitleClass("my-background-title");
@@ -3355,6 +3475,7 @@ class ViewOptions implements Serializable {
 
     /**
      * Sets fixed CSS classes, see {@link #getBackgroundEntryTitleClass()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param classNames the class names, separated by spaces, or null to remove the option
      */
@@ -3364,6 +3485,7 @@ class ViewOptions implements Serializable {
 
     /**
      * Sets the CSS classes in any form, see {@link #getBackgroundEntryTitleClass()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param value the classes or callback, or null to remove the option
      */
@@ -3395,18 +3517,18 @@ class ViewOptions implements Serializable {
      * <p>
      * The getter returns null while the option is not set. Then the library default applies.
      * <dl>
-     *   <dt>Forms</dt>     <dd>{@link ClassName}: class names.
-     *                          <p>{@link JsCallback}: a function, see Callback.</dd>
-     *   <dt>Shortcuts</dt> <dd>{@link #setEntryAfterClass(String)}: class names separated by spaces, as
-     *                          {@link ClassName}.</dd>
-     *   <dt>Default</dt>   <dd>library: no classes.
-     *                          <p>add-on: the stable classes {@code fc-event-resizer} and {@code fc-event-resizer-end},
-     *                          for entries that can be resized at their end.<br>
-     *                          Classes set here are added to them.</dd>
-     *   <dt>Callback</dt>  <dd>{@code function(info)}.<br>
-     *                          {@code info} has {@code event}, {@code timeText}, {@code isStart} and more, see the
-     *                          library docs.</dd>
-     *   <dt>Returns</dt>   <dd>the class names as a string.</dd>
+     *   <dt><b>Forms</b></dt>      <dd>{@link ClassName}: class names.
+     *                                  <p>{@link JsCallback}: a function, see JsCallback.</dd>
+     *   <dt><b>Shortcuts</b></dt>  <dd>{@link #setEntryAfterClass(String)}: class names separated by spaces, as
+     *                                  {@link ClassName}.</dd>
+     *   <dt><b>Default</b></dt>    <dd>library: no classes.
+     *                                  <p>add-on: the stable classes {@code fc-event-resizer} and
+     *                                  {@code fc-event-resizer-end}, for entries that can be resized at their end.<br>
+     *                                  Classes set here are added to them.</dd>
+     *   <dt><b>JsCallback</b></dt> <dd>{@code function(info)}.<br>
+     *                                  {@code info} has {@code event}, {@code timeText}, {@code isStart} and more, see
+     *                                  the library docs.<br>
+     *                                  It returns the class names as a string.</dd>
      * </dl>
      * <pre>{@code
      * calendar.options().setEntryAfterClass("my-after");
@@ -3421,6 +3543,7 @@ class ViewOptions implements Serializable {
 
     /**
      * Sets fixed CSS classes, see {@link #getEntryAfterClass()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param classNames the class names, separated by spaces, or null to remove the option
      */
@@ -3430,6 +3553,7 @@ class ViewOptions implements Serializable {
 
     /**
      * Sets the CSS classes in any form, see {@link #getEntryAfterClass()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param value the classes or callback, or null to remove the option
      */
@@ -3444,18 +3568,19 @@ class ViewOptions implements Serializable {
      * <p>
      * The getter returns null while the option is not set. Then the library default applies.
      * <dl>
-     *   <dt>Forms</dt>     <dd>{@link ClassName}: class names.
-     *                          <p>{@link JsCallback}: a function, see Callback.</dd>
-     *   <dt>Shortcuts</dt> <dd>{@link #setEntryBeforeClass(String)}: class names separated by spaces, as
-     *                          {@link ClassName}.</dd>
-     *   <dt>Default</dt>   <dd>library: no classes.
-     *                          <p>add-on: the stable classes {@code fc-event-resizer} and
-     *                          {@code fc-event-resizer-start}, for entries that can be resized at their start.<br>
-     *                          Classes set here are added to them.</dd>
-     *   <dt>Callback</dt>  <dd>{@code function(info)}.<br>
-     *                          {@code info} has {@code event}, {@code timeText}, {@code isStart} and more, see the
-     *                          library docs.</dd>
-     *   <dt>Returns</dt>   <dd>the class names as a string.</dd>
+     *   <dt><b>Forms</b></dt>      <dd>{@link ClassName}: class names.
+     *                                  <p>{@link JsCallback}: a function, see JsCallback.</dd>
+     *   <dt><b>Shortcuts</b></dt>  <dd>{@link #setEntryBeforeClass(String)}: class names separated by spaces, as
+     *                                  {@link ClassName}.</dd>
+     *   <dt><b>Default</b></dt>    <dd>library: no classes.
+     *                                  <p>add-on: the stable classes {@code fc-event-resizer} and
+     *                                  {@code fc-event-resizer-start}, for entries that can be resized at their
+     *                                  start.<br>
+     *                                  Classes set here are added to them.</dd>
+     *   <dt><b>JsCallback</b></dt> <dd>{@code function(info)}.<br>
+     *                                  {@code info} has {@code event}, {@code timeText}, {@code isStart} and more, see
+     *                                  the library docs.<br>
+     *                                  It returns the class names as a string.</dd>
      * </dl>
      * <pre>{@code
      * calendar.options().setEntryBeforeClass("my-before");
@@ -3470,6 +3595,7 @@ class ViewOptions implements Serializable {
 
     /**
      * Sets fixed CSS classes, see {@link #getEntryBeforeClass()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param classNames the class names, separated by spaces, or null to remove the option
      */
@@ -3479,6 +3605,7 @@ class ViewOptions implements Serializable {
 
     /**
      * Sets the CSS classes in any form, see {@link #getEntryBeforeClass()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param value the classes or callback, or null to remove the option
      */
@@ -3493,18 +3620,18 @@ class ViewOptions implements Serializable {
      * <p>
      * The getter returns null while the option is not set. Then the library default applies.
      * <dl>
-     *   <dt>Forms</dt>     <dd>{@link ClassName}: class names.
-     *                          <p>{@link JsCallback}: a function, see Callback.</dd>
-     *   <dt>Shortcuts</dt> <dd>{@link #setEntryClass(String)}: class names separated by spaces, as
-     *                          {@link ClassName}.</dd>
-     *   <dt>Default</dt>   <dd>library: no classes.
-     *                          <p>add-on: stable classes such as {@code fc-event} and {@code fc-event-draggable}, in
-     *                          day grid views also {@code fc-daygrid-event}.<br>
-     *                          Classes set here are added to them.</dd>
-     *   <dt>Callback</dt>  <dd>{@code function(info)}.<br>
-     *                          {@code info} has {@code event}, {@code timeText}, {@code isStart} and more, see the
-     *                          library docs.</dd>
-     *   <dt>Returns</dt>   <dd>the class names as a string.</dd>
+     *   <dt><b>Forms</b></dt>      <dd>{@link ClassName}: class names.
+     *                                  <p>{@link JsCallback}: a function, see JsCallback.</dd>
+     *   <dt><b>Shortcuts</b></dt>  <dd>{@link #setEntryClass(String)}: class names separated by spaces, as
+     *                                  {@link ClassName}.</dd>
+     *   <dt><b>Default</b></dt>    <dd>library: no classes.
+     *                                  <p>add-on: stable classes such as {@code fc-event} and
+     *                                  {@code fc-event-draggable}, in day grid views also {@code fc-daygrid-event}.<br>
+     *                                  Classes set here are added to them.</dd>
+     *   <dt><b>JsCallback</b></dt> <dd>{@code function(info)}.<br>
+     *                                  {@code info} has {@code event}, {@code timeText}, {@code isStart} and more, see
+     *                                  the library docs.<br>
+     *                                  It returns the class names as a string.</dd>
      * </dl>
      * <pre>{@code
      * calendar.options().setEntryClass("my-entry");
@@ -3519,6 +3646,7 @@ class ViewOptions implements Serializable {
 
     /**
      * Sets fixed CSS classes, see {@link #getEntryClass()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param classNames the class names, separated by spaces, or null to remove the option
      */
@@ -3528,6 +3656,7 @@ class ViewOptions implements Serializable {
 
     /**
      * Sets the CSS classes in any form, see {@link #getEntryClass()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param value the classes or callback, or null to remove the option
      */
@@ -3543,15 +3672,15 @@ class ViewOptions implements Serializable {
      * <p>
      * The getter returns null while the option is not set. Then the library default applies.
      * <dl>
-     *   <dt>Forms</dt>     <dd>{@link TextContent}: shown as text.
-     *                          <p>{@link ContentValue#ofHtml(String)}: HTML, not escaped.
-     *                          <p>{@link JsCallback}: a function, see Callback.</dd>
-     *   <dt>Shortcuts</dt> <dd>{@link #setEntryContent(String)}: a text, as {@link TextContent}.</dd>
-     *   <dt>Default</dt>   <dd>library: none, and the themes set no entry content.</dd>
-     *   <dt>Callback</dt>  <dd>{@code function(info)}.<br>
-     *                          {@code info} has {@code event}, {@code timeText}, {@code isStart} and more, see the
-     *                          library docs.</dd>
-     *   <dt>Returns</dt>   <dd>a text, {@code {html: '...'}} or {@code {domNodes: [...]}}.</dd>
+     *   <dt><b>Forms</b></dt>      <dd>{@link TextContent}: shown as text.
+     *                                  <p>{@link ContentValue#ofHtml(String)}: HTML, not escaped.
+     *                                  <p>{@link JsCallback}: a function, see JsCallback.</dd>
+     *   <dt><b>Shortcuts</b></dt>  <dd>{@link #setEntryContent(String)}: a text, as {@link TextContent}.</dd>
+     *   <dt><b>Default</b></dt>    <dd>library: none, and the themes set no entry content.</dd>
+     *   <dt><b>JsCallback</b></dt> <dd>{@code function(info)}.<br>
+     *                                  {@code info} has {@code event}, {@code timeText}, {@code isStart} and more, see
+     *                                  the library docs.<br>
+     *                                  It returns a text, {@code {html: '...'}} or {@code {domNodes: [...]}}.</dd>
      * </dl>
      * <pre>{@code
      * calendar.options().setEntryContent("Text");
@@ -3567,6 +3696,7 @@ class ViewOptions implements Serializable {
 
     /**
      * Sets a text as the content, see {@link #getEntryContent()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param text the text, shown as text, or null to remove the option
      */
@@ -3576,6 +3706,7 @@ class ViewOptions implements Serializable {
 
     /**
      * Sets the content in any form, see {@link #getEntryContent()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param value the content or callback, or null to remove the option
      */
@@ -3590,17 +3721,17 @@ class ViewOptions implements Serializable {
      * <p>
      * The getter returns null while the option is not set. Then the library default applies.
      * <dl>
-     *   <dt>Forms</dt>     <dd>{@link ClassName}: class names.
-     *                          <p>{@link JsCallback}: a function, see Callback.</dd>
-     *   <dt>Shortcuts</dt> <dd>{@link #setEntryInnerClass(String)}: class names separated by spaces, as
-     *                          {@link ClassName}.</dd>
-     *   <dt>Default</dt>   <dd>library: no classes.
-     *                          <p>add-on: the stable class {@code fc-event-main}.<br>
-     *                          Classes set here are added to it.</dd>
-     *   <dt>Callback</dt>  <dd>{@code function(info)}.<br>
-     *                          {@code info} has {@code event}, {@code timeText}, {@code isStart} and more, see the
-     *                          library docs.</dd>
-     *   <dt>Returns</dt>   <dd>the class names as a string.</dd>
+     *   <dt><b>Forms</b></dt>      <dd>{@link ClassName}: class names.
+     *                                  <p>{@link JsCallback}: a function, see JsCallback.</dd>
+     *   <dt><b>Shortcuts</b></dt>  <dd>{@link #setEntryInnerClass(String)}: class names separated by spaces, as
+     *                                  {@link ClassName}.</dd>
+     *   <dt><b>Default</b></dt>    <dd>library: no classes.
+     *                                  <p>add-on: the stable class {@code fc-event-main}.<br>
+     *                                  Classes set here are added to it.</dd>
+     *   <dt><b>JsCallback</b></dt> <dd>{@code function(info)}.<br>
+     *                                  {@code info} has {@code event}, {@code timeText}, {@code isStart} and more, see
+     *                                  the library docs.<br>
+     *                                  It returns the class names as a string.</dd>
      * </dl>
      * <pre>{@code
      * calendar.options().setEntryInnerClass("my-inner");
@@ -3615,6 +3746,7 @@ class ViewOptions implements Serializable {
 
     /**
      * Sets fixed CSS classes, see {@link #getEntryInnerClass()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param classNames the class names, separated by spaces, or null to remove the option
      */
@@ -3624,6 +3756,7 @@ class ViewOptions implements Serializable {
 
     /**
      * Sets the CSS classes in any form, see {@link #getEntryInnerClass()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param value the classes or callback, or null to remove the option
      */
@@ -3638,17 +3771,17 @@ class ViewOptions implements Serializable {
      * <p>
      * The getter returns null while the option is not set. Then the library default applies.
      * <dl>
-     *   <dt>Forms</dt>     <dd>{@link ClassName}: class names.
-     *                          <p>{@link JsCallback}: a function, see Callback.</dd>
-     *   <dt>Shortcuts</dt> <dd>{@link #setEntryTimeClass(String)}: class names separated by spaces, as
-     *                          {@link ClassName}.</dd>
-     *   <dt>Default</dt>   <dd>library: no classes.
-     *                          <p>add-on: the stable class {@code fc-event-time}.<br>
-     *                          Classes set here are added to it.</dd>
-     *   <dt>Callback</dt>  <dd>{@code function(info)}.<br>
-     *                          {@code info} has {@code event}, {@code timeText}, {@code isNarrow}, {@code isShort} and
-     *                          {@code resource} (resource views).</dd>
-     *   <dt>Returns</dt>   <dd>the class names as a string.</dd>
+     *   <dt><b>Forms</b></dt>      <dd>{@link ClassName}: class names.
+     *                                  <p>{@link JsCallback}: a function, see JsCallback.</dd>
+     *   <dt><b>Shortcuts</b></dt>  <dd>{@link #setEntryTimeClass(String)}: class names separated by spaces, as
+     *                                  {@link ClassName}.</dd>
+     *   <dt><b>Default</b></dt>    <dd>library: no classes.
+     *                                  <p>add-on: the stable class {@code fc-event-time}.<br>
+     *                                  Classes set here are added to it.</dd>
+     *   <dt><b>JsCallback</b></dt> <dd>{@code function(info)}.<br>
+     *                                  {@code info} has {@code event}, {@code timeText}, {@code isNarrow},
+     *                                  {@code isShort} and {@code resource} (resource views).<br>
+     *                                  It returns the class names as a string.</dd>
      * </dl>
      * <pre>{@code
      * calendar.options().setEntryTimeClass("my-time");
@@ -3663,6 +3796,7 @@ class ViewOptions implements Serializable {
 
     /**
      * Sets fixed CSS classes, see {@link #getEntryTimeClass()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param classNames the class names, separated by spaces, or null to remove the option
      */
@@ -3672,6 +3806,7 @@ class ViewOptions implements Serializable {
 
     /**
      * Sets the CSS classes in any form, see {@link #getEntryTimeClass()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param value the classes or callback, or null to remove the option
      */
@@ -3686,17 +3821,17 @@ class ViewOptions implements Serializable {
      * <p>
      * The getter returns null while the option is not set. Then the library default applies.
      * <dl>
-     *   <dt>Forms</dt>     <dd>{@link ClassName}: class names.
-     *                          <p>{@link JsCallback}: a function, see Callback.</dd>
-     *   <dt>Shortcuts</dt> <dd>{@link #setEntryTitleClass(String)}: class names separated by spaces, as
-     *                          {@link ClassName}.</dd>
-     *   <dt>Default</dt>   <dd>library: no classes.
-     *                          <p>add-on: the stable class {@code fc-event-title}.<br>
-     *                          Classes set here are added to it.</dd>
-     *   <dt>Callback</dt>  <dd>{@code function(info)}.<br>
-     *                          {@code info} has {@code event}, {@code timeText}, {@code isNarrow}, {@code isShort} and
-     *                          {@code resource} (resource views).</dd>
-     *   <dt>Returns</dt>   <dd>the class names as a string.</dd>
+     *   <dt><b>Forms</b></dt>      <dd>{@link ClassName}: class names.
+     *                                  <p>{@link JsCallback}: a function, see JsCallback.</dd>
+     *   <dt><b>Shortcuts</b></dt>  <dd>{@link #setEntryTitleClass(String)}: class names separated by spaces, as
+     *                                  {@link ClassName}.</dd>
+     *   <dt><b>Default</b></dt>    <dd>library: no classes.
+     *                                  <p>add-on: the stable class {@code fc-event-title}.<br>
+     *                                  Classes set here are added to it.</dd>
+     *   <dt><b>JsCallback</b></dt> <dd>{@code function(info)}.<br>
+     *                                  {@code info} has {@code event}, {@code timeText}, {@code isNarrow},
+     *                                  {@code isShort} and {@code resource} (resource views).<br>
+     *                                  It returns the class names as a string.</dd>
      * </dl>
      * <pre>{@code
      * calendar.options().setEntryTitleClass("my-title");
@@ -3711,6 +3846,7 @@ class ViewOptions implements Serializable {
 
     /**
      * Sets fixed CSS classes, see {@link #getEntryTitleClass()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param classNames the class names, separated by spaces, or null to remove the option
      */
@@ -3720,6 +3856,7 @@ class ViewOptions implements Serializable {
 
     /**
      * Sets the CSS classes in any form, see {@link #getEntryTitleClass()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param value the classes or callback, or null to remove the option
      */
@@ -3757,15 +3894,15 @@ class ViewOptions implements Serializable {
      * <p>
      * The getter returns null while the option is not set. Then the library default applies.
      * <dl>
-     *   <dt>Forms</dt>     <dd>{@link ClassName}: class names.
-     *                          <p>{@link JsCallback}: a function, see Callback.</dd>
-     *   <dt>Shortcuts</dt> <dd>{@link #setListItemEntryAfterClass(String)}: class names separated by spaces, as
-     *                          {@link ClassName}.</dd>
-     *   <dt>Default</dt>   <dd>library: no classes.</dd>
-     *   <dt>Callback</dt>  <dd>{@code function(info)}.<br>
-     *                          {@code info} has {@code event}, {@code timeText}, {@code isStart} and more, see the
-     *                          library docs.</dd>
-     *   <dt>Returns</dt>   <dd>the class names as a string.</dd>
+     *   <dt><b>Forms</b></dt>      <dd>{@link ClassName}: class names.
+     *                                  <p>{@link JsCallback}: a function, see JsCallback.</dd>
+     *   <dt><b>Shortcuts</b></dt>  <dd>{@link #setListItemEntryAfterClass(String)}: class names separated by spaces, as
+     *                                  {@link ClassName}.</dd>
+     *   <dt><b>Default</b></dt>    <dd>library: no classes.</dd>
+     *   <dt><b>JsCallback</b></dt> <dd>{@code function(info)}.<br>
+     *                                  {@code info} has {@code event}, {@code timeText}, {@code isStart} and more, see
+     *                                  the library docs.<br>
+     *                                  It returns the class names as a string.</dd>
      * </dl>
      * <pre>{@code
      * calendar.options().setListItemEntryAfterClass("my-li-after");
@@ -3780,6 +3917,7 @@ class ViewOptions implements Serializable {
 
     /**
      * Sets fixed CSS classes, see {@link #getListItemEntryAfterClass()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param classNames the class names, separated by spaces, or null to remove the option
      */
@@ -3789,6 +3927,7 @@ class ViewOptions implements Serializable {
 
     /**
      * Sets the CSS classes in any form, see {@link #getListItemEntryAfterClass()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param value the classes or callback, or null to remove the option
      */
@@ -3805,18 +3944,18 @@ class ViewOptions implements Serializable {
      * <p>
      * The getter returns null while the option is not set. Then the library default applies.
      * <dl>
-     *   <dt>Forms</dt>     <dd>{@link ClassName}: class names.
-     *                          <p>{@link JsCallback}: a function, see Callback.</dd>
-     *   <dt>Shortcuts</dt> <dd>{@link #setListItemEntryBeforeClass(String)}: class names separated by spaces, as
-     *                          {@link ClassName}.</dd>
-     *   <dt>Default</dt>   <dd>library: no classes.
-     *                          <p>add-on: the stable class {@code fc-daygrid-event-dot} in day grid views and
-     *                          {@code fc-list-event-dot} in list views.<br>
-     *                          Classes set here are added to it.</dd>
-     *   <dt>Callback</dt>  <dd>{@code function(info)}.<br>
-     *                          {@code info} has {@code event}, {@code timeText}, {@code isStart} and more, see the
-     *                          library docs.</dd>
-     *   <dt>Returns</dt>   <dd>the class names as a string.</dd>
+     *   <dt><b>Forms</b></dt>      <dd>{@link ClassName}: class names.
+     *                                  <p>{@link JsCallback}: a function, see JsCallback.</dd>
+     *   <dt><b>Shortcuts</b></dt>  <dd>{@link #setListItemEntryBeforeClass(String)}: class names separated by spaces,
+     *                                  as {@link ClassName}.</dd>
+     *   <dt><b>Default</b></dt>    <dd>library: no classes.
+     *                                  <p>add-on: the stable class {@code fc-daygrid-event-dot} in day grid views and
+     *                                  {@code fc-list-event-dot} in list views.<br>
+     *                                  Classes set here are added to it.</dd>
+     *   <dt><b>JsCallback</b></dt> <dd>{@code function(info)}.<br>
+     *                                  {@code info} has {@code event}, {@code timeText}, {@code isStart} and more, see
+     *                                  the library docs.<br>
+     *                                  It returns the class names as a string.</dd>
      * </dl>
      * <pre>{@code
      * calendar.options().setListItemEntryBeforeClass("my-li-before");
@@ -3831,6 +3970,7 @@ class ViewOptions implements Serializable {
 
     /**
      * Sets fixed CSS classes, see {@link #getListItemEntryBeforeClass()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param classNames the class names, separated by spaces, or null to remove the option
      */
@@ -3840,6 +3980,7 @@ class ViewOptions implements Serializable {
 
     /**
      * Sets the CSS classes in any form, see {@link #getListItemEntryBeforeClass()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param value the classes or callback, or null to remove the option
      */
@@ -3856,18 +3997,18 @@ class ViewOptions implements Serializable {
      * <p>
      * The getter returns null while the option is not set. Then the library default applies.
      * <dl>
-     *   <dt>Forms</dt>     <dd>{@link ClassName}: class names.
-     *                          <p>{@link JsCallback}: a function, see Callback.</dd>
-     *   <dt>Shortcuts</dt> <dd>{@link #setListItemEntryClass(String)}: class names separated by spaces, as
-     *                          {@link ClassName}.</dd>
-     *   <dt>Default</dt>   <dd>library: no classes.
-     *                          <p>add-on: the stable class {@code fc-daygrid-dot-event} in day grid views and
-     *                          {@code fc-list-event} in list views.<br>
-     *                          Classes set here are added to it.</dd>
-     *   <dt>Callback</dt>  <dd>{@code function(info)}.<br>
-     *                          {@code info} has {@code event}, {@code timeText}, {@code isStart} and more, see the
-     *                          library docs.</dd>
-     *   <dt>Returns</dt>   <dd>the class names as a string.</dd>
+     *   <dt><b>Forms</b></dt>      <dd>{@link ClassName}: class names.
+     *                                  <p>{@link JsCallback}: a function, see JsCallback.</dd>
+     *   <dt><b>Shortcuts</b></dt>  <dd>{@link #setListItemEntryClass(String)}: class names separated by spaces, as
+     *                                  {@link ClassName}.</dd>
+     *   <dt><b>Default</b></dt>    <dd>library: no classes.
+     *                                  <p>add-on: the stable class {@code fc-daygrid-dot-event} in day grid views and
+     *                                  {@code fc-list-event} in list views.<br>
+     *                                  Classes set here are added to it.</dd>
+     *   <dt><b>JsCallback</b></dt> <dd>{@code function(info)}.<br>
+     *                                  {@code info} has {@code event}, {@code timeText}, {@code isStart} and more, see
+     *                                  the library docs.<br>
+     *                                  It returns the class names as a string.</dd>
      * </dl>
      * <pre>{@code
      * calendar.options().setListItemEntryClass("my-li");
@@ -3882,6 +4023,7 @@ class ViewOptions implements Serializable {
 
     /**
      * Sets fixed CSS classes, see {@link #getListItemEntryClass()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param classNames the class names, separated by spaces, or null to remove the option
      */
@@ -3891,6 +4033,7 @@ class ViewOptions implements Serializable {
 
     /**
      * Sets the CSS classes in any form, see {@link #getListItemEntryClass()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param value the classes or callback, or null to remove the option
      */
@@ -3907,15 +4050,15 @@ class ViewOptions implements Serializable {
      * <p>
      * The getter returns null while the option is not set. Then the library default applies.
      * <dl>
-     *   <dt>Forms</dt>     <dd>{@link ClassName}: class names.
-     *                          <p>{@link JsCallback}: a function, see Callback.</dd>
-     *   <dt>Shortcuts</dt> <dd>{@link #setListItemEntryInnerClass(String)}: class names separated by spaces, as
-     *                          {@link ClassName}.</dd>
-     *   <dt>Default</dt>   <dd>library: no classes.</dd>
-     *   <dt>Callback</dt>  <dd>{@code function(info)}.<br>
-     *                          {@code info} has {@code event}, {@code timeText}, {@code isStart} and more, see the
-     *                          library docs.</dd>
-     *   <dt>Returns</dt>   <dd>the class names as a string.</dd>
+     *   <dt><b>Forms</b></dt>      <dd>{@link ClassName}: class names.
+     *                                  <p>{@link JsCallback}: a function, see JsCallback.</dd>
+     *   <dt><b>Shortcuts</b></dt>  <dd>{@link #setListItemEntryInnerClass(String)}: class names separated by spaces, as
+     *                                  {@link ClassName}.</dd>
+     *   <dt><b>Default</b></dt>    <dd>library: no classes.</dd>
+     *   <dt><b>JsCallback</b></dt> <dd>{@code function(info)}.<br>
+     *                                  {@code info} has {@code event}, {@code timeText}, {@code isStart} and more, see
+     *                                  the library docs.<br>
+     *                                  It returns the class names as a string.</dd>
      * </dl>
      * <pre>{@code
      * calendar.options().setListItemEntryInnerClass("my-li-inner");
@@ -3930,6 +4073,7 @@ class ViewOptions implements Serializable {
 
     /**
      * Sets fixed CSS classes, see {@link #getListItemEntryInnerClass()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param classNames the class names, separated by spaces, or null to remove the option
      */
@@ -3939,6 +4083,7 @@ class ViewOptions implements Serializable {
 
     /**
      * Sets the CSS classes in any form, see {@link #getListItemEntryInnerClass()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param value the classes or callback, or null to remove the option
      */
@@ -3955,17 +4100,17 @@ class ViewOptions implements Serializable {
      * <p>
      * The getter returns null while the option is not set. Then the library default applies.
      * <dl>
-     *   <dt>Forms</dt>     <dd>{@link ClassName}: class names.
-     *                          <p>{@link JsCallback}: a function, see Callback.</dd>
-     *   <dt>Shortcuts</dt> <dd>{@link #setListItemEntryTimeClass(String)}: class names separated by spaces, as
-     *                          {@link ClassName}.</dd>
-     *   <dt>Default</dt>   <dd>library: no classes.
-     *                          <p>add-on: in list views the stable class {@code fc-list-event-time}.<br>
-     *                          Classes set here are added to it.</dd>
-     *   <dt>Callback</dt>  <dd>{@code function(info)}.<br>
-     *                          {@code info} has {@code event}, {@code timeText}, {@code isNarrow}, {@code isShort} and
-     *                          {@code resource} (resource views).</dd>
-     *   <dt>Returns</dt>   <dd>the class names as a string.</dd>
+     *   <dt><b>Forms</b></dt>      <dd>{@link ClassName}: class names.
+     *                                  <p>{@link JsCallback}: a function, see JsCallback.</dd>
+     *   <dt><b>Shortcuts</b></dt>  <dd>{@link #setListItemEntryTimeClass(String)}: class names separated by spaces, as
+     *                                  {@link ClassName}.</dd>
+     *   <dt><b>Default</b></dt>    <dd>library: no classes.
+     *                                  <p>add-on: in list views the stable class {@code fc-list-event-time}.<br>
+     *                                  Classes set here are added to it.</dd>
+     *   <dt><b>JsCallback</b></dt> <dd>{@code function(info)}.<br>
+     *                                  {@code info} has {@code event}, {@code timeText}, {@code isNarrow},
+     *                                  {@code isShort} and {@code resource} (resource views).<br>
+     *                                  It returns the class names as a string.</dd>
      * </dl>
      * <pre>{@code
      * calendar.options().setListItemEntryTimeClass("my-li-time");
@@ -3980,6 +4125,7 @@ class ViewOptions implements Serializable {
 
     /**
      * Sets fixed CSS classes, see {@link #getListItemEntryTimeClass()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param classNames the class names, separated by spaces, or null to remove the option
      */
@@ -3989,6 +4135,7 @@ class ViewOptions implements Serializable {
 
     /**
      * Sets the CSS classes in any form, see {@link #getListItemEntryTimeClass()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param value the classes or callback, or null to remove the option
      */
@@ -4005,17 +4152,17 @@ class ViewOptions implements Serializable {
      * <p>
      * The getter returns null while the option is not set. Then the library default applies.
      * <dl>
-     *   <dt>Forms</dt>     <dd>{@link ClassName}: class names.
-     *                          <p>{@link JsCallback}: a function, see Callback.</dd>
-     *   <dt>Shortcuts</dt> <dd>{@link #setListItemEntryTitleClass(String)}: class names separated by spaces, as
-     *                          {@link ClassName}.</dd>
-     *   <dt>Default</dt>   <dd>library: no classes.
-     *                          <p>add-on: in list views the stable class {@code fc-list-event-title}.<br>
-     *                          Classes set here are added to it.</dd>
-     *   <dt>Callback</dt>  <dd>{@code function(info)}.<br>
-     *                          {@code info} has {@code event}, {@code timeText}, {@code isNarrow}, {@code isShort} and
-     *                          {@code resource} (resource views).</dd>
-     *   <dt>Returns</dt>   <dd>the class names as a string.</dd>
+     *   <dt><b>Forms</b></dt>      <dd>{@link ClassName}: class names.
+     *                                  <p>{@link JsCallback}: a function, see JsCallback.</dd>
+     *   <dt><b>Shortcuts</b></dt>  <dd>{@link #setListItemEntryTitleClass(String)}: class names separated by spaces, as
+     *                                  {@link ClassName}.</dd>
+     *   <dt><b>Default</b></dt>    <dd>library: no classes.
+     *                                  <p>add-on: in list views the stable class {@code fc-list-event-title}.<br>
+     *                                  Classes set here are added to it.</dd>
+     *   <dt><b>JsCallback</b></dt> <dd>{@code function(info)}.<br>
+     *                                  {@code info} has {@code event}, {@code timeText}, {@code isNarrow},
+     *                                  {@code isShort} and {@code resource} (resource views).<br>
+     *                                  It returns the class names as a string.</dd>
      * </dl>
      * <pre>{@code
      * calendar.options().setListItemEntryTitleClass("my-class");
@@ -4030,6 +4177,7 @@ class ViewOptions implements Serializable {
 
     /**
      * Sets fixed CSS classes, see {@link #getListItemEntryTitleClass()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param classNames the class names, separated by spaces, or null to remove the option
      */
@@ -4039,6 +4187,7 @@ class ViewOptions implements Serializable {
 
     /**
      * Sets the CSS classes in any form, see {@link #getListItemEntryTitleClass()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param value the classes or callback, or null to remove the option
      */
@@ -4055,19 +4204,21 @@ class ViewOptions implements Serializable {
      * <p>
      * The getter returns null while the option is not set. Then the library default applies.
      * <dl>
-     *   <dt>Forms</dt>     <dd>{@link ClassName}: class names.
-     *                          <p>{@link JsCallback}: a function, see Callback.</dd>
-     *   <dt>Shortcuts</dt> <dd>{@link #setButtonClass(String)}: class names separated by spaces, as
-     *                          {@link ClassName}.</dd>
-     *   <dt>Default</dt>   <dd>library: no classes.
-     *                          <p>add-on: stable classes such as {@code fc-button} and {@code fc-button-active}.<br>
-     *                          Classes set here are added to them.</dd>
-     *   <dt>Callback</dt>  <dd>{@code function(info)}.<br>
-     *                          {@code info} has {@code name}, {@code text}, {@code isPrimary}, {@code isSelected},
-     *                          {@code isDisabled}, {@code isIconOnly} and {@code buttonGroup}.<br>
-     *                          The latter is null for a button outside a group, else an object with
-     *                          {@code hasSelection}.</dd>
-     *   <dt>Returns</dt>   <dd>the class names as a string.</dd>
+     *   <dt><b>Forms</b></dt>      <dd>{@link ClassName}: class names.
+     *                                  <p>{@link JsCallback}: a function, see JsCallback.</dd>
+     *   <dt><b>Shortcuts</b></dt>  <dd>{@link #setButtonClass(String)}: class names separated by spaces, as
+     *                                  {@link ClassName}.</dd>
+     *   <dt><b>Default</b></dt>    <dd>library: no classes.
+     *                                  <p>add-on: stable classes such as {@code fc-button} and
+     *                                  {@code fc-button-active}.<br>
+     *                                  Classes set here are added to them.</dd>
+     *   <dt><b>JsCallback</b></dt> <dd>{@code function(info)}.<br>
+     *                                  {@code info} has {@code name}, {@code text}, {@code isPrimary},
+     *                                  {@code isSelected}, {@code isDisabled}, {@code isIconOnly} and
+     *                                  {@code buttonGroup}.<br>
+     *                                  The latter is null for a button outside a group, else an object with
+     *                                  {@code hasSelection}.<br>
+     *                                  It returns the class names as a string.</dd>
      * </dl>
      * <pre>{@code
      * calendar.options().setButtonClass("my-class");
@@ -4081,6 +4232,7 @@ class ViewOptions implements Serializable {
 
     /**
      * Sets fixed CSS classes, see {@link #getButtonClass()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param classNames the class names, separated by spaces, or null to remove the option
      */
@@ -4090,6 +4242,7 @@ class ViewOptions implements Serializable {
 
     /**
      * Sets the CSS classes in any form, see {@link #getButtonClass()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param value the classes or callback, or null to remove the option
      */
@@ -4107,15 +4260,15 @@ class ViewOptions implements Serializable {
      * <p>
      * The getter returns null while the option is not set. Then the library default applies.
      * <dl>
-     *   <dt>Forms</dt>     <dd>{@link ClassName}: class names.
-     *                          <p>{@link JsCallback}: a function, see Callback.</dd>
-     *   <dt>Shortcuts</dt> <dd>{@link #setButtonGroupClass(String)}: class names separated by spaces, as
-     *                          {@link ClassName}.</dd>
-     *   <dt>Default</dt>   <dd>library: no classes.</dd>
-     *   <dt>Callback</dt>  <dd>{@code function(info)}.<br>
-     *                          {@code info} has {@code hasSelection}, which is true when only one button of the group
-     *                          can be active at a time, like view buttons.</dd>
-     *   <dt>Returns</dt>   <dd>the class names as a string.</dd>
+     *   <dt><b>Forms</b></dt>      <dd>{@link ClassName}: class names.
+     *                                  <p>{@link JsCallback}: a function, see JsCallback.</dd>
+     *   <dt><b>Shortcuts</b></dt>  <dd>{@link #setButtonGroupClass(String)}: class names separated by spaces, as
+     *                                  {@link ClassName}.</dd>
+     *   <dt><b>Default</b></dt>    <dd>library: no classes.</dd>
+     *   <dt><b>JsCallback</b></dt> <dd>{@code function(info)}.<br>
+     *                                  {@code info} has {@code hasSelection}, which is true when only one button of the
+     *                                  group can be active at a time, like view buttons.<br>
+     *                                  It returns the class names as a string.</dd>
      * </dl>
      * <pre>{@code
      * calendar.options().setButtonGroupClass("my-class");
@@ -4129,6 +4282,7 @@ class ViewOptions implements Serializable {
 
     /**
      * Sets fixed CSS classes, see {@link #getButtonGroupClass()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param classNames the class names, separated by spaces, or null to remove the option
      */
@@ -4138,6 +4292,7 @@ class ViewOptions implements Serializable {
 
     /**
      * Sets the CSS classes in any form, see {@link #getButtonGroupClass()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param value the classes or callback, or null to remove the option
      */
@@ -4166,19 +4321,19 @@ class ViewOptions implements Serializable {
      * <p>
      * The getter returns null while the option is not set. Then the library default applies.
      * <dl>
-     *   <dt>Forms</dt>     <dd>{@link ClassName}: class names.
-     *                          <p>{@link JsCallback}: a function, see Callback.</dd>
-     *   <dt>Shortcuts</dt> <dd>{@link #setSingleMonthClass(String)}: class names separated by spaces, as
-     *                          {@link ClassName}.</dd>
-     *   <dt>Default</dt>   <dd>library: no classes.
-     *                          <p>add-on: the stable class {@code fc-multimonth-month}.<br>
-     *                          Classes set here are added to it.</dd>
-     *   <dt>Callback</dt>  <dd>{@code function(info)}.<br>
-     *                          {@code info} has {@code multiMonthColumns} (0 until the layout is measured),
-     *                          {@code isFirst} and {@code isLast}.<br>
-     *                          The library docs also list {@code date}, which the used library version does not
-     *                          pass.</dd>
-     *   <dt>Returns</dt>   <dd>the class names as a string.</dd>
+     *   <dt><b>Forms</b></dt>      <dd>{@link ClassName}: class names.
+     *                                  <p>{@link JsCallback}: a function, see JsCallback.</dd>
+     *   <dt><b>Shortcuts</b></dt>  <dd>{@link #setSingleMonthClass(String)}: class names separated by spaces, as
+     *                                  {@link ClassName}.</dd>
+     *   <dt><b>Default</b></dt>    <dd>library: no classes.
+     *                                  <p>add-on: the stable class {@code fc-multimonth-month}.<br>
+     *                                  Classes set here are added to it.</dd>
+     *   <dt><b>JsCallback</b></dt> <dd>{@code function(info)}.<br>
+     *                                  {@code info} has {@code multiMonthColumns} (0 until the layout is measured),
+     *                                  {@code isFirst} and {@code isLast}.<br>
+     *                                  The library docs also list {@code date}, which the used library version does not
+     *                                  pass.<br>
+     *                                  It returns the class names as a string.</dd>
      * </dl>
      * <pre>{@code
      * calendar.options().setSingleMonthClass("my-class");
@@ -4192,6 +4347,7 @@ class ViewOptions implements Serializable {
 
     /**
      * Sets fixed CSS classes, see {@link #getSingleMonthClass()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param classNames the class names, separated by spaces, or null to remove the option
      */
@@ -4201,6 +4357,7 @@ class ViewOptions implements Serializable {
 
     /**
      * Sets the CSS classes in any form, see {@link #getSingleMonthClass()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param value the classes or callback, or null to remove the option
      */
@@ -4227,19 +4384,19 @@ class ViewOptions implements Serializable {
      * <p>
      * The getter returns null while the option is not set. Then the library default applies.
      * <dl>
-     *   <dt>Forms</dt>     <dd>{@link ClassName}: class names.
-     *                          <p>{@link JsCallback}: a function, see Callback.</dd>
-     *   <dt>Shortcuts</dt> <dd>{@link #setSingleMonthHeaderClass(String)}: class names separated by spaces, as
-     *                          {@link ClassName}.</dd>
-     *   <dt>Default</dt>   <dd>library: no classes.
-     *                          <p>add-on: the stable class {@code fc-multimonth-title}.<br>
-     *                          Classes set here are added to it.</dd>
-     *   <dt>Callback</dt>  <dd>{@code function(info)}.<br>
-     *                          {@code info} has {@code multiMonthColumns}, {@code isSticky}, {@code isNarrow} and
-     *                          {@code hasNavLink}.<br>
-     *                          The library docs also list {@code date}, which the used library version does not
-     *                          pass.</dd>
-     *   <dt>Returns</dt>   <dd>the class names as a string.</dd>
+     *   <dt><b>Forms</b></dt>      <dd>{@link ClassName}: class names.
+     *                                  <p>{@link JsCallback}: a function, see JsCallback.</dd>
+     *   <dt><b>Shortcuts</b></dt>  <dd>{@link #setSingleMonthHeaderClass(String)}: class names separated by spaces, as
+     *                                  {@link ClassName}.</dd>
+     *   <dt><b>Default</b></dt>    <dd>library: no classes.
+     *                                  <p>add-on: the stable class {@code fc-multimonth-title}.<br>
+     *                                  Classes set here are added to it.</dd>
+     *   <dt><b>JsCallback</b></dt> <dd>{@code function(info)}.<br>
+     *                                  {@code info} has {@code multiMonthColumns}, {@code isSticky}, {@code isNarrow}
+     *                                  and {@code hasNavLink}.<br>
+     *                                  The library docs also list {@code date}, which the used library version does not
+     *                                  pass.<br>
+     *                                  It returns the class names as a string.</dd>
      * </dl>
      * <pre>{@code
      * calendar.options().setSingleMonthHeaderClass("my-class");
@@ -4253,6 +4410,7 @@ class ViewOptions implements Serializable {
 
     /**
      * Sets fixed CSS classes, see {@link #getSingleMonthHeaderClass()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param classNames the class names, separated by spaces, or null to remove the option
      */
@@ -4262,6 +4420,7 @@ class ViewOptions implements Serializable {
 
     /**
      * Sets the CSS classes in any form, see {@link #getSingleMonthHeaderClass()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param value the classes or callback, or null to remove the option
      */
@@ -4276,17 +4435,17 @@ class ViewOptions implements Serializable {
      * <p>
      * The getter returns null while the option is not set. Then the library default applies.
      * <dl>
-     *   <dt>Forms</dt>     <dd>{@link ClassName}: class names.
-     *                          <p>{@link JsCallback}: a function, see Callback.</dd>
-     *   <dt>Shortcuts</dt> <dd>{@link #setSingleMonthHeaderInnerClass(String)}: class names separated by spaces, as
-     *                          {@link ClassName}.</dd>
-     *   <dt>Default</dt>   <dd>library: no classes.</dd>
-     *   <dt>Callback</dt>  <dd>{@code function(info)}.<br>
-     *                          {@code info} has {@code multiMonthColumns}, {@code isSticky}, {@code isNarrow} and
-     *                          {@code hasNavLink}.<br>
-     *                          The library docs also list {@code date}, which the used library version does not
-     *                          pass.</dd>
-     *   <dt>Returns</dt>   <dd>the class names as a string.</dd>
+     *   <dt><b>Forms</b></dt>      <dd>{@link ClassName}: class names.
+     *                                  <p>{@link JsCallback}: a function, see JsCallback.</dd>
+     *   <dt><b>Shortcuts</b></dt>  <dd>{@link #setSingleMonthHeaderInnerClass(String)}: class names separated by
+     *                                  spaces, as {@link ClassName}.</dd>
+     *   <dt><b>Default</b></dt>    <dd>library: no classes.</dd>
+     *   <dt><b>JsCallback</b></dt> <dd>{@code function(info)}.<br>
+     *                                  {@code info} has {@code multiMonthColumns}, {@code isSticky}, {@code isNarrow}
+     *                                  and {@code hasNavLink}.<br>
+     *                                  The library docs also list {@code date}, which the used library version does not
+     *                                  pass.<br>
+     *                                  It returns the class names as a string.</dd>
      * </dl>
      * <pre>{@code
      * calendar.options().setSingleMonthHeaderInnerClass("my-class");
@@ -4300,6 +4459,7 @@ class ViewOptions implements Serializable {
 
     /**
      * Sets fixed CSS classes, see {@link #getSingleMonthHeaderInnerClass()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param classNames the class names, separated by spaces, or null to remove the option
      */
@@ -4309,6 +4469,7 @@ class ViewOptions implements Serializable {
 
     /**
      * Sets the CSS classes in any form, see {@link #getSingleMonthHeaderInnerClass()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param value the classes or callback, or null to remove the option
      */
@@ -4339,17 +4500,17 @@ class ViewOptions implements Serializable {
      * <p>
      * The getter returns null while the option is not set. Then the library default applies.
      * <dl>
-     *   <dt>Forms</dt>     <dd>{@link ClassName}: class names.
-     *                          <p>{@link JsCallback}: a function, see Callback.</dd>
-     *   <dt>Shortcuts</dt> <dd>{@link #setToolbarClass(String)}: class names separated by spaces, as
-     *                          {@link ClassName}.</dd>
-     *   <dt>Default</dt>   <dd>library: no classes.
-     *                          <p>add-on: the stable class {@code fc-toolbar}.<br>
-     *                          Classes set here are added to it.</dd>
-     *   <dt>Callback</dt>  <dd>{@code function(info)}.<br>
-     *                          {@code info} has {@code borderlessX}, {@code borderlessTop} and
-     *                          {@code borderlessBottom}.</dd>
-     *   <dt>Returns</dt>   <dd>the class names as a string.</dd>
+     *   <dt><b>Forms</b></dt>      <dd>{@link ClassName}: class names.
+     *                                  <p>{@link JsCallback}: a function, see JsCallback.</dd>
+     *   <dt><b>Shortcuts</b></dt>  <dd>{@link #setToolbarClass(String)}: class names separated by spaces, as
+     *                                  {@link ClassName}.</dd>
+     *   <dt><b>Default</b></dt>    <dd>library: no classes.
+     *                                  <p>add-on: the stable class {@code fc-toolbar}.<br>
+     *                                  Classes set here are added to it.</dd>
+     *   <dt><b>JsCallback</b></dt> <dd>{@code function(info)}.<br>
+     *                                  {@code info} has {@code borderlessX}, {@code borderlessTop} and
+     *                                  {@code borderlessBottom}.<br>
+     *                                  It returns the class names as a string.</dd>
      * </dl>
      * <pre>{@code
      * calendar.options().setToolbarClass("my-class");
@@ -4363,6 +4524,7 @@ class ViewOptions implements Serializable {
 
     /**
      * Sets fixed CSS classes, see {@link #getToolbarClass()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param classNames the class names, separated by spaces, or null to remove the option
      */
@@ -4372,6 +4534,7 @@ class ViewOptions implements Serializable {
 
     /**
      * Sets the CSS classes in any form, see {@link #getToolbarClass()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param value the classes or callback, or null to remove the option
      */
@@ -4386,15 +4549,15 @@ class ViewOptions implements Serializable {
      * <p>
      * The getter returns null while the option is not set. Then the library default applies.
      * <dl>
-     *   <dt>Forms</dt>     <dd>{@link ClassName}: class names.
-     *                          <p>{@link JsCallback}: a function, see Callback.</dd>
-     *   <dt>Shortcuts</dt> <dd>{@link #setToolbarSectionClass(String)}: class names separated by spaces, as
-     *                          {@link ClassName}.</dd>
-     *   <dt>Default</dt>   <dd>library: no classes.</dd>
-     *   <dt>Callback</dt>  <dd>{@code function(info)}.<br>
-     *                          {@code info} has {@code name}, the section: {@code 'start'}, {@code 'center'} or
-     *                          {@code 'end'}.</dd>
-     *   <dt>Returns</dt>   <dd>the class names as a string.</dd>
+     *   <dt><b>Forms</b></dt>      <dd>{@link ClassName}: class names.
+     *                                  <p>{@link JsCallback}: a function, see JsCallback.</dd>
+     *   <dt><b>Shortcuts</b></dt>  <dd>{@link #setToolbarSectionClass(String)}: class names separated by spaces, as
+     *                                  {@link ClassName}.</dd>
+     *   <dt><b>Default</b></dt>    <dd>library: no classes.</dd>
+     *   <dt><b>JsCallback</b></dt> <dd>{@code function(info)}.<br>
+     *                                  {@code info} has {@code name}, the section: {@code 'start'}, {@code 'center'} or
+     *                                  {@code 'end'}.<br>
+     *                                  It returns the class names as a string.</dd>
      * </dl>
      * <pre>{@code
      * calendar.options().setToolbarSectionClass("my-class");
@@ -4408,6 +4571,7 @@ class ViewOptions implements Serializable {
 
     /**
      * Sets fixed CSS classes, see {@link #getToolbarSectionClass()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param classNames the class names, separated by spaces, or null to remove the option
      */
@@ -4417,6 +4581,7 @@ class ViewOptions implements Serializable {
 
     /**
      * Sets the CSS classes in any form, see {@link #getToolbarSectionClass()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param value the classes or callback, or null to remove the option
      */
@@ -4448,18 +4613,18 @@ class ViewOptions implements Serializable {
      * <p>
      * The getter returns null while the option is not set. Then the library default applies.
      * <dl>
-     *   <dt>Forms</dt>     <dd>{@link ClassName}: class names.
-     *                          <p>{@link JsCallback}: a function, see Callback.</dd>
-     *   <dt>Shortcuts</dt> <dd>{@link #setColumnMoreLinkClass(String)}: class names separated by spaces, as
-     *                          {@link ClassName}.</dd>
-     *   <dt>Default</dt>   <dd>library: no classes.
-     *                          <p>add-on: the stable class {@code fc-timegrid-more-link}.<br>
-     *                          Classes set here are added to it.</dd>
-     *   <dt>Callback</dt>  <dd>{@code function(info)}.<br>
-     *                          {@code info} has {@code num}, {@code numericText}, {@code longText}, {@code text},
-     *                          {@code isNarrow}, {@code view}, {@code resource} (resource views) and more, see the
-     *                          library docs.</dd>
-     *   <dt>Returns</dt>   <dd>the class names as a string.</dd>
+     *   <dt><b>Forms</b></dt>      <dd>{@link ClassName}: class names.
+     *                                  <p>{@link JsCallback}: a function, see JsCallback.</dd>
+     *   <dt><b>Shortcuts</b></dt>  <dd>{@link #setColumnMoreLinkClass(String)}: class names separated by spaces, as
+     *                                  {@link ClassName}.</dd>
+     *   <dt><b>Default</b></dt>    <dd>library: no classes.
+     *                                  <p>add-on: the stable class {@code fc-timegrid-more-link}.<br>
+     *                                  Classes set here are added to it.</dd>
+     *   <dt><b>JsCallback</b></dt> <dd>{@code function(info)}.<br>
+     *                                  {@code info} has {@code num}, {@code numericText}, {@code longText},
+     *                                  {@code text}, {@code isNarrow}, {@code view}, {@code resource} (resource views)
+     *                                  and more, see the library docs.<br>
+     *                                  It returns the class names as a string.</dd>
      * </dl>
      * <pre>{@code
      * calendar.options().setColumnMoreLinkClass("my-class");
@@ -4473,6 +4638,7 @@ class ViewOptions implements Serializable {
 
     /**
      * Sets fixed CSS classes, see {@link #getColumnMoreLinkClass()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param classNames the class names, separated by spaces, or null to remove the option
      */
@@ -4482,6 +4648,7 @@ class ViewOptions implements Serializable {
 
     /**
      * Sets the CSS classes in any form, see {@link #getColumnMoreLinkClass()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param value the classes or callback, or null to remove the option
      */
@@ -4498,16 +4665,16 @@ class ViewOptions implements Serializable {
      * <p>
      * The getter returns null while the option is not set. Then the library default applies.
      * <dl>
-     *   <dt>Forms</dt>     <dd>{@link ClassName}: class names.
-     *                          <p>{@link JsCallback}: a function, see Callback.</dd>
-     *   <dt>Shortcuts</dt> <dd>{@link #setColumnMoreLinkInnerClass(String)}: class names separated by spaces, as
-     *                          {@link ClassName}.</dd>
-     *   <dt>Default</dt>   <dd>library: no classes.</dd>
-     *   <dt>Callback</dt>  <dd>{@code function(info)}.<br>
-     *                          {@code info} has {@code num}, {@code numericText}, {@code longText}, {@code text},
-     *                          {@code isNarrow}, {@code view}, {@code resource} (resource views) and more, see the
-     *                          library docs.</dd>
-     *   <dt>Returns</dt>   <dd>the class names as a string.</dd>
+     *   <dt><b>Forms</b></dt>      <dd>{@link ClassName}: class names.
+     *                                  <p>{@link JsCallback}: a function, see JsCallback.</dd>
+     *   <dt><b>Shortcuts</b></dt>  <dd>{@link #setColumnMoreLinkInnerClass(String)}: class names separated by spaces,
+     *                                  as {@link ClassName}.</dd>
+     *   <dt><b>Default</b></dt>    <dd>library: no classes.</dd>
+     *   <dt><b>JsCallback</b></dt> <dd>{@code function(info)}.<br>
+     *                                  {@code info} has {@code num}, {@code numericText}, {@code longText},
+     *                                  {@code text}, {@code isNarrow}, {@code view}, {@code resource} (resource views)
+     *                                  and more, see the library docs.<br>
+     *                                  It returns the class names as a string.</dd>
      * </dl>
      * <pre>{@code
      * calendar.options().setColumnMoreLinkInnerClass("my-class");
@@ -4521,6 +4688,7 @@ class ViewOptions implements Serializable {
 
     /**
      * Sets fixed CSS classes, see {@link #getColumnMoreLinkInnerClass()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param classNames the class names, separated by spaces, or null to remove the option
      */
@@ -4530,6 +4698,7 @@ class ViewOptions implements Serializable {
 
     /**
      * Sets the CSS classes in any form, see {@link #getColumnMoreLinkInnerClass()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param value the classes or callback, or null to remove the option
      */
@@ -4558,16 +4727,16 @@ class ViewOptions implements Serializable {
      * <p>
      * The getter returns null while the option is not set. Then the library default applies.
      * <dl>
-     *   <dt>Forms</dt>     <dd>{@link ClassName}: class names.
-     *                          <p>{@link JsCallback}: a function, see Callback.</dd>
-     *   <dt>Shortcuts</dt> <dd>{@link #setListDayBodyClass(String)}: class names separated by spaces, as
-     *                          {@link ClassName}.</dd>
-     *   <dt>Default</dt>   <dd>library: no classes.</dd>
-     *   <dt>Callback</dt>  <dd>{@code function(info)}.<br>
-     *                          {@code info} has {@code date} (a JS Date), {@code dow}, {@code isDisabled},
-     *                          {@code isOther}, {@code isToday}, {@code isPast}, {@code isFuture} and
-     *                          {@code view}.</dd>
-     *   <dt>Returns</dt>   <dd>the class names as a string.</dd>
+     *   <dt><b>Forms</b></dt>      <dd>{@link ClassName}: class names.
+     *                                  <p>{@link JsCallback}: a function, see JsCallback.</dd>
+     *   <dt><b>Shortcuts</b></dt>  <dd>{@link #setListDayBodyClass(String)}: class names separated by spaces, as
+     *                                  {@link ClassName}.</dd>
+     *   <dt><b>Default</b></dt>    <dd>library: no classes.</dd>
+     *   <dt><b>JsCallback</b></dt> <dd>{@code function(info)}.<br>
+     *                                  {@code info} has {@code date} (a JS Date), {@code dow}, {@code isDisabled},
+     *                                  {@code isOther}, {@code isToday}, {@code isPast}, {@code isFuture} and
+     *                                  {@code view}.<br>
+     *                                  It returns the class names as a string.</dd>
      * </dl>
      * <pre>{@code
      * calendar.options().setListDayBodyClass("my-class");
@@ -4581,6 +4750,7 @@ class ViewOptions implements Serializable {
 
     /**
      * Sets fixed CSS classes, see {@link #getListDayBodyClass()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param classNames the class names, separated by spaces, or null to remove the option
      */
@@ -4590,6 +4760,7 @@ class ViewOptions implements Serializable {
 
     /**
      * Sets the CSS classes in any form, see {@link #getListDayBodyClass()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param value the classes or callback, or null to remove the option
      */
@@ -4605,16 +4776,16 @@ class ViewOptions implements Serializable {
      * <p>
      * The getter returns null while the option is not set. Then the library default applies.
      * <dl>
-     *   <dt>Forms</dt>     <dd>{@link ClassName}: class names.
-     *                          <p>{@link JsCallback}: a function, see Callback.</dd>
-     *   <dt>Shortcuts</dt> <dd>{@link #setListDayClass(String)}: class names separated by spaces, as
-     *                          {@link ClassName}.</dd>
-     *   <dt>Default</dt>   <dd>library: no classes.</dd>
-     *   <dt>Callback</dt>  <dd>{@code function(info)}.<br>
-     *                          {@code info} has {@code date}, {@code dow}, {@code isDisabled}, {@code isOther},
-     *                          {@code isToday}, {@code isPast}, {@code isFuture}, {@code isFirst}, {@code isLast} and
-     *                          {@code view}.</dd>
-     *   <dt>Returns</dt>   <dd>the class names as a string.</dd>
+     *   <dt><b>Forms</b></dt>      <dd>{@link ClassName}: class names.
+     *                                  <p>{@link JsCallback}: a function, see JsCallback.</dd>
+     *   <dt><b>Shortcuts</b></dt>  <dd>{@link #setListDayClass(String)}: class names separated by spaces, as
+     *                                  {@link ClassName}.</dd>
+     *   <dt><b>Default</b></dt>    <dd>library: no classes.</dd>
+     *   <dt><b>JsCallback</b></dt> <dd>{@code function(info)}.<br>
+     *                                  {@code info} has {@code date}, {@code dow}, {@code isDisabled}, {@code isOther},
+     *                                  {@code isToday}, {@code isPast}, {@code isFuture}, {@code isFirst},
+     *                                  {@code isLast} and {@code view}.<br>
+     *                                  It returns the class names as a string.</dd>
      * </dl>
      * <pre>{@code
      * calendar.options().setListDayClass("my-class");
@@ -4628,6 +4799,7 @@ class ViewOptions implements Serializable {
 
     /**
      * Sets fixed CSS classes, see {@link #getListDayClass()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param classNames the class names, separated by spaces, or null to remove the option
      */
@@ -4637,6 +4809,7 @@ class ViewOptions implements Serializable {
 
     /**
      * Sets the CSS classes in any form, see {@link #getListDayClass()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param value the classes or callback, or null to remove the option
      */
@@ -4651,17 +4824,17 @@ class ViewOptions implements Serializable {
      * <p>
      * The getter returns null while the option is not set. Then the library default applies.
      * <dl>
-     *   <dt>Forms</dt>     <dd>{@link ClassName}: class names.
-     *                          <p>{@link JsCallback}: a function, see Callback.</dd>
-     *   <dt>Shortcuts</dt> <dd>{@link #setListDayHeaderClass(String)}: class names separated by spaces, as
-     *                          {@link ClassName}.</dd>
-     *   <dt>Default</dt>   <dd>library: no classes.
-     *                          <p>add-on: the stable class {@code fc-list-day}.<br>
-     *                          Classes set here are added to it.</dd>
-     *   <dt>Callback</dt>  <dd>{@code function(info)}.<br>
-     *                          {@code info} has {@code date}, {@code dow}, {@code isDisabled}, {@code isOther},
-     *                          {@code isToday}, {@code isPast}, {@code isFuture} and {@code view}.</dd>
-     *   <dt>Returns</dt>   <dd>the class names as a string.</dd>
+     *   <dt><b>Forms</b></dt>      <dd>{@link ClassName}: class names.
+     *                                  <p>{@link JsCallback}: a function, see JsCallback.</dd>
+     *   <dt><b>Shortcuts</b></dt>  <dd>{@link #setListDayHeaderClass(String)}: class names separated by spaces, as
+     *                                  {@link ClassName}.</dd>
+     *   <dt><b>Default</b></dt>    <dd>library: no classes.
+     *                                  <p>add-on: the stable class {@code fc-list-day}.<br>
+     *                                  Classes set here are added to it.</dd>
+     *   <dt><b>JsCallback</b></dt> <dd>{@code function(info)}.<br>
+     *                                  {@code info} has {@code date}, {@code dow}, {@code isDisabled}, {@code isOther},
+     *                                  {@code isToday}, {@code isPast}, {@code isFuture} and {@code view}.<br>
+     *                                  It returns the class names as a string.</dd>
      * </dl>
      * <pre>{@code
      * calendar.options().setListDayHeaderClass("my-class");
@@ -4675,6 +4848,7 @@ class ViewOptions implements Serializable {
 
     /**
      * Sets fixed CSS classes, see {@link #getListDayHeaderClass()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param classNames the class names, separated by spaces, or null to remove the option
      */
@@ -4684,6 +4858,7 @@ class ViewOptions implements Serializable {
 
     /**
      * Sets the CSS classes in any form, see {@link #getListDayHeaderClass()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param value the classes or callback, or null to remove the option
      */
@@ -4697,18 +4872,18 @@ class ViewOptions implements Serializable {
      * <p>
      * The getter returns null while the option is not set. Then the library default applies.
      * <dl>
-     *   <dt>Forms</dt>     <dd>{@link TextContent}: shown as text.
-     *                          <p>{@link ContentValue#ofHtml(String)}: HTML, not escaped.
-     *                          <p>{@link JsCallback}: a function, see Callback.</dd>
-     *   <dt>Shortcuts</dt> <dd>{@link #setListDayHeaderContent(String)}: a text, as {@link TextContent}.</dd>
-     *   <dt>Default</dt>   <dd>library: the text of the day formats, see {@link #getListDayFormat()} and
-     *                          {@link #getListDayAltFormat()}.</dd>
-     *   <dt>Callback</dt>  <dd>{@code function(info)}.<br>
-     *                          {@code info} has {@code date}, {@code dow}, {@code isDisabled}, {@code isOther},
-     *                          {@code isToday}, {@code isPast}, {@code isFuture}, {@code view}, {@code text},
-     *                          {@code textParts}, {@code weekdayText}, {@code dayNumberText}, {@code monthText},
-     *                          {@code hasNavLink} and {@code level}.</dd>
-     *   <dt>Returns</dt>   <dd>a text, {@code {html: '...'}} or {@code {domNodes: [...]}}.</dd>
+     *   <dt><b>Forms</b></dt>      <dd>{@link TextContent}: shown as text.
+     *                                  <p>{@link ContentValue#ofHtml(String)}: HTML, not escaped.
+     *                                  <p>{@link JsCallback}: a function, see JsCallback.</dd>
+     *   <dt><b>Shortcuts</b></dt>  <dd>{@link #setListDayHeaderContent(String)}: a text, as {@link TextContent}.</dd>
+     *   <dt><b>Default</b></dt>    <dd>library: the text of the day formats, see {@link #getListDayFormat()} and
+     *                                  {@link #getListDayAltFormat()}.</dd>
+     *   <dt><b>JsCallback</b></dt> <dd>{@code function(info)}.<br>
+     *                                  {@code info} has {@code date}, {@code dow}, {@code isDisabled}, {@code isOther},
+     *                                  {@code isToday}, {@code isPast}, {@code isFuture}, {@code view}, {@code text},
+     *                                  {@code textParts}, {@code weekdayText}, {@code dayNumberText},
+     *                                  {@code monthText}, {@code hasNavLink} and {@code level}.<br>
+     *                                  It returns a text, {@code {html: '...'}} or {@code {domNodes: [...]}}.</dd>
      * </dl>
      * <pre>{@code
      * calendar.options().setListDayHeaderContent("Day");
@@ -4723,6 +4898,7 @@ class ViewOptions implements Serializable {
 
     /**
      * Sets a text as the content of the texts of a list view day heading, see {@link #getListDayHeaderContent()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param text the text, shown as text, or null to remove the option
      */
@@ -4732,6 +4908,7 @@ class ViewOptions implements Serializable {
 
     /**
      * Sets the content of the texts of a list view day heading in any form, see {@link #getListDayHeaderContent()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param value the content or callback, or null to remove the option
      */
@@ -4762,22 +4939,22 @@ class ViewOptions implements Serializable {
      * <p>
      * The getter returns null while the option is not set. Then the library default applies.
      * <dl>
-     *   <dt>Forms</dt>     <dd>{@link ClassName}: class names.
-     *                          <p>{@link JsCallback}: a function, see Callback.</dd>
-     *   <dt>Shortcuts</dt> <dd>{@link #setListDayHeaderInnerClass(String)}: class names separated by spaces, as
-     *                          {@link ClassName}.</dd>
-     *   <dt>Default</dt>   <dd>library: no classes.
-     *                          <p>add-on: the stable classes {@code fc-list-day-cushion} and, depending on the side,
-     *                          {@code fc-list-day-text} or {@code fc-list-day-side-text}.<br>
-     *                          Classes set here are added to them.</dd>
-     *   <dt>Callback</dt>  <dd>{@code function(info)}.<br>
-     *                          {@code info} has {@code date}, {@code dow}, {@code isDisabled}, {@code isOther},
-     *                          {@code isToday}, {@code isPast}, {@code isFuture}, {@code view}, {@code text},
-     *                          {@code textParts}, {@code weekdayText}, {@code dayNumberText}, {@code monthText},
-     *                          {@code hasNavLink} and {@code level}.<br>
-     *                          {@code level} is 0 for the primary day format side and 1 for the alternative format
-     *                          side.</dd>
-     *   <dt>Returns</dt>   <dd>the class names as a string.</dd>
+     *   <dt><b>Forms</b></dt>      <dd>{@link ClassName}: class names.
+     *                                  <p>{@link JsCallback}: a function, see JsCallback.</dd>
+     *   <dt><b>Shortcuts</b></dt>  <dd>{@link #setListDayHeaderInnerClass(String)}: class names separated by spaces, as
+     *                                  {@link ClassName}.</dd>
+     *   <dt><b>Default</b></dt>    <dd>library: no classes.
+     *                                  <p>add-on: the stable classes {@code fc-list-day-cushion} and, depending on the
+     *                                  side, {@code fc-list-day-text} or {@code fc-list-day-side-text}.<br>
+     *                                  Classes set here are added to them.</dd>
+     *   <dt><b>JsCallback</b></dt> <dd>{@code function(info)}.<br>
+     *                                  {@code info} has {@code date}, {@code dow}, {@code isDisabled}, {@code isOther},
+     *                                  {@code isToday}, {@code isPast}, {@code isFuture}, {@code view}, {@code text},
+     *                                  {@code textParts}, {@code weekdayText}, {@code dayNumberText},
+     *                                  {@code monthText}, {@code hasNavLink} and {@code level}.<br>
+     *                                  {@code level} is 0 for the primary day format side and 1 for the alternative
+     *                                  format side.<br>
+     *                                  It returns the class names as a string.</dd>
      * </dl>
      * <pre>{@code
      * calendar.options().setListDayHeaderInnerClass("my-class");
@@ -4791,6 +4968,7 @@ class ViewOptions implements Serializable {
 
     /**
      * Sets fixed CSS classes, see {@link #getListDayHeaderInnerClass()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param classNames the class names, separated by spaces, or null to remove the option
      */
@@ -4800,6 +4978,7 @@ class ViewOptions implements Serializable {
 
     /**
      * Sets the CSS classes in any form, see {@link #getListDayHeaderInnerClass()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param value the classes or callback, or null to remove the option
      */
@@ -4831,18 +5010,18 @@ class ViewOptions implements Serializable {
      * <p>
      * The getter returns null while the option is not set. Then the library default applies.
      * <dl>
-     *   <dt>Forms</dt>     <dd>{@link ClassName}: class names.
-     *                          <p>{@link JsCallback}: a function, see Callback.</dd>
-     *   <dt>Shortcuts</dt> <dd>{@link #setMoreLinkClass(String)}: class names separated by spaces, as
-     *                          {@link ClassName}.</dd>
-     *   <dt>Default</dt>   <dd>library: no classes.
-     *                          <p>add-on: the stable class {@code fc-more-link}.<br>
-     *                          Classes set here are added to it.</dd>
-     *   <dt>Callback</dt>  <dd>{@code function(info)}.<br>
-     *                          {@code info} has {@code num}, {@code numericText}, {@code longText}, {@code text},
-     *                          {@code isNarrow}, {@code view}, {@code resource} (resource views) and more, see the
-     *                          library docs.</dd>
-     *   <dt>Returns</dt>   <dd>the class names as a string.</dd>
+     *   <dt><b>Forms</b></dt>      <dd>{@link ClassName}: class names.
+     *                                  <p>{@link JsCallback}: a function, see JsCallback.</dd>
+     *   <dt><b>Shortcuts</b></dt>  <dd>{@link #setMoreLinkClass(String)}: class names separated by spaces, as
+     *                                  {@link ClassName}.</dd>
+     *   <dt><b>Default</b></dt>    <dd>library: no classes.
+     *                                  <p>add-on: the stable class {@code fc-more-link}.<br>
+     *                                  Classes set here are added to it.</dd>
+     *   <dt><b>JsCallback</b></dt> <dd>{@code function(info)}.<br>
+     *                                  {@code info} has {@code num}, {@code numericText}, {@code longText},
+     *                                  {@code text}, {@code isNarrow}, {@code view}, {@code resource} (resource views)
+     *                                  and more, see the library docs.<br>
+     *                                  It returns the class names as a string.</dd>
      * </dl>
      * <pre>{@code
      * calendar.options().setMoreLinkClass("my-class");
@@ -4856,6 +5035,7 @@ class ViewOptions implements Serializable {
 
     /**
      * Sets fixed CSS classes, see {@link #getMoreLinkClass()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param classNames the class names, separated by spaces, or null to remove the option
      */
@@ -4865,6 +5045,7 @@ class ViewOptions implements Serializable {
 
     /**
      * Sets the CSS classes in any form, see {@link #getMoreLinkClass()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param value the classes or callback, or null to remove the option
      */
@@ -4877,16 +5058,16 @@ class ViewOptions implements Serializable {
      * <p>
      * The getter returns null while the option is not set. Then the library default applies.
      * <dl>
-     *   <dt>Forms</dt>     <dd>{@link TextContent}: shown as text.
-     *                          <p>{@link ContentValue#ofHtml(String)}: HTML, not escaped.
-     *                          <p>{@link JsCallback}: a function, see Callback.</dd>
-     *   <dt>Shortcuts</dt> <dd>{@link #setMoreLinkContent(String)}: a text, as {@link TextContent}.</dd>
-     *   <dt>Default</dt>   <dd>library: the library's own text, see {@link #getMoreLinkText()}.</dd>
-     *   <dt>Callback</dt>  <dd>{@code function(info)}.<br>
-     *                          {@code info} has {@code num}, {@code numericText}, {@code longText}, {@code text},
-     *                          {@code isNarrow}, {@code view}, {@code resource} (resource views) and more, see the
-     *                          library docs.</dd>
-     *   <dt>Returns</dt>   <dd>a text, {@code {html: '...'}} or {@code {domNodes: [...]}}.</dd>
+     *   <dt><b>Forms</b></dt>      <dd>{@link TextContent}: shown as text.
+     *                                  <p>{@link ContentValue#ofHtml(String)}: HTML, not escaped.
+     *                                  <p>{@link JsCallback}: a function, see JsCallback.</dd>
+     *   <dt><b>Shortcuts</b></dt>  <dd>{@link #setMoreLinkContent(String)}: a text, as {@link TextContent}.</dd>
+     *   <dt><b>Default</b></dt>    <dd>library: the library's own text, see {@link #getMoreLinkText()}.</dd>
+     *   <dt><b>JsCallback</b></dt> <dd>{@code function(info)}.<br>
+     *                                  {@code info} has {@code num}, {@code numericText}, {@code longText},
+     *                                  {@code text}, {@code isNarrow}, {@code view}, {@code resource} (resource views)
+     *                                  and more, see the library docs.<br>
+     *                                  It returns a text, {@code {html: '...'}} or {@code {domNodes: [...]}}.</dd>
      * </dl>
      * <pre>{@code
      * calendar.options().setMoreLinkContent("More");
@@ -4901,6 +5082,7 @@ class ViewOptions implements Serializable {
 
     /**
      * Sets a text as the content of the "+N more" link, see {@link #getMoreLinkContent()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param text the text, shown as text, or null to remove the option
      */
@@ -4910,6 +5092,7 @@ class ViewOptions implements Serializable {
 
     /**
      * Sets the content of the "+N more" link in any form, see {@link #getMoreLinkContent()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param value the content or callback, or null to remove the option
      */
@@ -4939,16 +5122,16 @@ class ViewOptions implements Serializable {
      * <p>
      * The getter returns null while the option is not set. Then the library default applies.
      * <dl>
-     *   <dt>Forms</dt>     <dd>{@link ClassName}: class names.
-     *                          <p>{@link JsCallback}: a function, see Callback.</dd>
-     *   <dt>Shortcuts</dt> <dd>{@link #setMoreLinkInnerClass(String)}: class names separated by spaces, as
-     *                          {@link ClassName}.</dd>
-     *   <dt>Default</dt>   <dd>library: no classes.</dd>
-     *   <dt>Callback</dt>  <dd>{@code function(info)}.<br>
-     *                          {@code info} has {@code num}, {@code numericText}, {@code longText}, {@code text},
-     *                          {@code isNarrow}, {@code view}, {@code resource} (resource views) and more, see the
-     *                          library docs.</dd>
-     *   <dt>Returns</dt>   <dd>the class names as a string.</dd>
+     *   <dt><b>Forms</b></dt>      <dd>{@link ClassName}: class names.
+     *                                  <p>{@link JsCallback}: a function, see JsCallback.</dd>
+     *   <dt><b>Shortcuts</b></dt>  <dd>{@link #setMoreLinkInnerClass(String)}: class names separated by spaces, as
+     *                                  {@link ClassName}.</dd>
+     *   <dt><b>Default</b></dt>    <dd>library: no classes.</dd>
+     *   <dt><b>JsCallback</b></dt> <dd>{@code function(info)}.<br>
+     *                                  {@code info} has {@code num}, {@code numericText}, {@code longText},
+     *                                  {@code text}, {@code isNarrow}, {@code view}, {@code resource} (resource views)
+     *                                  and more, see the library docs.<br>
+     *                                  It returns the class names as a string.</dd>
      * </dl>
      * <pre>{@code
      * calendar.options().setMoreLinkInnerClass("my-class");
@@ -4962,6 +5145,7 @@ class ViewOptions implements Serializable {
 
     /**
      * Sets fixed CSS classes, see {@link #getMoreLinkInnerClass()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param classNames the class names, separated by spaces, or null to remove the option
      */
@@ -4971,6 +5155,7 @@ class ViewOptions implements Serializable {
 
     /**
      * Sets the CSS classes in any form, see {@link #getMoreLinkInnerClass()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param value the classes or callback, or null to remove the option
      */
@@ -5000,17 +5185,17 @@ class ViewOptions implements Serializable {
      * <p>
      * The getter returns null while the option is not set. Then the library default applies.
      * <dl>
-     *   <dt>Forms</dt>     <dd>{@link ClassName}: class names.
-     *                          <p>{@link JsCallback}: a function, see Callback.</dd>
-     *   <dt>Shortcuts</dt> <dd>{@link #setNoEntriesClass(String)}: class names separated by spaces, as
-     *                          {@link ClassName}.</dd>
-     *   <dt>Default</dt>   <dd>library: no classes.
-     *                          <p>add-on: the stable class {@code fc-list-empty}.<br>
-     *                          Classes set here are added to it.</dd>
-     *   <dt>Callback</dt>  <dd>{@code function(info)}.<br>
-     *                          {@code info} has {@code text} (the message text, from
-     *                          {@link #getNoEntriesText() noEntriesText}) and {@code view}.</dd>
-     *   <dt>Returns</dt>   <dd>the class names as a string.</dd>
+     *   <dt><b>Forms</b></dt>      <dd>{@link ClassName}: class names.
+     *                                  <p>{@link JsCallback}: a function, see JsCallback.</dd>
+     *   <dt><b>Shortcuts</b></dt>  <dd>{@link #setNoEntriesClass(String)}: class names separated by spaces, as
+     *                                  {@link ClassName}.</dd>
+     *   <dt><b>Default</b></dt>    <dd>library: no classes.
+     *                                  <p>add-on: the stable class {@code fc-list-empty}.<br>
+     *                                  Classes set here are added to it.</dd>
+     *   <dt><b>JsCallback</b></dt> <dd>{@code function(info)}.<br>
+     *                                  {@code info} has {@code text} (the message text, from
+     *                                  {@link #getNoEntriesText() noEntriesText}) and {@code view}.<br>
+     *                                  It returns the class names as a string.</dd>
      * </dl>
      * <pre>{@code
      * calendar.options().setNoEntriesClass("my-class");
@@ -5025,6 +5210,7 @@ class ViewOptions implements Serializable {
 
     /**
      * Sets fixed CSS classes, see {@link #getNoEntriesClass()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param classNames the class names, separated by spaces, or null to remove the option
      */
@@ -5034,6 +5220,7 @@ class ViewOptions implements Serializable {
 
     /**
      * Sets the CSS classes in any form, see {@link #getNoEntriesClass()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param value the classes or callback, or null to remove the option
      */
@@ -5046,15 +5233,15 @@ class ViewOptions implements Serializable {
      * <p>
      * The getter returns null while the option is not set. Then the library default applies.
      * <dl>
-     *   <dt>Forms</dt>     <dd>{@link TextContent}: shown as text.
-     *                          <p>{@link ContentValue#ofHtml(String)}: HTML, not escaped.
-     *                          <p>{@link JsCallback}: a function, see Callback.</dd>
-     *   <dt>Shortcuts</dt> <dd>{@link #setNoEntriesContent(String)}: a text, as {@link TextContent}.</dd>
-     *   <dt>Default</dt>   <dd>library: the message text, see {@link #getNoEntriesText() noEntriesText}.</dd>
-     *   <dt>Callback</dt>  <dd>{@code function(info)}.<br>
-     *                          {@code info} has {@code text} (the message text, from
-     *                          {@link #getNoEntriesText() noEntriesText}) and {@code view}.</dd>
-     *   <dt>Returns</dt>   <dd>a text, {@code {html: '...'}} or {@code {domNodes: [...]}}.</dd>
+     *   <dt><b>Forms</b></dt>      <dd>{@link TextContent}: shown as text.
+     *                                  <p>{@link ContentValue#ofHtml(String)}: HTML, not escaped.
+     *                                  <p>{@link JsCallback}: a function, see JsCallback.</dd>
+     *   <dt><b>Shortcuts</b></dt>  <dd>{@link #setNoEntriesContent(String)}: a text, as {@link TextContent}.</dd>
+     *   <dt><b>Default</b></dt>    <dd>library: the message text, see {@link #getNoEntriesText() noEntriesText}.</dd>
+     *   <dt><b>JsCallback</b></dt> <dd>{@code function(info)}.<br>
+     *                                  {@code info} has {@code text} (the message text, from
+     *                                  {@link #getNoEntriesText() noEntriesText}) and {@code view}.<br>
+     *                                  It returns a text, {@code {html: '...'}} or {@code {domNodes: [...]}}.</dd>
      * </dl>
      * <pre>{@code
      * calendar.options().setNoEntriesContent("Nothing here");
@@ -5070,6 +5257,7 @@ class ViewOptions implements Serializable {
 
     /**
      * Sets a text as the content of the "No events to display" message, see {@link #getNoEntriesContent()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param text the text, shown as text, or null to remove the option
      */
@@ -5079,6 +5267,7 @@ class ViewOptions implements Serializable {
 
     /**
      * Sets the content of the "No events to display" message in any form, see {@link #getNoEntriesContent()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param value the content or callback, or null to remove the option
      */
@@ -5110,15 +5299,15 @@ class ViewOptions implements Serializable {
      * <p>
      * The getter returns null while the option is not set. Then the library default applies.
      * <dl>
-     *   <dt>Forms</dt>     <dd>{@link ClassName}: class names.
-     *                          <p>{@link JsCallback}: a function, see Callback.</dd>
-     *   <dt>Shortcuts</dt> <dd>{@link #setNoEntriesInnerClass(String)}: class names separated by spaces, as
-     *                          {@link ClassName}.</dd>
-     *   <dt>Default</dt>   <dd>library: no classes.</dd>
-     *   <dt>Callback</dt>  <dd>{@code function(info)}.<br>
-     *                          {@code info} has {@code text} (the message text, from
-     *                          {@link #getNoEntriesText() noEntriesText}) and {@code view}.</dd>
-     *   <dt>Returns</dt>   <dd>the class names as a string.</dd>
+     *   <dt><b>Forms</b></dt>      <dd>{@link ClassName}: class names.
+     *                                  <p>{@link JsCallback}: a function, see JsCallback.</dd>
+     *   <dt><b>Shortcuts</b></dt>  <dd>{@link #setNoEntriesInnerClass(String)}: class names separated by spaces, as
+     *                                  {@link ClassName}.</dd>
+     *   <dt><b>Default</b></dt>    <dd>library: no classes.</dd>
+     *   <dt><b>JsCallback</b></dt> <dd>{@code function(info)}.<br>
+     *                                  {@code info} has {@code text} (the message text, from
+     *                                  {@link #getNoEntriesText() noEntriesText}) and {@code view}.<br>
+     *                                  It returns the class names as a string.</dd>
      * </dl>
      * <pre>{@code
      * calendar.options().setNoEntriesInnerClass("my-class");
@@ -5133,6 +5322,7 @@ class ViewOptions implements Serializable {
 
     /**
      * Sets fixed CSS classes, see {@link #getNoEntriesInnerClass()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param classNames the class names, separated by spaces, or null to remove the option
      */
@@ -5142,6 +5332,7 @@ class ViewOptions implements Serializable {
 
     /**
      * Sets the CSS classes in any form, see {@link #getNoEntriesInnerClass()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param value the classes or callback, or null to remove the option
      */
@@ -5201,15 +5392,15 @@ class ViewOptions implements Serializable {
      * <p>
      * The getter returns null while the option is not set. Then the library default applies.
      * <dl>
-     *   <dt>Forms</dt>     <dd>{@link TextContent}: shown as text.
-     *                          <p>{@link ContentValue#ofHtml(String)}: HTML, not escaped.
-     *                          <p>{@link JsCallback}: a function, see Callback.</dd>
-     *   <dt>Shortcuts</dt> <dd>{@link #setPopoverCloseContent(String)}: a text, as {@link TextContent}.</dd>
-     *   <dt>Default</dt>   <dd>library: no content.<br>
-     *                          The themes of the library supply their own icon.</dd>
-     *   <dt>Callback</dt>  <dd>{@code function(info)}.<br>
-     *                          {@code info} has no properties, because the library declares none.</dd>
-     *   <dt>Returns</dt>   <dd>a text, {@code {html: '...'}} or {@code {domNodes: [...]}}.</dd>
+     *   <dt><b>Forms</b></dt>      <dd>{@link TextContent}: shown as text.
+     *                                  <p>{@link ContentValue#ofHtml(String)}: HTML, not escaped.
+     *                                  <p>{@link JsCallback}: a function, see JsCallback.</dd>
+     *   <dt><b>Shortcuts</b></dt>  <dd>{@link #setPopoverCloseContent(String)}: a text, as {@link TextContent}.</dd>
+     *   <dt><b>Default</b></dt>    <dd>library: no content.<br>
+     *                                  The themes of the library supply their own icon.</dd>
+     *   <dt><b>JsCallback</b></dt> <dd>{@code function(info)}.<br>
+     *                                  {@code info} has no properties, because the library declares none.<br>
+     *                                  It returns a text, {@code {html: '...'}} or {@code {domNodes: [...]}}.</dd>
      * </dl>
      * <pre>{@code
      * calendar.options().setPopoverCloseContent("x");
@@ -5224,6 +5415,7 @@ class ViewOptions implements Serializable {
 
     /**
      * Sets a text as the content of the close button of the popover, see {@link #getPopoverCloseContent()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param text the text, shown as text, or null to remove the option
      */
@@ -5233,6 +5425,7 @@ class ViewOptions implements Serializable {
 
     /**
      * Sets the content of the close button of the popover in any form, see {@link #getPopoverCloseContent()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param value the content or callback, or null to remove the option
      */
@@ -5248,19 +5441,19 @@ class ViewOptions implements Serializable {
      * <p>
      * The getter returns null while the option is not set. Then the library default applies.
      * <dl>
-     *   <dt>Forms</dt>     <dd>{@link ClassName}: class names.
-     *                          <p>{@link JsCallback}: a function, see Callback.</dd>
-     *   <dt>Shortcuts</dt> <dd>{@link #setRowMoreLinkClass(String)}: class names separated by spaces, as
-     *                          {@link ClassName}.</dd>
-     *   <dt>Default</dt>   <dd>library: no classes.
-     *                          <p>add-on: the stable class {@code fc-daygrid-more-link} in day grid, time grid and
-     *                          multi-month views.<br>
-     *                          Classes set here are added to it.</dd>
-     *   <dt>Callback</dt>  <dd>{@code function(info)}.<br>
-     *                          {@code info} has {@code num}, {@code numericText}, {@code longText}, {@code text},
-     *                          {@code isNarrow}, {@code view}, {@code resource} (resource views) and more, see the
-     *                          library docs.</dd>
-     *   <dt>Returns</dt>   <dd>the class names as a string.</dd>
+     *   <dt><b>Forms</b></dt>      <dd>{@link ClassName}: class names.
+     *                                  <p>{@link JsCallback}: a function, see JsCallback.</dd>
+     *   <dt><b>Shortcuts</b></dt>  <dd>{@link #setRowMoreLinkClass(String)}: class names separated by spaces, as
+     *                                  {@link ClassName}.</dd>
+     *   <dt><b>Default</b></dt>    <dd>library: no classes.
+     *                                  <p>add-on: the stable class {@code fc-daygrid-more-link} in day grid, time grid
+     *                                  and multi-month views.<br>
+     *                                  Classes set here are added to it.</dd>
+     *   <dt><b>JsCallback</b></dt> <dd>{@code function(info)}.<br>
+     *                                  {@code info} has {@code num}, {@code numericText}, {@code longText},
+     *                                  {@code text}, {@code isNarrow}, {@code view}, {@code resource} (resource views)
+     *                                  and more, see the library docs.<br>
+     *                                  It returns the class names as a string.</dd>
      * </dl>
      * <pre>{@code
      * calendar.options().setRowMoreLinkClass("my-more-link");
@@ -5274,6 +5467,7 @@ class ViewOptions implements Serializable {
 
     /**
      * Sets fixed CSS classes, see {@link #getRowMoreLinkClass()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param classNames the class names, separated by spaces, or null to remove the option
      */
@@ -5283,6 +5477,7 @@ class ViewOptions implements Serializable {
 
     /**
      * Sets the CSS classes in any form, see {@link #getRowMoreLinkClass()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param value the classes or callback, or null to remove the option
      */
@@ -5298,16 +5493,16 @@ class ViewOptions implements Serializable {
      * <p>
      * The getter returns null while the option is not set. Then the library default applies.
      * <dl>
-     *   <dt>Forms</dt>     <dd>{@link ClassName}: class names.
-     *                          <p>{@link JsCallback}: a function, see Callback.</dd>
-     *   <dt>Shortcuts</dt> <dd>{@link #setRowMoreLinkInnerClass(String)}: class names separated by spaces, as
-     *                          {@link ClassName}.</dd>
-     *   <dt>Default</dt>   <dd>library: no classes.</dd>
-     *   <dt>Callback</dt>  <dd>{@code function(info)}.<br>
-     *                          {@code info} has {@code num}, {@code numericText}, {@code longText}, {@code text},
-     *                          {@code isNarrow}, {@code view}, {@code resource} (resource views) and more, see the
-     *                          library docs.</dd>
-     *   <dt>Returns</dt>   <dd>the class names as a string.</dd>
+     *   <dt><b>Forms</b></dt>      <dd>{@link ClassName}: class names.
+     *                                  <p>{@link JsCallback}: a function, see JsCallback.</dd>
+     *   <dt><b>Shortcuts</b></dt>  <dd>{@link #setRowMoreLinkInnerClass(String)}: class names separated by spaces, as
+     *                                  {@link ClassName}.</dd>
+     *   <dt><b>Default</b></dt>    <dd>library: no classes.</dd>
+     *   <dt><b>JsCallback</b></dt> <dd>{@code function(info)}.<br>
+     *                                  {@code info} has {@code num}, {@code numericText}, {@code longText},
+     *                                  {@code text}, {@code isNarrow}, {@code view}, {@code resource} (resource views)
+     *                                  and more, see the library docs.<br>
+     *                                  It returns the class names as a string.</dd>
      * </dl>
      * <pre>{@code
      * calendar.options().setRowMoreLinkInnerClass("my-more-link");
@@ -5321,6 +5516,7 @@ class ViewOptions implements Serializable {
 
     /**
      * Sets fixed CSS classes, see {@link #getRowMoreLinkInnerClass()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param classNames the class names, separated by spaces, or null to remove the option
      */
@@ -5330,6 +5526,7 @@ class ViewOptions implements Serializable {
 
     /**
      * Sets the CSS classes in any form, see {@link #getRowMoreLinkInnerClass()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param value the classes or callback, or null to remove the option
      */
@@ -5378,6 +5575,7 @@ class ViewOptions implements Serializable {
 
     /**
      * Sets a time-based duration, see {@link #getDateIncrement()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param duration the duration, days count as 24 hours, or null to remove the option
      */
@@ -5390,6 +5588,7 @@ class ViewOptions implements Serializable {
      * <p>
      * A {@link Period} has no weeks, so {@code Period.ofWeeks(n)} arrives as {@code n * 7} days, without the
      * alignment to the start of the week. For weeks, use {@link CalendarDuration#ofWeeks(int)}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param period the years, months and days, or null to remove the option
      */
@@ -5399,6 +5598,7 @@ class ViewOptions implements Serializable {
 
     /**
      * Sets a duration in the string format {@code [-][d.]hh:mm[:ss[.sss]]}, see {@link #getDateIncrement()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param text the duration, such as {@code "08:30"} or {@code "1.12:00"}, or null to remove the option
      */
@@ -5408,6 +5608,7 @@ class ViewOptions implements Serializable {
 
     /**
      * Sets the duration, see {@link #getDateIncrement()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param value the duration, or null to remove the option
      */
@@ -5471,6 +5672,7 @@ class ViewOptions implements Serializable {
 
     /**
      * Sets a time-based duration, see {@link #getDefaultAllDayEntryDuration()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param duration the duration, days count as 24 hours, or null to remove the option
      */
@@ -5483,6 +5685,7 @@ class ViewOptions implements Serializable {
      * <p>
      * A {@link Period} has no weeks, so {@code Period.ofWeeks(n)} arrives as {@code n * 7} days, without the
      * alignment to the start of the week. For weeks, use {@link CalendarDuration#ofWeeks(int)}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param period the years, months and days, or null to remove the option
      */
@@ -5493,6 +5696,7 @@ class ViewOptions implements Serializable {
     /**
      * Sets a duration in the string format {@code [-][d.]hh:mm[:ss[.sss]]},
      * see {@link #getDefaultAllDayEntryDuration()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param text the duration, such as {@code "08:30"} or {@code "1.12:00"}, or null to remove the option
      */
@@ -5502,6 +5706,7 @@ class ViewOptions implements Serializable {
 
     /**
      * Sets the duration, see {@link #getDefaultAllDayEntryDuration()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param value the duration, or null to remove the option
      */
@@ -5527,6 +5732,7 @@ class ViewOptions implements Serializable {
 
     /**
      * Sets a time-based duration, see {@link #getDefaultTimedEntryDuration()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param duration the duration, days count as 24 hours, or null to remove the option
      */
@@ -5539,6 +5745,7 @@ class ViewOptions implements Serializable {
      * <p>
      * A {@link Period} has no weeks, so {@code Period.ofWeeks(n)} arrives as {@code n * 7} days, without the
      * alignment to the start of the week. For weeks, use {@link CalendarDuration#ofWeeks(int)}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param period the years, months and days, or null to remove the option
      */
@@ -5549,6 +5756,7 @@ class ViewOptions implements Serializable {
     /**
      * Sets a duration in the string format {@code [-][d.]hh:mm[:ss[.sss]]},
      * see {@link #getDefaultTimedEntryDuration()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param text the duration, such as {@code "08:30"} or {@code "1.12:00"}, or null to remove the option
      */
@@ -5558,6 +5766,7 @@ class ViewOptions implements Serializable {
 
     /**
      * Sets the duration, see {@link #getDefaultTimedEntryDuration()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param value the duration, or null to remove the option
      */
@@ -5578,6 +5787,7 @@ class ViewOptions implements Serializable {
 
     /**
      * Sets a time-based duration, see {@link #getDuration()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param duration the duration, days count as 24 hours, or null to remove the option
      */
@@ -5590,6 +5800,7 @@ class ViewOptions implements Serializable {
      * <p>
      * A {@link Period} has no weeks, so {@code Period.ofWeeks(n)} arrives as {@code n * 7} days, without the
      * alignment to the start of the week. For weeks, use {@link CalendarDuration#ofWeeks(int)}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param period the years, months and days, or null to remove the option
      */
@@ -5599,6 +5810,7 @@ class ViewOptions implements Serializable {
 
     /**
      * Sets a duration in the string format {@code [-][d.]hh:mm[:ss[.sss]]}, see {@link #getDuration()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param text the duration, such as {@code "08:30"} or {@code "1.12:00"}, or null to remove the option
      */
@@ -5608,6 +5820,7 @@ class ViewOptions implements Serializable {
 
     /**
      * Sets the duration, see {@link #getDuration()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param value the duration, or null to remove the option
      */
@@ -5670,6 +5883,7 @@ class ViewOptions implements Serializable {
     /**
      * Sets the days to hide, see {@link #getHiddenDays()}. The add-on keeps an unmodifiable copy in the order of the
      * week, so a later change of the passed set has no effect.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param hiddenDays the days to hide, or null to remove the option
      * @throws IllegalArgumentException when all seven days are passed
@@ -5696,6 +5910,7 @@ class ViewOptions implements Serializable {
 
     /**
      * Sets a time-based duration, see {@link #getNextDayThreshold()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param duration the duration, days count as 24 hours, or null to remove the option
      */
@@ -5708,6 +5923,7 @@ class ViewOptions implements Serializable {
      * <p>
      * A {@link Period} has no weeks, so {@code Period.ofWeeks(n)} arrives as {@code n * 7} days, without the
      * alignment to the start of the week. For weeks, use {@link CalendarDuration#ofWeeks(int)}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param period the years, months and days, or null to remove the option
      */
@@ -5717,6 +5933,7 @@ class ViewOptions implements Serializable {
 
     /**
      * Sets a duration in the string format {@code [-][d.]hh:mm[:ss[.sss]]}, see {@link #getNextDayThreshold()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param text the duration, such as {@code "08:30"} or {@code "1.12:00"}, or null to remove the option
      */
@@ -5726,6 +5943,7 @@ class ViewOptions implements Serializable {
 
     /**
      * Sets the duration, see {@link #getNextDayThreshold()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param value the duration, or null to remove the option
      */
@@ -5745,16 +5963,17 @@ class ViewOptions implements Serializable {
      * <p>
      * The getter returns null while the option is not set. Then the library default applies.
      * <dl>
-     *   <dt>Forms</dt>     <dd>{@link NowValue#ofDay(LocalDate)}: a date.
-     *                          <p>{@link NowValue#ofDateTime(LocalDateTime)}: a date and time, read as UTC like the
-     *                          start and end of entries.
-     *                          <p>{@link JsCallback}: a function, see Callback.</dd>
-     *   <dt>Shortcuts</dt> <dd>{@link #setNow(LocalDate)}: a date, as {@link NowValue#ofDay(LocalDate)}.
-     *                          <p>{@link #setNow(LocalDateTime)}: a date and time, as
-     *                          {@link NowValue#ofDateTime(LocalDateTime)}.</dd>
-     *   <dt>Default</dt>   <dd>library: the current date of the browser.</dd>
-     *   <dt>Callback</dt>  <dd>{@code function()}, runs on the client.</dd>
-     *   <dt>Returns</dt>   <dd>a JavaScript {@code Date}, or any value the library parses as a date.</dd>
+     *   <dt><b>Forms</b></dt>      <dd>{@link NowValue#ofDay(LocalDate)}: a date.
+     *                                  <p>{@link NowValue#ofDateTime(LocalDateTime)}: a date and time, read as UTC like
+     *                                  the start and end of entries.
+     *                                  <p>{@link JsCallback}: a function, see JsCallback.</dd>
+     *   <dt><b>Shortcuts</b></dt>  <dd>{@link #setNow(LocalDate)}: a date, as {@link NowValue#ofDay(LocalDate)}.
+     *                                  <p>{@link #setNow(LocalDateTime)}: a date and time, as
+     *                                  {@link NowValue#ofDateTime(LocalDateTime)}.</dd>
+     *   <dt><b>Default</b></dt>    <dd>library: the current date of the browser.</dd>
+     *   <dt><b>JsCallback</b></dt> <dd>{@code function()}, runs on the client.<br>
+     *                                  It returns a JavaScript {@code Date}, or any value the library parses as a
+     *                                  date.</dd>
      * </dl>
      * <pre>{@code
      * calendar.options().setNow(LocalDate.of(2026, 5, 17));
@@ -5769,6 +5988,7 @@ class ViewOptions implements Serializable {
 
     /**
      * Sets a date as the current date, see {@link #getNow()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param date the date, or null to remove the option
      */
@@ -5778,6 +5998,7 @@ class ViewOptions implements Serializable {
 
     /**
      * Sets a date and time as the current date, see {@link #getNow()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param dateTime the date and time, read as UTC like the start and end of entries, or null to remove the option
      */
@@ -5787,6 +6008,7 @@ class ViewOptions implements Serializable {
 
     /**
      * Sets the current date in any form, see {@link #getNow()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param value the date or callback, or null to remove the option
      */
@@ -5817,13 +6039,14 @@ class ViewOptions implements Serializable {
      * <p>
      * The getter returns null while the option is not set. Then the library default applies.
      * <dl>
-     *   <dt>Forms</dt>     <dd>{@link DateRange}: the end is exclusive.<br>
-     *                          One bound may be null for an open range, see {@link DateRange#withOpenEnd(LocalDate)}
-     *                          and {@link DateRange#withOpenStart(LocalDate)}.
-     *                          <p>{@link JsCallback}: a function, see Callback.</dd>
-     *   <dt>Default</dt>   <dd>library: no range, so no date is outside of it.</dd>
-     *   <dt>Callback</dt>  <dd>{@code function(todayDate)}, the start of the current day.</dd>
-     *   <dt>Returns</dt>   <dd>an object with {@code start} and {@code end}.</dd>
+     *   <dt><b>Forms</b></dt>      <dd>{@link DateRange}: the end is exclusive.<br>
+     *                                  One bound may be null for an open range, see
+     *                                  {@link DateRange#withOpenEnd(LocalDate)} and
+     *                                  {@link DateRange#withOpenStart(LocalDate)}.
+     *                                  <p>{@link JsCallback}: a function, see JsCallback.</dd>
+     *   <dt><b>Default</b></dt>    <dd>library: no range, so no date is outside of it.</dd>
+     *   <dt><b>JsCallback</b></dt> <dd>{@code function(todayDate)}, the start of the current day.<br>
+     *                                  It returns an object with {@code start} and {@code end}.</dd>
      * </dl>
      * <pre>{@code
      * calendar.options().setValidRange(DateRange.withOpenEnd(LocalDate.of(2025, 3, 1)));
@@ -5845,12 +6068,12 @@ class ViewOptions implements Serializable {
      * <p>
      * The getter returns null while the option is not set. Then the library default applies.
      * <dl>
-     *   <dt>Forms</dt>     <dd>{@link DateRange}: needs both bounds.<br>
-     *                          The library ignores a range with an open bound.
-     *                          <p>{@link JsCallback}: a function, see Callback.</dd>
-     *   <dt>Default</dt>   <dd>library: no range, then the view shows the range its own duration gives.</dd>
-     *   <dt>Callback</dt>  <dd>{@code function(currentDate)}, the date the view is currently at.</dd>
-     *   <dt>Returns</dt>   <dd>an object with {@code start} and {@code end}.</dd>
+     *   <dt><b>Forms</b></dt>      <dd>{@link DateRange}: needs both bounds.<br>
+     *                                  The library ignores a range with an open bound.
+     *                                  <p>{@link JsCallback}: a function, see JsCallback.</dd>
+     *   <dt><b>Default</b></dt>    <dd>library: no range, then the view shows the range its own duration gives.</dd>
+     *   <dt><b>JsCallback</b></dt> <dd>{@code function(currentDate)}, the date the view is currently at.<br>
+     *                                  It returns an object with {@code start} and {@code end}.</dd>
      * </dl>
      * <pre>{@code
      * calendar.options().setVisibleRange(new DateRange(LocalDate.of(2026, 3, 22), LocalDate.of(2026, 3, 25)));
@@ -5990,6 +6213,7 @@ class ViewOptions implements Serializable {
 
     /**
      * Sets a time-based duration, see {@link #getScrollTime()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param duration the duration, days count as 24 hours, or null to remove the option
      */
@@ -6002,6 +6226,7 @@ class ViewOptions implements Serializable {
      * <p>
      * A {@link Period} has no weeks, so {@code Period.ofWeeks(n)} arrives as {@code n * 7} days, without the
      * alignment to the start of the week. For weeks, use {@link CalendarDuration#ofWeeks(int)}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param period the years, months and days, or null to remove the option
      */
@@ -6012,6 +6237,7 @@ class ViewOptions implements Serializable {
     /**
      * Sets the duration from the library's string format, such as {@code "01:00"}.
      * See {@link #getScrollTime()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param text the duration, or null to remove the option
      */
@@ -6021,6 +6247,7 @@ class ViewOptions implements Serializable {
 
     /**
      * Sets the duration, see {@link #getScrollTime()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param value the duration, or null to remove the option
      */
@@ -6067,6 +6294,7 @@ class ViewOptions implements Serializable {
 
     /**
      * Sets a time-based duration, see {@link #getSlotDuration()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param duration the duration, days count as 24 hours, or null to remove the option
      */
@@ -6079,6 +6307,7 @@ class ViewOptions implements Serializable {
      * <p>
      * A {@link Period} has no weeks, so {@code Period.ofWeeks(n)} arrives as {@code n * 7} days, without the
      * alignment to the start of the week. For weeks, use {@link CalendarDuration#ofWeeks(int)}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param period the years, months and days, or null to remove the option
      */
@@ -6089,6 +6318,7 @@ class ViewOptions implements Serializable {
     /**
      * Sets the duration from the library's string format, such as {@code "01:00"}.
      * See {@link #getSlotDuration()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param text the duration, or null to remove the option
      */
@@ -6098,6 +6328,7 @@ class ViewOptions implements Serializable {
 
     /**
      * Sets the duration, see {@link #getSlotDuration()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param value the duration, or null to remove the option
      */
@@ -6127,13 +6358,13 @@ class ViewOptions implements Serializable {
      * <p>
      * The getter returns null while the option is not set. Then the library default applies.
      * <dl>
-     *   <dt>Forms</dt>     <dd>{@link HeaderAlign#START}, {@link HeaderAlign#CENTER} or {@link HeaderAlign#END}: a
-     *                          fixed alignment.
-     *                          <p>{@link JsCallback}: a function, see Callback.</dd>
-     *   <dt>Default</dt>   <dd>library: {@link HeaderAlign#START}.</dd>
-     *   <dt>Callback</dt>  <dd>{@code function(info)}.<br>
-     *                          {@code info} has {@code level} and {@code isTime}.</dd>
-     *   <dt>Returns</dt>   <dd>{@code "start"}, {@code "center"} or {@code "end"}.</dd>
+     *   <dt><b>Forms</b></dt>      <dd>{@link HeaderAlign#START}, {@link HeaderAlign#CENTER} or
+     *                                  {@link HeaderAlign#END}: a fixed alignment.
+     *                                  <p>{@link JsCallback}: a function, see JsCallback.</dd>
+     *   <dt><b>Default</b></dt>    <dd>library: {@link HeaderAlign#START}.</dd>
+     *   <dt><b>JsCallback</b></dt> <dd>{@code function(info)}.<br>
+     *                                  {@code info} has {@code level} and {@code isTime}.<br>
+     *                                  It returns {@code "start"}, {@code "center"} or {@code "end"}.</dd>
      * </dl>
      * <pre>{@code
      * calendar.options().setSlotHeaderAlign(HeaderAlign.CENTER);
@@ -6161,6 +6392,7 @@ class ViewOptions implements Serializable {
 
     /**
      * Sets a time-based duration, see {@link #getSlotHeaderInterval()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param duration the duration, days count as 24 hours, or null to remove the option
      */
@@ -6173,6 +6405,7 @@ class ViewOptions implements Serializable {
      * <p>
      * A {@link Period} has no weeks, so {@code Period.ofWeeks(n)} arrives as {@code n * 7} days, without the
      * alignment to the start of the week. For weeks, use {@link CalendarDuration#ofWeeks(int)}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param period the years, months and days, or null to remove the option
      */
@@ -6183,6 +6416,7 @@ class ViewOptions implements Serializable {
     /**
      * Sets the duration from the library's string format, such as {@code "01:00"}.
      * See {@link #getSlotHeaderInterval()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param text the duration, or null to remove the option
      */
@@ -6192,6 +6426,7 @@ class ViewOptions implements Serializable {
 
     /**
      * Sets the duration, see {@link #getSlotHeaderInterval()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param value the duration, or null to remove the option
      */
@@ -6207,13 +6442,13 @@ class ViewOptions implements Serializable {
      * <p>
      * The getter returns null while the option is not set. Then the library default applies.
      * <dl>
-     *   <dt>Forms</dt>     <dd>{@link StickyValue#STICKY}: the text stays visible.
-     *                          <p>{@link StickyValue#NOT_STICKY}: the text scrolls away.
-     *                          <p>{@link StickyValue#of(String)}: an offset as a CSS length, such as {@code "2em"} or
-     *                          {@code "10px"}.</dd>
-     *   <dt>Shortcuts</dt> <dd>{@link #setSlotHeaderSticky(String)}: a CSS length, as
-     *                          {@link StickyValue#of(String)}.</dd>
-     *   <dt>Default</dt>   <dd>library: {@link StickyValue#STICKY}.</dd>
+     *   <dt><b>Forms</b></dt>     <dd>{@link StickyValue#STICKY}: the text stays visible.
+     *                                 <p>{@link StickyValue#NOT_STICKY}: the text scrolls away.
+     *                                 <p>{@link StickyValue#of(String)}: an offset as a CSS length, such as
+     *                                 {@code "2em"} or {@code "10px"}.</dd>
+     *   <dt><b>Shortcuts</b></dt> <dd>{@link #setSlotHeaderSticky(String)}: a CSS length, as
+     *                                 {@link StickyValue#of(String)}.</dd>
+     *   <dt><b>Default</b></dt>   <dd>library: {@link StickyValue#STICKY}.</dd>
      * </dl>
      * <pre>{@code
      * calendar.options().setSlotHeaderSticky("10px");
@@ -6227,6 +6462,7 @@ class ViewOptions implements Serializable {
 
     /**
      * Sets the slot headers sticky at an offset from the edge, see {@link #getSlotHeaderSticky()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param offset a CSS length, such as {@code "2em"} or {@code "10px"}, or null to remove the option
      */
@@ -6236,6 +6472,7 @@ class ViewOptions implements Serializable {
 
     /**
      * Sets the sticky positioning of the slot headers in any form, see {@link #getSlotHeaderSticky()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param value the positioning, or null to remove the option
      */
@@ -6258,6 +6495,7 @@ class ViewOptions implements Serializable {
 
     /**
      * Sets a time-based duration, see {@link #getSlotMaxTime()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param duration the duration, days count as 24 hours, or null to remove the option
      */
@@ -6270,6 +6508,7 @@ class ViewOptions implements Serializable {
      * <p>
      * A {@link Period} has no weeks, so {@code Period.ofWeeks(n)} arrives as {@code n * 7} days, without the
      * alignment to the start of the week. For weeks, use {@link CalendarDuration#ofWeeks(int)}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param period the years, months and days, or null to remove the option
      */
@@ -6280,6 +6519,7 @@ class ViewOptions implements Serializable {
     /**
      * Sets the duration from the library's string format, such as {@code "01:00"}.
      * See {@link #getSlotMaxTime()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param text the duration, or null to remove the option
      */
@@ -6289,6 +6529,7 @@ class ViewOptions implements Serializable {
 
     /**
      * Sets the duration, see {@link #getSlotMaxTime()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param value the duration, or null to remove the option
      */
@@ -6324,6 +6565,7 @@ class ViewOptions implements Serializable {
 
     /**
      * Sets a time-based duration, see {@link #getSlotMinTime()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param duration the duration, days count as 24 hours, or null to remove the option
      */
@@ -6336,6 +6578,7 @@ class ViewOptions implements Serializable {
      * <p>
      * A {@link Period} has no weeks, so {@code Period.ofWeeks(n)} arrives as {@code n * 7} days, without the
      * alignment to the start of the week. For weeks, use {@link CalendarDuration#ofWeeks(int)}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param period the years, months and days, or null to remove the option
      */
@@ -6346,6 +6589,7 @@ class ViewOptions implements Serializable {
     /**
      * Sets the duration from the library's string format, such as {@code "01:00"}.
      * See {@link #getSlotMinTime()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param text the duration, or null to remove the option
      */
@@ -6355,6 +6599,7 @@ class ViewOptions implements Serializable {
 
     /**
      * Sets the duration, see {@link #getSlotMinTime()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param value the duration, or null to remove the option
      */
@@ -6376,6 +6621,7 @@ class ViewOptions implements Serializable {
 
     /**
      * Sets a time-based duration, see {@link #getSnapDuration()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param duration the duration, days count as 24 hours, or null to remove the option
      */
@@ -6388,6 +6634,7 @@ class ViewOptions implements Serializable {
      * <p>
      * A {@link Period} has no weeks, so {@code Period.ofWeeks(n)} arrives as {@code n * 7} days, without the
      * alignment to the start of the week. For weeks, use {@link CalendarDuration#ofWeeks(int)}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param period the years, months and days, or null to remove the option
      */
@@ -6398,6 +6645,7 @@ class ViewOptions implements Serializable {
     /**
      * Sets the duration from the library's string format, such as {@code "01:00"}.
      * See {@link #getSnapDuration()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param text the duration, or null to remove the option
      */
@@ -6407,6 +6655,7 @@ class ViewOptions implements Serializable {
 
     /**
      * Sets the duration, see {@link #getSnapDuration()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param value the duration, or null to remove the option
      */
@@ -6457,12 +6706,12 @@ class ViewOptions implements Serializable {
      * <p>
      * The getter returns null while the option is not set. Then the library default applies.
      * <dl>
-     *   <dt>Forms</dt>     <dd>{@link CssSelector}: a CSS selector the dragged element must match.
-     *                          <p>{@link JsCallback}: a function, see Callback.</dd>
-     *   <dt>Shortcuts</dt> <dd>{@link #setDropAccept(String)}: a CSS selector, as {@link CssSelector}.</dd>
-     *   <dt>Default</dt>   <dd>library: {@code "*"}, which accepts every element.</dd>
-     *   <dt>Callback</dt>  <dd>{@code function(item)}, the dragged element.</dd>
-     *   <dt>Returns</dt>   <dd>{@code true} if the item can be dropped.</dd>
+     *   <dt><b>Forms</b></dt>      <dd>{@link CssSelector}: a CSS selector the dragged element must match.
+     *                                  <p>{@link JsCallback}: a function, see JsCallback.</dd>
+     *   <dt><b>Shortcuts</b></dt>  <dd>{@link #setDropAccept(String)}: a CSS selector, as {@link CssSelector}.</dd>
+     *   <dt><b>Default</b></dt>    <dd>library: {@code "*"}, which accepts every element.</dd>
+     *   <dt><b>JsCallback</b></dt> <dd>{@code function(item)}, the dragged element.<br>
+     *                                  It returns {@code true} if the item can be dropped.</dd>
      * </dl>
      * <pre>{@code
      * calendar.options().setDropAccept(".cool-entry");
@@ -6476,6 +6725,7 @@ class ViewOptions implements Serializable {
 
     /**
      * Accepts the external elements that match a CSS selector, see {@link #getDropAccept()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param selector the CSS selector, such as {@code ".cool-entry"}, or null to remove the option
      */
@@ -6485,6 +6735,7 @@ class ViewOptions implements Serializable {
 
     /**
      * Sets the filter for external elements in any form, see {@link #getDropAccept()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param value the selector or callback, or null to remove the option
      */
@@ -6541,15 +6792,15 @@ class ViewOptions implements Serializable {
      * <p>
      * The getter returns null while the option is not set. Then the library default applies.
      * <dl>
-     *   <dt>Forms</dt>     <dd>{@link Overlap#ALLOWED}: entries may overlap.
-     *                          <p>{@link Overlap#FORBIDDEN}: entries may not overlap.
-     *                          <p>{@link JsCallback}: a function, see Callback.</dd>
-     *   <dt>Shortcuts</dt> <dd>{@link #setEntryOverlap(boolean)}: {@code true} = {@link Overlap#ALLOWED}, {@code false}
-     *                          = {@link Overlap#FORBIDDEN}.</dd>
-     *   <dt>Default</dt>   <dd>library: {@code true}.</dd>
-     *   <dt>Callback</dt>  <dd>{@code function(stillEvent, movingEvent)}, the entry underneath and the entry being
-     *                          moved.</dd>
-     *   <dt>Returns</dt>   <dd>{@code true} to allow the overlap.</dd>
+     *   <dt><b>Forms</b></dt>      <dd>{@link Overlap#ALLOWED}: entries may overlap.
+     *                                  <p>{@link Overlap#FORBIDDEN}: entries may not overlap.
+     *                                  <p>{@link JsCallback}: a function, see JsCallback.</dd>
+     *   <dt><b>Shortcuts</b></dt>  <dd>{@link #setEntryOverlap(boolean)}: {@code true} = {@link Overlap#ALLOWED},
+     *                                  {@code false} = {@link Overlap#FORBIDDEN}.</dd>
+     *   <dt><b>Default</b></dt>    <dd>library: {@code true}.</dd>
+     *   <dt><b>JsCallback</b></dt> <dd>{@code function(stillEvent, movingEvent)}, the entry underneath and the entry
+     *                                  being moved.<br>
+     *                                  It returns {@code true} to allow the overlap.</dd>
      * </dl>
      * <pre>{@code
      * calendar.options().setEntryOverlap(false);
@@ -6564,6 +6815,7 @@ class ViewOptions implements Serializable {
 
     /**
      * Sets whether dragged or resized entries may overlap entries, see {@link #getEntryOverlap()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param allowed true to allow the overlap, false to forbid it
      */
@@ -6573,6 +6825,7 @@ class ViewOptions implements Serializable {
 
     /**
      * Sets whether dragged or resized entries may overlap entries in any form, see {@link #getEntryOverlap()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param value the overlap setting or callback, or null to remove the option
      */
@@ -6677,15 +6930,15 @@ class ViewOptions implements Serializable {
      * <p>
      * The getter returns null while the option is not set. Then the library default applies.
      * <dl>
-     *   <dt>Forms</dt>     <dd>{@link Overlap#ALLOWED}: the selection may overlap entries.
-     *                          <p>{@link Overlap#FORBIDDEN}: the selection may not overlap entries.
-     *                          <p>{@link JsCallback}: a function, see Callback.</dd>
-     *   <dt>Shortcuts</dt> <dd>{@link #setSelectOverlap(boolean)}: {@code true} = {@link Overlap#ALLOWED},
-     *                          {@code false} = {@link Overlap#FORBIDDEN}.</dd>
-     *   <dt>Default</dt>   <dd>library: {@code true}, which allows the selection.</dd>
-     *   <dt>Callback</dt>  <dd>{@code function(event)}, the intersected entry itself, not wrapped in an info
-     *                          object.</dd>
-     *   <dt>Returns</dt>   <dd>{@code true} to allow the selection.</dd>
+     *   <dt><b>Forms</b></dt>      <dd>{@link Overlap#ALLOWED}: the selection may overlap entries.
+     *                                  <p>{@link Overlap#FORBIDDEN}: the selection may not overlap entries.
+     *                                  <p>{@link JsCallback}: a function, see JsCallback.</dd>
+     *   <dt><b>Shortcuts</b></dt>  <dd>{@link #setSelectOverlap(boolean)}: {@code true} = {@link Overlap#ALLOWED},
+     *                                  {@code false} = {@link Overlap#FORBIDDEN}.</dd>
+     *   <dt><b>Default</b></dt>    <dd>library: {@code true}, which allows the selection.</dd>
+     *   <dt><b>JsCallback</b></dt> <dd>{@code function(event)}, the intersected entry itself, not wrapped in an info
+     *                                  object.<br>
+     *                                  It returns {@code true} to allow the selection.</dd>
      * </dl>
      * <pre>{@code
      * calendar.options().setSelectOverlap(false);
@@ -6699,6 +6952,7 @@ class ViewOptions implements Serializable {
 
     /**
      * Sets whether a selection may overlap entries, see {@link #getSelectOverlap()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param allowed true to allow the overlap, false to forbid it
      */
@@ -6708,6 +6962,7 @@ class ViewOptions implements Serializable {
 
     /**
      * Sets whether a selection may overlap entries in any form, see {@link #getSelectOverlap()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param value the overlap setting or callback, or null to remove the option
      */
@@ -6826,14 +7081,15 @@ class ViewOptions implements Serializable {
      * <p>
      * The getter returns null while the option is not set. Then the library default applies.
      * <dl>
-     *   <dt>Forms</dt>     <dd>{@link BusinessHoursValue#DEFAULT}: Monday to Friday, 9am to 5pm.
-     *                          <p>{@link BusinessHoursValue#of(BusinessHours...)}: own hours, at least one
-     *                          {@link BusinessHours}.
-     *                          <p>{@link BusinessHoursValue#NONE}: no emphasis.</dd>
-     *   <dt>Shortcuts</dt> <dd>{@link #setBusinessHours(BusinessHours...)}: own hours, as
-     *                          {@link BusinessHoursValue#of(BusinessHours...)}.<br>
-     *                          Without any {@link BusinessHours} it throws an {@link IllegalArgumentException}.</dd>
-     *   <dt>Default</dt>   <dd>library: {@link BusinessHoursValue#NONE}.</dd>
+     *   <dt><b>Forms</b></dt>     <dd>{@link BusinessHoursValue#DEFAULT}: Monday to Friday, 9am to 5pm.
+     *                                 <p>{@link BusinessHoursValue#of(BusinessHours...)}: own hours, at least one
+     *                                 {@link BusinessHours}.
+     *                                 <p>{@link BusinessHoursValue#NONE}: no emphasis.</dd>
+     *   <dt><b>Shortcuts</b></dt> <dd>{@link #setBusinessHours(BusinessHours...)}: own hours, as
+     *                                 {@link BusinessHoursValue#of(BusinessHours...)}.<br>
+     *                                 Without any {@link BusinessHours} it throws an
+     *                                 {@link IllegalArgumentException}.</dd>
+     *   <dt><b>Default</b></dt>   <dd>library: {@link BusinessHoursValue#NONE}.</dd>
      * </dl>
      * <pre>{@code
      * calendar.options().setBusinessHours(BusinessHours.businessWeek().start(8).end(18));
@@ -6848,6 +7104,7 @@ class ViewOptions implements Serializable {
 
     /**
      * Sets own business hours, see {@link #getBusinessHours()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param hours the business hours, at least one, or null to remove the option
      */
@@ -6857,6 +7114,7 @@ class ViewOptions implements Serializable {
 
     /**
      * Sets the business hours in any form, see {@link #getBusinessHours()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param value the business hours, {@link BusinessHoursValue#DEFAULT} or {@link BusinessHoursValue#NONE}, or null
      *        to remove the option
@@ -6908,21 +7166,22 @@ class ViewOptions implements Serializable {
      * <p>
      * The getter returns null while the option is not set. Then the library default applies.
      * <dl>
-     *   <dt>Forms</dt>     <dd>{@link HeightValue#ofPixels(int)}: exact pixels.<br>
-     *                          The view scrolls when its content does not fit.
-     *                          <p>{@link HeightValue#ofCss(String)}: a CSS length, such as {@code "50vh"}.
-     *                          <p>{@link HeightValue#AUTO}: the natural height of the content, without scrollbars.</dd>
-     *   <dt>Shortcuts</dt> <dd>{@link #setContentHeight(int)}: pixels, as {@link HeightValue#ofPixels(int)}.<br>
-     *                          A negative number throws an {@link IllegalArgumentException}.
-     *                          <p>{@link #setContentHeight(String)}: a CSS length, as
-     *                          {@link HeightValue#ofCss(String)}.<br>
-     *                          {@code "auto"} throws an {@link IllegalArgumentException}.<br>
-     *                          Use {@link HeightValue#AUTO} instead.</dd>
-     *   <dt>Default</dt>   <dd>library: no value, then the calendar height follows the
-     *                          {@link #getAspectRatio() aspect ratio}, as long as no {@code height} is set.
-     *                          <p>add-on: sets {@code height} to the full height by default.<br>
-     *                          While it is set, a pixel or CSS value has no effect, and {@link HeightValue#AUTO} still
-     *                          works.</dd>
+     *   <dt><b>Forms</b></dt>     <dd>{@link HeightValue#ofPixels(int)}: exact pixels.<br>
+     *                                 The view scrolls when its content does not fit.
+     *                                 <p>{@link HeightValue#ofCss(String)}: a CSS length, such as {@code "50vh"}.
+     *                                 <p>{@link HeightValue#AUTO}: the natural height of the content, without
+     *                                 scrollbars.</dd>
+     *   <dt><b>Shortcuts</b></dt> <dd>{@link #setContentHeight(int)}: pixels, as {@link HeightValue#ofPixels(int)}.<br>
+     *                                 A negative number throws an {@link IllegalArgumentException}.
+     *                                 <p>{@link #setContentHeight(String)}: a CSS length, as
+     *                                 {@link HeightValue#ofCss(String)}.<br>
+     *                                 {@code "auto"} throws an {@link IllegalArgumentException}.<br>
+     *                                 Use {@link HeightValue#AUTO} instead.</dd>
+     *   <dt><b>Default</b></dt>   <dd>library: no value, then the calendar height follows the
+     *                                 {@link #getAspectRatio() aspect ratio}, as long as no {@code height} is set.
+     *                                 <p>add-on: sets {@code height} to the full height by default.<br>
+     *                                 While it is set, a pixel or CSS value has no effect, and {@link HeightValue#AUTO}
+     *                                 still works.</dd>
      * </dl>
      * <pre>{@code
      * calendar.options().setContentHeight(600);
@@ -6937,6 +7196,7 @@ class ViewOptions implements Serializable {
 
     /**
      * Sets the height in pixels, see {@link #getContentHeight()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param pixels the height in pixels, not negative
      */
@@ -6946,6 +7206,7 @@ class ViewOptions implements Serializable {
 
     /**
      * Sets the height as a CSS length, see {@link #getContentHeight()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param length a CSS length such as {@code "50vh"}, or null to remove the option
      */
@@ -6955,6 +7216,7 @@ class ViewOptions implements Serializable {
 
     /**
      * Sets the height in any form, see {@link #getContentHeight()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param value the height, {@link HeightValue#AUTO} for the natural height of the content, or null to remove the
      *        option
@@ -6973,12 +7235,13 @@ class ViewOptions implements Serializable {
      * <p>
      * The getter returns null while the option is not set. Then the library default applies.
      * <dl>
-     *   <dt>Forms</dt>     <dd>{@link EntryLimitValue#of(int)}: a fixed number of entries.
-     *                          <p>{@link EntryLimitValue#CELL_HEIGHT}: as many as fit into the height of the cell.
-     *                          <p>{@link EntryLimitValue#NONE}: all entries.</dd>
-     *   <dt>Shortcuts</dt> <dd>{@link #setDayMaxEntries(int)}: a number, as {@link EntryLimitValue#of(int)}.<br>
-     *                          A negative number throws an {@link IllegalArgumentException}.</dd>
-     *   <dt>Default</dt>   <dd>library: {@link EntryLimitValue#NONE}.</dd>
+     *   <dt><b>Forms</b></dt>     <dd>{@link EntryLimitValue#of(int)}: a fixed number of entries.
+     *                                 <p>{@link EntryLimitValue#CELL_HEIGHT}: as many as fit into the height of the
+     *                                 cell.
+     *                                 <p>{@link EntryLimitValue#NONE}: all entries.</dd>
+     *   <dt><b>Shortcuts</b></dt> <dd>{@link #setDayMaxEntries(int)}: a number, as {@link EntryLimitValue#of(int)}.<br>
+     *                                 A negative number throws an {@link IllegalArgumentException}.</dd>
+     *   <dt><b>Default</b></dt>   <dd>library: {@link EntryLimitValue#NONE}.</dd>
      * </dl>
      * <pre>{@code
      * calendar.options().setDayMaxEntries(3);
@@ -6994,6 +7257,7 @@ class ViewOptions implements Serializable {
 
     /**
      * Sets a fixed limit, see {@link #getDayMaxEntries()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param count the number, not negative
      */
@@ -7003,6 +7267,7 @@ class ViewOptions implements Serializable {
 
     /**
      * Sets the limit in any form, see {@link #getDayMaxEntries()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param value the limit, or null to remove the option
      */
@@ -7020,12 +7285,14 @@ class ViewOptions implements Serializable {
      * <p>
      * The getter returns null while the option is not set. Then the library default applies.
      * <dl>
-     *   <dt>Forms</dt>     <dd>{@link EntryLimitValue#of(int)}: a fixed number of rows.
-     *                          <p>{@link EntryLimitValue#CELL_HEIGHT}: as many as fit into the height of the cell.
-     *                          <p>{@link EntryLimitValue#NONE}: all entries.</dd>
-     *   <dt>Shortcuts</dt> <dd>{@link #setDayMaxEntryRows(int)}: a number, as {@link EntryLimitValue#of(int)}.<br>
-     *                          A negative number throws an {@link IllegalArgumentException}.</dd>
-     *   <dt>Default</dt>   <dd>library: {@link EntryLimitValue#NONE}.</dd>
+     *   <dt><b>Forms</b></dt>     <dd>{@link EntryLimitValue#of(int)}: a fixed number of rows.
+     *                                 <p>{@link EntryLimitValue#CELL_HEIGHT}: as many as fit into the height of the
+     *                                 cell.
+     *                                 <p>{@link EntryLimitValue#NONE}: all entries.</dd>
+     *   <dt><b>Shortcuts</b></dt> <dd>{@link #setDayMaxEntryRows(int)}: a number, as
+     *                                 {@link EntryLimitValue#of(int)}.<br>
+     *                                 A negative number throws an {@link IllegalArgumentException}.</dd>
+     *   <dt><b>Default</b></dt>   <dd>library: {@link EntryLimitValue#NONE}.</dd>
      * </dl>
      * <pre>{@code
      * calendar.options().setDayMaxEntryRows(3);
@@ -7041,6 +7308,7 @@ class ViewOptions implements Serializable {
 
     /**
      * Sets a fixed limit, see {@link #getDayMaxEntryRows()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param count the number, not negative
      */
@@ -7050,6 +7318,7 @@ class ViewOptions implements Serializable {
 
     /**
      * Sets the limit in any form, see {@link #getDayMaxEntryRows()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param value the limit, or null to remove the option
      */
@@ -7143,26 +7412,26 @@ class ViewOptions implements Serializable {
      * <p>
      * The getter returns null while the option is not set. Then the library default applies.
      * <dl>
-     *   <dt>Forms</dt>     <dd>{@link Order}: a list of sort keys.<br>
-     *                          Each is an entry property name, ascending or descending, or a compare
-     *                          {@link JsCallback}.
-     *                          <p>{@link JsCallback}: one function that compares two entries.</dd>
-     *   <dt>Shortcuts</dt> <dd>{@link #setEntryOrder(String...)}: entry property names, a leading {@code -} sorts
-     *                          descending, as {@link Order#of(String...)}.<br>
-     *                          No name, an empty name or a name with a comma throws an
-     *                          {@link IllegalArgumentException}.
-     *                          <p>{@link #setEntryOrder(Order.Key...)}: sort keys that may mix properties and compare
-     *                          functions, as {@link Order#of(Order.Key...)}.<br>
-     *                          No key throws an {@link IllegalArgumentException}.</dd>
-     *   <dt>Default</dt>   <dd>library: {@code "start,-duration,allDay,title"} (earlier entries first, then longer
-     *                          ones, then all-day ones, then by title).</dd>
-     *   <dt>Callback</dt>  <dd>{@code function(a, b)}.<br>
-     *                          {@code a} and {@code b} are plain objects, not the entries themselves.<br>
-     *                          They hold the fields of the entry definition such as {@code title} and
-     *                          {@code extendedProps}, the extended properties at top level, {@code id}, {@code start}
-     *                          and {@code end} as numbers in milliseconds, {@code duration} in milliseconds and
-     *                          {@code allDay} as 0 or 1.</dd>
-     *   <dt>Returns</dt>   <dd>a negative number, zero or a positive number.</dd>
+     *   <dt><b>Forms</b></dt>      <dd>{@link Order}: a list of sort keys.<br>
+     *                                  Each is an entry property name, ascending or descending, or a compare
+     *                                  {@link JsCallback}.
+     *                                  <p>{@link JsCallback}: one function that compares two entries.</dd>
+     *   <dt><b>Shortcuts</b></dt>  <dd>{@link #setEntryOrder(String...)}: entry property names, a leading {@code -}
+     *                                  sorts descending, as {@link Order#of(String...)}.<br>
+     *                                  No name, an empty name or a name with a comma throws an
+     *                                  {@link IllegalArgumentException}.
+     *                                  <p>{@link #setEntryOrder(Order.Key...)}: sort keys that may mix properties and
+     *                                  compare functions, as {@link Order#of(Order.Key...)}.<br>
+     *                                  No key throws an {@link IllegalArgumentException}.</dd>
+     *   <dt><b>Default</b></dt>    <dd>library: {@code "start,-duration,allDay,title"} (earlier entries first, then
+     *                                  longer ones, then all-day ones, then by title).</dd>
+     *   <dt><b>JsCallback</b></dt> <dd>{@code function(a, b)}.<br>
+     *                                  {@code a} and {@code b} are plain objects, not the entries themselves.<br>
+     *                                  They hold the fields of the entry definition such as {@code title} and
+     *                                  {@code extendedProps}, the extended properties at top level, {@code id},
+     *                                  {@code start} and {@code end} as numbers in milliseconds, {@code duration} in
+     *                                  milliseconds and {@code allDay} as 0 or 1.<br>
+     *                                  It returns a negative number, zero or a positive number.</dd>
      * </dl>
      * <pre>{@code
      * calendar.options().setEntryOrder("title", "-start");
@@ -7177,6 +7446,7 @@ class ViewOptions implements Serializable {
 
     /**
      * Sets the order from entry property names, see {@link #getEntryOrder()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param properties the names, such as {@code "title"} or {@code "-start"} for descending, or null to remove the
      *        option
@@ -7187,6 +7457,7 @@ class ViewOptions implements Serializable {
 
     /**
      * Sets the order from sort keys, which may mix properties and compare functions, see {@link #getEntryOrder()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param keys the sort keys, at least one, or null to remove the option
      */
@@ -7196,6 +7467,7 @@ class ViewOptions implements Serializable {
 
     /**
      * Sets the order in any form, see {@link #getEntryOrder()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param value the order or a compare callback, or null to remove the option
      */
@@ -7340,14 +7612,15 @@ class ViewOptions implements Serializable {
      * <p>
      * The getter returns null while the option is not set. Then the library default applies.
      * <dl>
-     *   <dt>Forms</dt>     <dd>{@link TextContent}: shown as text.<br>
-     *                          {@code $0} stands for the number of hidden entries, such as "Click to see $0 more
-     *                          entries".
-     *                          <p>{@link JsCallback}: a function, see Callback.</dd>
-     *   <dt>Shortcuts</dt> <dd>{@link #setMoreLinkHint(String)}: a text, as {@link TextContent}.</dd>
-     *   <dt>Default</dt>   <dd>library: the text of the locale, "Show 3 more events" for three entries in English.</dd>
-     *   <dt>Callback</dt>  <dd>{@code function(num)}, the number of hidden entries.</dd>
-     *   <dt>Returns</dt>   <dd>the text.</dd>
+     *   <dt><b>Forms</b></dt>      <dd>{@link TextContent}: shown as text.<br>
+     *                                  {@code $0} stands for the number of hidden entries, such as "Click to see $0
+     *                                  more entries".
+     *                                  <p>{@link JsCallback}: a function, see JsCallback.</dd>
+     *   <dt><b>Shortcuts</b></dt>  <dd>{@link #setMoreLinkHint(String)}: a text, as {@link TextContent}.</dd>
+     *   <dt><b>Default</b></dt>    <dd>library: the text of the locale, "Show 3 more events" for three entries in
+     *                                  English.</dd>
+     *   <dt><b>JsCallback</b></dt> <dd>{@code function(num)}, the number of hidden entries.<br>
+     *                                  It returns the text.</dd>
      * </dl>
      * <pre>{@code
      * calendar.options().setMoreLinkHint("Click to see $0 more entries");
@@ -7361,6 +7634,7 @@ class ViewOptions implements Serializable {
 
     /**
      * Sets a fixed text, see {@link #getMoreLinkHint()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param text the text, shown as text, or null to remove the option
      */
@@ -7370,6 +7644,7 @@ class ViewOptions implements Serializable {
 
     /**
      * Sets the value in any form, see {@link #getMoreLinkHint()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param value the text or callback, or null to remove the option
      */
@@ -7386,13 +7661,13 @@ class ViewOptions implements Serializable {
      * <p>
      * The getter returns null while the option is not set. Then the library default applies.
      * <dl>
-     *   <dt>Forms</dt>     <dd>{@link TextContent}: shown as text, put after the number.<br>
-     *                          So "more" shows "+3 more".
-     *                          <p>{@link JsCallback}: a function, see Callback.</dd>
-     *   <dt>Shortcuts</dt> <dd>{@link #setMoreLinkText(String)}: a text, as {@link TextContent}.</dd>
-     *   <dt>Default</dt>   <dd>library: the text of the locale, "more" in English.</dd>
-     *   <dt>Callback</dt>  <dd>{@code function(num)}, the number of hidden entries.</dd>
-     *   <dt>Returns</dt>   <dd>the whole text of the link.</dd>
+     *   <dt><b>Forms</b></dt>      <dd>{@link TextContent}: shown as text, put after the number.<br>
+     *                                  So "more" shows "+3 more".
+     *                                  <p>{@link JsCallback}: a function, see JsCallback.</dd>
+     *   <dt><b>Shortcuts</b></dt>  <dd>{@link #setMoreLinkText(String)}: a text, as {@link TextContent}.</dd>
+     *   <dt><b>Default</b></dt>    <dd>library: the text of the locale, "more" in English.</dd>
+     *   <dt><b>JsCallback</b></dt> <dd>{@code function(num)}, the number of hidden entries.<br>
+     *                                  It returns the whole text of the link.</dd>
      * </dl>
      * <pre>{@code
      * calendar.options().setMoreLinkText("more");
@@ -7406,6 +7681,7 @@ class ViewOptions implements Serializable {
 
     /**
      * Sets a fixed text, see {@link #getMoreLinkText()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param text the text, shown as text, or null to remove the option
      */
@@ -7415,6 +7691,7 @@ class ViewOptions implements Serializable {
 
     /**
      * Sets the value in any form, see {@link #getMoreLinkText()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param value the text or callback, or null to remove the option
      */
@@ -7428,14 +7705,14 @@ class ViewOptions implements Serializable {
      * <p>
      * The getter returns null while the option is not set. Then the library default applies.
      * <dl>
-     *   <dt>Forms</dt>     <dd>{@link TextContent}: shown as text.<br>
-     *                          {@code $0} stands for the localized date text, such as "Go to $0".
-     *                          <p>{@link JsCallback}: a function, see Callback.</dd>
-     *   <dt>Shortcuts</dt> <dd>{@link #setNavLinkHint(String)}: a text, as {@link TextContent}.</dd>
-     *   <dt>Default</dt>   <dd>library: the hint of the locale, "Go to $0" in English.</dd>
-     *   <dt>Callback</dt>  <dd>{@code function(text, date)}, the localized date text and the JavaScript {@code Date} of
-     *                          the link.</dd>
-     *   <dt>Returns</dt>   <dd>the text.</dd>
+     *   <dt><b>Forms</b></dt>      <dd>{@link TextContent}: shown as text.<br>
+     *                                  {@code $0} stands for the localized date text, such as "Go to $0".
+     *                                  <p>{@link JsCallback}: a function, see JsCallback.</dd>
+     *   <dt><b>Shortcuts</b></dt>  <dd>{@link #setNavLinkHint(String)}: a text, as {@link TextContent}.</dd>
+     *   <dt><b>Default</b></dt>    <dd>library: the hint of the locale, "Go to $0" in English.</dd>
+     *   <dt><b>JsCallback</b></dt> <dd>{@code function(text, date)}, the localized date text and the JavaScript
+     *                                  {@code Date} of the link.<br>
+     *                                  It returns the text.</dd>
      * </dl>
      * <pre>{@code
      * calendar.options().setNavLinkHint("Go to $0");
@@ -7449,6 +7726,7 @@ class ViewOptions implements Serializable {
 
     /**
      * Sets a fixed text, see {@link #getNavLinkHint()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param text the text, shown as text, or null to remove the option
      */
@@ -7458,6 +7736,7 @@ class ViewOptions implements Serializable {
 
     /**
      * Sets the value in any form, see {@link #getNavLinkHint()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param value the text or callback, or null to remove the option
      */
@@ -7514,24 +7793,25 @@ class ViewOptions implements Serializable {
      * <p>
      * The getter returns null while the option is not set. Then the library default applies.
      * <dl>
-     *   <dt>Forms</dt>     <dd>{@link DateFormat}: the properties of a format object, such as {@code weekday} or
-     *                          {@code month}.
-     *                          <p>{@link JsCallback}: a function, see Callback.</dd>
-     *   <dt>Shortcuts</dt> <dd>{@link #setDayCellFormat(Map)}: the properties of the format object, as
-     *                          {@link DateFormat#of(Map)}.<br>
-     *                          A value that is no string, boolean or number throws an
-     *                          {@link IllegalArgumentException}.</dd>
-     *   <dt>Default</dt>   <dd>library: the day number only.</dd>
-     *   <dt>Callback</dt>  <dd>{@code function(info)}.<br>
-     *                          {@code info} has {@code date}, {@code start}, {@code end}, {@code timeZone} and
-     *                          {@code localeCodes}.<br>
-     *                          {@code date} (the same as {@code start}) is a plain object with {@code year},
-     *                          {@code month} (zero-based), {@code day}, {@code hour}, {@code minute}, {@code second},
-     *                          {@code millisecond} and {@code marker}, not a JavaScript {@code Date}.<br>
-     *                          {@code end} is null here.<br>
-     *                          The library docs name a date as the argument, but the used library version passes the
-     *                          info object.</dd>
-     *   <dt>Returns</dt>   <dd>the text.</dd>
+     *   <dt><b>Forms</b></dt>      <dd>{@link DateFormat}: the properties of a format object, such as {@code weekday}
+     *                                  or {@code month}.
+     *                                  <p>{@link JsCallback}: a function, see JsCallback.</dd>
+     *   <dt><b>Shortcuts</b></dt>  <dd>{@link #setDayCellFormat(Map)}: the properties of the format object, as
+     *                                  {@link DateFormat#of(Map)}.<br>
+     *                                  A value that is no string, boolean or number throws an
+     *                                  {@link IllegalArgumentException}.</dd>
+     *   <dt><b>Default</b></dt>    <dd>library: the day number only.</dd>
+     *   <dt><b>JsCallback</b></dt> <dd>{@code function(info)}.<br>
+     *                                  {@code info} has {@code date}, {@code start}, {@code end}, {@code timeZone} and
+     *                                  {@code localeCodes}.<br>
+     *                                  {@code date} (the same as {@code start}) is a plain object with {@code year},
+     *                                  {@code month} (zero-based), {@code day}, {@code hour}, {@code minute},
+     *                                  {@code second}, {@code millisecond} and {@code marker}, not a JavaScript
+     *                                  {@code Date}.<br>
+     *                                  {@code end} is null here.<br>
+     *                                  The library docs name a date as the argument, but the used library version
+     *                                  passes the info object.<br>
+     *                                  It returns the text.</dd>
      * </dl>
      * <pre>{@code
      * calendar.options().setDayCellFormat(Map.of("day", "numeric"));
@@ -7545,6 +7825,7 @@ class ViewOptions implements Serializable {
 
     /**
      * Sets a format from its properties, see {@link #getDayCellFormat()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param properties the properties of the format object, or null to remove the option
      */
@@ -7554,6 +7835,7 @@ class ViewOptions implements Serializable {
 
     /**
      * Sets the value in any form, see {@link #getDayCellFormat()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param value the format or callback, or null to remove the option
      */
@@ -7570,26 +7852,27 @@ class ViewOptions implements Serializable {
      * <p>
      * The getter returns null while the option is not set. Then the library default applies.
      * <dl>
-     *   <dt>Forms</dt>     <dd>{@link DateFormat}: the properties of a format object, such as {@code weekday} or
-     *                          {@code month}.
-     *                          <p>{@link JsCallback}: a function, see Callback.</dd>
-     *   <dt>Shortcuts</dt> <dd>{@link #setDayHeaderFormat(Map)}: the properties of the format object, as
-     *                          {@link DateFormat#of(Map)}.<br>
-     *                          A value that is no string, boolean or number throws an
-     *                          {@link IllegalArgumentException}.</dd>
-     *   <dt>Default</dt>   <dd>library: depends on the view (the short weekday in month views, the short weekday and
-     *                          day number in views with several day columns, and the long weekday and day number in
-     *                          views with one column).</dd>
-     *   <dt>Callback</dt>  <dd>{@code function(info)}.<br>
-     *                          {@code info} has {@code date}, {@code start}, {@code end}, {@code timeZone} and
-     *                          {@code localeCodes}.<br>
-     *                          {@code date} (the same as {@code start}) is a plain object with {@code year},
-     *                          {@code month} (zero-based), {@code day}, {@code hour}, {@code minute}, {@code second},
-     *                          {@code millisecond} and {@code marker}, not a JavaScript {@code Date}.<br>
-     *                          {@code end} is null here.<br>
-     *                          The library docs name a date as the argument, but the used library version passes the
-     *                          info object.</dd>
-     *   <dt>Returns</dt>   <dd>the text.</dd>
+     *   <dt><b>Forms</b></dt>      <dd>{@link DateFormat}: the properties of a format object, such as {@code weekday}
+     *                                  or {@code month}.
+     *                                  <p>{@link JsCallback}: a function, see JsCallback.</dd>
+     *   <dt><b>Shortcuts</b></dt>  <dd>{@link #setDayHeaderFormat(Map)}: the properties of the format object, as
+     *                                  {@link DateFormat#of(Map)}.<br>
+     *                                  A value that is no string, boolean or number throws an
+     *                                  {@link IllegalArgumentException}.</dd>
+     *   <dt><b>Default</b></dt>    <dd>library: depends on the view (the short weekday in month views, the short
+     *                                  weekday and day number in views with several day columns, and the long weekday
+     *                                  and day number in views with one column).</dd>
+     *   <dt><b>JsCallback</b></dt> <dd>{@code function(info)}.<br>
+     *                                  {@code info} has {@code date}, {@code start}, {@code end}, {@code timeZone} and
+     *                                  {@code localeCodes}.<br>
+     *                                  {@code date} (the same as {@code start}) is a plain object with {@code year},
+     *                                  {@code month} (zero-based), {@code day}, {@code hour}, {@code minute},
+     *                                  {@code second}, {@code millisecond} and {@code marker}, not a JavaScript
+     *                                  {@code Date}.<br>
+     *                                  {@code end} is null here.<br>
+     *                                  The library docs name a date as the argument, but the used library version
+     *                                  passes the info object.<br>
+     *                                  It returns the text.</dd>
      * </dl>
      * <pre>{@code
      * calendar.options().setDayHeaderFormat(Map.of("weekday", "long"));
@@ -7603,6 +7886,7 @@ class ViewOptions implements Serializable {
 
     /**
      * Sets a format from its properties, see {@link #getDayHeaderFormat()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param properties the properties of the format object, or null to remove the option
      */
@@ -7612,6 +7896,7 @@ class ViewOptions implements Serializable {
 
     /**
      * Sets the value in any form, see {@link #getDayHeaderFormat()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param value the format or callback, or null to remove the option
      */
@@ -7626,25 +7911,26 @@ class ViewOptions implements Serializable {
      * <p>
      * The getter returns null while the option is not set. Then the library default applies.
      * <dl>
-     *   <dt>Forms</dt>     <dd>{@link DateFormat}: the properties of a format object, such as {@code hour} or
-     *                          {@code minute}.
-     *                          <p>{@link JsCallback}: a function, see Callback.</dd>
-     *   <dt>Shortcuts</dt> <dd>{@link #setEntryTimeFormat(Map)}: the properties of the format object, as
-     *                          {@link DateFormat#of(Map)}.<br>
-     *                          A value that is no string, boolean or number throws an
-     *                          {@link IllegalArgumentException}.</dd>
-     *   <dt>Default</dt>   <dd>library: depends on the view ({@code 7:00} in time grid views, {@code 7p} in day grid
-     *                          views and {@code 7:00pm} in list views).</dd>
-     *   <dt>Callback</dt>  <dd>{@code function(info)}.<br>
-     *                          {@code info} has {@code date}, {@code start}, {@code end}, {@code timeZone} and
-     *                          {@code localeCodes}.<br>
-     *                          {@code date} (the same as {@code start}) is a plain object with {@code year},
-     *                          {@code month} (zero-based), {@code day}, {@code hour}, {@code minute}, {@code second},
-     *                          {@code millisecond} and {@code marker}, not a JavaScript {@code Date}.<br>
-     *                          {@code end} is set when the end time is shown, otherwise it is null.<br>
-     *                          The library docs name a date as the argument, but the used library version passes the
-     *                          info object.</dd>
-     *   <dt>Returns</dt>   <dd>the text.</dd>
+     *   <dt><b>Forms</b></dt>      <dd>{@link DateFormat}: the properties of a format object, such as {@code hour} or
+     *                                  {@code minute}.
+     *                                  <p>{@link JsCallback}: a function, see JsCallback.</dd>
+     *   <dt><b>Shortcuts</b></dt>  <dd>{@link #setEntryTimeFormat(Map)}: the properties of the format object, as
+     *                                  {@link DateFormat#of(Map)}.<br>
+     *                                  A value that is no string, boolean or number throws an
+     *                                  {@link IllegalArgumentException}.</dd>
+     *   <dt><b>Default</b></dt>    <dd>library: depends on the view ({@code 7:00} in time grid views, {@code 7p} in day
+     *                                  grid views and {@code 7:00pm} in list views).</dd>
+     *   <dt><b>JsCallback</b></dt> <dd>{@code function(info)}.<br>
+     *                                  {@code info} has {@code date}, {@code start}, {@code end}, {@code timeZone} and
+     *                                  {@code localeCodes}.<br>
+     *                                  {@code date} (the same as {@code start}) is a plain object with {@code year},
+     *                                  {@code month} (zero-based), {@code day}, {@code hour}, {@code minute},
+     *                                  {@code second}, {@code millisecond} and {@code marker}, not a JavaScript
+     *                                  {@code Date}.<br>
+     *                                  {@code end} is set when the end time is shown, otherwise it is null.<br>
+     *                                  The library docs name a date as the argument, but the used library version
+     *                                  passes the info object.<br>
+     *                                  It returns the text.</dd>
      * </dl>
      * <pre>{@code
      * calendar.options().setEntryTimeFormat(Map.of("hour", "2-digit", "minute", "2-digit", "meridiem", false));
@@ -7659,6 +7945,7 @@ class ViewOptions implements Serializable {
 
     /**
      * Sets a format from its properties, see {@link #getEntryTimeFormat()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param properties the properties of the format object, or null to remove the option
      */
@@ -7668,6 +7955,7 @@ class ViewOptions implements Serializable {
 
     /**
      * Sets the value in any form, see {@link #getEntryTimeFormat()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param value the format or callback, or null to remove the option
      */
@@ -7680,27 +7968,28 @@ class ViewOptions implements Serializable {
      * <p>
      * The getter returns null while the option is not set. Then the library default applies.
      * <dl>
-     *   <dt>Forms</dt>     <dd>{@link DateFormat}: the properties of a format object, such as {@code weekday} or
-     *                          {@code month}.
-     *                          <p>{@link ListDayFormatValue#NONE}: no text.
-     *                          <p>{@link JsCallback}: a function, see Callback.</dd>
-     *   <dt>Shortcuts</dt> <dd>{@link #setListDayAltFormat(Map)}: the properties of the format object, as
-     *                          {@link DateFormat#of(Map)}.<br>
-     *                          A value that is no string, boolean or number throws an
-     *                          {@link IllegalArgumentException}.</dd>
-     *   <dt>Default</dt>   <dd>library: depends on the view (no text in views of one day, the full date, such as
-     *                          "January 1, 2026" in English, in views of one week or of a number of days, and the long
-     *                          weekday name in longer views).</dd>
-     *   <dt>Callback</dt>  <dd>{@code function(info)}.<br>
-     *                          {@code info} has {@code date}, {@code start}, {@code end}, {@code timeZone} and
-     *                          {@code localeCodes}.<br>
-     *                          {@code date} (the same as {@code start}) is a plain object with {@code year},
-     *                          {@code month} (zero-based), {@code day}, {@code hour}, {@code minute}, {@code second},
-     *                          {@code millisecond} and {@code marker}, not a JavaScript {@code Date}.<br>
-     *                          {@code end} is null here.<br>
-     *                          The library docs name a date as the argument, but the used library version passes the
-     *                          info object.</dd>
-     *   <dt>Returns</dt>   <dd>the text.</dd>
+     *   <dt><b>Forms</b></dt>      <dd>{@link DateFormat}: the properties of a format object, such as {@code weekday}
+     *                                  or {@code month}.
+     *                                  <p>{@link ListDayFormatValue#NONE}: no text.
+     *                                  <p>{@link JsCallback}: a function, see JsCallback.</dd>
+     *   <dt><b>Shortcuts</b></dt>  <dd>{@link #setListDayAltFormat(Map)}: the properties of the format object, as
+     *                                  {@link DateFormat#of(Map)}.<br>
+     *                                  A value that is no string, boolean or number throws an
+     *                                  {@link IllegalArgumentException}.</dd>
+     *   <dt><b>Default</b></dt>    <dd>library: depends on the view (no text in views of one day, the full date, such
+     *                                  as "January 1, 2026" in English, in views of one week or of a number of days,
+     *                                  and the long weekday name in longer views).</dd>
+     *   <dt><b>JsCallback</b></dt> <dd>{@code function(info)}.<br>
+     *                                  {@code info} has {@code date}, {@code start}, {@code end}, {@code timeZone} and
+     *                                  {@code localeCodes}.<br>
+     *                                  {@code date} (the same as {@code start}) is a plain object with {@code year},
+     *                                  {@code month} (zero-based), {@code day}, {@code hour}, {@code minute},
+     *                                  {@code second}, {@code millisecond} and {@code marker}, not a JavaScript
+     *                                  {@code Date}.<br>
+     *                                  {@code end} is null here.<br>
+     *                                  The library docs name a date as the argument, but the used library version
+     *                                  passes the info object.<br>
+     *                                  It returns the text.</dd>
      * </dl>
      * <pre>{@code
      * calendar.options().setListDayAltFormat(Map.of("weekday", "long"));
@@ -7715,6 +8004,7 @@ class ViewOptions implements Serializable {
 
     /**
      * Sets a format from its properties, see {@link #getListDayAltFormat()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param properties the properties of the format object, or null to remove the option
      */
@@ -7724,6 +8014,7 @@ class ViewOptions implements Serializable {
 
     /**
      * Sets the value in any form, see {@link #getListDayAltFormat()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param value the format or callback, or null to remove the option
      */
@@ -7736,27 +8027,28 @@ class ViewOptions implements Serializable {
      * <p>
      * The getter returns null while the option is not set. Then the library default applies.
      * <dl>
-     *   <dt>Forms</dt>     <dd>{@link DateFormat}: the properties of a format object, such as {@code weekday} or
-     *                          {@code month}.
-     *                          <p>{@link ListDayFormatValue#NONE}: no text.
-     *                          <p>{@link JsCallback}: a function, see Callback.</dd>
-     *   <dt>Shortcuts</dt> <dd>{@link #setListDayFormat(Map)}: the properties of the format object, as
-     *                          {@link DateFormat#of(Map)}.<br>
-     *                          A value that is no string, boolean or number throws an
-     *                          {@link IllegalArgumentException}.</dd>
-     *   <dt>Default</dt>   <dd>library: depends on the view (the long weekday name in views of one day, of one week or
-     *                          of a number of days, and the full date, such as "January 1, 2026" in English, in longer
-     *                          views).</dd>
-     *   <dt>Callback</dt>  <dd>{@code function(info)}.<br>
-     *                          {@code info} has {@code date}, {@code start}, {@code end}, {@code timeZone} and
-     *                          {@code localeCodes}.<br>
-     *                          {@code date} (the same as {@code start}) is a plain object with {@code year},
-     *                          {@code month} (zero-based), {@code day}, {@code hour}, {@code minute}, {@code second},
-     *                          {@code millisecond} and {@code marker}, not a JavaScript {@code Date}.<br>
-     *                          {@code end} is null here.<br>
-     *                          The library docs name a date as the argument, but the used library version passes the
-     *                          info object.</dd>
-     *   <dt>Returns</dt>   <dd>the text.</dd>
+     *   <dt><b>Forms</b></dt>      <dd>{@link DateFormat}: the properties of a format object, such as {@code weekday}
+     *                                  or {@code month}.
+     *                                  <p>{@link ListDayFormatValue#NONE}: no text.
+     *                                  <p>{@link JsCallback}: a function, see JsCallback.</dd>
+     *   <dt><b>Shortcuts</b></dt>  <dd>{@link #setListDayFormat(Map)}: the properties of the format object, as
+     *                                  {@link DateFormat#of(Map)}.<br>
+     *                                  A value that is no string, boolean or number throws an
+     *                                  {@link IllegalArgumentException}.</dd>
+     *   <dt><b>Default</b></dt>    <dd>library: depends on the view (the long weekday name in views of one day, of one
+     *                                  week or of a number of days, and the full date, such as "January 1, 2026" in
+     *                                  English, in longer views).</dd>
+     *   <dt><b>JsCallback</b></dt> <dd>{@code function(info)}.<br>
+     *                                  {@code info} has {@code date}, {@code start}, {@code end}, {@code timeZone} and
+     *                                  {@code localeCodes}.<br>
+     *                                  {@code date} (the same as {@code start}) is a plain object with {@code year},
+     *                                  {@code month} (zero-based), {@code day}, {@code hour}, {@code minute},
+     *                                  {@code second}, {@code millisecond} and {@code marker}, not a JavaScript
+     *                                  {@code Date}.<br>
+     *                                  {@code end} is null here.<br>
+     *                                  The library docs name a date as the argument, but the used library version
+     *                                  passes the info object.<br>
+     *                                  It returns the text.</dd>
      * </dl>
      * <pre>{@code
      * calendar.options().setListDayFormat(Map.of("weekday", "long"));
@@ -7771,6 +8063,7 @@ class ViewOptions implements Serializable {
 
     /**
      * Sets a format from its properties, see {@link #getListDayFormat()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param properties the properties of the format object, or null to remove the option
      */
@@ -7780,6 +8073,7 @@ class ViewOptions implements Serializable {
 
     /**
      * Sets the value in any form, see {@link #getListDayFormat()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param value the format or callback, or null to remove the option
      */
@@ -7793,24 +8087,25 @@ class ViewOptions implements Serializable {
      * <p>
      * The getter returns null while the option is not set. Then the library default applies.
      * <dl>
-     *   <dt>Forms</dt>     <dd>{@link DateFormat}: the properties of a format object, such as {@code month} or
-     *                          {@code day}.
-     *                          <p>{@link JsCallback}: a function, see Callback.</dd>
-     *   <dt>Shortcuts</dt> <dd>{@link #setMonthStartFormat(Map)}: the properties of the format object, as
-     *                          {@link DateFormat#of(Map)}.<br>
-     *                          A value that is no string, boolean or number throws an
-     *                          {@link IllegalArgumentException}.</dd>
-     *   <dt>Default</dt>   <dd>library: the long month and the day, such as "January 1" in English.</dd>
-     *   <dt>Callback</dt>  <dd>{@code function(info)}.<br>
-     *                          {@code info} has {@code date}, {@code start}, {@code end}, {@code timeZone} and
-     *                          {@code localeCodes}.<br>
-     *                          {@code date} (the same as {@code start}) is a plain object with {@code year},
-     *                          {@code month} (zero-based), {@code day}, {@code hour}, {@code minute}, {@code second},
-     *                          {@code millisecond} and {@code marker}, not a JavaScript {@code Date}.<br>
-     *                          {@code end} is null here.<br>
-     *                          The library docs name a date as the argument, but the used library version passes the
-     *                          info object.</dd>
-     *   <dt>Returns</dt>   <dd>the text.</dd>
+     *   <dt><b>Forms</b></dt>      <dd>{@link DateFormat}: the properties of a format object, such as {@code month} or
+     *                                  {@code day}.
+     *                                  <p>{@link JsCallback}: a function, see JsCallback.</dd>
+     *   <dt><b>Shortcuts</b></dt>  <dd>{@link #setMonthStartFormat(Map)}: the properties of the format object, as
+     *                                  {@link DateFormat#of(Map)}.<br>
+     *                                  A value that is no string, boolean or number throws an
+     *                                  {@link IllegalArgumentException}.</dd>
+     *   <dt><b>Default</b></dt>    <dd>library: the long month and the day, such as "January 1" in English.</dd>
+     *   <dt><b>JsCallback</b></dt> <dd>{@code function(info)}.<br>
+     *                                  {@code info} has {@code date}, {@code start}, {@code end}, {@code timeZone} and
+     *                                  {@code localeCodes}.<br>
+     *                                  {@code date} (the same as {@code start}) is a plain object with {@code year},
+     *                                  {@code month} (zero-based), {@code day}, {@code hour}, {@code minute},
+     *                                  {@code second}, {@code millisecond} and {@code marker}, not a JavaScript
+     *                                  {@code Date}.<br>
+     *                                  {@code end} is null here.<br>
+     *                                  The library docs name a date as the argument, but the used library version
+     *                                  passes the info object.<br>
+     *                                  It returns the text.</dd>
      * </dl>
      * <pre>{@code
      * calendar.options().setMonthStartFormat(Map.of("month", "short", "day", "numeric"));
@@ -7825,6 +8120,7 @@ class ViewOptions implements Serializable {
 
     /**
      * Sets a format from its properties, see {@link #getMonthStartFormat()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param properties the properties of the format object, or null to remove the option
      */
@@ -7834,6 +8130,7 @@ class ViewOptions implements Serializable {
 
     /**
      * Sets the value in any form, see {@link #getMonthStartFormat()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param value the format or callback, or null to remove the option
      */
@@ -7846,24 +8143,25 @@ class ViewOptions implements Serializable {
      * <p>
      * The getter returns null while the option is not set. Then the library default applies.
      * <dl>
-     *   <dt>Forms</dt>     <dd>{@link DateFormat}: the properties of a format object, such as {@code month} or
-     *                          {@code day}.
-     *                          <p>{@link JsCallback}: a function, see Callback.</dd>
-     *   <dt>Shortcuts</dt> <dd>{@link #setPopoverFormat(Map)}: the properties of the format object, as
-     *                          {@link DateFormat#of(Map)}.<br>
-     *                          A value that is no string, boolean or number throws an
-     *                          {@link IllegalArgumentException}.</dd>
-     *   <dt>Default</dt>   <dd>library: the long month, the day and the year.</dd>
-     *   <dt>Callback</dt>  <dd>{@code function(info)}.<br>
-     *                          {@code info} has {@code date}, {@code start}, {@code end}, {@code timeZone} and
-     *                          {@code localeCodes}.<br>
-     *                          {@code date} (the same as {@code start}) is a plain object with {@code year},
-     *                          {@code month} (zero-based), {@code day}, {@code hour}, {@code minute}, {@code second},
-     *                          {@code millisecond} and {@code marker}, not a JavaScript {@code Date}.<br>
-     *                          {@code end} is null here.<br>
-     *                          The library docs name a date as the argument, but the used library version passes the
-     *                          info object.</dd>
-     *   <dt>Returns</dt>   <dd>the text.</dd>
+     *   <dt><b>Forms</b></dt>      <dd>{@link DateFormat}: the properties of a format object, such as {@code month} or
+     *                                  {@code day}.
+     *                                  <p>{@link JsCallback}: a function, see JsCallback.</dd>
+     *   <dt><b>Shortcuts</b></dt>  <dd>{@link #setPopoverFormat(Map)}: the properties of the format object, as
+     *                                  {@link DateFormat#of(Map)}.<br>
+     *                                  A value that is no string, boolean or number throws an
+     *                                  {@link IllegalArgumentException}.</dd>
+     *   <dt><b>Default</b></dt>    <dd>library: the long month, the day and the year.</dd>
+     *   <dt><b>JsCallback</b></dt> <dd>{@code function(info)}.<br>
+     *                                  {@code info} has {@code date}, {@code start}, {@code end}, {@code timeZone} and
+     *                                  {@code localeCodes}.<br>
+     *                                  {@code date} (the same as {@code start}) is a plain object with {@code year},
+     *                                  {@code month} (zero-based), {@code day}, {@code hour}, {@code minute},
+     *                                  {@code second}, {@code millisecond} and {@code marker}, not a JavaScript
+     *                                  {@code Date}.<br>
+     *                                  {@code end} is null here.<br>
+     *                                  The library docs name a date as the argument, but the used library version
+     *                                  passes the info object.<br>
+     *                                  It returns the text.</dd>
      * </dl>
      * <pre>{@code
      * calendar.options().setPopoverFormat(Map.of("month", "short", "day", "numeric"));
@@ -7878,6 +8176,7 @@ class ViewOptions implements Serializable {
 
     /**
      * Sets a format from its properties, see {@link #getPopoverFormat()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param properties the properties of the format object, or null to remove the option
      */
@@ -7887,6 +8186,7 @@ class ViewOptions implements Serializable {
 
     /**
      * Sets the value in any form, see {@link #getPopoverFormat()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param value the format or callback, or null to remove the option
      */
@@ -7899,25 +8199,26 @@ class ViewOptions implements Serializable {
      * <p>
      * The getter returns null while the option is not set. Then the library default applies.
      * <dl>
-     *   <dt>Forms</dt>     <dd>{@link DateFormat}: the properties of a format object, such as {@code month} or
-     *                          {@code day}.
-     *                          <p>{@link JsCallback}: a function, see Callback.</dd>
-     *   <dt>Shortcuts</dt> <dd>{@link #setSingleMonthTitleFormat(Map)}: the properties of the format object, as
-     *                          {@link DateFormat#of(Map)}.<br>
-     *                          A value that is no string, boolean or number throws an
-     *                          {@link IllegalArgumentException}.</dd>
-     *   <dt>Default</dt>   <dd>library: the long month if the calendar spans a single year, otherwise the long month
-     *                          and the year.</dd>
-     *   <dt>Callback</dt>  <dd>{@code function(info)}.<br>
-     *                          {@code info} has {@code date}, {@code start}, {@code end}, {@code timeZone} and
-     *                          {@code localeCodes}.<br>
-     *                          {@code date} (the same as {@code start}) is a plain object with {@code year},
-     *                          {@code month} (zero-based), {@code day}, {@code hour}, {@code minute}, {@code second},
-     *                          {@code millisecond} and {@code marker}, not a JavaScript {@code Date}.<br>
-     *                          {@code end} is null here.<br>
-     *                          The library docs name a date as the argument, but the used library version passes the
-     *                          info object.</dd>
-     *   <dt>Returns</dt>   <dd>the text.</dd>
+     *   <dt><b>Forms</b></dt>      <dd>{@link DateFormat}: the properties of a format object, such as {@code month} or
+     *                                  {@code day}.
+     *                                  <p>{@link JsCallback}: a function, see JsCallback.</dd>
+     *   <dt><b>Shortcuts</b></dt>  <dd>{@link #setSingleMonthTitleFormat(Map)}: the properties of the format object, as
+     *                                  {@link DateFormat#of(Map)}.<br>
+     *                                  A value that is no string, boolean or number throws an
+     *                                  {@link IllegalArgumentException}.</dd>
+     *   <dt><b>Default</b></dt>    <dd>library: the long month if the calendar spans a single year, otherwise the long
+     *                                  month and the year.</dd>
+     *   <dt><b>JsCallback</b></dt> <dd>{@code function(info)}.<br>
+     *                                  {@code info} has {@code date}, {@code start}, {@code end}, {@code timeZone} and
+     *                                  {@code localeCodes}.<br>
+     *                                  {@code date} (the same as {@code start}) is a plain object with {@code year},
+     *                                  {@code month} (zero-based), {@code day}, {@code hour}, {@code minute},
+     *                                  {@code second}, {@code millisecond} and {@code marker}, not a JavaScript
+     *                                  {@code Date}.<br>
+     *                                  {@code end} is null here.<br>
+     *                                  The library docs name a date as the argument, but the used library version
+     *                                  passes the info object.<br>
+     *                                  It returns the text.</dd>
      * </dl>
      * <pre>{@code
      * calendar.options().setSingleMonthTitleFormat(Map.of("month", "short"));
@@ -7932,6 +8233,7 @@ class ViewOptions implements Serializable {
 
     /**
      * Sets a format from its properties, see {@link #getSingleMonthTitleFormat()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param properties the properties of the format object, or null to remove the option
      */
@@ -7941,6 +8243,7 @@ class ViewOptions implements Serializable {
 
     /**
      * Sets the value in any form, see {@link #getSingleMonthTitleFormat()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param value the format or callback, or null to remove the option
      */
@@ -7956,29 +8259,31 @@ class ViewOptions implements Serializable {
      * <p>
      * The getter returns null while the option is not set. Then the library default applies.
      * <dl>
-     *   <dt>Forms</dt>     <dd>{@link DateFormat}: the properties of a format object, such as {@code hour} or
-     *                          {@code minute}.
-     *                          <p>{@link JsCallback}: a function, see Callback.
-     *                          <p>{@link SlotHeaderFormatValue#of(DateFormatValue...)}: one format per header row,
-     *                          timeline views, scheduler only.</dd>
-     *   <dt>Shortcuts</dt> <dd>{@link #setSlotHeaderFormat(Map)}: the properties of the format object, as
-     *                          {@link DateFormat#of(Map)}.<br>
-     *                          A value that is no string, boolean or number throws an
-     *                          {@link IllegalArgumentException}.</dd>
-     *   <dt>Default</dt>   <dd>library: in the time grid
-     *                          {@code {hour: 'numeric', minute: '2-digit', omitZeroMinute: true, meridiem: 'short'}},
-     *                          which shows times like "5pm" and "5:30pm" in English.<br>
-     *                          A timeline view picks its header formats from its slot duration.</dd>
-     *   <dt>Callback</dt>  <dd>{@code function(info)}.<br>
-     *                          {@code info} has {@code date}, {@code start}, {@code end}, {@code timeZone} and
-     *                          {@code localeCodes}.<br>
-     *                          {@code date} (the same as {@code start}) is a plain object with {@code year},
-     *                          {@code month} (zero-based), {@code day}, {@code hour}, {@code minute}, {@code second},
-     *                          {@code millisecond} and {@code marker}, not a JavaScript {@code Date}.<br>
-     *                          {@code end} is null here.<br>
-     *                          The library docs name a date as the argument, but the used library version passes the
-     *                          info object.</dd>
-     *   <dt>Returns</dt>   <dd>the text.</dd>
+     *   <dt><b>Forms</b></dt>      <dd>{@link DateFormat}: the properties of a format object, such as {@code hour} or
+     *                                  {@code minute}.
+     *                                  <p>{@link JsCallback}: a function, see JsCallback.
+     *                                  <p>{@link SlotHeaderFormatValue#of(DateFormatValue...)}: one format per header
+     *                                  row, timeline views, scheduler only.</dd>
+     *   <dt><b>Shortcuts</b></dt>  <dd>{@link #setSlotHeaderFormat(Map)}: the properties of the format object, as
+     *                                  {@link DateFormat#of(Map)}.<br>
+     *                                  A value that is no string, boolean or number throws an
+     *                                  {@link IllegalArgumentException}.</dd>
+     *   <dt><b>Default</b></dt>    <dd>library: in the time grid
+     *                                  {@code {hour: 'numeric', minute: '2-digit', omitZeroMinute: true,
+     *                                  meridiem: 'short'}},
+     *                                  which shows times like "5pm" and "5:30pm" in English.<br>
+     *                                  A timeline view picks its header formats from its slot duration.</dd>
+     *   <dt><b>JsCallback</b></dt> <dd>{@code function(info)}.<br>
+     *                                  {@code info} has {@code date}, {@code start}, {@code end}, {@code timeZone} and
+     *                                  {@code localeCodes}.<br>
+     *                                  {@code date} (the same as {@code start}) is a plain object with {@code year},
+     *                                  {@code month} (zero-based), {@code day}, {@code hour}, {@code minute},
+     *                                  {@code second}, {@code millisecond} and {@code marker}, not a JavaScript
+     *                                  {@code Date}.<br>
+     *                                  {@code end} is null here.<br>
+     *                                  The library docs name a date as the argument, but the used library version
+     *                                  passes the info object.<br>
+     *                                  It returns the text.</dd>
      * </dl>
      * <pre>{@code
      * calendar.options().setSlotHeaderFormat(Map.of("hour", "2-digit", "minute", "2-digit", "hour12", false));
@@ -7994,6 +8299,7 @@ class ViewOptions implements Serializable {
 
     /**
      * Sets a format from its properties, see {@link #getSlotHeaderFormat()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param properties the properties of the format object, or null to remove the option
      */
@@ -8003,6 +8309,7 @@ class ViewOptions implements Serializable {
 
     /**
      * Sets the value in any form, see {@link #getSlotHeaderFormat()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param value the format, callback or formats per header row, or null to remove the option
      */
@@ -8015,30 +8322,31 @@ class ViewOptions implements Serializable {
      * <p>
      * The getter returns null while the option is not set. Then the library default applies.
      * <dl>
-     *   <dt>Forms</dt>     <dd>{@link DateFormat}: the properties of a format object, such as {@code month} or
-     *                          {@code day}.
-     *                          <p>{@link JsCallback}: a function, see Callback.</dd>
-     *   <dt>Shortcuts</dt> <dd>{@link #setTitleFormat(Map)}: the properties of the format object, as
-     *                          {@link DateFormat#of(Map)}.<br>
-     *                          A value that is no string, boolean or number throws an
-     *                          {@link IllegalArgumentException}.</dd>
-     *   <dt>Default</dt>   <dd>library: depends on the view.<br>
-     *                          Month and week views show the year and the long month ("September 2009"), day views also
-     *                          the day ("September 8 2009").<br>
-     *                          When the range spans two months, the months are short.<br>
-     *                          List views of several days show the days as well.<br>
-     *                          The library docs show the day in week views too ("Sep 13 2009"), which the used library
-     *                          version does not.</dd>
-     *   <dt>Callback</dt>  <dd>{@code function(info)}.<br>
-     *                          {@code info} has {@code date}, {@code start}, {@code end}, {@code timeZone} and
-     *                          {@code localeCodes}.<br>
-     *                          {@code date} (the same as {@code start}) is a plain object with {@code year},
-     *                          {@code month} (zero-based), {@code day}, {@code hour}, {@code minute}, {@code second},
-     *                          {@code millisecond} and {@code marker}, not a JavaScript {@code Date}.<br>
-     *                          {@code end} is the end of the shown range.<br>
-     *                          The library docs name a date as the argument, but the used library version passes the
-     *                          info object.</dd>
-     *   <dt>Returns</dt>   <dd>the text.</dd>
+     *   <dt><b>Forms</b></dt>      <dd>{@link DateFormat}: the properties of a format object, such as {@code month} or
+     *                                  {@code day}.
+     *                                  <p>{@link JsCallback}: a function, see JsCallback.</dd>
+     *   <dt><b>Shortcuts</b></dt>  <dd>{@link #setTitleFormat(Map)}: the properties of the format object, as
+     *                                  {@link DateFormat#of(Map)}.<br>
+     *                                  A value that is no string, boolean or number throws an
+     *                                  {@link IllegalArgumentException}.</dd>
+     *   <dt><b>Default</b></dt>    <dd>library: depends on the view.<br>
+     *                                  Month and week views show the year and the long month ("September 2009"), day
+     *                                  views also the day ("September 8 2009").<br>
+     *                                  When the range spans two months, the months are short.<br>
+     *                                  List views of several days show the days as well.<br>
+     *                                  The library docs show the day in week views too ("Sep 13 2009"), which the used
+     *                                  library version does not.</dd>
+     *   <dt><b>JsCallback</b></dt> <dd>{@code function(info)}.<br>
+     *                                  {@code info} has {@code date}, {@code start}, {@code end}, {@code timeZone} and
+     *                                  {@code localeCodes}.<br>
+     *                                  {@code date} (the same as {@code start}) is a plain object with {@code year},
+     *                                  {@code month} (zero-based), {@code day}, {@code hour}, {@code minute},
+     *                                  {@code second}, {@code millisecond} and {@code marker}, not a JavaScript
+     *                                  {@code Date}.<br>
+     *                                  {@code end} is the end of the shown range.<br>
+     *                                  The library docs name a date as the argument, but the used library version
+     *                                  passes the info object.<br>
+     *                                  It returns the text.</dd>
      * </dl>
      * <pre>{@code
      * calendar.options().setTitleFormat(Map.of("year", "numeric", "month", "short"));
@@ -8052,6 +8360,7 @@ class ViewOptions implements Serializable {
 
     /**
      * Sets a format from its properties, see {@link #getTitleFormat()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param properties the properties of the format object, or null to remove the option
      */
@@ -8061,6 +8370,7 @@ class ViewOptions implements Serializable {
 
     /**
      * Sets the value in any form, see {@link #getTitleFormat()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param value the format or callback, or null to remove the option
      */
@@ -8074,26 +8384,27 @@ class ViewOptions implements Serializable {
      * <p>
      * The getter returns null while the option is not set. Then the library default applies.
      * <dl>
-     *   <dt>Forms</dt>     <dd>{@link DateFormat}: the properties of a format object, such as {@code month} or
-     *                          {@code day}.
-     *                          <p>{@link JsCallback}: a function, see Callback.</dd>
-     *   <dt>Shortcuts</dt> <dd>{@link #setWeekNumberFormat(Map)}: the properties of the format object, as
-     *                          {@link DateFormat#of(Map)}.<br>
-     *                          A value that is no string, boolean or number throws an
-     *                          {@link IllegalArgumentException}.</dd>
-     *   <dt>Default</dt>   <dd>library: {@code week: 'narrow'} in day grid views and {@code week: 'short'} in time grid
-     *                          views.<br>
-     *                          The library docs name {@code week: 'narrow'} for all views.</dd>
-     *   <dt>Callback</dt>  <dd>{@code function(info)}.<br>
-     *                          {@code info} has {@code date}, {@code start}, {@code end}, {@code timeZone} and
-     *                          {@code localeCodes}.<br>
-     *                          {@code date} (the same as {@code start}) is a plain object with {@code year},
-     *                          {@code month} (zero-based), {@code day}, {@code hour}, {@code minute}, {@code second},
-     *                          {@code millisecond} and {@code marker}, not a JavaScript {@code Date}.<br>
-     *                          {@code end} is null here.<br>
-     *                          The library docs name a date as the argument, but the used library version passes the
-     *                          info object.</dd>
-     *   <dt>Returns</dt>   <dd>the text.</dd>
+     *   <dt><b>Forms</b></dt>      <dd>{@link DateFormat}: the properties of a format object, such as {@code month} or
+     *                                  {@code day}.
+     *                                  <p>{@link JsCallback}: a function, see JsCallback.</dd>
+     *   <dt><b>Shortcuts</b></dt>  <dd>{@link #setWeekNumberFormat(Map)}: the properties of the format object, as
+     *                                  {@link DateFormat#of(Map)}.<br>
+     *                                  A value that is no string, boolean or number throws an
+     *                                  {@link IllegalArgumentException}.</dd>
+     *   <dt><b>Default</b></dt>    <dd>library: {@code week: 'narrow'} in day grid views and {@code week: 'short'} in
+     *                                  time grid views.<br>
+     *                                  The library docs name {@code week: 'narrow'} for all views.</dd>
+     *   <dt><b>JsCallback</b></dt> <dd>{@code function(info)}.<br>
+     *                                  {@code info} has {@code date}, {@code start}, {@code end}, {@code timeZone} and
+     *                                  {@code localeCodes}.<br>
+     *                                  {@code date} (the same as {@code start}) is a plain object with {@code year},
+     *                                  {@code month} (zero-based), {@code day}, {@code hour}, {@code minute},
+     *                                  {@code second}, {@code millisecond} and {@code marker}, not a JavaScript
+     *                                  {@code Date}.<br>
+     *                                  {@code end} is null here.<br>
+     *                                  The library docs name a date as the argument, but the used library version
+     *                                  passes the info object.<br>
+     *                                  It returns the text.</dd>
      * </dl>
      * <pre>{@code
      * calendar.options().setWeekNumberFormat(Map.of("week", "numeric"));
@@ -8108,6 +8419,7 @@ class ViewOptions implements Serializable {
 
     /**
      * Sets a format from its properties, see {@link #getWeekNumberFormat()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param properties the properties of the format object, or null to remove the option
      */
@@ -8117,6 +8429,7 @@ class ViewOptions implements Serializable {
 
     /**
      * Sets the value in any form, see {@link #getWeekNumberFormat()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param value the format or callback, or null to remove the option
      */
@@ -8143,17 +8456,17 @@ class ViewOptions implements Serializable {
      * <p>
      * The getter returns null while the option is not set. Then the library default applies.
      * <dl>
-     *   <dt>Forms</dt>     <dd>{@link ClassName}: class names.
-     *                          <p>{@link JsCallback}: a function, see Callback.</dd>
-     *   <dt>Shortcuts</dt> <dd>{@link #setHeaderToolbarClass(String)}: class names separated by spaces, as
-     *                          {@link ClassName}.</dd>
-     *   <dt>Default</dt>   <dd>library: no classes, a theme can set classes of its own.
-     *                          <p>add-on: the stable class {@code fc-header-toolbar}.<br>
-     *                          Classes set here are added to it.</dd>
-     *   <dt>Callback</dt>  <dd>{@code function(info)}.<br>
-     *                          {@code info} has {@code borderlessX}, {@code borderlessTop} and
-     *                          {@code borderlessBottom}.</dd>
-     *   <dt>Returns</dt>   <dd>the class names as a string.</dd>
+     *   <dt><b>Forms</b></dt>      <dd>{@link ClassName}: class names.
+     *                                  <p>{@link JsCallback}: a function, see JsCallback.</dd>
+     *   <dt><b>Shortcuts</b></dt>  <dd>{@link #setHeaderToolbarClass(String)}: class names separated by spaces, as
+     *                                  {@link ClassName}.</dd>
+     *   <dt><b>Default</b></dt>    <dd>library: no classes, a theme can set classes of its own.
+     *                                  <p>add-on: the stable class {@code fc-header-toolbar}.<br>
+     *                                  Classes set here are added to it.</dd>
+     *   <dt><b>JsCallback</b></dt> <dd>{@code function(info)}.<br>
+     *                                  {@code info} has {@code borderlessX}, {@code borderlessTop} and
+     *                                  {@code borderlessBottom}.<br>
+     *                                  It returns the class names as a string.</dd>
      * </dl>
      * <pre>{@code
      * calendar.options().setHeaderToolbarClass("my-toolbar");
@@ -8167,6 +8480,7 @@ class ViewOptions implements Serializable {
 
     /**
      * Sets fixed CSS classes, see {@link #getHeaderToolbarClass()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param classNames the class names, separated by spaces, or null to remove the option
      */
@@ -8176,6 +8490,7 @@ class ViewOptions implements Serializable {
 
     /**
      * Sets the CSS classes in any form, see {@link #getHeaderToolbarClass()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param value the classes or callback, or null to remove the option
      */
@@ -8189,17 +8504,17 @@ class ViewOptions implements Serializable {
      * <p>
      * The getter returns null while the option is not set. Then the library default applies.
      * <dl>
-     *   <dt>Forms</dt>     <dd>{@link ClassName}: class names.
-     *                          <p>{@link JsCallback}: a function, see Callback.</dd>
-     *   <dt>Shortcuts</dt> <dd>{@link #setFooterToolbarClass(String)}: class names separated by spaces, as
-     *                          {@link ClassName}.</dd>
-     *   <dt>Default</dt>   <dd>library: no classes, a theme can set classes of its own.
-     *                          <p>add-on: the stable class {@code fc-footer-toolbar}.<br>
-     *                          Classes set here are added to it.</dd>
-     *   <dt>Callback</dt>  <dd>{@code function(info)}.<br>
-     *                          {@code info} has {@code borderlessX}, {@code borderlessTop} and
-     *                          {@code borderlessBottom}.</dd>
-     *   <dt>Returns</dt>   <dd>the class names as a string.</dd>
+     *   <dt><b>Forms</b></dt>      <dd>{@link ClassName}: class names.
+     *                                  <p>{@link JsCallback}: a function, see JsCallback.</dd>
+     *   <dt><b>Shortcuts</b></dt>  <dd>{@link #setFooterToolbarClass(String)}: class names separated by spaces, as
+     *                                  {@link ClassName}.</dd>
+     *   <dt><b>Default</b></dt>    <dd>library: no classes, a theme can set classes of its own.
+     *                                  <p>add-on: the stable class {@code fc-footer-toolbar}.<br>
+     *                                  Classes set here are added to it.</dd>
+     *   <dt><b>JsCallback</b></dt> <dd>{@code function(info)}.<br>
+     *                                  {@code info} has {@code borderlessX}, {@code borderlessTop} and
+     *                                  {@code borderlessBottom}.<br>
+     *                                  It returns the class names as a string.</dd>
      * </dl>
      * <pre>{@code
      * calendar.options().setFooterToolbarClass("my-toolbar");
@@ -8213,6 +8528,7 @@ class ViewOptions implements Serializable {
 
     /**
      * Sets fixed CSS classes, see {@link #getFooterToolbarClass()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param classNames the class names, separated by spaces, or null to remove the option
      */
@@ -8222,6 +8538,7 @@ class ViewOptions implements Serializable {
 
     /**
      * Sets the CSS classes in any form, see {@link #getFooterToolbarClass()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param value the classes or callback, or null to remove the option
      */

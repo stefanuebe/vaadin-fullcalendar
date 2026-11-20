@@ -54,6 +54,7 @@ public class FullCalendarSchedulerOptions extends FullCalendarOptions {
     /**
      * Sets the columns of the resource area, see {@link #getResourceColumns()}. The component columns are bound to
      * this calendar, and the columns set before are unbound. An empty list removes the option, as null does.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param resourceColumns the columns, or null to remove the option
      * @throws IllegalArgumentException when two columns have the same field

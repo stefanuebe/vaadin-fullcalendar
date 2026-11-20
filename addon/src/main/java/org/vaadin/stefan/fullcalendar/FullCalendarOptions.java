@@ -52,8 +52,7 @@ public class FullCalendarOptions extends AbstractOptions {
     }
 
     /**
-     * Sets the time zone the calendar shows the entries in, see {@link #getTimeZone()}. The initial value is
-     * {@link Timezone#UTC}.
+     * Sets the time zone the calendar shows the entries in. The initial value is {@link Timezone#UTC}.
      * <p>
      * {@link Timezone#LOCAL} lets the calendar follow the browser: each report of the browser's zone sets the zone the
      * server converts with, while the browser keeps showing its own zone. If the browser has reported already, its
@@ -61,6 +60,7 @@ public class FullCalendarOptions extends AbstractOptions {
      *
      * @param timeZone the time zone
      * @throws NullPointerException when null is passed
+     * @see #getTimeZone()
      */
     public void setTimeZone(Timezone timeZone) {
         calendar.applyTimeZone(timeZone);

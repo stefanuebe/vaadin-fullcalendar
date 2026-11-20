@@ -145,15 +145,33 @@ The list goes into the field's Javadoc, because Lombok copies it into the getter
 the setters point to the getter. Prose on what the option does stays above the
 list, a sample goes below it. What the list says is not repeated in the prose.
 
+A hand-written setter of an option stays short: what it sets, `see {@link #getX()}`,
+then the placeholder line, then its tags:
+
+```java
+/**
+ * Sets own business hours, see {@link #getBusinessHours()}.
+ * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
+ *
+ * @param hours the business hours, at least one, or null to remove the option
+ */
+```
+
+The IDE hides the HTML comment. For the sources jar, `build-tools/SourcesJavadoc.java`
+replaces it with the getter's description and drops the reference, so the setter
+shows the whole option without Lombok. The build fails when the getter has no
+Javadoc or a placeholder stays.
+
 The rows, in this order. A row that does not apply is left out.
 
 | Row | Content |
 |---|---|
-| `Forms` | Every form the value-type setter accepts, as `{@link}` to the constant, factory method or class, followed by a colon and a short description: `{@link ClassName}: class names.` `JsCallback` where it is one ("a function, see Callback"). Nested forms name the parts in the description. A form that takes effect with the scheduler only says "scheduler only". |
+| `Forms` | Every form the value-type setter accepts, as `{@link}` to the constant, factory method or class, followed by a colon and a short description: `{@link ClassName}: class names.` `JsCallback` where it is one ("a function, see JsCallback"). Nested forms name the parts in the description. A form that takes effect with the scheduler only says "scheduler only". |
 | `Shortcuts` | Every other setter of the field, each with the form it produces. A restriction goes with its shortcut. Overlapping shortcuts are all listed. |
 | `Default` | Who sets it and what it is: "library: …", and "add-on: …" where the add-on sets a value of its own or another option changes the effect. |
-| `Callback` | Only with `JsCallback` as a form: the signature and what the arguments hold. |
-| `Returns` | Only with `JsCallback` as a form: what the callback returns. |
+| `JsCallback` | Only with `JsCallback` as a form: the signature, what the arguments hold and, as its last sentence, "It returns …". A row of its own for the return value would read like the `Returns` section of the method in the IDE. |
+
+The row names are bold, `<dt><b>Forms</b></dt>`, so they stand out from the text.
 
 Inside a `<dd>`, every entry (a form, a shortcut, the library and the add-on
 default) starts its own paragraph with `<p>`, except the first. Every sentence ends
@@ -168,15 +186,15 @@ one, plus each form only the value-type setter reaches, such as
 /**
  * Whether dragged or resized entries may overlap other entries.
  * <dl>
- *   <dt>Forms</dt>     <dd>{@link Overlap#ALLOWED}: entries may overlap.
- *                          <p>{@link Overlap#FORBIDDEN}: entries may not overlap.
- *                          <p>{@link JsCallback}: a function, see Callback.</dd>
- *   <dt>Shortcuts</dt> <dd>{@link #setEntryOverlap(boolean)}: {@code true} = {@link Overlap#ALLOWED},
- *                          {@code false} = {@link Overlap#FORBIDDEN}.</dd>
- *   <dt>Default</dt>   <dd>library: {@code true}.</dd>
- *   <dt>Callback</dt>  <dd>{@code function(stillEvent, movingEvent)}, the entry underneath and the entry being
- *                          moved.</dd>
- *   <dt>Returns</dt>   <dd>{@code true} to allow the overlap.</dd>
+ *   <dt><b>Forms</b></dt>      <dd>{@link Overlap#ALLOWED}: entries may overlap.
+ *                                  <p>{@link Overlap#FORBIDDEN}: entries may not overlap.
+ *                                  <p>{@link JsCallback}: a function, see JsCallback.</dd>
+ *   <dt><b>Shortcuts</b></dt>  <dd>{@link #setEntryOverlap(boolean)}: {@code true} = {@link Overlap#ALLOWED},
+ *                                  {@code false} = {@link Overlap#FORBIDDEN}.</dd>
+ *   <dt><b>Default</b></dt>    <dd>library: {@code true}.</dd>
+ *   <dt><b>JsCallback</b></dt> <dd>{@code function(stillEvent, movingEvent)}, the entry underneath and the
+ *                                  entry being moved.<br>
+ *                                  It returns {@code true} to allow the overlap.</dd>
  * </dl>
  * <pre>{@code
  * calendar.options().setEntryOverlap(false);

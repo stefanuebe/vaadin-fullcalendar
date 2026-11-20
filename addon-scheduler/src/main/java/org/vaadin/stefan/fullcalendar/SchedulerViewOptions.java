@@ -87,17 +87,18 @@ class SchedulerViewOptions extends ViewOptions {
      * <p>
      * The getter returns null while the option is not set. Then the library default applies.
      * <dl>
-     *   <dt>Forms</dt>     <dd>{@link Order}: a list of sort keys.<br>
-     *                          Each is a resource property name, ascending or descending, or a compare
-     *                          {@link JsCallback}.
-     *                          <p>{@link JsCallback}: one function that compares two resources.</dd>
-     *   <dt>Shortcuts</dt> <dd>{@link #setResourceOrder(String...)}: resource property names, a leading {@code -} sorts
-     *                          descending, as {@link Order}, at least one, none empty or containing a comma.
-     *                          <p>{@link #setResourceOrder(Order.Key...)}: sort keys that may mix properties and
-     *                          compare functions, as {@link Order}, at least one.</dd>
-     *   <dt>Default</dt>   <dd>library: {@code "id,title"}.</dd>
-     *   <dt>Callback</dt>  <dd>{@code function(a, b)}, two resources as plain objects.</dd>
-     *   <dt>Returns</dt>   <dd>a negative number, zero or a positive number.</dd>
+     *   <dt><b>Forms</b></dt>      <dd>{@link Order}: a list of sort keys.<br>
+     *                                  Each is a resource property name, ascending or descending, or a compare
+     *                                  {@link JsCallback}.
+     *                                  <p>{@link JsCallback}: one function that compares two resources.</dd>
+     *   <dt><b>Shortcuts</b></dt>  <dd>{@link #setResourceOrder(String...)}: resource property names, a leading
+     *                                  {@code -} sorts descending, as {@link Order}, at least one, none empty or
+     *                                  containing a comma.
+     *                                  <p>{@link #setResourceOrder(Order.Key...)}: sort keys that may mix properties
+     *                                  and compare functions, as {@link Order}, at least one.</dd>
+     *   <dt><b>Default</b></dt>    <dd>library: {@code "id,title"}.</dd>
+     *   <dt><b>JsCallback</b></dt> <dd>{@code function(a, b)}, two resources as plain objects.<br>
+     *                                  It returns a negative number, zero or a positive number.</dd>
      * </dl>
      * <pre>{@code
      * calendar.options().setResourceOrder("title");
@@ -112,6 +113,7 @@ class SchedulerViewOptions extends ViewOptions {
 
     /**
      * Sets the order from resource property names, see {@link #getResourceOrder()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param properties the names, such as {@code "title"} or {@code "-title"} for descending, or null to remove the
      *        option
@@ -122,6 +124,7 @@ class SchedulerViewOptions extends ViewOptions {
 
     /**
      * Sets the order from sort keys, which may mix properties and compare functions, see {@link #getResourceOrder()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param keys the sort keys, at least one, or null to remove the option
      */
@@ -131,6 +134,7 @@ class SchedulerViewOptions extends ViewOptions {
 
     /**
      * Sets the order in any form, see {@link #getResourceOrder()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param value the order or a compare callback, or null to remove the option
      */
@@ -179,14 +183,14 @@ class SchedulerViewOptions extends ViewOptions {
      * <p>
      * The getter returns null while the option is not set. Then the library default applies.
      * <dl>
-     *   <dt>Forms</dt>     <dd>{@link HeaderAlign#START}, {@link HeaderAlign#CENTER} or {@link HeaderAlign#END}: a
-     *                          fixed alignment.
-     *                          <p>{@link JsCallback}: a function, see Callback.</dd>
-     *   <dt>Default</dt>   <dd>library: decided by the theme.</dd>
-     *   <dt>Callback</dt>  <dd>{@code function(info)}.<br>
-     *                          {@code info} has only {@code level} (the header row), {@code isNarrow} and
-     *                          {@code inPopover}, which is never true for a resource header.</dd>
-     *   <dt>Returns</dt>   <dd>{@code "start"}, {@code "center"} or {@code "end"}.</dd>
+     *   <dt><b>Forms</b></dt>      <dd>{@link HeaderAlign#START}, {@link HeaderAlign#CENTER} or
+     *                                  {@link HeaderAlign#END}: a fixed alignment.
+     *                                  <p>{@link JsCallback}: a function, see JsCallback.</dd>
+     *   <dt><b>Default</b></dt>    <dd>library: decided by the theme.</dd>
+     *   <dt><b>JsCallback</b></dt> <dd>{@code function(info)}.<br>
+     *                                  {@code info} has only {@code level} (the header row), {@code isNarrow} and
+     *                                  {@code inPopover}, which is never true for a resource header.<br>
+     *                                  It returns {@code "start"}, {@code "center"} or {@code "end"}.</dd>
      * </dl>
      * <pre>{@code
      * calendar.options().setResourceDayHeaderAlign(HeaderAlign.END);
@@ -203,11 +207,11 @@ class SchedulerViewOptions extends ViewOptions {
      * <p>
      * The getter returns null while the option is not set. Then the library default applies.
      * <dl>
-     *   <dt>Forms</dt>     <dd>{@link WidthValue#ofPixels(int)}: pixels.
-     *                          <p>{@link WidthValue#ofPercent(double)}: a percentage.</dd>
-     *   <dt>Shortcuts</dt> <dd>{@link #setResourceColumnsWidth(int)}: pixels, as {@link WidthValue#ofPixels(int)}, not
-     *                          negative.</dd>
-     *   <dt>Default</dt>   <dd>library: {@code "30%"} in the resource timeline views.</dd>
+     *   <dt><b>Forms</b></dt>     <dd>{@link WidthValue#ofPixels(int)}: pixels.
+     *                                 <p>{@link WidthValue#ofPercent(double)}: a percentage.</dd>
+     *   <dt><b>Shortcuts</b></dt> <dd>{@link #setResourceColumnsWidth(int)}: pixels, as
+     *                                 {@link WidthValue#ofPixels(int)}, not negative.</dd>
+     *   <dt><b>Default</b></dt>   <dd>library: {@code "30%"} in the resource timeline views.</dd>
      * </dl>
      * <pre>{@code
      * calendar.options().setResourceColumnsWidth(200);
@@ -221,6 +225,7 @@ class SchedulerViewOptions extends ViewOptions {
 
     /**
      * Sets the width in pixels, see {@link #getResourceColumnsWidth()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param pixels the width in pixels, not negative
      */
@@ -230,6 +235,7 @@ class SchedulerViewOptions extends ViewOptions {
 
     /**
      * Sets the width in any form, see {@link #getResourceColumnsWidth()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param value the width in pixels or as a percentage, or null to remove the option
      */
@@ -391,18 +397,19 @@ class SchedulerViewOptions extends ViewOptions {
      * <p>
      * The getter returns null while the option is not set. Then the library default applies.
      * <dl>
-     *   <dt>Forms</dt>     <dd>{@link ClassName}: class names.
-     *                          <p>{@link JsCallback}: a function, see Callback.</dd>
-     *   <dt>Shortcuts</dt> <dd>{@link #setResourceCellClass(String)}: class names separated by spaces, as
-     *                          {@link ClassName}.</dd>
-     *   <dt>Default</dt>   <dd>library: no classes, a theme can set classes of its own.
-     *                          <p>add-on: the stable classes {@code fc-datagrid-cell} and {@code fc-resource}.<br>
-     *                          Classes set here are added to them.</dd>
-     *   <dt>Callback</dt>  <dd>{@code function(info)}.<br>
-     *                          {@code info} has {@code resource} (not in group columns), {@code field},
-     *                          {@code fieldValue} and {@code view}.<br>
-     *                          In group columns it has only {@code fieldValue} and {@code view}.</dd>
-     *   <dt>Returns</dt>   <dd>the class names as a string.</dd>
+     *   <dt><b>Forms</b></dt>      <dd>{@link ClassName}: class names.
+     *                                  <p>{@link JsCallback}: a function, see JsCallback.</dd>
+     *   <dt><b>Shortcuts</b></dt>  <dd>{@link #setResourceCellClass(String)}: class names separated by spaces, as
+     *                                  {@link ClassName}.</dd>
+     *   <dt><b>Default</b></dt>    <dd>library: no classes, a theme can set classes of its own.
+     *                                  <p>add-on: the stable classes {@code fc-datagrid-cell} and
+     *                                  {@code fc-resource}.<br>
+     *                                  Classes set here are added to them.</dd>
+     *   <dt><b>JsCallback</b></dt> <dd>{@code function(info)}.<br>
+     *                                  {@code info} has {@code resource} (not in group columns), {@code field},
+     *                                  {@code fieldValue} and {@code view}.<br>
+     *                                  In group columns it has only {@code fieldValue} and {@code view}.<br>
+     *                                  It returns the class names as a string.</dd>
      * </dl>
      * <pre>{@code
      * calendar.options().setResourceCellClass("my-class");
@@ -417,6 +424,7 @@ class SchedulerViewOptions extends ViewOptions {
 
     /**
      * Sets fixed CSS classes, see {@link #getResourceCellClass()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param classNames the class names, separated by spaces, or null to remove the option
      */
@@ -426,6 +434,7 @@ class SchedulerViewOptions extends ViewOptions {
 
     /**
      * Sets the CSS classes in any form, see {@link #getResourceCellClass()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param value the classes or callback, or null to remove the option
      */
@@ -445,16 +454,16 @@ class SchedulerViewOptions extends ViewOptions {
      * <p>
      * The getter returns null while the option is not set. Then the library default applies.
      * <dl>
-     *   <dt>Forms</dt>     <dd>{@link TextContent}: shown as text.
-     *                          <p>{@link ContentValue#ofHtml(String)}: HTML, not escaped.
-     *                          <p>{@link JsCallback}: a function, see Callback.</dd>
-     *   <dt>Shortcuts</dt> <dd>{@link #setResourceCellContent(String)}: a text, as {@link TextContent}.</dd>
-     *   <dt>Default</dt>   <dd>library: the value of the column field as text.</dd>
-     *   <dt>Callback</dt>  <dd>{@code function(info)}.<br>
-     *                          {@code info} has {@code resource} (not in group columns), {@code field},
-     *                          {@code fieldValue} and {@code view}.<br>
-     *                          In group columns it has only {@code fieldValue} and {@code view}.</dd>
-     *   <dt>Returns</dt>   <dd>a text, {@code {html: '...'}} or {@code {domNodes: [...]}}.</dd>
+     *   <dt><b>Forms</b></dt>      <dd>{@link TextContent}: shown as text.
+     *                                  <p>{@link ContentValue#ofHtml(String)}: HTML, not escaped.
+     *                                  <p>{@link JsCallback}: a function, see JsCallback.</dd>
+     *   <dt><b>Shortcuts</b></dt>  <dd>{@link #setResourceCellContent(String)}: a text, as {@link TextContent}.</dd>
+     *   <dt><b>Default</b></dt>    <dd>library: the value of the column field as text.</dd>
+     *   <dt><b>JsCallback</b></dt> <dd>{@code function(info)}.<br>
+     *                                  {@code info} has {@code resource} (not in group columns), {@code field},
+     *                                  {@code fieldValue} and {@code view}.<br>
+     *                                  In group columns it has only {@code fieldValue} and {@code view}.<br>
+     *                                  It returns a text, {@code {html: '...'}} or {@code {domNodes: [...]}}.</dd>
      * </dl>
      * <pre>{@code
      * calendar.options().setResourceCellContent("Name");
@@ -470,6 +479,7 @@ class SchedulerViewOptions extends ViewOptions {
 
     /**
      * Sets a text as the content, see {@link #getResourceCellContent()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param text the text, shown as text, or null to remove the option
      */
@@ -479,6 +489,7 @@ class SchedulerViewOptions extends ViewOptions {
 
     /**
      * Sets the content in any form, see {@link #getResourceCellContent()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param value the content or callback, or null to remove the option
      */
@@ -511,18 +522,18 @@ class SchedulerViewOptions extends ViewOptions {
      * <p>
      * The getter returns null while the option is not set. Then the library default applies.
      * <dl>
-     *   <dt>Forms</dt>     <dd>{@link ClassName}: class names.
-     *                          <p>{@link JsCallback}: a function, see Callback.</dd>
-     *   <dt>Shortcuts</dt> <dd>{@link #setResourceCellInnerClass(String)}: class names separated by spaces, as
-     *                          {@link ClassName}.</dd>
-     *   <dt>Default</dt>   <dd>library: no classes, a theme can set classes of its own.
-     *                          <p>add-on: the stable class {@code fc-datagrid-cell-cushion}.<br>
-     *                          Classes set here are added to it.</dd>
-     *   <dt>Callback</dt>  <dd>{@code function(info)}.<br>
-     *                          {@code info} has {@code resource} (not in group columns), {@code field},
-     *                          {@code fieldValue} and {@code view}.<br>
-     *                          In group columns it has only {@code fieldValue} and {@code view}.</dd>
-     *   <dt>Returns</dt>   <dd>the class names as a string.</dd>
+     *   <dt><b>Forms</b></dt>      <dd>{@link ClassName}: class names.
+     *                                  <p>{@link JsCallback}: a function, see JsCallback.</dd>
+     *   <dt><b>Shortcuts</b></dt>  <dd>{@link #setResourceCellInnerClass(String)}: class names separated by spaces, as
+     *                                  {@link ClassName}.</dd>
+     *   <dt><b>Default</b></dt>    <dd>library: no classes, a theme can set classes of its own.
+     *                                  <p>add-on: the stable class {@code fc-datagrid-cell-cushion}.<br>
+     *                                  Classes set here are added to it.</dd>
+     *   <dt><b>JsCallback</b></dt> <dd>{@code function(info)}.<br>
+     *                                  {@code info} has {@code resource} (not in group columns), {@code field},
+     *                                  {@code fieldValue} and {@code view}.<br>
+     *                                  In group columns it has only {@code fieldValue} and {@code view}.<br>
+     *                                  It returns the class names as a string.</dd>
      * </dl>
      * <pre>{@code
      * calendar.options().setResourceCellInnerClass("my-class");
@@ -537,6 +548,7 @@ class SchedulerViewOptions extends ViewOptions {
 
     /**
      * Sets fixed CSS classes, see {@link #getResourceCellInnerClass()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param classNames the class names, separated by spaces, or null to remove the option
      */
@@ -546,6 +558,7 @@ class SchedulerViewOptions extends ViewOptions {
 
     /**
      * Sets the CSS classes in any form, see {@link #getResourceCellInnerClass()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param value the classes or callback, or null to remove the option
      */
@@ -592,17 +605,17 @@ class SchedulerViewOptions extends ViewOptions {
      * <p>
      * The getter returns null while the option is not set. Then the library default applies.
      * <dl>
-     *   <dt>Forms</dt>     <dd>{@link ClassName}: class names.
-     *                          <p>{@link JsCallback}: a function, see Callback.</dd>
-     *   <dt>Shortcuts</dt> <dd>{@link #setResourceColumnHeaderClass(String)}: class names separated by spaces, as
-     *                          {@link ClassName}.</dd>
-     *   <dt>Default</dt>   <dd>library: no classes.
-     *                          <p>add-on: the stable class {@code fc-datagrid-cell}.<br>
-     *                          Classes set here are added to it.</dd>
-     *   <dt>Callback</dt>  <dd>{@code function(info)}.<br>
-     *                          {@code info} has {@code view}.<br>
-     *                          The library docs do not list it, but the used library version passes it.</dd>
-     *   <dt>Returns</dt>   <dd>the class names as a string.</dd>
+     *   <dt><b>Forms</b></dt>      <dd>{@link ClassName}: class names.
+     *                                  <p>{@link JsCallback}: a function, see JsCallback.</dd>
+     *   <dt><b>Shortcuts</b></dt>  <dd>{@link #setResourceColumnHeaderClass(String)}: class names separated by spaces,
+     *                                  as {@link ClassName}.</dd>
+     *   <dt><b>Default</b></dt>    <dd>library: no classes.
+     *                                  <p>add-on: the stable class {@code fc-datagrid-cell}.<br>
+     *                                  Classes set here are added to it.</dd>
+     *   <dt><b>JsCallback</b></dt> <dd>{@code function(info)}.<br>
+     *                                  {@code info} has {@code view}.<br>
+     *                                  The library docs do not list it, but the used library version passes it.<br>
+     *                                  It returns the class names as a string.</dd>
      * </dl>
      * <pre>{@code
      * calendar.options().setResourceColumnHeaderClass("my-class");
@@ -617,6 +630,7 @@ class SchedulerViewOptions extends ViewOptions {
 
     /**
      * Sets fixed CSS classes, see {@link #getResourceColumnHeaderClass()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param classNames the class names, separated by spaces, or null to remove the option
      */
@@ -626,6 +640,7 @@ class SchedulerViewOptions extends ViewOptions {
 
     /**
      * Sets the CSS classes in any form, see {@link #getResourceColumnHeaderClass()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param value the classes or callback, or null to remove the option
      */
@@ -641,15 +656,16 @@ class SchedulerViewOptions extends ViewOptions {
      * <p>
      * The getter returns null while the option is not set. Then the library default applies.
      * <dl>
-     *   <dt>Forms</dt>     <dd>{@link TextContent}: shown as text.
-     *                          <p>{@link ContentValue#ofHtml(String)}: HTML, not escaped.
-     *                          <p>{@link JsCallback}: a function, see Callback.</dd>
-     *   <dt>Shortcuts</dt> <dd>{@link #setResourceColumnHeaderContent(String)}: a text, as {@link TextContent}.</dd>
-     *   <dt>Default</dt>   <dd>library: the text "Resources", shown while no resource columns are set.</dd>
-     *   <dt>Callback</dt>  <dd>{@code function(info)}.<br>
-     *                          {@code info} has {@code view}.<br>
-     *                          The library docs do not list it, but the used library version passes it.</dd>
-     *   <dt>Returns</dt>   <dd>a text, {@code {html: '...'}} or {@code {domNodes: [...]}}.</dd>
+     *   <dt><b>Forms</b></dt>      <dd>{@link TextContent}: shown as text.
+     *                                  <p>{@link ContentValue#ofHtml(String)}: HTML, not escaped.
+     *                                  <p>{@link JsCallback}: a function, see JsCallback.</dd>
+     *   <dt><b>Shortcuts</b></dt>  <dd>{@link #setResourceColumnHeaderContent(String)}: a text, as
+     *                                  {@link TextContent}.</dd>
+     *   <dt><b>Default</b></dt>    <dd>library: the text "Resources", shown while no resource columns are set.</dd>
+     *   <dt><b>JsCallback</b></dt> <dd>{@code function(info)}.<br>
+     *                                  {@code info} has {@code view}.<br>
+     *                                  The library docs do not list it, but the used library version passes it.<br>
+     *                                  It returns a text, {@code {html: '...'}} or {@code {domNodes: [...]}}.</dd>
      * </dl>
      * <pre>{@code
      * calendar.options().setResourceColumnHeaderContent("Name");
@@ -665,6 +681,7 @@ class SchedulerViewOptions extends ViewOptions {
 
     /**
      * Sets a text as the content, see {@link #getResourceColumnHeaderContent()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param text the text, shown as text, or null to remove the option
      */
@@ -674,6 +691,7 @@ class SchedulerViewOptions extends ViewOptions {
 
     /**
      * Sets the content in any form, see {@link #getResourceColumnHeaderContent()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param value the content or callback, or null to remove the option
      */
@@ -707,17 +725,17 @@ class SchedulerViewOptions extends ViewOptions {
      * <p>
      * The getter returns null while the option is not set. Then the library default applies.
      * <dl>
-     *   <dt>Forms</dt>     <dd>{@link ClassName}: class names.
-     *                          <p>{@link JsCallback}: a function, see Callback.</dd>
-     *   <dt>Shortcuts</dt> <dd>{@link #setResourceColumnHeaderInnerClass(String)}: class names separated by spaces, as
-     *                          {@link ClassName}.</dd>
-     *   <dt>Default</dt>   <dd>library: no classes.
-     *                          <p>add-on: the stable class {@code fc-datagrid-cell-cushion}.<br>
-     *                          Classes set here are added to it.</dd>
-     *   <dt>Callback</dt>  <dd>{@code function(info)}.<br>
-     *                          {@code info} has {@code view}.<br>
-     *                          The library docs do not list it, but the used library version passes it.</dd>
-     *   <dt>Returns</dt>   <dd>the class names as a string.</dd>
+     *   <dt><b>Forms</b></dt>      <dd>{@link ClassName}: class names.
+     *                                  <p>{@link JsCallback}: a function, see JsCallback.</dd>
+     *   <dt><b>Shortcuts</b></dt>  <dd>{@link #setResourceColumnHeaderInnerClass(String)}: class names separated by
+     *                                  spaces, as {@link ClassName}.</dd>
+     *   <dt><b>Default</b></dt>    <dd>library: no classes.
+     *                                  <p>add-on: the stable class {@code fc-datagrid-cell-cushion}.<br>
+     *                                  Classes set here are added to it.</dd>
+     *   <dt><b>JsCallback</b></dt> <dd>{@code function(info)}.<br>
+     *                                  {@code info} has {@code view}.<br>
+     *                                  The library docs do not list it, but the used library version passes it.<br>
+     *                                  It returns the class names as a string.</dd>
      * </dl>
      * <pre>{@code
      * calendar.options().setResourceColumnHeaderInnerClass("my-class");
@@ -733,6 +751,7 @@ class SchedulerViewOptions extends ViewOptions {
 
     /**
      * Sets fixed CSS classes, see {@link #getResourceColumnHeaderInnerClass()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param classNames the class names, separated by spaces, or null to remove the option
      */
@@ -742,6 +761,7 @@ class SchedulerViewOptions extends ViewOptions {
 
     /**
      * Sets the CSS classes in any form, see {@link #getResourceColumnHeaderInnerClass()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param value the classes or callback, or null to remove the option
      */
@@ -774,15 +794,15 @@ class SchedulerViewOptions extends ViewOptions {
      * <p>
      * The getter returns null while the option is not set. Then the library default applies.
      * <dl>
-     *   <dt>Forms</dt>     <dd>{@link ClassName}: class names.
-     *                          <p>{@link JsCallback}: a function, see Callback.</dd>
-     *   <dt>Shortcuts</dt> <dd>{@link #setResourceColumnResizerClass(String)}: class names separated by spaces, as
-     *                          {@link ClassName}.</dd>
-     *   <dt>Default</dt>   <dd>library: no classes.</dd>
-     *   <dt>Callback</dt>  <dd>{@code function(info)}.<br>
-     *                          {@code info} has {@code view}.<br>
-     *                          The library docs do not list it, but the used library version passes it.</dd>
-     *   <dt>Returns</dt>   <dd>the class names as a string.</dd>
+     *   <dt><b>Forms</b></dt>      <dd>{@link ClassName}: class names.
+     *                                  <p>{@link JsCallback}: a function, see JsCallback.</dd>
+     *   <dt><b>Shortcuts</b></dt>  <dd>{@link #setResourceColumnResizerClass(String)}: class names separated by spaces,
+     *                                  as {@link ClassName}.</dd>
+     *   <dt><b>Default</b></dt>    <dd>library: no classes.</dd>
+     *   <dt><b>JsCallback</b></dt> <dd>{@code function(info)}.<br>
+     *                                  {@code info} has {@code view}.<br>
+     *                                  The library docs do not list it, but the used library version passes it.<br>
+     *                                  It returns the class names as a string.</dd>
      * </dl>
      * <pre>{@code
      * calendar.options().setResourceColumnResizerClass("my-class");
@@ -797,6 +817,7 @@ class SchedulerViewOptions extends ViewOptions {
 
     /**
      * Sets fixed CSS classes, see {@link #getResourceColumnResizerClass()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param classNames the class names, separated by spaces, or null to remove the option
      */
@@ -806,6 +827,7 @@ class SchedulerViewOptions extends ViewOptions {
 
     /**
      * Sets the CSS classes in any form, see {@link #getResourceColumnResizerClass()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param value the classes or callback, or null to remove the option
      */
@@ -821,19 +843,19 @@ class SchedulerViewOptions extends ViewOptions {
      * <p>
      * The getter returns null while the option is not set. Then the library default applies.
      * <dl>
-     *   <dt>Forms</dt>     <dd>{@link ClassName}: class names.
-     *                          <p>{@link JsCallback}: a function, see Callback.</dd>
-     *   <dt>Shortcuts</dt> <dd>{@link #setResourceDayHeaderClass(String)}: class names separated by spaces, as
-     *                          {@link ClassName}.</dd>
-     *   <dt>Default</dt>   <dd>library: no classes.
-     *                          <p>add-on: the stable class {@code fc-resource}.<br>
-     *                          Classes set here are added to it.</dd>
-     *   <dt>Callback</dt>  <dd>{@code function(info)}.<br>
-     *                          {@code info} has {@code resource}, {@code text}, {@code level}, {@code view},
-     *                          {@code isDisabled}, {@code isNarrow} and {@code isMajor}.<br>
-     *                          When the column is scoped to a date, it also has {@code date}, {@code dow},
-     *                          {@code isOther}, {@code isToday}, {@code isPast} and {@code isFuture}.</dd>
-     *   <dt>Returns</dt>   <dd>the class names as a string.</dd>
+     *   <dt><b>Forms</b></dt>      <dd>{@link ClassName}: class names.
+     *                                  <p>{@link JsCallback}: a function, see JsCallback.</dd>
+     *   <dt><b>Shortcuts</b></dt>  <dd>{@link #setResourceDayHeaderClass(String)}: class names separated by spaces, as
+     *                                  {@link ClassName}.</dd>
+     *   <dt><b>Default</b></dt>    <dd>library: no classes.
+     *                                  <p>add-on: the stable class {@code fc-resource}.<br>
+     *                                  Classes set here are added to it.</dd>
+     *   <dt><b>JsCallback</b></dt> <dd>{@code function(info)}.<br>
+     *                                  {@code info} has {@code resource}, {@code text}, {@code level}, {@code view},
+     *                                  {@code isDisabled}, {@code isNarrow} and {@code isMajor}.<br>
+     *                                  When the column is scoped to a date, it also has {@code date}, {@code dow},
+     *                                  {@code isOther}, {@code isToday}, {@code isPast} and {@code isFuture}.<br>
+     *                                  It returns the class names as a string.</dd>
      * </dl>
      * <pre>{@code
      * calendar.options().setResourceDayHeaderClass("my-resource-header");
@@ -847,6 +869,7 @@ class SchedulerViewOptions extends ViewOptions {
 
     /**
      * Sets fixed CSS classes, see {@link #getResourceDayHeaderClass()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param classNames the class names, separated by spaces, or null to remove the option
      */
@@ -856,6 +879,7 @@ class SchedulerViewOptions extends ViewOptions {
 
     /**
      * Sets the CSS classes in any form, see {@link #getResourceDayHeaderClass()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param value the classes or callback, or null to remove the option
      */
@@ -869,17 +893,18 @@ class SchedulerViewOptions extends ViewOptions {
      * <p>
      * The getter returns null while the option is not set. Then the library default applies.
      * <dl>
-     *   <dt>Forms</dt>     <dd>{@link TextContent}: shown as text.
-     *                          <p>{@link ContentValue#ofHtml(String)}: HTML, not escaped.
-     *                          <p>{@link JsCallback}: a function, see Callback.</dd>
-     *   <dt>Shortcuts</dt> <dd>{@link #setResourceDayHeaderContent(String)}: a text, as {@link TextContent}.</dd>
-     *   <dt>Default</dt>   <dd>library: the title of the resource as text, or its id when it has no title.</dd>
-     *   <dt>Callback</dt>  <dd>{@code function(info)}.<br>
-     *                          {@code info} has {@code resource}, {@code text}, {@code level}, {@code view},
-     *                          {@code isDisabled}, {@code isNarrow} and {@code isMajor}.<br>
-     *                          When the column is scoped to a date, it also has {@code date}, {@code dow},
-     *                          {@code isOther}, {@code isToday}, {@code isPast} and {@code isFuture}.</dd>
-     *   <dt>Returns</dt>   <dd>a text, {@code {html: '...'}} or {@code {domNodes: [...]}}.</dd>
+     *   <dt><b>Forms</b></dt>      <dd>{@link TextContent}: shown as text.
+     *                                  <p>{@link ContentValue#ofHtml(String)}: HTML, not escaped.
+     *                                  <p>{@link JsCallback}: a function, see JsCallback.</dd>
+     *   <dt><b>Shortcuts</b></dt>  <dd>{@link #setResourceDayHeaderContent(String)}: a text, as
+     *                                  {@link TextContent}.</dd>
+     *   <dt><b>Default</b></dt>    <dd>library: the title of the resource as text, or its id when it has no title.</dd>
+     *   <dt><b>JsCallback</b></dt> <dd>{@code function(info)}.<br>
+     *                                  {@code info} has {@code resource}, {@code text}, {@code level}, {@code view},
+     *                                  {@code isDisabled}, {@code isNarrow} and {@code isMajor}.<br>
+     *                                  When the column is scoped to a date, it also has {@code date}, {@code dow},
+     *                                  {@code isOther}, {@code isToday}, {@code isPast} and {@code isFuture}.<br>
+     *                                  It returns a text, {@code {html: '...'}} or {@code {domNodes: [...]}}.</dd>
      * </dl>
      * <pre>{@code
      * calendar.options().setResourceDayHeaderContent("Resource");
@@ -894,6 +919,7 @@ class SchedulerViewOptions extends ViewOptions {
 
     /**
      * Sets a text as the content, see {@link #getResourceDayHeaderContent()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param text the text, shown as text, or null to remove the option
      */
@@ -903,6 +929,7 @@ class SchedulerViewOptions extends ViewOptions {
 
     /**
      * Sets the content in any form, see {@link #getResourceDayHeaderContent()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param value the content or callback, or null to remove the option
      */
@@ -933,17 +960,17 @@ class SchedulerViewOptions extends ViewOptions {
      * <p>
      * The getter returns null while the option is not set. Then the library default applies.
      * <dl>
-     *   <dt>Forms</dt>     <dd>{@link ClassName}: class names.
-     *                          <p>{@link JsCallback}: a function, see Callback.</dd>
-     *   <dt>Shortcuts</dt> <dd>{@link #setResourceDayHeaderInnerClass(String)}: class names separated by spaces, as
-     *                          {@link ClassName}.</dd>
-     *   <dt>Default</dt>   <dd>library: no classes.</dd>
-     *   <dt>Callback</dt>  <dd>{@code function(info)}.<br>
-     *                          {@code info} has {@code resource}, {@code text}, {@code level}, {@code view},
-     *                          {@code isDisabled}, {@code isNarrow} and {@code isMajor}.<br>
-     *                          When the column is scoped to a date, it also has {@code date}, {@code dow},
-     *                          {@code isOther}, {@code isToday}, {@code isPast} and {@code isFuture}.</dd>
-     *   <dt>Returns</dt>   <dd>the class names as a string.</dd>
+     *   <dt><b>Forms</b></dt>      <dd>{@link ClassName}: class names.
+     *                                  <p>{@link JsCallback}: a function, see JsCallback.</dd>
+     *   <dt><b>Shortcuts</b></dt>  <dd>{@link #setResourceDayHeaderInnerClass(String)}: class names separated by
+     *                                  spaces, as {@link ClassName}.</dd>
+     *   <dt><b>Default</b></dt>    <dd>library: no classes.</dd>
+     *   <dt><b>JsCallback</b></dt> <dd>{@code function(info)}.<br>
+     *                                  {@code info} has {@code resource}, {@code text}, {@code level}, {@code view},
+     *                                  {@code isDisabled}, {@code isNarrow} and {@code isMajor}.<br>
+     *                                  When the column is scoped to a date, it also has {@code date}, {@code dow},
+     *                                  {@code isOther}, {@code isToday}, {@code isPast} and {@code isFuture}.<br>
+     *                                  It returns the class names as a string.</dd>
      * </dl>
      * <pre>{@code
      * calendar.options().setResourceDayHeaderInnerClass("my-header-inner");
@@ -957,6 +984,7 @@ class SchedulerViewOptions extends ViewOptions {
 
     /**
      * Sets fixed CSS classes, see {@link #getResourceDayHeaderInnerClass()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param classNames the class names, separated by spaces, or null to remove the option
      */
@@ -966,6 +994,7 @@ class SchedulerViewOptions extends ViewOptions {
 
     /**
      * Sets the CSS classes in any form, see {@link #getResourceDayHeaderInnerClass()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param value the classes or callback, or null to remove the option
      */
@@ -996,14 +1025,14 @@ class SchedulerViewOptions extends ViewOptions {
      * <p>
      * The getter returns null while the option is not set. Then the library default applies.
      * <dl>
-     *   <dt>Forms</dt>     <dd>{@link ClassName}: class names.
-     *                          <p>{@link JsCallback}: a function, see Callback.</dd>
-     *   <dt>Shortcuts</dt> <dd>{@link #setResourceExpanderClass(String)}: class names separated by spaces, as
-     *                          {@link ClassName}.</dd>
-     *   <dt>Default</dt>   <dd>library: no classes.</dd>
-     *   <dt>Callback</dt>  <dd>{@code function(info)}.<br>
-     *                          {@code info} has {@code isExpanded}.</dd>
-     *   <dt>Returns</dt>   <dd>the class names as a string.</dd>
+     *   <dt><b>Forms</b></dt>      <dd>{@link ClassName}: class names.
+     *                                  <p>{@link JsCallback}: a function, see JsCallback.</dd>
+     *   <dt><b>Shortcuts</b></dt>  <dd>{@link #setResourceExpanderClass(String)}: class names separated by spaces, as
+     *                                  {@link ClassName}.</dd>
+     *   <dt><b>Default</b></dt>    <dd>library: no classes.</dd>
+     *   <dt><b>JsCallback</b></dt> <dd>{@code function(info)}.<br>
+     *                                  {@code info} has {@code isExpanded}.<br>
+     *                                  It returns the class names as a string.</dd>
      * </dl>
      * <pre>{@code
      * calendar.options().setResourceExpanderClass("my-expander");
@@ -1017,6 +1046,7 @@ class SchedulerViewOptions extends ViewOptions {
 
     /**
      * Sets fixed CSS classes, see {@link #getResourceExpanderClass()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param classNames the class names, separated by spaces, or null to remove the option
      */
@@ -1026,6 +1056,7 @@ class SchedulerViewOptions extends ViewOptions {
 
     /**
      * Sets the CSS classes in any form, see {@link #getResourceExpanderClass()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param value the classes or callback, or null to remove the option
      */
@@ -1041,14 +1072,15 @@ class SchedulerViewOptions extends ViewOptions {
      * <p>
      * The getter returns null while the option is not set. Then the library default applies.
      * <dl>
-     *   <dt>Forms</dt>     <dd>{@link TextContent}: shown as text.
-     *                          <p>{@link ContentValue#ofHtml(String)}: HTML, not escaped.
-     *                          <p>{@link JsCallback}: a function, see Callback.</dd>
-     *   <dt>Shortcuts</dt> <dd>{@link #setResourceExpanderContent(String)}: a text, as {@link TextContent}.</dd>
-     *   <dt>Default</dt>   <dd>library: no content, but the active theme sets an icon for it.</dd>
-     *   <dt>Callback</dt>  <dd>{@code function(info)}.<br>
-     *                          {@code info} has {@code isExpanded}.</dd>
-     *   <dt>Returns</dt>   <dd>a text, {@code {html: '...'}} or {@code {domNodes: [...]}}.</dd>
+     *   <dt><b>Forms</b></dt>      <dd>{@link TextContent}: shown as text.
+     *                                  <p>{@link ContentValue#ofHtml(String)}: HTML, not escaped.
+     *                                  <p>{@link JsCallback}: a function, see JsCallback.</dd>
+     *   <dt><b>Shortcuts</b></dt>  <dd>{@link #setResourceExpanderContent(String)}: a text, as
+     *                                  {@link TextContent}.</dd>
+     *   <dt><b>Default</b></dt>    <dd>library: no content, but the active theme sets an icon for it.</dd>
+     *   <dt><b>JsCallback</b></dt> <dd>{@code function(info)}.<br>
+     *                                  {@code info} has {@code isExpanded}.<br>
+     *                                  It returns a text, {@code {html: '...'}} or {@code {domNodes: [...]}}.</dd>
      * </dl>
      * <pre>{@code
      * calendar.options().setResourceExpanderContent("+");
@@ -1063,6 +1095,7 @@ class SchedulerViewOptions extends ViewOptions {
 
     /**
      * Sets a text as the content, see {@link #getResourceExpanderContent()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param text the text, shown as text, or null to remove the option
      */
@@ -1072,6 +1105,7 @@ class SchedulerViewOptions extends ViewOptions {
 
     /**
      * Sets the content in any form, see {@link #getResourceExpanderContent()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param value the content or callback, or null to remove the option
      */
@@ -1090,17 +1124,17 @@ class SchedulerViewOptions extends ViewOptions {
      * <p>
      * The getter returns null while the option is not set. Then the library default applies.
      * <dl>
-     *   <dt>Forms</dt>     <dd>{@link ClassName}: class names.
-     *                          <p>{@link JsCallback}: a function, see Callback.</dd>
-     *   <dt>Shortcuts</dt> <dd>{@link #setResourceGroupHeaderClass(String)}: class names separated by spaces, as
-     *                          {@link ClassName}.</dd>
-     *   <dt>Default</dt>   <dd>library: no classes.
-     *                          <p>add-on: the stable classes {@code fc-datagrid-cell} and
-     *                          {@code fc-resource-group}.<br>
-     *                          Classes set here are added to them.</dd>
-     *   <dt>Callback</dt>  <dd>{@code function(info)}.<br>
-     *                          {@code info} has {@code fieldValue} and {@code view}.</dd>
-     *   <dt>Returns</dt>   <dd>the class names as a string.</dd>
+     *   <dt><b>Forms</b></dt>      <dd>{@link ClassName}: class names.
+     *                                  <p>{@link JsCallback}: a function, see JsCallback.</dd>
+     *   <dt><b>Shortcuts</b></dt>  <dd>{@link #setResourceGroupHeaderClass(String)}: class names separated by spaces,
+     *                                  as {@link ClassName}.</dd>
+     *   <dt><b>Default</b></dt>    <dd>library: no classes.
+     *                                  <p>add-on: the stable classes {@code fc-datagrid-cell} and
+     *                                  {@code fc-resource-group}.<br>
+     *                                  Classes set here are added to them.</dd>
+     *   <dt><b>JsCallback</b></dt> <dd>{@code function(info)}.<br>
+     *                                  {@code info} has {@code fieldValue} and {@code view}.<br>
+     *                                  It returns the class names as a string.</dd>
      * </dl>
      * <pre>{@code
      * calendar.options().setResourceGroupHeaderClass("my-group-header");
@@ -1114,6 +1148,7 @@ class SchedulerViewOptions extends ViewOptions {
 
     /**
      * Sets fixed CSS classes, see {@link #getResourceGroupHeaderClass()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param classNames the class names, separated by spaces, or null to remove the option
      */
@@ -1123,6 +1158,7 @@ class SchedulerViewOptions extends ViewOptions {
 
     /**
      * Sets the CSS classes in any form, see {@link #getResourceGroupHeaderClass()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param value the classes or callback, or null to remove the option
      */
@@ -1139,14 +1175,16 @@ class SchedulerViewOptions extends ViewOptions {
      * <p>
      * The getter returns null while the option is not set. Then the library default applies.
      * <dl>
-     *   <dt>Forms</dt>     <dd>{@link TextContent}: shown as text.
-     *                          <p>{@link ContentValue#ofHtml(String)}: HTML, not escaped.
-     *                          <p>{@link JsCallback}: a function, see Callback.</dd>
-     *   <dt>Shortcuts</dt> <dd>{@link #setResourceGroupHeaderContent(String)}: a text, as {@link TextContent}.</dd>
-     *   <dt>Default</dt>   <dd>library: the value of the group field, or a non-breaking space when it is empty.</dd>
-     *   <dt>Callback</dt>  <dd>{@code function(info)}.<br>
-     *                          {@code info} has {@code fieldValue} and {@code view}.</dd>
-     *   <dt>Returns</dt>   <dd>a text, {@code {html: '...'}} or {@code {domNodes: [...]}}.</dd>
+     *   <dt><b>Forms</b></dt>      <dd>{@link TextContent}: shown as text.
+     *                                  <p>{@link ContentValue#ofHtml(String)}: HTML, not escaped.
+     *                                  <p>{@link JsCallback}: a function, see JsCallback.</dd>
+     *   <dt><b>Shortcuts</b></dt>  <dd>{@link #setResourceGroupHeaderContent(String)}: a text, as
+     *                                  {@link TextContent}.</dd>
+     *   <dt><b>Default</b></dt>    <dd>library: the value of the group field, or a non-breaking space when it is
+     *                                  empty.</dd>
+     *   <dt><b>JsCallback</b></dt> <dd>{@code function(info)}.<br>
+     *                                  {@code info} has {@code fieldValue} and {@code view}.<br>
+     *                                  It returns a text, {@code {html: '...'}} or {@code {domNodes: [...]}}.</dd>
      * </dl>
      * <pre>{@code
      * calendar.options().setResourceGroupHeaderContent("Group");
@@ -1161,6 +1199,7 @@ class SchedulerViewOptions extends ViewOptions {
 
     /**
      * Sets a text as the content, see {@link #getResourceGroupHeaderContent()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param text the text, shown as text, or null to remove the option
      */
@@ -1170,6 +1209,7 @@ class SchedulerViewOptions extends ViewOptions {
 
     /**
      * Sets the content in any form, see {@link #getResourceGroupHeaderContent()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param value the content or callback, or null to remove the option
      */
@@ -1206,16 +1246,16 @@ class SchedulerViewOptions extends ViewOptions {
      * <p>
      * The getter returns null while the option is not set. Then the library default applies.
      * <dl>
-     *   <dt>Forms</dt>     <dd>{@link ClassName}: class names.
-     *                          <p>{@link JsCallback}: a function, see Callback.</dd>
-     *   <dt>Shortcuts</dt> <dd>{@link #setResourceGroupHeaderInnerClass(String)}: class names separated by spaces, as
-     *                          {@link ClassName}.</dd>
-     *   <dt>Default</dt>   <dd>library: no classes.
-     *                          <p>add-on: the stable class {@code fc-datagrid-cell-cushion}.<br>
-     *                          Classes set here are added to it.</dd>
-     *   <dt>Callback</dt>  <dd>{@code function(info)}.<br>
-     *                          {@code info} has {@code fieldValue} and {@code view}.</dd>
-     *   <dt>Returns</dt>   <dd>the class names as a string.</dd>
+     *   <dt><b>Forms</b></dt>      <dd>{@link ClassName}: class names.
+     *                                  <p>{@link JsCallback}: a function, see JsCallback.</dd>
+     *   <dt><b>Shortcuts</b></dt>  <dd>{@link #setResourceGroupHeaderInnerClass(String)}: class names separated by
+     *                                  spaces, as {@link ClassName}.</dd>
+     *   <dt><b>Default</b></dt>    <dd>library: no classes.
+     *                                  <p>add-on: the stable class {@code fc-datagrid-cell-cushion}.<br>
+     *                                  Classes set here are added to it.</dd>
+     *   <dt><b>JsCallback</b></dt> <dd>{@code function(info)}.<br>
+     *                                  {@code info} has {@code fieldValue} and {@code view}.<br>
+     *                                  It returns the class names as a string.</dd>
      * </dl>
      * <pre>{@code
      * calendar.options().setResourceGroupHeaderInnerClass("my-group-inner");
@@ -1229,6 +1269,7 @@ class SchedulerViewOptions extends ViewOptions {
 
     /**
      * Sets fixed CSS classes, see {@link #getResourceGroupHeaderInnerClass()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param classNames the class names, separated by spaces, or null to remove the option
      */
@@ -1238,6 +1279,7 @@ class SchedulerViewOptions extends ViewOptions {
 
     /**
      * Sets the CSS classes in any form, see {@link #getResourceGroupHeaderInnerClass()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param value the classes or callback, or null to remove the option
      */
@@ -1274,17 +1316,17 @@ class SchedulerViewOptions extends ViewOptions {
      * <p>
      * The getter returns null while the option is not set. Then the library default applies.
      * <dl>
-     *   <dt>Forms</dt>     <dd>{@link ClassName}: class names.
-     *                          <p>{@link JsCallback}: a function, see Callback.</dd>
-     *   <dt>Shortcuts</dt> <dd>{@link #setResourceGroupLaneClass(String)}: class names separated by spaces, as
-     *                          {@link ClassName}.</dd>
-     *   <dt>Default</dt>   <dd>library: no classes.
-     *                          <p>add-on: the stable classes {@code fc-timeline-lane} and
-     *                          {@code fc-resource-group}.<br>
-     *                          Classes set here are added to them.</dd>
-     *   <dt>Callback</dt>  <dd>{@code function(info)}.<br>
-     *                          {@code info} has {@code fieldValue} and {@code view}.</dd>
-     *   <dt>Returns</dt>   <dd>the class names as a string.</dd>
+     *   <dt><b>Forms</b></dt>      <dd>{@link ClassName}: class names.
+     *                                  <p>{@link JsCallback}: a function, see JsCallback.</dd>
+     *   <dt><b>Shortcuts</b></dt>  <dd>{@link #setResourceGroupLaneClass(String)}: class names separated by spaces, as
+     *                                  {@link ClassName}.</dd>
+     *   <dt><b>Default</b></dt>    <dd>library: no classes.
+     *                                  <p>add-on: the stable classes {@code fc-timeline-lane} and
+     *                                  {@code fc-resource-group}.<br>
+     *                                  Classes set here are added to them.</dd>
+     *   <dt><b>JsCallback</b></dt> <dd>{@code function(info)}.<br>
+     *                                  {@code info} has {@code fieldValue} and {@code view}.<br>
+     *                                  It returns the class names as a string.</dd>
      * </dl>
      * <pre>{@code
      * calendar.options().setResourceGroupLaneClass("my-group-lane");
@@ -1298,6 +1340,7 @@ class SchedulerViewOptions extends ViewOptions {
 
     /**
      * Sets fixed CSS classes, see {@link #getResourceGroupLaneClass()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param classNames the class names, separated by spaces, or null to remove the option
      */
@@ -1307,6 +1350,7 @@ class SchedulerViewOptions extends ViewOptions {
 
     /**
      * Sets the CSS classes in any form, see {@link #getResourceGroupLaneClass()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param value the classes or callback, or null to remove the option
      */
@@ -1323,14 +1367,15 @@ class SchedulerViewOptions extends ViewOptions {
      * <p>
      * The getter returns null while the option is not set. Then the library default applies.
      * <dl>
-     *   <dt>Forms</dt>     <dd>{@link TextContent}: shown as text.
-     *                          <p>{@link ContentValue#ofHtml(String)}: HTML, not escaped.
-     *                          <p>{@link JsCallback}: a function, see Callback.</dd>
-     *   <dt>Shortcuts</dt> <dd>{@link #setResourceGroupLaneContent(String)}: a text, as {@link TextContent}.</dd>
-     *   <dt>Default</dt>   <dd>library: no content.</dd>
-     *   <dt>Callback</dt>  <dd>{@code function(info)}.<br>
-     *                          {@code info} has {@code fieldValue} and {@code view}.</dd>
-     *   <dt>Returns</dt>   <dd>a text, {@code {html: '...'}} or {@code {domNodes: [...]}}.</dd>
+     *   <dt><b>Forms</b></dt>      <dd>{@link TextContent}: shown as text.
+     *                                  <p>{@link ContentValue#ofHtml(String)}: HTML, not escaped.
+     *                                  <p>{@link JsCallback}: a function, see JsCallback.</dd>
+     *   <dt><b>Shortcuts</b></dt>  <dd>{@link #setResourceGroupLaneContent(String)}: a text, as
+     *                                  {@link TextContent}.</dd>
+     *   <dt><b>Default</b></dt>    <dd>library: no content.</dd>
+     *   <dt><b>JsCallback</b></dt> <dd>{@code function(info)}.<br>
+     *                                  {@code info} has {@code fieldValue} and {@code view}.<br>
+     *                                  It returns a text, {@code {html: '...'}} or {@code {domNodes: [...]}}.</dd>
      * </dl>
      * <pre>{@code
      * calendar.options().setResourceGroupLaneContent("Lane");
@@ -1345,6 +1390,7 @@ class SchedulerViewOptions extends ViewOptions {
 
     /**
      * Sets a text as the content, see {@link #getResourceGroupLaneContent()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param text the text, shown as text, or null to remove the option
      */
@@ -1354,6 +1400,7 @@ class SchedulerViewOptions extends ViewOptions {
 
     /**
      * Sets the content in any form, see {@link #getResourceGroupLaneContent()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param value the content or callback, or null to remove the option
      */
@@ -1390,14 +1437,14 @@ class SchedulerViewOptions extends ViewOptions {
      * <p>
      * The getter returns null while the option is not set. Then the library default applies.
      * <dl>
-     *   <dt>Forms</dt>     <dd>{@link ClassName}: class names.
-     *                          <p>{@link JsCallback}: a function, see Callback.</dd>
-     *   <dt>Shortcuts</dt> <dd>{@link #setResourceGroupLaneInnerClass(String)}: class names separated by spaces, as
-     *                          {@link ClassName}.</dd>
-     *   <dt>Default</dt>   <dd>library: no classes.</dd>
-     *   <dt>Callback</dt>  <dd>{@code function(info)}.<br>
-     *                          {@code info} has {@code fieldValue} and {@code view}.</dd>
-     *   <dt>Returns</dt>   <dd>the class names as a string.</dd>
+     *   <dt><b>Forms</b></dt>      <dd>{@link ClassName}: class names.
+     *                                  <p>{@link JsCallback}: a function, see JsCallback.</dd>
+     *   <dt><b>Shortcuts</b></dt>  <dd>{@link #setResourceGroupLaneInnerClass(String)}: class names separated by
+     *                                  spaces, as {@link ClassName}.</dd>
+     *   <dt><b>Default</b></dt>    <dd>library: no classes.</dd>
+     *   <dt><b>JsCallback</b></dt> <dd>{@code function(info)}.<br>
+     *                                  {@code info} has {@code fieldValue} and {@code view}.<br>
+     *                                  It returns the class names as a string.</dd>
      * </dl>
      * <pre>{@code
      * calendar.options().setResourceGroupLaneInnerClass("my-lane-inner");
@@ -1411,6 +1458,7 @@ class SchedulerViewOptions extends ViewOptions {
 
     /**
      * Sets fixed CSS classes, see {@link #getResourceGroupLaneInnerClass()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param classNames the class names, separated by spaces, or null to remove the option
      */
@@ -1420,6 +1468,7 @@ class SchedulerViewOptions extends ViewOptions {
 
     /**
      * Sets the CSS classes in any form, see {@link #getResourceGroupLaneInnerClass()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param value the classes or callback, or null to remove the option
      */
@@ -1480,16 +1529,16 @@ class SchedulerViewOptions extends ViewOptions {
      * <p>
      * The getter returns null while the option is not set. Then the library default applies.
      * <dl>
-     *   <dt>Forms</dt>     <dd>{@link ClassName}: class names.
-     *                          <p>{@link JsCallback}: a function, see Callback.</dd>
-     *   <dt>Shortcuts</dt> <dd>{@link #setResourceLaneBottomClass(String)}: class names separated by spaces, as
-     *                          {@link ClassName}.</dd>
-     *   <dt>Default</dt>   <dd>library: no classes.</dd>
-     *   <dt>Callback</dt>  <dd>{@code function(info)}.<br>
-     *                          {@code info} has {@code resource} and {@code options}, which holds only
-     *                          {@code eventOverlap}.<br>
-     *                          The library docs list {@code resource} only.</dd>
-     *   <dt>Returns</dt>   <dd>the class names as a string.</dd>
+     *   <dt><b>Forms</b></dt>      <dd>{@link ClassName}: class names.
+     *                                  <p>{@link JsCallback}: a function, see JsCallback.</dd>
+     *   <dt><b>Shortcuts</b></dt>  <dd>{@link #setResourceLaneBottomClass(String)}: class names separated by spaces, as
+     *                                  {@link ClassName}.</dd>
+     *   <dt><b>Default</b></dt>    <dd>library: no classes.</dd>
+     *   <dt><b>JsCallback</b></dt> <dd>{@code function(info)}.<br>
+     *                                  {@code info} has {@code resource} and {@code options}, which holds only
+     *                                  {@code eventOverlap}.<br>
+     *                                  The library docs list {@code resource} only.<br>
+     *                                  It returns the class names as a string.</dd>
      * </dl>
      * <pre>{@code
      * calendar.options().setResourceLaneBottomClass("my-lane-bottom");
@@ -1503,6 +1552,7 @@ class SchedulerViewOptions extends ViewOptions {
 
     /**
      * Sets fixed CSS classes, see {@link #getResourceLaneBottomClass()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param classNames the class names, separated by spaces, or null to remove the option
      */
@@ -1512,6 +1562,7 @@ class SchedulerViewOptions extends ViewOptions {
 
     /**
      * Sets the CSS classes in any form, see {@link #getResourceLaneBottomClass()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param value the classes or callback, or null to remove the option
      */
@@ -1524,16 +1575,17 @@ class SchedulerViewOptions extends ViewOptions {
      * <p>
      * The getter returns null while the option is not set. Then the library default applies.
      * <dl>
-     *   <dt>Forms</dt>     <dd>{@link TextContent}: shown as text.
-     *                          <p>{@link ContentValue#ofHtml(String)}: HTML, not escaped.
-     *                          <p>{@link JsCallback}: a function, see Callback.</dd>
-     *   <dt>Shortcuts</dt> <dd>{@link #setResourceLaneBottomContent(String)}: a text, as {@link TextContent}.</dd>
-     *   <dt>Default</dt>   <dd>library: no content.</dd>
-     *   <dt>Callback</dt>  <dd>{@code function(info)}.<br>
-     *                          {@code info} has {@code resource} and {@code options}, which holds only
-     *                          {@code eventOverlap}.<br>
-     *                          The library docs list {@code resource} only.</dd>
-     *   <dt>Returns</dt>   <dd>a text, {@code {html: '...'}} or {@code {domNodes: [...]}}.</dd>
+     *   <dt><b>Forms</b></dt>      <dd>{@link TextContent}: shown as text.
+     *                                  <p>{@link ContentValue#ofHtml(String)}: HTML, not escaped.
+     *                                  <p>{@link JsCallback}: a function, see JsCallback.</dd>
+     *   <dt><b>Shortcuts</b></dt>  <dd>{@link #setResourceLaneBottomContent(String)}: a text, as
+     *                                  {@link TextContent}.</dd>
+     *   <dt><b>Default</b></dt>    <dd>library: no content.</dd>
+     *   <dt><b>JsCallback</b></dt> <dd>{@code function(info)}.<br>
+     *                                  {@code info} has {@code resource} and {@code options}, which holds only
+     *                                  {@code eventOverlap}.<br>
+     *                                  The library docs list {@code resource} only.<br>
+     *                                  It returns a text, {@code {html: '...'}} or {@code {domNodes: [...]}}.</dd>
      * </dl>
      * <pre>{@code
      * calendar.options().setResourceLaneBottomContent("Bottom");
@@ -1548,6 +1600,7 @@ class SchedulerViewOptions extends ViewOptions {
 
     /**
      * Sets a text as the content, see {@link #getResourceLaneBottomContent()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param text the text, shown as text, or null to remove the option
      */
@@ -1557,6 +1610,7 @@ class SchedulerViewOptions extends ViewOptions {
 
     /**
      * Sets the content in any form, see {@link #getResourceLaneBottomContent()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param value the content or callback, or null to remove the option
      */
@@ -1572,18 +1626,19 @@ class SchedulerViewOptions extends ViewOptions {
      * <p>
      * The getter returns null while the option is not set. Then the library default applies.
      * <dl>
-     *   <dt>Forms</dt>     <dd>{@link ClassName}: class names.
-     *                          <p>{@link JsCallback}: a function, see Callback.</dd>
-     *   <dt>Shortcuts</dt> <dd>{@link #setResourceLaneClass(String)}: class names separated by spaces, as
-     *                          {@link ClassName}.</dd>
-     *   <dt>Default</dt>   <dd>library: no classes.
-     *                          <p>add-on: the stable classes {@code fc-timeline-lane} and {@code fc-resource}.<br>
-     *                          Classes set here are added to them.</dd>
-     *   <dt>Callback</dt>  <dd>{@code function(info)}.<br>
-     *                          {@code info} has {@code resource} and {@code options}, which holds only
-     *                          {@code eventOverlap}.<br>
-     *                          The library docs list {@code resource} only.</dd>
-     *   <dt>Returns</dt>   <dd>the class names as a string.</dd>
+     *   <dt><b>Forms</b></dt>      <dd>{@link ClassName}: class names.
+     *                                  <p>{@link JsCallback}: a function, see JsCallback.</dd>
+     *   <dt><b>Shortcuts</b></dt>  <dd>{@link #setResourceLaneClass(String)}: class names separated by spaces, as
+     *                                  {@link ClassName}.</dd>
+     *   <dt><b>Default</b></dt>    <dd>library: no classes.
+     *                                  <p>add-on: the stable classes {@code fc-timeline-lane} and
+     *                                  {@code fc-resource}.<br>
+     *                                  Classes set here are added to them.</dd>
+     *   <dt><b>JsCallback</b></dt> <dd>{@code function(info)}.<br>
+     *                                  {@code info} has {@code resource} and {@code options}, which holds only
+     *                                  {@code eventOverlap}.<br>
+     *                                  The library docs list {@code resource} only.<br>
+     *                                  It returns the class names as a string.</dd>
      * </dl>
      * <pre>{@code
      * calendar.options().setResourceLaneClass("my-lane");
@@ -1597,6 +1652,7 @@ class SchedulerViewOptions extends ViewOptions {
 
     /**
      * Sets fixed CSS classes, see {@link #getResourceLaneClass()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param classNames the class names, separated by spaces, or null to remove the option
      */
@@ -1606,6 +1662,7 @@ class SchedulerViewOptions extends ViewOptions {
 
     /**
      * Sets the CSS classes in any form, see {@link #getResourceLaneClass()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param value the classes or callback, or null to remove the option
      */
@@ -1636,16 +1693,16 @@ class SchedulerViewOptions extends ViewOptions {
      * <p>
      * The getter returns null while the option is not set. Then the library default applies.
      * <dl>
-     *   <dt>Forms</dt>     <dd>{@link ClassName}: class names.
-     *                          <p>{@link JsCallback}: a function, see Callback.</dd>
-     *   <dt>Shortcuts</dt> <dd>{@link #setResourceLaneTopClass(String)}: class names separated by spaces, as
-     *                          {@link ClassName}.</dd>
-     *   <dt>Default</dt>   <dd>library: no classes.</dd>
-     *   <dt>Callback</dt>  <dd>{@code function(info)}.<br>
-     *                          {@code info} has {@code resource} and {@code options}, which holds only
-     *                          {@code eventOverlap}.<br>
-     *                          The library docs list {@code resource} only.</dd>
-     *   <dt>Returns</dt>   <dd>the class names as a string.</dd>
+     *   <dt><b>Forms</b></dt>      <dd>{@link ClassName}: class names.
+     *                                  <p>{@link JsCallback}: a function, see JsCallback.</dd>
+     *   <dt><b>Shortcuts</b></dt>  <dd>{@link #setResourceLaneTopClass(String)}: class names separated by spaces, as
+     *                                  {@link ClassName}.</dd>
+     *   <dt><b>Default</b></dt>    <dd>library: no classes.</dd>
+     *   <dt><b>JsCallback</b></dt> <dd>{@code function(info)}.<br>
+     *                                  {@code info} has {@code resource} and {@code options}, which holds only
+     *                                  {@code eventOverlap}.<br>
+     *                                  The library docs list {@code resource} only.<br>
+     *                                  It returns the class names as a string.</dd>
      * </dl>
      * <pre>{@code
      * calendar.options().setResourceLaneTopClass("my-lane-top");
@@ -1659,6 +1716,7 @@ class SchedulerViewOptions extends ViewOptions {
 
     /**
      * Sets fixed CSS classes, see {@link #getResourceLaneTopClass()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param classNames the class names, separated by spaces, or null to remove the option
      */
@@ -1668,6 +1726,7 @@ class SchedulerViewOptions extends ViewOptions {
 
     /**
      * Sets the CSS classes in any form, see {@link #getResourceLaneTopClass()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param value the classes or callback, or null to remove the option
      */
@@ -1680,16 +1739,16 @@ class SchedulerViewOptions extends ViewOptions {
      * <p>
      * The getter returns null while the option is not set. Then the library default applies.
      * <dl>
-     *   <dt>Forms</dt>     <dd>{@link TextContent}: shown as text.
-     *                          <p>{@link ContentValue#ofHtml(String)}: HTML, not escaped.
-     *                          <p>{@link JsCallback}: a function, see Callback.</dd>
-     *   <dt>Shortcuts</dt> <dd>{@link #setResourceLaneTopContent(String)}: a text, as {@link TextContent}.</dd>
-     *   <dt>Default</dt>   <dd>library: no content.</dd>
-     *   <dt>Callback</dt>  <dd>{@code function(info)}.<br>
-     *                          {@code info} has {@code resource} and {@code options}, which holds only
-     *                          {@code eventOverlap}.<br>
-     *                          The library docs list {@code resource} only.</dd>
-     *   <dt>Returns</dt>   <dd>a text, {@code {html: '...'}} or {@code {domNodes: [...]}}.</dd>
+     *   <dt><b>Forms</b></dt>      <dd>{@link TextContent}: shown as text.
+     *                                  <p>{@link ContentValue#ofHtml(String)}: HTML, not escaped.
+     *                                  <p>{@link JsCallback}: a function, see JsCallback.</dd>
+     *   <dt><b>Shortcuts</b></dt>  <dd>{@link #setResourceLaneTopContent(String)}: a text, as {@link TextContent}.</dd>
+     *   <dt><b>Default</b></dt>    <dd>library: no content.</dd>
+     *   <dt><b>JsCallback</b></dt> <dd>{@code function(info)}.<br>
+     *                                  {@code info} has {@code resource} and {@code options}, which holds only
+     *                                  {@code eventOverlap}.<br>
+     *                                  The library docs list {@code resource} only.<br>
+     *                                  It returns a text, {@code {html: '...'}} or {@code {domNodes: [...]}}.</dd>
      * </dl>
      * <pre>{@code
      * calendar.options().setResourceLaneTopContent("Top");
@@ -1704,6 +1763,7 @@ class SchedulerViewOptions extends ViewOptions {
 
     /**
      * Sets a text as the content, see {@link #getResourceLaneTopContent()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param text the text, shown as text, or null to remove the option
      */
@@ -1713,6 +1773,7 @@ class SchedulerViewOptions extends ViewOptions {
 
     /**
      * Sets the content in any form, see {@link #getResourceLaneTopContent()}.
+     * <!-- OPTION DESCRIPTION PLACEHOLDER - DO NOT REMOVE. build-tools/SourcesJavadoc.java inserts it here. -->
      *
      * @param value the content or callback, or null to remove the option
      */

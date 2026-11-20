@@ -40,8 +40,8 @@ class SchedulerCalendarOptions extends CalendarOptions {
      * column shows a property of the resource and can be grouped, sized and customized. A
      * {@link ComponentResourceColumn} shows a Vaadin component per resource.
      * <p>
-     * The public setter is {@link FullCalendarSchedulerOptions#setResourceColumns(List)}. Besides the field, it binds
-     * the component columns to the calendar. The list is unmodifiable.
+     * Setting the columns with {@link FullCalendarSchedulerOptions#setResourceColumns(List)} also binds the component
+     * columns to the calendar. The getter returns an unmodifiable list.
      * <p>
      * The library default is no columns. The resource area is then a plain list of resource titles.
      * <p>
